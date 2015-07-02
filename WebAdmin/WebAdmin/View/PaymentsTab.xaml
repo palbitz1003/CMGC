@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="WebAdmin.View.PaymentsTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="670" d:DesignWidth="1024">
+    <Grid Background="#FFE5E5E5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+
+        <DataGrid Grid.Row="0"  ItemsSource="{Binding TeeTimeRequests}" AutoGenerateColumns="False" HorizontalAlignment="Center"
+                          CanUserAddRows="false" Margin="5" x:Name="TeeTimeRequestsDataGrid"  >
+            
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Players" IsReadOnly="True" Binding="{Binding Path=PlayerList}"/>
+                <DataGridTextColumn Header="Requested Time" IsReadOnly="True" Binding="{Binding Path=Preference}"/>
+                <DataGridTextColumn Header="Access Code" IsReadOnly="True" Binding="{Binding Path=AccessCode}"/>
+                <DataGridTextColumn Header="Payer Name" IsReadOnly="True" Binding="{Binding Path=PayerName}"/>
+                <DataGridTextColumn Header="Payment Due" IsReadOnly="True" Binding="{Binding Path=PaymentDue}"/>
+                <DataGridTextColumn Header="Payment Made" IsReadOnly="True" Binding="{Binding Path=PaymentMade}"/>
+                <DataGridTextColumn Header="Payment Date" IsReadOnly="True" Binding="{Binding Path=PaymentDateTime}"/>
+                <DataGridTemplateColumn Header="Paid">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=ModifiedPaid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Grid.Row="1" Grid.Column="0"  Visibility="{Binding Path=GetTournamentsVisible}">
+            <Button Name="GetTournamentsButton" 
+                VerticalAlignment="Center" HorizontalAlignment="Center" 
+                Command="{Binding Path=GetTournamentsCommand}">Get Tournaments</Button>
+        </DockPanel>
+
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Grid.Row="2" Grid.Column="0"  Visibility="{Binding Path=GotTournamentsVisible}">
+            <TextBlock VerticalAlignment="Center" Margin="5, 0, 0, 0">Tournament:</TextBlock>
+            <ComboBox Margin="5,0,0,0" ItemsSource="{Binding Path=TournamentNames}" VerticalAlignment="Center"
+                      SelectedIndex="{Binding Path=TournamentNameIndex, Mode=TwoWay}" Width="200"/>
+            <Button Margin="20,0,0,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 
+                    Command="{Binding LoadSignupsCommand}" >Load Signups</Button>
+            <Button Margin="20,0,0,0" Name="UploadToWebButton" 
+                    Command="{Binding UploadSignupsCommand}" IsEnabled="{Binding EnableUploadToWebButton}">Upload Changes to Web</Button>
+
+        </DockPanel>
+    </Grid>
+</UserControl>

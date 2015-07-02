@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="WebAdmin.View.AdminTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1024">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Row="1" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding LoginCommand}" >Login</Button>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,50,5,5" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed">Web Site and Script Folder:</TextBlock>
+        <StackPanel Grid.Row="0" Grid.Column="2" Margin="5,50,5,5" Orientation="Horizontal" Visibility="Collapsed">
+            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WebSiteTextBox" Width="300" KeyUp="WebSiteTextBox_KeyUp"></TextBox>
+            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="ScriptFolderTextBox" Width="200" Margin="20,0,0,0" KeyUp="ScriptFolderTextBox_KeyUp"></TextBox>
+        </StackPanel>
+
+        <Button Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitWaitingListCommand}" >
+            <TextBlock TextWrapping="Wrap">Upload Wait List to Web</TextBlock>
+        </Button>
+        <TextBlock Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Waiting List CSV File:</TextBlock>
+        <DockPanel Grid.Row="2" Grid.Column="2" LastChildFill="true" Margin="5" VerticalAlignment="Center">
+            <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseWaitListButton" DockPanel.Dock="Right" Click="BrowseWaitListButton_Click">Browse ...</Button>
+            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WaitListTextBox" IsReadOnly="true"></TextBox>
+        </DockPanel>
+
+        <Button Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitGHINCommand}">
+            <TextBlock TextWrapping="Wrap">Upload GHIN to Web</TextBlock>
+        </Button>
+        <TextBlock Grid.Row="3" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">GHIN CSV File:</TextBlock>
+        <DockPanel Grid.Row="3" Grid.Column="2" LastChildFill="true" Margin="5">
+            <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseGHINButton" DockPanel.Dock="Right" Click="BrowseGHINButton_Click">Browse ...</Button>
+            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="GHINTextBox" IsReadOnly="true"></TextBox>
+        </DockPanel>
+
+        <Button Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitRosterCommand}">
+            <TextBlock TextWrapping="Wrap">Add Roster Data to Web</TextBlock>
+        </Button>
+        <TextBlock Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Roster CSV File:</TextBlock>
+        <DockPanel Grid.Row="4" Grid.Column="2" LastChildFill="true" Margin="5">
+            <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseRosterButton" DockPanel.Dock="Right" Click="BrowseRosterButton_Click">Browse ...</Button>
+            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="RosterTextBox" IsReadOnly="true"></TextBox>
+        </DockPanel>
+
+        <Button Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitLocalHandicapCommand}">
+            <TextBlock TextWrapping="Wrap">Upload Local Handicap to Web</TextBlock>
+        </Button>
+        <TextBlock Grid.Row="5" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Local Handicap CSV File:</TextBlock>
+        <DockPanel Grid.Row="5" Grid.Column="2" LastChildFill="true" Margin="5">
+            <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseLocalHandicapButton" DockPanel.Dock="Right" Click="BrowseLocalHandicapButton_Click">Browse ...</Button>
+            <DatePicker  Margin="5" Name="LocalHandicapDatePicker"  DockPanel.Dock="Left"  VerticalAlignment="Center" 
+                         Text="{Binding Path=LocalHandicapDate, Mode=TwoWay}"></DatePicker>
+            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="LocalHandicapTextBox" IsReadOnly="true"></TextBox>
+        </DockPanel>
+    </Grid>
+</UserControl>
