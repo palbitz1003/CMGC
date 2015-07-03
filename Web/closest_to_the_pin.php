@@ -47,6 +47,7 @@ if ($tournamentKey) {
 	
 	$connection->close ();
 }
+
 function ShowClosestToThePin($date, $ctpArray) {
 	echo '<strong>' . date ( 'l', strtotime ( $date ) ) . '</strong><br>' . PHP_EOL;
 	
