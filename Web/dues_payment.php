@@ -2,8 +2,7 @@
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/signup functions.php';
-require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_functions.php';
-require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_descriptions_functions.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/dues_functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
@@ -21,6 +20,7 @@ $error = "";
 $GHIN = "";
 $LastName = "";
 $FullName = "";
+$playerDues = null;
 
 if (isset ( $_POST ['Player'] )) {
 	
@@ -31,15 +31,18 @@ if (isset ( $_POST ['Player'] )) {
 		$LastName = str_replace("'", "", $LastName); // remove single quotes
 	
 		// Check that both GHIN and Last Name were filled in
-		if (! empty ( $GHIN ) && empty ( $LastName )) {
+		if(empty($GHIN) && empty($LastName)){
+			$error = 'GHIN and Last Name must be filled in';
+		} else if (! empty ( $GHIN ) && empty ( $LastName )) {
 			$error = 'Last Name must be filled in';
 		} else if (empty ( $GHIN ) && ! empty ( $LastName )) {
 			$error = 'GHIN must be filled in';
 		} else if (! empty ( $GHIN ) && ! empty ( $LastName )) {
 			// TODO: Check for player already paid (may be in table but not yet paid)
-			//if (IsPlayerSignedUp ( $connection, $tournamentKey, $GHIN [$i] )) {
-			//	$errorList [$i] = 'Player ' . $GHIN [$i] . ' is already signed up';
-			//} else {
+			$playerDues = GetPlayerDues($connection, $GHIN);
+			if (!empty($playerDues) && ($playerDues->Payment > 0)) {
+				$error = 'Player ' . $LastName . ' (' . $GHIN . ') has already payed dues';
+			} else {
 				// Check that last name matches GHIN database
 				$rosterEntry = GetRosterEntry ( $connection, $GHIN );
 				if (empty ( $rosterEntry )) {
@@ -53,7 +56,7 @@ if (isset ( $_POST ['Player'] )) {
 					$LastName = $rosterEntry->LastName;
 					$FullName = $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
 				}
-			//}
+			}
 	}
 }
 
@@ -74,7 +77,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo 'Fill in your GHIN number and last name.' . PHP_EOL;
 	echo '</p>' . PHP_EOL;
 
-	echo '<p>This is only step 1.  After entering your GHIN number and last name, you will be asked to pay the yearly dues.</p>' . PHP_EOL;
+	echo '<p>This is only step 1.  After entering your GHIN number and last name and passing the verification step, you will be asked to pay the yearly dues.</p>' . PHP_EOL;
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
 	echo '<table style="border: none;">' . PHP_EOL;
@@ -88,14 +91,19 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<tr>' . PHP_EOL;
 	echo '<td style="border: none;">Last Name:</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text"';
-	echo '    name="Player[LastName]" value="' . $lastName . '"></td>' . PHP_EOL;
+	echo '    name="Player[LastName]" value="' . $LastName . '"></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
-	insert_error_line($error, 1);
+	//insert_error_line($error, 2);
 	
 	echo '</table>' . PHP_EOL;
+	
+	if(isset($error)){
+		echo '<p style="color:red;">' . PHP_EOL;
+		echo $error . PHP_EOL;
+		echo '</p>' . PHP_EOL;
+	}
 
-	echo '<input type="submit" value="Pay Yearly Dues"> <br> <br>' . PHP_EOL;
-	echo '<a href="dues_paid.php">View list of players that have paid</a>' . PHP_EOL;
+	echo '<input type="submit" value="Verify GHIN and Last Name"> <br> <br>' . PHP_EOL;
 	echo '</form>' . PHP_EOL;
 	echo '</div><!-- #content -->' . PHP_EOL;
 	echo '</div><!-- #content-container -->' . PHP_EOL;
@@ -114,7 +122,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	}
 	if($now > $endExtendedDues)
 	{
-		die("Did not expect to be making payments after " . $endExtendedDues->format('Y-m-d'));
+		die("Error: Last day for payments was " . $endExtendedDues->format('Y-m-d'));
 	}
 	if($testMode){
 		$cost = 3;
@@ -123,26 +131,63 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	$paypalDetails = GetPayPalDuesDetails($connection, $cost);
 		
 	if(!isset($paypalDetails->PayPayButton)){
-		die("No PayPal button for yearly dues $" . $cost);
+		die("Error: No PayPal button for yearly dues $" . $cost);
 	}
 
-	// TODO:
-	// The signup has no errors. Proceed to sign up the group. First create the signup entry.
-	$insertId = InsertSignUp ( $connection, $tournamentKey, $RequestedTime, $entryFees, $accessCode);
-	// echo 'insert id is: ' . $insertId . '<br>';
-	
-	// Now add the players to the signup entry
-	InsertSignUpPlayers ( $connection, $tournamentKey, $insertId, $GHIN, $FullName, $Extra );
+	if(empty($playerDues)){
+		InsertPlayerForDues($connection, $year + 1, $GHIN, $FullName);
+	}
 	
 	echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 	echo '<div id="content" role="main">' . PHP_EOL;
 
-	echo '<h2 class="entry-title" style="text-align:center">' . $tournament->Name . ' Signup Complete</h2>' . PHP_EOL;
-	echo '<p><a href="' . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>' . PHP_EOL;
+	echo '<h2 class="entry-title">Pay Yearly Dues</h2>' . PHP_EOL;
+
+	echo '<p>You must pay the dues now.  You have not payed your dues until the PayPal step is complete!</p>' . PHP_EOL;
+	echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>" . PHP_EOL;
+	echo '<p style="text-align: center;"><b>Dues: $' . number_format( $cost, 2) . '</b></p>' . PHP_EOL;
+	
+	echo '<form style="text-align:center" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">' . PHP_EOL;
+	echo '<input type="hidden" name="cmd" value="_s-xclick">' . PHP_EOL;
+	echo '<input type="hidden" name="hosted_button_id" value="' . $paypalDetails->PayPayButton . '">' . PHP_EOL;
+	echo '<input type="hidden" name="item_name" value="Yearly Dues">' . PHP_EOL;
+	echo '<input type="hidden" name="custom" value="Yearly Dues;' . $GHIN . ';' . $LastName . '">' . PHP_EOL;
+	echo '<input type="hidden" name="on0" value="Yearly Dues">' . PHP_EOL;
+	echo '<input type="hidden" name="currency_code" value="USD">' . PHP_EOL;
+	echo '<input type="hidden" name="notify_url" value="http://' . $web_site . '/' . $ipn_dues_file . '">' . PHP_EOL;
+	echo '<input type="hidden" name="return" value="http://' . $web_site . '/' . $script_folder_href . 'dues_payment_completed.php">' . PHP_EOL;
+	echo '<input type="hidden" name="rm" value="1">' . PHP_EOL;
+	echo '<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">' . PHP_EOL;
+	echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">' . PHP_EOL;
+	echo '</form>' . PHP_EOL;
 	
 	echo '</div><!-- #content -->' . PHP_EOL;
 	echo '</div><!-- #content-container -->' . PHP_EOL;
 } // end of else clause
+
+function InsertPlayerForDues($connection, $year, $ghin, $name) {
+	$sqlCmd = "INSERT INTO `Dues` VALUES (?, ?, ?, ?, NULL, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	$payment = 0.0;
+	$payerName = "";
+	$payerEmail = "";
+
+	if (! $insert->bind_param ( 'iisdss',  $year, $ghin, $name, $payment, $payerName, $payerEmail )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	// echo 'insert id is: ' . $insert->insert_id . '<br>';
+	return $insert->insert_id;
+}
 
 function GetPayPalDuesDetails($connection, $dues){
 	$sqlCmd = "SELECT * FROM `PayPalDues` WHERE `Dues` = ?";
