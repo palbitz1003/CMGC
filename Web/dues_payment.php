@@ -72,12 +72,13 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 
 	echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 	echo '<div id="content" role="main">' . PHP_EOL;
-	echo '<h2 class="entry-title">Pay Yearly Dues</h2>' . PHP_EOL;
-	echo '<p>' . PHP_EOL;
-	echo 'Fill in your GHIN number and last name.' . PHP_EOL;
-	echo '</p>' . PHP_EOL;
+	echo '<h2 class="entry-title" style="text-align:center">Pay Yearly Dues</h2>' . PHP_EOL;
+	
+	echo '<p>The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175. After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
+	echo '<p>Life members (80 and older) do not use this form. Click <a href="http://' . $web_site . '/' . $script_folder_href . 'dues_life_members.php">here</a> for instructions.</p>' . PHP_EOL;
+	echo '<p>Regular members: Fill in your GHIN and last name below.</p>' . PHP_EOL;
 
-	echo '<p>This is only step 1.  After entering your GHIN number and last name and passing the verification step, you will be asked to pay the yearly dues.</p>' . PHP_EOL;
+	echo '<p>This is only step 1.  After entering your GHIN number and last name and passing the verification step, you will be shown a page with a PayPal button to pay the yearly dues.</p>' . PHP_EOL;
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
 	echo '<table style="border: none;">' . PHP_EOL;
@@ -103,7 +104,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 		echo '</p>' . PHP_EOL;
 	}
 
-	echo '<input type="submit" value="Verify GHIN and Last Name"> <br> <br>' . PHP_EOL;
+	echo '<input type="submit" value="Step 1: Verify GHIN and Last Name"> <br> <br>' . PHP_EOL;
 	echo '</form>' . PHP_EOL;
 	echo '</div><!-- #content -->' . PHP_EOL;
 	echo '</div><!-- #content-container -->' . PHP_EOL;
@@ -136,13 +137,17 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 
 	if(empty($playerDues)){
 		InsertPlayerForDues($connection, $year + 1, $GHIN, $FullName);
+		
+		// for testing
+		//UpdateDatabase($connection, $GHIN, 150, "Player 1", "Player Email", "original string from paypal");
+		//SendDuesEmail($connection, $GHIN, 150, $web_site);
 	}
 	
 	echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 	echo '<div id="content" role="main">' . PHP_EOL;
 
-	echo '<h2 class="entry-title">Pay Yearly Dues</h2>' . PHP_EOL;
-
+	echo '<h2 class="entry-title" style="text-align:center">Pay Yearly Dues</h2>' . PHP_EOL;
+	
 	echo '<p>You must pay the dues now.  You have not payed your dues until the PayPal step is complete!</p>' . PHP_EOL;
 	echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>" . PHP_EOL;
 	echo '<p style="text-align: center;"><b>Dues: $' . number_format( $cost, 2) . '</b></p>' . PHP_EOL;
@@ -166,7 +171,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 } // end of else clause
 
 function InsertPlayerForDues($connection, $year, $ghin, $name) {
-	$sqlCmd = "INSERT INTO `Dues` VALUES (?, ?, ?, ?, NULL, ?, ?)";
+	$sqlCmd = "INSERT INTO `Dues` VALUES (?, ?, ?, ?, NULL, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 
 	if (! $insert) {
@@ -176,17 +181,17 @@ function InsertPlayerForDues($connection, $year, $ghin, $name) {
 	$payment = 0.0;
 	$payerName = "";
 	$payerEmail = "";
+	$rigs = false;
 
-	if (! $insert->bind_param ( 'iisdss',  $year, $ghin, $name, $payment, $payerName, $payerEmail )) {
+	if (! $insert->bind_param ( 'iisdssi',  $year, $ghin, $name, $payment, $payerName, $payerEmail, $rigs )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 
 	if (! $insert->execute ()) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
-
-	// echo 'insert id is: ' . $insert->insert_id . '<br>';
-	return $insert->insert_id;
+	
+	$insert->close();
 }
 
 function GetPayPalDuesDetails($connection, $dues){
@@ -216,6 +221,73 @@ function GetPayPalDuesDetails($connection, $dues){
 	$payPal->close ();
 
 	return $details;
+}
+
+function UpdateDatabase($connection, $ghin, $payment, $payerName, $payerEmail, $logMessage){
+
+	if (!file_exists('./logs')) {
+		mkdir('./logs', 0755, true);
+	}
+	
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+	
+	$logFile = "./logs/dues." . $year . ".log";
+	error_log(date ( '[Y-m-d H:i e] ' ) . $logMessage . PHP_EOL, 3, $logFile);
+
+	if ($connection->connect_error){
+		error_log(date ( '[Y-m-d H:i e] ' ) . $connection->connect_error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	$player = GetPlayerDues($connection, $ghin);
+	if(empty($player)){
+		error_log(date ( '[Y-m-d H:i e] ' ) . "Failed to find ghin " . $ghin . " in the dues table." . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	// Duplicate the UpdateSignup code here so the die messages can be replace with log messages
+	$sqlCmd = "UPDATE `Dues` SET `Payment`= ?, `PaymentDateTime`= ?, `PayerName`= ?, `PayerEmail`= ?, `RIGS` = 0 WHERE `GHIN` = ?";
+	$update = $connection->prepare ( $sqlCmd );
+
+	if (! $update) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " prepare failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	$date = date ( 'Y-m-d H:i:s' );
+	if (! $update->bind_param ( 'dsssi',  $payment, $date, $payerName, $payerEmail, $ghin)) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " bind_param failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	if (! $update->execute ()) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " execute failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+	}
+	$update->close ();
+
+	error_log(date ( '[Y-m-d H:i e] ' ) . "Updated player " . $player->Name . " payment to " . $payment . PHP_EOL, 3, $logFile);
+}
+
+function SendDuesEmail($connection, $ghin, $payment, $web_site){
+
+	$rosterEntry = GetRosterEntry ( $connection, $ghin );
+	if(empty($rosterEntry)){
+		return "Did not find a player for ghin: " . $ghin;
+	}
+	
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+
+	// compose message
+	$message = "You have paid your dues ($" . $payment . ") for the Coronado Men's Golf Club for " . $year;
+	
+	if(!empty($rosterEntry) && !empty($rosterEntry->Email)){
+		mail($rosterEntry->Email, "Coronado Men's Golf Club yearly dues", $message, "From: DoNotReply@" . $web_site);
+	}
+	
+	return null;
 }
 
 if (isset ( $connection )) {

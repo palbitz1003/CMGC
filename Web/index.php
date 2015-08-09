@@ -16,6 +16,8 @@ if ($connection->connect_error)
 echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
+ShowDues($script_folder_href);
+
 $currentTournaments = GetCurrentTournaments ( $connection );
 if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 	$now = new DateTime ( "now" );
@@ -93,6 +95,26 @@ if (have_posts()) {
 
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
+
+function ShowDues($script_folder_href){
+
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y');
+	
+	$startDues = new DateTime($year . '-08-01');
+	$endExtendedDues = new DateTime($year . '-11-01');
+	
+	if(($now >= $startDues) && ($now < $endExtendedDues))
+	{
+		echo '<h2>Yearly Dues Payment</h2>';
+		echo '<p style="margin-left:30px;">The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175. After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
+		echo '<p style="margin-left:30px;font-size:large;">' . PHP_EOL;
+		echo '<a href="' . $script_folder_href . 'dues_payment.php">Pay Dues</a>&nbsp;&nbsp;&nbsp;&nbsp;'. PHP_EOL;
+		echo '<a href="' . $script_folder_href . 'dues_paid.php">View Paid List</a>'. PHP_EOL;
+		echo '</p>' . PHP_EOL;
+	}
+
+}
 
 get_sidebar ();
 get_footer ();
