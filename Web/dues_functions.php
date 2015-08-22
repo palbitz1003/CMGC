@@ -1,4 +1,5 @@
 <?php
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/signup functions.php';
 
 class Dues {
 	public $Year;
@@ -91,5 +92,75 @@ function GetPlayersDuesPaid($connection) {
 	$player->close ();
 
 	return $players;
+}
+
+function UpdateDuesDatabase($connection, $ghin, $payment, $payerName, $payerEmail, $logMessage){
+
+	if (!file_exists('./logs')) {
+		mkdir('./logs', 0755, true);
+	}
+
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+
+	$logFile = "./logs/dues." . $year . ".log";
+	error_log(date ( '[Y-m-d H:i e] ' ) . $logMessage . PHP_EOL, 3, $logFile);
+
+	if ($connection->connect_error){
+		error_log(date ( '[Y-m-d H:i e] ' ) . $connection->connect_error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	$player = GetPlayerDues($connection, $ghin);
+	if(empty($player)){
+		error_log(date ( '[Y-m-d H:i e] ' ) . "Failed to find ghin " . $ghin . " in the dues table." . PHP_EOL, 3, $logFile);
+		return;
+	}
+	
+	// Add to the current amount to handle the refund case
+	$payment = $payment + $player->Payment;
+
+	// Duplicate the code here so the die messages can be replace with log messages
+	$sqlCmd = "UPDATE `Dues` SET `Payment`= ?, `PaymentDateTime`= ?, `PayerName`= ?, `PayerEmail`= ?, `RIGS` = 0 WHERE `GHIN` = ?";
+	$update = $connection->prepare ( $sqlCmd );
+
+	if (! $update) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " prepare failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	$date = date ( 'Y-m-d H:i:s' );
+	if (! $update->bind_param ( 'dsssi',  $payment, $date, $payerName, $payerEmail, $ghin)) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " bind_param failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	if (! $update->execute ()) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " execute failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+	}
+	$update->close ();
+
+	error_log(date ( '[Y-m-d H:i e] ' ) . "Updated player " . $player->Name . " payment to " . $payment . PHP_EOL, 3, $logFile);
+}
+
+function SendDuesEmail($connection, $ghin, $payment, $web_site){
+
+	$rosterEntry = GetRosterEntry ( $connection, $ghin );
+	if(empty($rosterEntry)){
+		return "Did not find a player for ghin: " . $ghin;
+	}
+
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+
+	// compose message
+	$message = "You have paid your dues ($" . $payment . ") for the Coronado Men's Golf Club for " . $year;
+
+	if(!empty($rosterEntry) && !empty($rosterEntry->Email)){
+		mail($rosterEntry->Email, "Coronado Men's Golf Club yearly dues", $message, "From: DoNotReply@" . $web_site);
+	}
+
+	return null;
 }
 ?>

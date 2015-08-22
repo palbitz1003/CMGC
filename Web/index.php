@@ -30,7 +30,7 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		
 		$startSignUp = new DateTime ( $currentTournaments[$i]->SignupStartDate);
 		$endSignUp = new DateTime($currentTournaments[$i]->SignupEndDate);
-		$endSignUp->add(new DateInterval ( 'PT16H00M' )); // 4pm
+		$endSignUp->add(new DateInterval ( 'PT12H00M' )); // noon
 		$endSignUpFriendlyDate = date ( 'M d', strtotime ( $currentTournaments[$i]->SignupEndDate ));
 		
 		//echo 'now ' . $now->format('M d G') . '<br>';
@@ -101,7 +101,7 @@ function ShowDues($script_folder_href){
 	$now = new DateTime ( "now" );
 	$year = $now->format('Y');
 	
-	$startDues = new DateTime($year . '-08-01');
+	$startDues = new DateTime($year . '-09-01');
 	$endExtendedDues = new DateTime($year . '-11-01');
 	
 	if(($now >= $startDues) && ($now < $endExtendedDues))
