@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:WebAdmin"
         xmlns:localView="clr-namespace:WebAdmin.View"
         xmlns:localViewModel="clr-namespace:WebAdmin.ViewModel"
-        Title="WebAdmin 1.11" Height="670" Width="1024">
+        Title="WebAdmin 1.12" Height="670" Width="1024">
     <DockPanel LastChildFill="True">
         <StatusBar DockPanel.Dock="Bottom" Visibility="Collapsed">
             <StatusBarItem>
