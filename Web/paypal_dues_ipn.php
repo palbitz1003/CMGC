@@ -137,9 +137,9 @@ if (strcmp ( $res, "VERIFIED" ) == 0) {
 		UpdateDuesDatabase($connection, $ghin, $payment_amount, $payerName, $payerEmail, $logMessage);
 		
 		// Send email if the payment amount is positive (not a refund)
-		if($payment_amount > 0){
-			SendDuesEmail($connection, $ghin, $payment_amount, $web_site);
-		}
+		//if($payment_amount > 0){
+		//	SendDuesEmail($connection, $ghin, $payment_amount, $web_site);
+		//}
 		
 		$connection->close();
 	}

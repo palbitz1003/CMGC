@@ -7,9 +7,9 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 $testMode = false;
-if($_GET ['mode'] == "test"){
-	$testMode = true;
-}
+//if($_GET ['mode'] == "test"){
+//	$testMode = true;
+//}
 
 $connection = new mysqli ( $db_hostname, $db_username, $db_password, $db_database );
 
