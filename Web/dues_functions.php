@@ -57,6 +57,30 @@ function GetPlayerDues($connection, $playerGHIN) {
 	return $playerDues;
 }
 
+function InsertPlayerForDues($connection, $year, $ghin, $name) {
+	$sqlCmd = "INSERT INTO `Dues` VALUES (?, ?, ?, ?, NULL, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	$payment = 0.0;
+	$payerName = "";
+	$payerEmail = "";
+	$rigs = false;
+
+	if (! $insert->bind_param ( 'iisdssi',  $year, $ghin, $name, $payment, $payerName, $payerEmail, $rigs )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$insert->close();
+}
+
 function GetPlayersDuesPaid($connection) {
 
 	$sqlCmd = "SELECT * FROM `Dues` WHERE `Payment` > 0 ORDER BY `Name` ASC";

@@ -169,30 +169,6 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '</div><!-- #content-container -->' . PHP_EOL;
 } // end of else clause
 
-function InsertPlayerForDues($connection, $year, $ghin, $name) {
-	$sqlCmd = "INSERT INTO `Dues` VALUES (?, ?, ?, ?, NULL, ?, ?, ?)";
-	$insert = $connection->prepare ( $sqlCmd );
-
-	if (! $insert) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
-	
-	$payment = 0.0;
-	$payerName = "";
-	$payerEmail = "";
-	$rigs = false;
-
-	if (! $insert->bind_param ( 'iisdssi',  $year, $ghin, $name, $payment, $payerName, $payerEmail, $rigs )) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
-	}
-
-	if (! $insert->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
-	}
-	
-	$insert->close();
-}
-
 function GetPayPalDuesDetails($connection, $dues){
 	$sqlCmd = "SELECT * FROM `PayPalDues` WHERE `Dues` = ?";
 	$payPal = $connection->prepare ( $sqlCmd );
