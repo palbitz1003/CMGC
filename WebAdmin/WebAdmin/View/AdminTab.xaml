@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100"/>
@@ -65,5 +66,22 @@
                          Text="{Binding Path=LocalHandicapDate, Mode=TwoWay}"></DatePicker>
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="LocalHandicapTextBox" IsReadOnly="true"></TextBox>
         </DockPanel>
+
+        <Button Grid.Row="6" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding GetDuesCommand}">
+            <TextBlock TextWrapping="Wrap">Get Dues</TextBlock>
+        </Button>
+        <Button Grid.Row="6" Grid.Column="1" Margin="5" VerticalAlignment="Center" Command="{Binding PayDuesCommand}">
+            <TextBlock TextWrapping="Wrap">Pay  Dues</TextBlock>
+        </Button>
+        <StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal">
+            <TextBlock Margin="5" VerticalAlignment="Center">Player</TextBlock>
+            <TextBox Margin="5" Width="150" x:Name="PlayerNameTextBox" Text="{Binding Path=PlayerName, Mode=TwoWay}" 
+                 KeyDown="PlayerNameTextBox_KeyDown" TextChanged="PlayerNameTextBox_TextChanged" LostFocus="PlayerNameTextBox_LostFocus"/>
+            <TextBlock Width="150" Margin="5" VerticalAlignment="Center" x:Name="AutoCompleteFeedback"/>
+            <TextBlock Margin="5" VerticalAlignment="Center">GHIN</TextBlock>
+            <TextBox Margin="5" Width="70" x:Name="PlayerGhinTextBox" Text="{Binding Path=PlayerGHIN, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Margin="5" VerticalAlignment="Center">Amount</TextBlock>
+            <TextBox Margin="5" Width="50" x:Name="PlayerDuesTextBox" Text="{Binding Path=PlayerDues, Mode=TwoWay}"></TextBox>
+        </StackPanel>
     </Grid>
 </UserControl>

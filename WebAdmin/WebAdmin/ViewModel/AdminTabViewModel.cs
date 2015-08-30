@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.ComponentModel;
+using System.Web.Script.Serialization;
+using System.Windows;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -20,6 +24,15 @@ namespace WebAdmin.ViewModel
 
         private DateTime _localHandicapDate;
         public DateTime LocalHandicapDate { get { return _localHandicapDate; } set { _localHandicapDate = value; OnPropertyChanged("LocalHandicapDate"); } }
+
+        private string _playerName;
+        public string PlayerName { get { return _playerName; } set { _playerName = value; OnPropertyChanged("PlayerName"); } }
+
+        private string _playerGHIN;
+        public string PlayerGHIN { get { return _playerGHIN; } set { _playerGHIN = value; OnPropertyChanged("PlayerGHIN"); } }
+
+        private string _playerDues;
+        public string PlayerDues { get { return _playerDues; } set { _playerDues = value; OnPropertyChanged("PlayerDues"); } }
         #endregion
 
         #region Commands
@@ -28,6 +41,8 @@ namespace WebAdmin.ViewModel
         public ICommand SubmitGHINCommand { get { return new ModelCommand(s => SubmitGHIN(s)); } }
         public ICommand SubmitLocalHandicapCommand { get { return new ModelCommand(s => SubmitLocalHandicap(s)); } }
         public ICommand LoginCommand { get { return new ModelCommand(s => Login(s)); } }
+        public ICommand GetDuesCommand { get { return new ModelCommand(s => GetDues(s)); } }
+        public ICommand PayDuesCommand { get { return new ModelCommand(s => PayDues(s)); } }
         #endregion
 
         private void Login(object s)
@@ -618,5 +633,105 @@ namespace WebAdmin.ViewModel
             return entries;
         }
         #endregion
+
+        private async void GetDues(object s)
+        {
+            if(string.IsNullOrEmpty(PlayerName))
+            {
+                MessageBox.Show("Fill in the player name");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(PlayerGHIN))
+            {
+                MessageBox.Show("Fill in the player GHIN");
+                return;
+            }
+
+            LoadDuesFromWeb();
+        }
+
+        private async void PayDues(object s)
+        {
+            if (string.IsNullOrEmpty(PlayerName))
+            {
+                MessageBox.Show("Fill in the player name");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(PlayerGHIN))
+            {
+                MessageBox.Show("Fill in the player GHIN");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(PlayerDues))
+            {
+                MessageBox.Show("Fill in the dues amount");
+                return;
+            }
+
+            // cancelled password input
+            if (string.IsNullOrEmpty(Credentials.LoginPassword))
+            {
+                return;
+            }
+
+            SubmitDues();
+        }
+
+        private async void LoadDuesFromWeb()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
+
+                using (new WaitCursor())
+                {
+                    var values = new List<KeyValuePair<string, string>>();
+
+                    values.Add(new KeyValuePair<string, string>("GHIN", PlayerGHIN));
+
+                    var content = new FormUrlEncodedContent(values);
+
+                    var response = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetDues, content);
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    Logging.Log("LoadDuesFromWeb", responseString);
+
+                    var jss = new JavaScriptSerializer();
+                    WebDues dues = jss.Deserialize<WebDues>(responseString);
+
+                    PlayerDues = dues.Payment.ToString();
+
+                }
+            }
+        }
+
+        private async void SubmitDues()
+        {
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
+
+                var values = new List<KeyValuePair<string, string>>();
+
+                values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
+                values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
+
+                values.Add(new KeyValuePair<string, string>("GHIN", PlayerGHIN));
+                values.Add(new KeyValuePair<string, string>("Name", PlayerName));
+                values.Add(new KeyValuePair<string, string>("Payment", PlayerDues));
+
+                bool sent = await HttpSend(client, HtmlRequestType.Post, values,
+                    WebAddresses.ScriptFolder + WebAddresses.SubmitDues);
+
+                if (sent)
+                {
+                    System.Windows.MessageBox.Show("Dues updated");
+                }
+            }
+        }
     }
 }

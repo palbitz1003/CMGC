@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -22,6 +23,21 @@ namespace WebAdmin.View
     /// </summary>
     public partial class AdminTab : UserControl
     {
+
+        private List<GHINEntry> _ghinList = null;
+
+        #region PropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+        #endregion
+
         public AdminTab()
         {
             InitializeComponent();
@@ -172,6 +188,70 @@ namespace WebAdmin.View
             WebAddresses.ScriptFolder = string.IsNullOrEmpty(TabViewModelBase.Options.ScriptFolder)
                 ? string.Empty
                 : "/" + TabViewModelBase.Options.ScriptFolder;
+        }
+
+        private void LoadGHIN()
+        {
+            try
+            {
+                if ((_ghinList == null) && 
+                    !string.IsNullOrEmpty(TabViewModelBase.Options.GHINFileName) && 
+                    File.Exists(TabViewModelBase.Options.GHINFileName))
+                {
+                    _ghinList = GHINEntry.LoadGHIN(TabViewModelBase.Options.GHINFileName);
+                }
+            }
+            catch
+            {
+                // no error
+            }
+        }
+
+        private void PlayerNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                if (!string.IsNullOrEmpty(AutoCompleteFeedback.Text))
+                {
+                    PlayerNameTextBox.Text = AutoCompleteFeedback.Text;
+                    AutoCompleteFeedback.Text = string.Empty;
+                    e.Handled = true;
+                }
+                PlayerDuesTextBox.Text = string.Empty;
+            }
+        }
+
+        private void PlayerNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            LoadGHIN();
+
+            if (!string.IsNullOrEmpty(PlayerNameTextBox.Text) && (_ghinList != null))
+            {
+                foreach (var player in _ghinList)
+                {
+                    if (player.LastNameFirstName.StartsWith(PlayerNameTextBox.Text, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        AutoCompleteFeedback.Text = player.LastNameFirstName;
+                        PlayerGhinTextBox.Text = player.GHIN.ToString();
+                        OnPropertyChanged("PlayerGHIN");
+                        return;
+                    }
+                }
+            }
+
+            AutoCompleteFeedback.Text = null;
+            PlayerGhinTextBox.Text = string.Empty;
+            PlayerDuesTextBox.Text = string.Empty;
+        }
+
+        private void PlayerNameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(AutoCompleteFeedback.Text))
+            {
+                PlayerNameTextBox.Text = AutoCompleteFeedback.Text;
+                AutoCompleteFeedback.Text = string.Empty;
+            }
+            PlayerDuesTextBox.Text = string.Empty;
         }
     }
 }

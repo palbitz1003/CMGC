@@ -41,6 +41,14 @@ namespace WebAdmin
             _loginName = "DbAdmin";
         }
 
+        public void Init()
+        {
+            if (string.IsNullOrEmpty(_loginName) || string.IsNullOrEmpty(_loginPassword))
+            {
+                GetLoginAndPassword();
+            }
+        }
+
         public void GetLoginAndPassword()
         {
             CredentialsDialog cd = new CredentialsDialog();

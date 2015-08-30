@@ -22,6 +22,7 @@ namespace WebAdmin
         public const string SubmitTournamentDescription = "/submit_tournament_description.php";
         public const string SubmitSignUpsWaitingList = "/submit_signups_waiting_list.php";
         public const string SubmitSignUps = "/submit_signups.php";
+        public const string SubmitDues = "/submit_dues_payment.php";
 
         public const string GetSignups = "/get_signups.php";
         public const string GetTeeTimes = "/get_tee_times.php";
@@ -30,5 +31,6 @@ namespace WebAdmin
         public const string GetClosestToThePin = "/get_closest_to_the_pin.php";
         public const string GetTournamentDescriptions = "/get_tournament_descriptions.php";
         public const string GetSignUpsWaitingList = "/get_signups_waiting_list.php";
+        public const string GetDues = "/get_dues_paid_json.php";
     }
 }
