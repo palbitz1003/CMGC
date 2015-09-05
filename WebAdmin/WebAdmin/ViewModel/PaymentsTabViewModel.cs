@@ -22,6 +22,12 @@ namespace WebAdmin.ViewModel
         private Visibility _gotTournamentsVisible;
         public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged("GotTournamentsVisible"); } }
 
+        private float _paymentsMade;
+        public float PaymentsMade { get { return _paymentsMade; } set { _paymentsMade = value; OnPropertyChanged("PaymentsMade"); } }
+
+        private float _paymentsDue;
+        public float PaymentsDue { get { return _paymentsDue; } set { _paymentsDue = value; OnPropertyChanged("PaymentsDue"); } }
+
         private bool _enableUploadToWebButton;
 
         public bool EnableUploadToWebButton
@@ -121,6 +127,9 @@ namespace WebAdmin.ViewModel
 
         private async void UploadToWeb(object o)
         {
+            PaymentsDue = 0;
+            PaymentsMade = 0;
+
             List<TeeTimeRequest> modifiedEntries = new List<TeeTimeRequest>();
             foreach (var teeTimeRequest in TeeTimeRequests)
             {
@@ -136,6 +145,9 @@ namespace WebAdmin.ViewModel
                     teeTimeRequest.PaymentMade = 0;
                     teeTimeRequest.Paid = teeTimeRequest.ModifiedPaid;
                 }
+
+                PaymentsDue += teeTimeRequest.PaymentDue;
+                PaymentsMade += teeTimeRequest.PaymentMade;
             }
 
             if (modifiedEntries.Count == 0)
@@ -227,10 +239,14 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequests.Clear();
                     List<TeeTimeRequest> ttr = LoadSignupsFromWebResponse(responseString);
 
+                    PaymentsDue = 0;
+                    PaymentsMade = 0;
                     TrulyObservableCollection<TeeTimeRequest> ttr2 = new TrulyObservableCollection<TeeTimeRequest>();
                     foreach (var teeTimeRequest in ttr)
                     {
                         ttr2.Add(teeTimeRequest);
+                        PaymentsDue += teeTimeRequest.PaymentDue;
+                        PaymentsMade += teeTimeRequest.PaymentMade;
                     }
                     TeeTimeRequests = ttr2;
                     ttr2.CollectionChanged += TeeTimeRequests_CollectionChanged;

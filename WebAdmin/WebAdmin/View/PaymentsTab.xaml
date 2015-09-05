@@ -17,13 +17,6 @@
                           CanUserAddRows="false" Margin="5" x:Name="TeeTimeRequestsDataGrid"  >
             
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Players" IsReadOnly="True" Binding="{Binding Path=PlayerList}"/>
-                <DataGridTextColumn Header="Requested Time" IsReadOnly="True" Binding="{Binding Path=Preference}"/>
-                <DataGridTextColumn Header="Access Code" IsReadOnly="True" Binding="{Binding Path=AccessCode}"/>
-                <DataGridTextColumn Header="Payer Name" IsReadOnly="True" Binding="{Binding Path=PayerName}"/>
-                <DataGridTextColumn Header="Payment Due" IsReadOnly="True" Binding="{Binding Path=PaymentDue}"/>
-                <DataGridTextColumn Header="Payment Made" IsReadOnly="True" Binding="{Binding Path=PaymentMade}"/>
-                <DataGridTextColumn Header="Payment Date" IsReadOnly="True" Binding="{Binding Path=PaymentDateTime}"/>
                 <DataGridTemplateColumn Header="Paid">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -31,6 +24,13 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Players" IsReadOnly="True" Binding="{Binding Path=PlayerList}"/>
+                <DataGridTextColumn Header="Requested Time" IsReadOnly="True" Binding="{Binding Path=Preference}"/>
+                <DataGridTextColumn Header="Access Code" IsReadOnly="True" Binding="{Binding Path=AccessCode}"/>
+                <DataGridTextColumn Header="Payer Name" IsReadOnly="True" Binding="{Binding Path=PayerName}"/>
+                <DataGridTextColumn Header="Payment Due" IsReadOnly="True" Binding="{Binding Path=PaymentDue}"/>
+                <DataGridTextColumn Header="Payment Made" IsReadOnly="True" Binding="{Binding Path=PaymentMade}"/>
+                <DataGridTextColumn Header="Payment Date" IsReadOnly="True" Binding="{Binding Path=PaymentDateTime}"/>
             </DataGrid.Columns>
         </DataGrid>
 
@@ -49,7 +49,10 @@
                     Command="{Binding LoadSignupsCommand}" >Load Signups</Button>
             <Button Margin="20,0,0,0" Name="UploadToWebButton" 
                     Command="{Binding UploadSignupsCommand}" IsEnabled="{Binding EnableUploadToWebButton}">Upload Changes to Web</Button>
-
+            <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">Payments Due: </TextBlock>
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding PaymentsDue}"></TextBlock>
+            <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">Payments Made:</TextBlock>
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding PaymentsMade}"></TextBlock>
         </DockPanel>
     </Grid>
 </UserControl>
