@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Net.Http;
+using System.Web.Script.Serialization;
 using WebAdmin.View;
 
 namespace WebAdmin.ViewModel
@@ -128,67 +129,24 @@ namespace WebAdmin.ViewModel
 
         protected void LoadTournamentNamesFromWebResponse(
             string webResponse, 
-            TrulyObservableCollection<TournamentName> tournamentNames)
+            TrulyObservableCollection<TournamentName> tournamentNames,
+            bool loadAll)
         {
             tournamentNames.Clear();
 
-            string[] lines = webResponse.Split('\n');
-            int lineNumber = 0;
-            foreach (string line in lines)
+            var jss = new JavaScriptSerializer();
+            TournamentName[] names = jss.Deserialize<TournamentName[]>(webResponse);
+
+            foreach (var tournamentName in names)
             {
-                lineNumber++;
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                TournamentName tournamentName = new TournamentName();
-
-                string[] fields = line.Split(',');
-                if (fields.Length < 6)
+                if (loadAll)
                 {
-                    throw new ArgumentException(string.Format("Website response: line {0}: not enough fields {1}", lineNumber, line));
+                    tournamentNames.Add(tournamentName);
                 }
-
-                int key;
-                if (!int.TryParse(fields[0], out key))
+                else if (tournamentName.StartDate.AddYears(1) > DateTime.Now)
                 {
-                    throw new ArgumentException(string.Format("Website response: line {0}: key field is not an integer {1}", lineNumber, line));
+                    tournamentNames.Add(tournamentName);
                 }
-                tournamentName.TournamentKey = key;
-                tournamentName.Name = fields[1];
-                
-
-                DateTime startDate;
-                if (!DateTime.TryParse(fields[2], out startDate))
-                {
-                    throw new ArgumentException(string.Format("Tournament {0}: bad start date {1}",
-                        tournamentName.Name, fields[2]));
-                }
-                tournamentName.StartDate = startDate;
-
-                DateTime endDate;
-                if (!DateTime.TryParse(fields[3], out endDate))
-                {
-                    throw new ArgumentException(string.Format("Tournament {0}: bad end date {1}",
-                        tournamentName.Name, fields[3]));
-                }
-                tournamentName.EndDate = endDate;
-
-                DateTime signupStartDate;
-                if (!DateTime.TryParse(fields[4], out signupStartDate))
-                {
-                    throw new ArgumentException(string.Format("Tournament {0}: bad signup start date {1}",
-                        tournamentName.Name, fields[4]));
-                }
-                tournamentName.SignupStartDate = signupStartDate;
-
-                int eclectic;
-                if(!int.TryParse(fields[5], out eclectic))
-                {
-                    throw new ArgumentException(string.Format("Tournament {0}: bad eclectic field {1}",
-                        tournamentName.Name, fields[5]));
-                }
-                tournamentName.IsEclectic = eclectic == 1;
-
-                tournamentNames.Add(tournamentName);
             }
 
             OnTournamentsUpdated();

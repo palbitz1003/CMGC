@@ -280,7 +280,7 @@ namespace WebAdmin.ViewModel
         {
             string responseString = await GetTournamentNames();
 
-            LoadTournamentNamesFromWebResponse(responseString, TournamentNames);
+            LoadTournamentNamesFromWebResponse(responseString, TournamentNames, false);
         }
 
         protected override void OnTournamentsUpdated()

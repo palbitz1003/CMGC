@@ -26,7 +26,7 @@ namespace WebAdmin
 
         public const string GetSignups = "/get_signups.php";
         public const string GetTeeTimes = "/get_tee_times.php";
-        public const string GetTournamentNames = "/get_tournament_names.php";
+        public const string GetTournamentNames = "/get_tournament_names_json.php";
         public const string GetTournament = "/get_tournament.php";
         public const string GetClosestToThePin = "/get_closest_to_the_pin.php";
         public const string GetTournamentDescriptions = "/get_tournament_descriptions.php";

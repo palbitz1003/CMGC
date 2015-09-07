@@ -24,6 +24,18 @@ namespace WebAdmin.ViewModel
             get { return "Tournament"; }
         }
 
+        private bool _showAllTournamentNames;
+        public bool ShowAllTournamentNames
+        {
+            get { return _showAllTournamentNames; }
+            set 
+            { 
+                _showAllTournamentNames = value; 
+                OnPropertyChanged("ShowAllTournamentNames");
+                ShowTournamentNames();
+            }
+        }
+
         private int _tournamentNameIndex;
 
         public int TournamentNameIndex
@@ -40,6 +52,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
+        private TrulyObservableCollection<TournamentName> _allTournamentNames;
         private TrulyObservableCollection<TournamentName> _tournamentNames;
 
         public TrulyObservableCollection<TournamentName> TournamentNames
@@ -142,7 +155,7 @@ namespace WebAdmin.ViewModel
         public TournamentTabViewModel()
         {
             Tournament = new WebAdmin.Tournament();
-            TournamentNames = new TrulyObservableCollection<TournamentName>();
+            _allTournamentNames = new TrulyObservableCollection<TournamentName>();
 
             TournamentDescriptionNames = new TrulyObservableCollection<WebAdmin.TournamentDescription>();
             TournamentDescription = new TournamentDescription();
@@ -194,7 +207,29 @@ namespace WebAdmin.ViewModel
         {
             string responseString = await GetTournamentNames();
 
-            LoadTournamentNamesFromWebResponse(responseString, TournamentNames);
+            LoadTournamentNamesFromWebResponse(responseString, _allTournamentNames, true);
+
+            ShowTournamentNames();
+        }
+
+        private void ShowTournamentNames()
+        {
+            if (ShowAllTournamentNames)
+            {
+                TournamentNames = _allTournamentNames;
+            }
+            else
+            {
+                TournamentNames = new TrulyObservableCollection<TournamentName>();
+
+                foreach (var tournamentName in _allTournamentNames)
+                {
+                    if (tournamentName.StartDate.AddYears(1) > DateTime.Now)
+                    {
+                        TournamentNames.Add(tournamentName);
+                    }
+                }
+            }
         }
 
         protected override void OnTournamentsUpdated()
