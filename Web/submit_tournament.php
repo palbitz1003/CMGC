@@ -48,7 +48,8 @@ if ($_POST ['Action'] == 'Delete') {
 	$t->RequirePayment = $_POST ['RequirePayment'];
 	$t->SCGAQualifier = $_POST ['SCGAQualifier'];
 	$t->SrClubChampionship = $_POST ['SrClubChampionship'];
-	$t->OnlineSignUp = true;
+	$t->OnlineSignUp = 1;
+	$t->MatchPlay = 0;
 	
 	// var_dump($t);
 	

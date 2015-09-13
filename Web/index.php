@@ -1,6 +1,7 @@
 <?php
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_functions.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/results_functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
@@ -73,8 +74,16 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		}
 		
 		echo '</tr>' . PHP_EOL;
+		
+		if($currentTournaments[$i]->MatchPlay == 1){
+			echo '<tr><td style="border:none" colspan="6">' . PHP_EOL;
+			ShowMatchResults($connection, $currentTournaments[$i]->TournamentKey);
+			echo '</td></tr>' . PHP_EOL;
+		}
 	}
 	echo '</table>' . PHP_EOL;
+	
+	
 }
 
 ShowRecentlyCompletedTournaments($connection, $script_folder_href);
@@ -107,7 +116,8 @@ function ShowDues($script_folder_href){
 	if(($now >= $startDues) && ($now < $endExtendedDues))
 	{
 		echo '<h2>Yearly Dues Payment</h2>';
-		echo '<p style="margin-left:30px;">The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175. After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
+		echo '<p style="margin-left:30px;">The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175. After Oct 31, you will be dropped from membership automatically. ';
+		echo '(See message below from VP & Membership Chair Monty A. McIntyre)</p>' . PHP_EOL;
 		echo '<p style="margin-left:30px;font-size:large;">' . PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_payment.php">Pay Dues</a>&nbsp;&nbsp;&nbsp;&nbsp;'. PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_paid.php">View Paid List</a>'. PHP_EOL;

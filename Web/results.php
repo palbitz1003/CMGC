@@ -48,8 +48,12 @@ if ($tournamentKey) {
 					ShowFile($web_site, $td->ScoresFile);
 				}
 				else {
-					$scoresResults = GetScoresResults($connection, $tournamentKey, $t->Stableford);
-					ShowScoresResults($scoresResults, $t->Stableford, $t->StartDate !== $t->EndDate);
+					if($t->MatchPlay){
+						ShowMatchResults($connection, $t->TournamentKey);
+					} else {
+						$scoresResults = GetScoresResults($connection, $tournamentKey, $t->Stableford);
+						ShowScoresResults($scoresResults, $t->Stableford, $t->StartDate !== $t->EndDate);
+					}
 				}
 				break;
 				case 'chits' :

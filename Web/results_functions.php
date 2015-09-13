@@ -53,6 +53,13 @@ class Scores {
 	public $TeamNumber;
 	public $Date;
 }
+class Match {
+	public $TournamentKey;
+	public $Round;
+	public $MatchNumber;
+	public $Name1;
+	public $Name2;
+}
 function ShowResultsHeader($connection, $tournament, $result, $script_folder_href)
 {
 	$year = date ( 'Y', strtotime ( $tournament->StartDate ) );
@@ -425,4 +432,76 @@ function GetScoresResults($connection, $tournamentKey, $stableford)
 
 	return $scoresArray;
 }
+function ShowMatchResults($connection, $tournamentKey)
+{
+	echo '<svg height="420" width="850">' . PHP_EOL;
+	
+	for($round = 1; $round <= 4; ++$round){
+		$sqlCmd = "SELECT * FROM `MatchPlayResults` WHERE `TournamentKey` = ? AND `Round` = ? ORDER BY `MatchNumber` ASC";
+		$query = $connection->prepare ( $sqlCmd );
+		
+		if (! $query) {
+			die ( $sqlCmd . " prepare failed: " . $connection->error );
+		}
+		
+		if (! $query->bind_param ( 'ii', $tournamentKey, $round)) {
+			die ( $sqlCmd . " bind_param failed: " . $connection->error );
+		}
+		
+		if (! $query->execute ()) {
+			die ( $sqlCmd . " execute failed: " . $connection->error );
+		}
+		
+		$query->bind_result ( $key, $roundNumber, $matchNumber, $name1, $name2);
+		
+		switch($round){
+			case 1: 
+				$matchCount = 4; 
+				$x1 = 20;
+				$x2 = 220;
+				$y1 = 50;
+				$y2 = 100;
+				$yIncrement = 100;
+				break;
+			case 2: 
+				$matchCount = 2; 
+				$x1 = 220;
+				$x2 = 420;
+				$y1 = 75;
+				$y2 = 175;
+				$yIncrement = 200;
+				break;
+			case 3: 
+				$matchCount = 1; 
+				$x1 = 420;
+				$x2 = 620;
+				$y1 = 125;
+				$y2 = 325;
+				$yIncrement = 0;
+				break;
+		}
+		
+		if($round == 4){
+			echo '<line x1="620" y1="225" x2="820" y2="225" style="stroke:rgb(0,0,0);stroke-width:2" />' . PHP_EOL;
+			echo '<text x="630" y="215">' . $name1 . '</text>' . PHP_EOL;
+		} else {
+			for($currentMatch = 0; $currentMatch < $matchCount; ++$currentMatch){
+				
+				$y1Adjusted = $y1 + ($currentMatch * $yIncrement);
+				$y2Adjusted = $y2 + ($currentMatch * $yIncrement);
+				
+				echo '<polyline points="' . $x1 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y2Adjusted . ' ' . $x1 . ',' . $y2Adjusted . '" style="fill:none;stroke:black;stroke-width:2" />' . PHP_EOL;
+				if ( $query->fetch () ) {
+	
+					echo '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">' . $name1 . '</text>' . PHP_EOL;
+					echo '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">' . $name2 . '</text>' . PHP_EOL;
+				}
+			}
+		}
+		
+		$query->close();
+	}
+	echo '</svg>' . PHP_EOL;
+}
+
 ?>
