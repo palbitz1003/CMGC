@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Security.RightsManagement;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -44,6 +46,7 @@ namespace WebAdmin.ViewModel
                         Is2DayTournament = (TournamentNames[value].StartDate != TournamentNames[value].EndDate) 
                                                     ? Visibility.Visible : Visibility.Collapsed;
                         IsEclectic = TournamentNames[value].IsEclectic;
+                        IsMatchPlay = TournamentNames[value].IsMatchPlay;
                         LoadClosestToThePinFromWeb();
                     }
                     else
@@ -141,6 +144,9 @@ namespace WebAdmin.ViewModel
 
         private bool _isEclectic;
         public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged("IsEclectic"); ResetFileNames(); } }
+
+        private bool _isMatchPlay;
+        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged("IsMatchPlay"); } }
 
         #region Commands
         public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
@@ -1043,10 +1049,16 @@ namespace WebAdmin.ViewModel
                             throw new ApplicationException(file + ": does not have 7 fields: " + string.Join(", ", line));
                         }
 
+                        if(string.IsNullOrEmpty(line[0]) && string.IsNullOrEmpty(line[1]))
+                        {
+                            // skip empty lines
+                            continue;
+                        }
+
                         DateTime dt;
                         if (!DateTime.TryParse(line[0], out dt))
                         {
-                            throw new ArgumentException(file + ": invalid date: " + lines[0]);
+                            throw new ArgumentException(file + ": invalid date: " + line[0]);
                         }
 
                         kvpList.Add(new KeyValuePair<string, string>(
@@ -1125,6 +1137,70 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
+        }
+
+        private List<List<KeyValuePair<string, string>>> AddMatchPlayEntries(string file)
+        {
+            if (string.IsNullOrEmpty(file))
+            {
+                return null;
+            }
+            string fullPath = Path.Combine(CSVFolderName, file);
+            if (!File.Exists(fullPath))
+            {
+                throw new ApplicationException("File doesn't exist: " + fullPath);
+            }
+
+            List<List<KeyValuePair<string, string>>> masterList = new List<List<KeyValuePair<string, string>>>();
+            List<KeyValuePair<string, string>> kvpList = new List<KeyValuePair<string, string>>();
+            masterList.Add(kvpList);
+
+            bool header = true;
+            int index = 0;
+            using (TextReader tr = new StreamReader(fullPath))
+            {
+                string[][] lines = CSVParser.Parse(tr);
+                foreach (var line in lines)
+                {
+                    if(header)
+                    {
+                        header = false;
+                        if(string.CompareOrdinal(line[0], "Round") != 0)
+                        {
+                            throw new ApplicationException(file +
+                                ": This file does not look like match play results because line 1 does not look like the expected header: Round,Match Number,Player 1,Player 2");
+                        }
+
+                        
+                    } 
+                    else if (line.Length > 0)
+                    {
+                        if (line.Length != 4)
+                        {
+                            throw new ApplicationException(file + ": does not have 4 fields: " +
+                                                           string.Join(", ", line));
+                        }
+
+                        if (string.IsNullOrEmpty(line[0]) && string.IsNullOrEmpty(line[1]))
+                        {
+                            // skip empty lines
+                            continue;
+                        }
+
+                        kvpList.Add(new KeyValuePair<string, string>(
+                            string.Format("MatchPlayResultsScores[{0}][Round]", index), line[0]));
+                        kvpList.Add(new KeyValuePair<string, string>(
+                            string.Format("MatchPlayResultsScores[{0}][MatchNumber]", index), line[1]));
+                        kvpList.Add(new KeyValuePair<string, string>(
+                            string.Format("MatchPlayResultsScores[{0}][Player1]", index), line[2]));
+                        kvpList.Add(new KeyValuePair<string, string>(
+                            string.Format("MatchPlayResultsScores[{0}][Player2]", index), line[3]));
+                        index++;
+                    }
+                }
+            }
+
+            return masterList;
         }
 
         private List<List<KeyValuePair<string, string>>> AddScoresEntries(string file)
@@ -1364,7 +1440,9 @@ namespace WebAdmin.ViewModel
             List<KeyValuePair<string, string>> kvpChitsList = new List<KeyValuePair<string, string>>();
             AddChitsEntries(CsvChitsFileName, kvpChitsList);
 
-            List<List<KeyValuePair<string, string>>> scoresListList = AddScoresEntries(CsvScoresFileName);
+            List<List<KeyValuePair<string, string>>> scoresListList = IsMatchPlay 
+                ? AddMatchPlayEntries(CsvScoresFileName) 
+                : AddScoresEntries(CsvScoresFileName);
 
             string submitted = string.Empty;
 
@@ -1402,7 +1480,7 @@ namespace WebAdmin.ViewModel
             {
                 foreach (var kvpScoresList in scoresListList)
                 {
-                    if (!await SubmitResultsCsv(kvpScoresList, "scores", kvpScoresList == scoresListList[0]))
+                    if (!await SubmitResultsCsv(kvpScoresList, IsMatchPlay ? "match play scores" : "scores", kvpScoresList == scoresListList[0]))
                     {
                         MessageBox.Show("Failed to submit scores results.");
                         return;

@@ -38,6 +38,9 @@ namespace WebAdmin
         private bool _isEclectic;
         public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged("IsEclectic"); } }
 
+        private bool _isMatchPlay;
+        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged("IsMatchPlay"); } }
+
         public override string ToString()
         {
             return StartDate.ToShortDateString() + ": " + Name;

@@ -59,7 +59,8 @@
         </DockPanel>
 
         <StackPanel Orientation="Vertical">
-            <Expander Header="Submit HTML Files" ExpandDirection="Down" IsExpanded="{Binding Path=CsvExpanded, Converter={StaticResource InverseBooleanConverter}}">
+            <Expander Header="Submit HTML Files" ExpandDirection="Down" IsExpanded="{Binding Path=CsvExpanded, Converter={StaticResource InverseBooleanConverter}}"
+                      Visibility="Hidden">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -107,7 +108,7 @@
                     </DockPanel>
                 </Grid>
             </Expander>
-            <Expander Header="Submit CSV Files" ExpandDirection="Down" IsExpanded="{Binding Path=CsvExpanded}">
+            <!--<Expander Header="Submit CSV Files" ExpandDirection="Down" IsExpanded="{Binding Path=CsvExpanded}">-->
                 <StackPanel Orientation="Vertical">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -207,7 +208,7 @@
                         Command="{Binding Path=ClearCsvCommand}">Clear CSV Results</Button>
                     </StackPanel>
                 </StackPanel>
-            </Expander>
+            <!--</Expander>-->
         </StackPanel>
     </DockPanel>
 </UserControl>
