@@ -9,13 +9,14 @@ class TournamentName {
 	public $SignupStartDate;
 	public $TournamentKey;
 	public $IsEclectic;
+	public $IsMatchPlay;
 }
 $connection = new mysqli ( 'p:' . $db_hostname, $db_username, $db_password, $db_database );
 
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
-$sqlCmd = "SELECT TournamentKey,Name,StartDate,EndDate,SignUpStartDate,Eclectic FROM `Tournaments` ORDER BY `StartDate`";
+$sqlCmd = "SELECT TournamentKey,Name,StartDate,EndDate,SignUpStartDate,Eclectic,MatchPlay FROM `Tournaments` ORDER BY `StartDate`";
 $tournament = $connection->prepare ( $sqlCmd );
 
 if (! $tournament) {
@@ -26,7 +27,7 @@ if (! $tournament->execute ()) {
 	die ( $sqlCmd . " execute failed: " . $connection->error );
 }
 
-$tournament->bind_result ( $tournamentKey, $name, $startDate, $endDate, $signupStartDate, $isEclectic );
+$tournament->bind_result ( $tournamentKey, $name, $startDate, $endDate, $signupStartDate, $isEclectic, $isMatchPlay );
 
 $tournamentNames = array();
 while ( $tournament->fetch () ) {
@@ -37,6 +38,7 @@ while ( $tournament->fetch () ) {
 	$t->SignupStartDate = $signupStartDate;
 	$t->TournamentKey = $tournamentKey;
 	$t->IsEclectic = ($isEclectic == 0) ? "false" : "true";
+	$t->IsMatchPlay = ($isMatchPlay == 0) ? "false" : "true";
 	$tournamentNames[] = $t;
 }
 

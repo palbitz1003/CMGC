@@ -64,7 +64,7 @@ if ($tournamentKey) {
 					}
 					else {
 						$chitsResults = GetChitsResults($connection, $tournamentKey);
-						ShowChitsResults($chitsResults);
+						ShowChitsResults($chitsResults, $t->MatchPlay);
 					}
 				break;
 				case 'pool' :
@@ -196,7 +196,7 @@ function ShowPoolResults($poolResults)
 	echo '</tbody></table>' . PHP_EOL;
 }
 
-function ShowChitsResults($chitsResults)
+function ShowChitsResults($chitsResults, $matchPlay)
 {
 	echo '<table style="border:none;;margin-left:auto;margin-right:auto"><tbody>' . PHP_EOL;
 
@@ -255,7 +255,11 @@ function ShowChitsResults($chitsResults)
 
 			echo '<td style="width:50%;border:none;">' . PHP_EOL;
 			echo '<table>' . PHP_EOL;
-			echo '<thead><tr class="header"><th>' . $flightName . '</th><th>Score</th><th>Won</th><th>Place</th></tr></thead>' . PHP_EOL;
+			if($matchPlay){
+				echo '<thead><tr class="header"><th>' . $flightName . '</th><th>Won</th><th>Place</th></tr></thead>' . PHP_EOL;
+			} else {
+				echo '<thead><tr class="header"><th>' . $flightName . '</th><th>Score</th><th>Won</th><th>Place</th></tr></thead>' . PHP_EOL;
+			}
 			echo '<tbody>' . PHP_EOL;
 
 			$currentDate = $chitsResults[$i]->Date;
@@ -268,7 +272,9 @@ function ShowChitsResults($chitsResults)
 			echo '<tr class="d0">';
 		}
 		echo '<td style="width:200px">' . $chitsResults [$i]->Name . '</td>' . PHP_EOL;
-		echo '<td style="text-align:center">' . $chitsResults [$i]->Score . '</td>' . PHP_EOL;
+		if(!$matchPlay){
+			echo '<td style="text-align:center">' . $chitsResults [$i]->Score . '</td>' . PHP_EOL;
+		}
 		echo '<td style="text-align:center">$' . $chitsResults [$i]->Winnings . '</td>' . PHP_EOL;
 		echo '<td style="text-align:center">' . $chitsResults [$i]->Place . '</td>' . PHP_EOL;
 		echo '</tr>' . PHP_EOL;

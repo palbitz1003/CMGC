@@ -192,6 +192,7 @@ function ClearResults($connection, $tournamentKey, $result)
 		$file = null;
 		switch ($result) {
 			case 'Scores' :
+			case 'MatchPlayResults' :
 				$file = $td->ScoresFile;
 				UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresFile', '' );
 				UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresPostedDate', $emptyDate );
@@ -432,6 +433,32 @@ function GetScoresResults($connection, $tournamentKey, $stableford)
 
 	return $scoresArray;
 }
+function AddMatchPlayScoresResults($connection, $tournamentKey, $scoresResults)
+{
+	for($i = 0; $i < count ( $scoresResults ); ++ $i) {
+		$sqlCmd = "INSERT INTO `MatchPlayResults` VALUES (?, ?, ?, ?, ?)";
+		$insert = $connection->prepare ( $sqlCmd );
+
+		if (! $insert) {
+			die ( $sqlCmd . " prepare failed: " . $connection->error );
+		}
+		if (! $insert->bind_param ( 'iiiss',
+				$scoresResults[$i]->TournamentKey,
+				$scoresResults[$i]->Round,
+				$scoresResults[$i]->MatchNumber,
+				$scoresResults[$i]->Name1,
+				$scoresResults[$i]->Name2 ))
+		{
+			die ( $sqlCmd . " bind_param failed: " . $connection->error );
+		}
+
+		if (! $insert->execute ()) {
+			die ( $sqlCmd . " execute failed: " . $connection->error );
+		}
+
+		$insert->close ();
+	}
+}
 function ShowMatchResults($connection, $tournamentKey)
 {
 	echo '<svg height="420" width="850">' . PHP_EOL;
@@ -482,8 +509,10 @@ function ShowMatchResults($connection, $tournamentKey)
 		}
 		
 		if($round == 4){
-			echo '<line x1="620" y1="225" x2="820" y2="225" style="stroke:rgb(0,0,0);stroke-width:2" />' . PHP_EOL;
-			echo '<text x="630" y="215">' . $name1 . '</text>' . PHP_EOL;
+			if ( $query->fetch () ) {
+				echo '<line x1="620" y1="225" x2="820" y2="225" style="stroke:rgb(0,0,0);stroke-width:2" />' . PHP_EOL;
+				echo '<text x="630" y="215">' . $name1 . '</text>' . PHP_EOL;
+			}
 		} else {
 			for($currentMatch = 0; $currentMatch < $matchCount; ++$currentMatch){
 				

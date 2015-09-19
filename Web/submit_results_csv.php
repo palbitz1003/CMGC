@@ -34,6 +34,9 @@ if ($_POST ['Action'] == 'Submit') {
 	if(strcasecmp($_POST ["Clear"], 'scores') == 0){
 		ClearResults($connection, $tournamentKey, 'Scores');
 	}
+	else if(strcasecmp($_POST ["Clear"], 'match play scores') == 0){
+		ClearResults($connection, $tournamentKey, 'MatchPlayResults');
+	}
 	else if(strcasecmp($_POST ["Clear"], 'chits') == 0){
 		ClearResults($connection, $tournamentKey, 'Chits');
 	}
@@ -121,11 +124,29 @@ if ($_POST ['Action'] == 'Submit') {
 	
 		AddScoresResults($connection, $tournamentKey, $ScoresResults);
 		UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresPostedDate', date ( 'Y-m-d' ) );
+	} else if(isset ( $_POST ['MatchPlayResultsScores'] )) {
+	
+		$ScoresResults = Array();
+		for($i = 0; $i < count ( $_POST ['MatchPlayResultsScores'] ); ++ $i) {
+			$c = new Match();
+			$c->TournamentKey = $tournamentKey;
+			$c->Round = $_POST ['MatchPlayResultsScores'] [$i] ['Round'];
+			$c->MatchNumber = $_POST ['MatchPlayResultsScores'] [$i] ['MatchNumber'];
+			$c->Name1 = $_POST ['MatchPlayResultsScores'] [$i] ['Player1'];
+			$c->Name2 = $_POST ['MatchPlayResultsScores'] [$i] ['Player2'];
+			
+			$ScoresResults[] = $c;
+		}
+		
+		AddMatchPlayScoresResults($connection, $tournamentKey, $ScoresResults);
+		UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresPostedDate', date ( 'Y-m-d' ) );
 	}
 } else if ($_POST ['Action'] == 'Clear') {
 	
 	if(strcasecmp($_POST ["Result"], 'scores') == 0){
 		ClearResults($connection, $tournamentKey, 'Scores');
+	} else if(strcasecmp($_POST ["Result"], 'match play scores') == 0){
+		ClearResults($connection, $tournamentKey, 'MatchPlayResults');
 	}
 	else if(strcasecmp($_POST ["Result"], 'chits') == 0){
 		ClearResults($connection, $tournamentKey, 'Chits');
@@ -134,7 +155,7 @@ if ($_POST ['Action'] == 'Submit') {
 		ClearResults($connection, $tournamentKey, 'Pool');
 	}
 	else {
-		die('Expected to clear scores, chits, or pool, got: ' . $_POST ["Result"]);
+		die('Expected to clear scores, match play scores, chits, or pool, got: ' . $_POST ["Result"]);
 	}
 	
 } else {
