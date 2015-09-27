@@ -12,6 +12,13 @@ class Dues {
 	public $RIGS;
 }
 
+class RosterWithDues {
+	public $GHIN;
+	public $Name;
+	public $Active;
+	public $Payment;
+}
+
 function GetPlayerDues($connection, $playerGHIN) {
 
 	$sqlCmd = "SELECT * FROM `Dues` WHERE `GHIN` = ?";
@@ -55,6 +62,38 @@ function GetPlayerDues($connection, $playerGHIN) {
 	$player->close ();
 
 	return $playerDues;
+}
+
+function GetPlayerDuesNotPaid($connection) {
+
+	$sqlCmd = "SELECT Roster.GHIN, Roster.LastName, Roster.FirstName, Roster.Active, Dues.Payment FROM `Roster` LEFT JOIN `Dues` ON Roster.GHIN = Dues.GHIN ORDER BY Roster.LastName ASC, Roster.FirstName ASC";
+	$player = $connection->prepare ( $sqlCmd );
+
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$player->bind_result ( $ghin, $lastName, $firstName, $active, $payment);
+
+	$notPaid = array();
+	while($player->fetch()) {
+		if(($active == 1) && (empty($payment) || ($payment == 0))){
+			$p = new RosterWithDues();
+			$p->GHIN = $ghin;
+			$p->Name = $lastName . ', ' . $firstName;
+			$p->Active = $active;
+			$p->Payment = $payment;
+			$notPaid[] = $p;
+		}
+	}
+
+	$player->close ();
+
+	return $notPaid;
 }
 
 function InsertPlayerForDues($connection, $year, $ghin, $name) {
