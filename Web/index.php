@@ -120,7 +120,8 @@ function ShowDues($script_folder_href){
 		echo '(See message below from VP & Membership Chair Monty A. McIntyre)</p>' . PHP_EOL;
 		echo '<p style="margin-left:30px;font-size:large;">' . PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_payment.php">Pay Dues</a>&nbsp;&nbsp;&nbsp;&nbsp;'. PHP_EOL;
-		echo '<a href="' . $script_folder_href . 'dues_paid.php">View Paid List</a>'. PHP_EOL;
+		echo '<a href="' . $script_folder_href . 'dues_paid.php">View Paid List</a>&nbsp;&nbsp;&nbsp;&nbsp;'. PHP_EOL;
+		echo '<a href="' . $script_folder_href . 'dues_not_paid.php">View Have Not Paid List</a>'. PHP_EOL;
 		echo '</p>' . PHP_EOL;
 	}
 

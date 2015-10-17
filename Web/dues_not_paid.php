@@ -4,7 +4,7 @@ require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $script_folder . '/dues_f
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $wp_folder . '/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
-$overrideTitle = "Did Not Pay Yearly Dues";
+$overrideTitle = "Have Not Pay Yearly Dues";
 get_header ();
 
 get_sidebar ();
@@ -17,7 +17,7 @@ if ($connection->connect_error)
 echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
-echo '<h2 class="entry-title" style="text-align:center">Did Not Pay Yearly Dues</h2>' . PHP_EOL;
+echo '<h2 class="entry-title" style="text-align:center">Have Not Pay Yearly Dues</h2>' . PHP_EOL;
 
 echo '<p>Once you pay via Pay Pal you will automatically be listed on the paid list. ';
 echo 'If you pay your renewal by check, however, <b>you will not be listed automatically on the paid list</b>. ';
