@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace WebAdmin
 {
     public class TeeTime : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -15,7 +16,7 @@ namespace WebAdmin
         }
 
         private string _startTime;
-        public string StartTime { get { return _startTime; } set { _startTime = value; OnPropertyChanged("StartTime"); } }
+        public string StartTime { get { return _startTime; } set { _startTime = value; OnPropertyChanged(); } }
 
         public TrulyObservableCollection<Player> Players = new TrulyObservableCollection<Player>();
 

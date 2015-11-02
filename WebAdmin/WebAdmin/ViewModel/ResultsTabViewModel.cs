@@ -19,16 +19,16 @@ namespace WebAdmin.ViewModel
         #endregion
 
         private Visibility _getTournamentsVisible;
-        public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged("GetTournamentsVisible"); } }
+        public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
 
         private Visibility _gotTournamentsVisible;
-        public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged("GotTournamentsVisible"); } }
+        public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged(); } }
 
         private bool _updateTournamentAllowed;
-        public bool UpdateTournamentsAllowed { get { return _updateTournamentAllowed; } set { _updateTournamentAllowed = value; OnPropertyChanged("UpdateTournamentsAllowed"); } }
+        public bool UpdateTournamentsAllowed { get { return _updateTournamentAllowed; } set { _updateTournamentAllowed = value; OnPropertyChanged(); } }
 
         private Visibility _is2DayTournament;
-        public Visibility Is2DayTournament { get { return _is2DayTournament; } set { _is2DayTournament = value; OnPropertyChanged("Is2DayTournament"); } }
+        public Visibility Is2DayTournament { get { return _is2DayTournament; } set { _is2DayTournament = value; OnPropertyChanged(); } }
 
         private int _tournamentNameIndex;
         public int TournamentNameIndex
@@ -39,7 +39,7 @@ namespace WebAdmin.ViewModel
                 if (_tournamentNameIndex != value)
                 {
                     _tournamentNameIndex = value;
-                    OnPropertyChanged("TournamentNameIndex");
+                    OnPropertyChanged();
                     if (value >= 0)
                     {
                         UpdateTournamentsAllowed = true;
@@ -63,40 +63,40 @@ namespace WebAdmin.ViewModel
         public TrulyObservableCollection<TournamentName> TournamentNames
         {
             get { return _tournamentNames; }
-            set { _tournamentNames = value; OnPropertyChanged("TournamentNames"); }
+            set { _tournamentNames = value; OnPropertyChanged(); }
         }
 
         private TrulyObservableCollection<ClosestToThePin> _closestToThePinsDay1;
         public TrulyObservableCollection<ClosestToThePin> ClosestToThePinsDay1
         {
             get { return _closestToThePinsDay1; }
-            set { _closestToThePinsDay1 = value; OnPropertyChanged("ClosestToThePinsDay1"); }
+            set { _closestToThePinsDay1 = value; OnPropertyChanged(); }
         }
 
         private TrulyObservableCollection<ClosestToThePin> _closestToThePinsDay2;
         public TrulyObservableCollection<ClosestToThePin> ClosestToThePinsDay2
         {
             get { return _closestToThePinsDay2; }
-            set { _closestToThePinsDay2 = value; OnPropertyChanged("ClosestToThePinsDay2"); }
+            set { _closestToThePinsDay2 = value; OnPropertyChanged(); }
         }
 
         private string _htmlScoresFileName;
-        public string HtmlScoresFileName { get { return _htmlScoresFileName; } set { _htmlScoresFileName = value; OnPropertyChanged("HtmlScoresFileName"); } }
+        public string HtmlScoresFileName { get { return _htmlScoresFileName; } set { _htmlScoresFileName = value; OnPropertyChanged(); } }
 
         private string _htmlChitsFileName;
-        public string HtmlChitsFileName { get { return _htmlChitsFileName; } set { _htmlChitsFileName = value; OnPropertyChanged("HtmlChitsFileName"); } }
+        public string HtmlChitsFileName { get { return _htmlChitsFileName; } set { _htmlChitsFileName = value; OnPropertyChanged(); } }
 
         private string _htmlPoolFileName;
-        public string HtmlPoolFileName { get { return _htmlPoolFileName; } set { _htmlPoolFileName = value; OnPropertyChanged("HtmlPoolFileName"); } }
+        public string HtmlPoolFileName { get { return _htmlPoolFileName; } set { _htmlPoolFileName = value; OnPropertyChanged(); } }
 
         private string _csvFolderName;
-        public string CSVFolderName {  get { return _csvFolderName;} set { _csvFolderName = value; OnPropertyChanged("CSVFolderName");} }
+        public string CSVFolderName {  get { return _csvFolderName;} set { _csvFolderName = value; OnPropertyChanged();} }
 
         private string _csvScoresFileName;
-        public string CsvScoresFileName { get { return _csvScoresFileName; } set { _csvScoresFileName = value; OnPropertyChanged("CsvScoresFileName"); } }
+        public string CsvScoresFileName { get { return _csvScoresFileName; } set { _csvScoresFileName = value; OnPropertyChanged(); } }
 
         private string _csvChitsFileName;
-        public string CsvChitsFileName { get { return _csvChitsFileName; } set { _csvChitsFileName = value; OnPropertyChanged("CsvChitsFileName"); } }
+        public string CsvChitsFileName { get { return _csvChitsFileName; } set { _csvChitsFileName = value; OnPropertyChanged(); } }
 
         private List<KeyValuePair<string, string>>[] _csvDay1PoolKvp;
 
@@ -104,7 +104,7 @@ namespace WebAdmin.ViewModel
         public ObservableCollection<string> CsvDay1PoolFileName
         {
             get { return _csvDay1PoolFileName; }
-            set { _csvDay1PoolFileName = value; OnPropertyChanged("CsvDay1PoolFileName"); }
+            set { _csvDay1PoolFileName = value; OnPropertyChanged(); }
         }
 
         private List<KeyValuePair<string, string>>[] _csvDay2PoolKvp;
@@ -113,40 +113,40 @@ namespace WebAdmin.ViewModel
         public ObservableCollection<string> CsvDay2PoolFileName
         {
             get { return _csvDay2PoolFileName; }
-            set { _csvDay2PoolFileName = value; OnPropertyChanged("CsvDay2PoolFileName"); }
+            set { _csvDay2PoolFileName = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<string> _csvDay1PoolTotal;
         public ObservableCollection<string> CsvDay1PoolTotal
         {
             get { return _csvDay1PoolTotal; }
-            set { _csvDay1PoolTotal = value; OnPropertyChanged("CsvDay1PoolTotal"); }
+            set { _csvDay1PoolTotal = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<string> _csvDay2PoolTotal;
         public ObservableCollection<string> CsvDay2PoolTotal
         {
             get { return _csvDay2PoolTotal; }
-            set { _csvDay2PoolTotal = value; OnPropertyChanged("CsvDay2PoolTotal"); }
+            set { _csvDay2PoolTotal = value; OnPropertyChanged(); }
         }
 
         private bool _csvExpanded;
-        public bool CsvExpanded { get { return _csvExpanded; } set { _csvExpanded = value; OnPropertyChanged("CsvExpanded"); } }
+        public bool CsvExpanded { get { return _csvExpanded; } set { _csvExpanded = value; OnPropertyChanged(); } }
 
         private int _poolTotal;
-        public int PoolTotal { get { return _poolTotal; } set { _poolTotal = value; OnPropertyChanged("PoolTotal"); } }
+        public int PoolTotal { get { return _poolTotal; } set { _poolTotal = value; OnPropertyChanged(); } }
 
         private int _chitsTotal;
-        public int ChitsTotal { get { return _chitsTotal; } set { _chitsTotal = value; OnPropertyChanged("ChitsTotal"); } }
+        public int ChitsTotal { get { return _chitsTotal; } set { _chitsTotal = value; OnPropertyChanged(); } }
 
         private ObservableCollection<PoolWinnings> _poolWinnings;
-        public ObservableCollection<PoolWinnings> PoolWinningsList { get { return _poolWinnings; } set { _poolWinnings = value; OnPropertyChanged("PoolWinningsList"); } }
+        public ObservableCollection<PoolWinnings> PoolWinningsList { get { return _poolWinnings; } set { _poolWinnings = value; OnPropertyChanged(); } }
 
         private bool _isEclectic;
-        public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged("IsEclectic"); ResetFileNames(); } }
+        public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); ResetFileNames(); } }
 
         private bool _isMatchPlay;
-        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged("IsMatchPlay"); } }
+        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged(); } }
 
         #region Commands
         public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }

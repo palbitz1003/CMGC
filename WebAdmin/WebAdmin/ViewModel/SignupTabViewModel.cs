@@ -29,10 +29,10 @@ namespace WebAdmin.ViewModel
             "11:00", "11:07", "11:15", "11:22", "11:30", "11:37", "11:45", "11:52"};
 
         private Visibility _getTournamentsVisible;
-        public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged("GetTournamentsVisible"); } }
+        public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
 
         private Visibility _gotTournamentsVisible;
-        public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged("GotTournamentsVisible"); } }
+        public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged(); } }
 
         private int _tournamentNameIndex;
         public int TournamentNameIndex
@@ -43,7 +43,7 @@ namespace WebAdmin.ViewModel
                 if (_tournamentNameIndex != value)
                 {
                     _tournamentNameIndex = value;
-                    OnPropertyChanged("TournamentNameIndex");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -52,18 +52,18 @@ namespace WebAdmin.ViewModel
         public TrulyObservableCollection<TournamentName> TournamentNames
         {
             get { return _tournamentNames; }
-            set { _tournamentNames = value; OnPropertyChanged("TournamentNames"); }
+            set { _tournamentNames = value; OnPropertyChanged(); }
         }
 
         private List<string> _teeTimes;
-        public List<string> TeeTimes { get { return _teeTimes; } set { _teeTimes = value; OnPropertyChanged("Teetimes"); } }
+        public List<string> TeeTimes { get { return _teeTimes; } set { _teeTimes = value; OnPropertyChanged(); } }
 
         private int _firstTeeTimeIndex;
         public int FirstTeeTimeIndex { get { return _firstTeeTimeIndex; } 
             set 
             { 
                 _firstTeeTimeIndex = value; 
-                OnPropertyChanged("FirstTeeTimeIndex");
+                OnPropertyChanged();
                 UpdateTournamentTeeTimes();
             } 
         }
@@ -97,20 +97,20 @@ namespace WebAdmin.ViewModel
             { 
                 _teeTimeSelection = value;
                 TeeTimesSelectionChanged(value);
-                OnPropertyChanged("TeeTimeSelection");
+                OnPropertyChanged();
             } 
         }
 
         private TrulyObservableCollection<TeeTimeRequest> _teeTimeRequestsUnassigned;
         public TrulyObservableCollection<TeeTimeRequest> TeeTimeRequestsUnassigned { 
             get { return _teeTimeRequestsUnassigned; }
-            set { _teeTimeRequestsUnassigned = value; OnPropertyChanged("TeeTimeRequestsUnassigned"); } 
+            set { _teeTimeRequestsUnassigned = value; OnPropertyChanged(); } 
         }
 
         private TrulyObservableCollection<TeeTimeRequest> _teeTimeRequestsAssigned;
         public TrulyObservableCollection<TeeTimeRequest> TeeTimeRequestsAssigned { 
             get { return _teeTimeRequestsAssigned; } 
-            set { _teeTimeRequestsAssigned = value; OnPropertyChanged("TeeTimeRequestsAssigned"); } 
+            set { _teeTimeRequestsAssigned = value; OnPropertyChanged(); } 
         }
 
         public List<TeeTimeRequest> TeeTimeRequests { get; set; }
@@ -119,7 +119,7 @@ namespace WebAdmin.ViewModel
         public TrulyObservableCollection<TeeTime> TournamentTeeTimes
         {
             get { return _tournamentTeeTimes; }
-            set { _tournamentTeeTimes = value; OnPropertyChanged("TournamentTeeTimes"); }
+            set { _tournamentTeeTimes = value; OnPropertyChanged(); }
         }
 
         private List<TeeTime> _removedTeeTimes;
@@ -128,14 +128,14 @@ namespace WebAdmin.ViewModel
         public string VpTeeTimeFile
         {
             get { return _vpTeeTimeFile; }
-            set { _vpTeeTimeFile = value; OnPropertyChanged("VpTeeTimeFile"); }
+            set { _vpTeeTimeFile = value; OnPropertyChanged(); }
         }
 
         private string _waitingListFile;
         public string WaitingListFile
         {
             get { return _waitingListFile; }
-            set { _waitingListFile = value; OnPropertyChanged("WaitingListFile"); }
+            set { _waitingListFile = value; OnPropertyChanged(); }
         }
 
         private bool _orderBySignupDate;
@@ -143,7 +143,7 @@ namespace WebAdmin.ViewModel
             set 
             { 
                 _orderBySignupDate = value; 
-                OnPropertyChanged("OrderBySignupDate");
+                OnPropertyChanged();
                 SortTeeTimeRequests();
             } 
         }
@@ -157,7 +157,7 @@ namespace WebAdmin.ViewModel
                 if (_groupMode == value) return;
 
                 _groupMode = value; 
-                OnPropertyChanged("GroupMode");
+                OnPropertyChanged();
                 if (_groupMode)
                 {
                     SwitchToGroupMode();

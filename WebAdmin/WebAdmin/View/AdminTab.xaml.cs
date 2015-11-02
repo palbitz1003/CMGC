@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace WebAdmin.View
 
         #region PropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)

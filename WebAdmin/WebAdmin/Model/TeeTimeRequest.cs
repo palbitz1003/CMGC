@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace WebAdmin
@@ -10,7 +11,7 @@ namespace WebAdmin
     public class TeeTimeRequest : INotifyPropertyChanged, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -20,7 +21,7 @@ namespace WebAdmin
         }
 
         private string _preference;
-        public string Preference { get { return _preference; } set { _preference = value; OnPropertyChanged("Preference"); } }
+        public string Preference { get { return _preference; } set { _preference = value; OnPropertyChanged(); } }
 
         public TrulyObservableCollection<Player> Players { get; set;}
         public TeeTime TeeTime { get; set; }
@@ -30,31 +31,31 @@ namespace WebAdmin
         }
 
         private float _paymentDue;
-        public float PaymentDue { get { return _paymentDue; } set { _paymentDue = value; OnPropertyChanged("PaymentDue"); } }
+        public float PaymentDue { get { return _paymentDue; } set { _paymentDue = value; OnPropertyChanged(); } }
 
         private float _paymentMade;
-        public float PaymentMade { get { return _paymentMade; } set { _paymentMade = value; OnPropertyChanged("PaymentMade"); } }
+        public float PaymentMade { get { return _paymentMade; } set { _paymentMade = value; OnPropertyChanged(); } }
 
         private string _paymentDateTime;
-        public string PaymentDateTime { get { return _paymentDateTime; } set { _paymentDateTime = value; OnPropertyChanged("PaymentDateTime"); } }
+        public string PaymentDateTime { get { return _paymentDateTime; } set { _paymentDateTime = value; OnPropertyChanged(); } }
 
         private string _accessCode;
-        public string AccessCode { get { return _accessCode; } set { _accessCode = value; OnPropertyChanged("AccessCode"); } }
+        public string AccessCode { get { return _accessCode; } set { _accessCode = value; OnPropertyChanged(); } }
 
         private bool _paid;
-        public bool Paid { get { return _paid; } set { _paid = value; OnPropertyChanged("Paid"); } }
+        public bool Paid { get { return _paid; } set { _paid = value; OnPropertyChanged(); } }
 
         private bool _modifiedPaid;
-        public bool ModifiedPaid { get { return _modifiedPaid; } set { _modifiedPaid = value; OnPropertyChanged("ModifiedPaid"); } }
+        public bool ModifiedPaid { get { return _modifiedPaid; } set { _modifiedPaid = value; OnPropertyChanged(); } }
 
         private int _signupKey;
-        public int SignupKey { get { return _signupKey; } set { _signupKey = value; OnPropertyChanged("SignupKey"); } }
+        public int SignupKey { get { return _signupKey; } set { _signupKey = value; OnPropertyChanged(); } }
 
         private string _payerName;
-        public string PayerName { get { return _payerName; } set { _payerName = value; OnPropertyChanged("PayerName"); } }
+        public string PayerName { get { return _payerName; } set { _payerName = value; OnPropertyChanged(); } }
 
         private string _payerEmail;
-        public string PayerEmail { get { return _payerEmail; } set { _payerEmail = value; OnPropertyChanged("PayerEmail"); } }
+        public string PayerEmail { get { return _payerEmail; } set { _payerEmail = value; OnPropertyChanged(); } }
 
         public TeeTimeRequest()
         {

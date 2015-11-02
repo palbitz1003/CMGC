@@ -23,16 +23,16 @@ namespace WebAdmin.ViewModel
         public override string Header { get { return "Admin"; } }
 
         private DateTime _localHandicapDate;
-        public DateTime LocalHandicapDate { get { return _localHandicapDate; } set { _localHandicapDate = value; OnPropertyChanged("LocalHandicapDate"); } }
+        public DateTime LocalHandicapDate { get { return _localHandicapDate; } set { _localHandicapDate = value; OnPropertyChanged(); } }
 
         private string _playerName;
-        public string PlayerName { get { return _playerName; } set { _playerName = value; OnPropertyChanged("PlayerName"); } }
+        public string PlayerName { get { return _playerName; } set { _playerName = value; OnPropertyChanged(); } }
 
         private string _playerGHIN;
-        public string PlayerGHIN { get { return _playerGHIN; } set { _playerGHIN = value; OnPropertyChanged("PlayerGHIN"); } }
+        public string PlayerGHIN { get { return _playerGHIN; } set { _playerGHIN = value; OnPropertyChanged(); } }
 
         private string _playerDues;
-        public string PlayerDues { get { return _playerDues; } set { _playerDues = value; OnPropertyChanged("PlayerDues"); } }
+        public string PlayerDues { get { return _playerDues; } set { _playerDues = value; OnPropertyChanged(); } }
         #endregion
 
         #region Commands

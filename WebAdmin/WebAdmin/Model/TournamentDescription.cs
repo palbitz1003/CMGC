@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
@@ -11,7 +12,7 @@ namespace WebAdmin
     public class TournamentDescription : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -21,13 +22,13 @@ namespace WebAdmin
         }
 
         private int _tournamentDescriptionKey;
-        public int TournamentDescriptionKey { get { return _tournamentDescriptionKey; } set { _tournamentDescriptionKey = value; OnPropertyChanged("TournamentDescriptionKey"); } }
+        public int TournamentDescriptionKey { get { return _tournamentDescriptionKey; } set { _tournamentDescriptionKey = value; OnPropertyChanged(); } }
 
         private string _name;
-        public string Name { get { return _name; } set { _name = value; OnPropertyChanged("Name"); } }
+        public string Name { get { return _name; } set { _name = value; OnPropertyChanged(); } }
 
         private string _description;
-        public string Description { get { return _description; } set { _description = value; OnPropertyChanged("Description"); } }
+        public string Description { get { return _description; } set { _description = value; OnPropertyChanged(); } }
 
         public override string ToString()
         {

@@ -23,7 +23,7 @@ namespace WebAdmin.ViewModel
                 if (_tournamentDescriptionNameIndex != value)
                 {
                     _tournamentDescriptionNameIndex = value;
-                    OnPropertyChanged("TournamentDescriptionNameIndex");
+                    OnPropertyChanged();
                     OnPropertyChanged("TournamentDescriptionSelected");
                     TournamentDescriptionSelectionChanged(value);
                 }
@@ -34,11 +34,11 @@ namespace WebAdmin.ViewModel
         public TrulyObservableCollection<TournamentDescription> TournamentDescriptionNames
         {
             get { return _tournamentDescriptionNames; }
-            set { _tournamentDescriptionNames = value; OnPropertyChanged("TournamentDescriptionNames"); }
+            set { _tournamentDescriptionNames = value; OnPropertyChanged(); }
         }
 
         private TournamentDescription _tournamentDescription;
-        public TournamentDescription TournamentDescription { get { return _tournamentDescription; } set { _tournamentDescription = value; OnPropertyChanged("TournamentDescription"); } }
+        public TournamentDescription TournamentDescription { get { return _tournamentDescription; } set { _tournamentDescription = value; OnPropertyChanged(); } }
 
         public bool TournamentDescriptionSelected { get { return TournamentDescriptionNameIndex >= 0; } }
         #endregion

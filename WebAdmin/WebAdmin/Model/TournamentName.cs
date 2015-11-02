@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
@@ -11,7 +12,7 @@ namespace WebAdmin
     public class TournamentName : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -21,25 +22,25 @@ namespace WebAdmin
         }
 
         private string _name;
-        public string Name { get { return _name; } set { _name = value; OnPropertyChanged("Name"); } }
+        public string Name { get { return _name; } set { _name = value; OnPropertyChanged(); } }
 
         private DateTime _startDate;
-        public DateTime StartDate { get { return _startDate; } set { _startDate = value; OnPropertyChanged("StartDate"); } }
+        public DateTime StartDate { get { return _startDate; } set { _startDate = value; OnPropertyChanged(); } }
 
         private DateTime _endDate;
-        public DateTime EndDate { get { return _endDate; } set { _endDate = value; OnPropertyChanged("EndDate"); } }
+        public DateTime EndDate { get { return _endDate; } set { _endDate = value; OnPropertyChanged(); } }
 
         private DateTime _signupStartDate;
-        public DateTime SignupStartDate { get { return _signupStartDate; } set { _signupStartDate = value; OnPropertyChanged("SignupStartDate"); } }
+        public DateTime SignupStartDate { get { return _signupStartDate; } set { _signupStartDate = value; OnPropertyChanged(); } }
 
         private int _tournamentKey;
-        public int TournamentKey { get { return _tournamentKey; } set { _tournamentKey = value; OnPropertyChanged("TournamentKey"); } }
+        public int TournamentKey { get { return _tournamentKey; } set { _tournamentKey = value; OnPropertyChanged(); } }
 
         private bool _isEclectic;
-        public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged("IsEclectic"); } }
+        public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); } }
 
         private bool _isMatchPlay;
-        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged("IsMatchPlay"); } }
+        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged(); } }
 
         public override string ToString()
         {

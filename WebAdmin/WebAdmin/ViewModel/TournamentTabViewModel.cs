@@ -31,7 +31,7 @@ namespace WebAdmin.ViewModel
             set 
             { 
                 _showAllTournamentNames = value; 
-                OnPropertyChanged("ShowAllTournamentNames");
+                OnPropertyChanged();
                 ShowTournamentNames();
             }
         }
@@ -46,7 +46,7 @@ namespace WebAdmin.ViewModel
                 if (_tournamentNameIndex != value)
                 {
                     _tournamentNameIndex = value;
-                    OnPropertyChanged("TournamentNameIndex");
+                    OnPropertyChanged();
                     TournamentSelectionChanged(value);
                 }
             }
@@ -61,7 +61,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _tournamentNames = value;
-                OnPropertyChanged("TournamentNames");
+                OnPropertyChanged();
             }
         }
 
@@ -73,7 +73,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _tournament = value;
-                OnPropertyChanged("Tournament");
+                OnPropertyChanged();
             }
         }
 
@@ -87,7 +87,7 @@ namespace WebAdmin.ViewModel
                 if (_tournamentDescriptionNameIndex != value)
                 {
                     _tournamentDescriptionNameIndex = value;
-                    OnPropertyChanged("TournamentDescriptionNameIndex");
+                    OnPropertyChanged();
                     TournamentDescriptionSelectionChanged(value);
                 }
             }
@@ -101,7 +101,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _tournamentDescriptionNames = value;
-                OnPropertyChanged("TournamentDescriptionNames");
+                OnPropertyChanged();
             }
         }
 
@@ -113,7 +113,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _tournamentDescription = value;
-                OnPropertyChanged("TournamentDescription");
+                OnPropertyChanged();
             }
         }
 
@@ -125,7 +125,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _tournamentChairmen = value;
-                OnPropertyChanged("TournamentChairmen");
+                OnPropertyChanged();
             }
         }
 
@@ -137,7 +137,7 @@ namespace WebAdmin.ViewModel
             {
                 _tournamentChairmenSelectedIndex = value;
                 UpdateChairmanFields();
-                OnPropertyChanged("TournamentChairmenSelectedIndex");
+                OnPropertyChanged();
             }
         }
 

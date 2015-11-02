@@ -17,16 +17,16 @@ namespace WebAdmin.ViewModel
         public override string Header { get { return "Payments"; } }
 
         private Visibility _getTournamentsVisible;
-        public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged("GetTournamentsVisible"); } }
+        public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
 
         private Visibility _gotTournamentsVisible;
-        public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged("GotTournamentsVisible"); } }
+        public Visibility GotTournamentsVisible { get { return _gotTournamentsVisible; } set { _gotTournamentsVisible = value; OnPropertyChanged(); } }
 
         private float _paymentsMade;
-        public float PaymentsMade { get { return _paymentsMade; } set { _paymentsMade = value; OnPropertyChanged("PaymentsMade"); } }
+        public float PaymentsMade { get { return _paymentsMade; } set { _paymentsMade = value; OnPropertyChanged(); } }
 
         private float _paymentsDue;
-        public float PaymentsDue { get { return _paymentsDue; } set { _paymentsDue = value; OnPropertyChanged("PaymentsDue"); } }
+        public float PaymentsDue { get { return _paymentsDue; } set { _paymentsDue = value; OnPropertyChanged(); } }
 
         private bool _enableUploadToWebButton;
 
@@ -36,7 +36,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _enableUploadToWebButton = value;
-                OnPropertyChanged("EnableUploadToWebButton");
+                OnPropertyChanged();
             }
         }
 
@@ -49,7 +49,7 @@ namespace WebAdmin.ViewModel
                 if (_tournamentNameIndex != value)
                 {
                     _tournamentNameIndex = value;
-                    OnPropertyChanged("TournamentNameIndex");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace WebAdmin.ViewModel
         public TrulyObservableCollection<TournamentName> TournamentNames
         {
             get { return _tournamentNames; }
-            set { _tournamentNames = value; OnPropertyChanged("TournamentNames"); }
+            set { _tournamentNames = value; OnPropertyChanged(); }
         }
 
         private TrulyObservableCollection<TeeTimeRequest> _teeTimeRequests;
@@ -68,7 +68,7 @@ namespace WebAdmin.ViewModel
             set
             {
                 _teeTimeRequests = value;
-                OnPropertyChanged("TeeTimeRequests");
+                OnPropertyChanged();
             }
         }
 

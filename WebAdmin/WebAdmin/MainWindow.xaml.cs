@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.IO;
 using System.Windows;
@@ -35,10 +36,10 @@ namespace WebAdmin
         const string OrigExtension = ".orig";
 
         private StatusMsg _statusMsg;
-        public StatusMsg StatusMsg { get { return _statusMsg; } set { _statusMsg = value; OnPropertyChanged("StatusMsg"); } }
+        public StatusMsg StatusMsg { get { return _statusMsg; } set { _statusMsg = value; OnPropertyChanged(); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
