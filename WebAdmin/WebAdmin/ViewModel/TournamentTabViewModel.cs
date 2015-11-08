@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Net.Http;
-using System.Net;
+using System.Web.Script.Serialization;
 using System.Windows.Input;
 using System.Windows;
 using System.IO;
-using WebAdmin;
 using WebAdmin.View;
 
 namespace WebAdmin.ViewModel
@@ -154,10 +149,10 @@ namespace WebAdmin.ViewModel
 
         public TournamentTabViewModel()
         {
-            Tournament = new WebAdmin.Tournament();
+            Tournament = new Tournament();
             _allTournamentNames = new TrulyObservableCollection<TournamentName>();
 
-            TournamentDescriptionNames = new TrulyObservableCollection<WebAdmin.TournamentDescription>();
+            TournamentDescriptionNames = new TrulyObservableCollection<TournamentDescription>();
             TournamentDescription = new TournamentDescription();
             TournamentDescriptionNameIndex = -1;
 
@@ -187,7 +182,7 @@ namespace WebAdmin.ViewModel
                         {
                             throw new ArgumentException(fileName + ": this line does not have 3 fields: " + line);
                         }
-                        TournamentChairmen.Add(new TournamentChairman() { Name = fields[0], Email = fields[1], Phone = fields[2] });
+                        TournamentChairmen.Add(new TournamentChairman { Name = fields[0], Email = fields[1], Phone = fields[2] });
                     }
                 }
             }
@@ -285,12 +280,12 @@ namespace WebAdmin.ViewModel
 
                 if (!responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    TabViewModelBase.Credentials.CheckForInvalidPassword(responseString);
+                    Credentials.CheckForInvalidPassword(responseString);
                     Logging.Log(WebAddresses.ScriptFolder + WebAddresses.SubmitTournament, responseString);
 
                     HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
                     displayWindow.WebBrowser.NavigateToString(responseString);
-                    displayWindow.Owner = App.Current.MainWindow;
+                    displayWindow.Owner = Application.Current.MainWindow;
                     displayWindow.ShowDialog();
                 }
                 else
@@ -311,7 +306,7 @@ namespace WebAdmin.ViewModel
         {
             if ((Tournament.TournamentKey < 0) || string.IsNullOrEmpty(Tournament.Name))
             {
-                System.Windows.MessageBox.Show("Please select a tournament to update");
+                MessageBox.Show("Please select a tournament to update");
                 return;
             }
 
@@ -345,12 +340,12 @@ namespace WebAdmin.ViewModel
 
                 if (!responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    TabViewModelBase.Credentials.CheckForInvalidPassword(responseString);
+                    Credentials.CheckForInvalidPassword(responseString);
                     Logging.Log(WebAddresses.ScriptFolder + WebAddresses.SubmitTournament, responseString);
 
                     HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
                     displayWindow.WebBrowser.NavigateToString(responseString);
-                    displayWindow.Owner = App.Current.MainWindow;
+                    displayWindow.Owner = Application.Current.MainWindow;
                     displayWindow.ShowDialog();
                 }
                 else
@@ -364,11 +359,11 @@ namespace WebAdmin.ViewModel
         {
             if ((Tournament.TournamentKey < 0) || string.IsNullOrEmpty(Tournament.Name))
             {
-                System.Windows.MessageBox.Show("Please select a tournament to delete");
+                MessageBox.Show("Please select a tournament to delete");
                 return;
             }
 
-            if(System.Windows.MessageBox.Show("Are you sure you want to delete tournament : " +  
+            if(MessageBox.Show("Are you sure you want to delete tournament : " +  
                 Tournament.Name + "?", "Confirm Delete", 
                 MessageBoxButton.YesNo) != MessageBoxResult.Yes)
             {
@@ -404,7 +399,7 @@ namespace WebAdmin.ViewModel
                 Tournament.Reset();
                 TournamentDescription.Clear();
 
-                System.Windows.MessageBox.Show("Deleted tournament");
+                MessageBox.Show("Deleted tournament");
 
                 // Update the list of tournament descriptions
                 GetTournaments(null);
@@ -477,156 +472,8 @@ namespace WebAdmin.ViewModel
 
         public void LoadTournamentFromWebResponse(string webResponse)
         {
-            string[] lines = webResponse.Split('\n');
-            int lineNumber = 0;
-            foreach (string line in lines)
-            {
-                lineNumber++;
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                string[] fields = line.Split(',');
-                if (fields.Length < 20)
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: expected at least 20 fields, got {1} {2}", lineNumber, fields.Length, line));
-                }
-
-                int key;
-                if (!int.TryParse(fields[0], out key))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: key field is not an integer {1}", lineNumber, line));
-                }
-                Tournament.TournamentKey = key;
-                Tournament.Name = fields[1];
-                Tournament.Year = fields[2];
-
-                DateTime dt;
-                if (!DateTime.TryParse(fields[3], out dt))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: start date field (4) is not a date {1}", lineNumber, line));
-                }
-                Tournament.StartDate = dt;
-
-                if (!DateTime.TryParse(fields[4], out dt))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: end date field (5) is not a date {1}", lineNumber, line));
-                }
-                Tournament.EndDate = dt;
-
-                if (!DateTime.TryParse(fields[5], out dt))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: signup start date field (6) is not a date {1}", lineNumber, line));
-                }
-                Tournament.SignupStartDate = dt;
-
-                if (!DateTime.TryParse(fields[6], out dt))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: signup end date field (7) is not a date {1}", lineNumber, line));
-                }
-                Tournament.SignupEndDate = dt;
-
-                if (!DateTime.TryParse(fields[7], out dt))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: cancel date field (8) is not a date {1}", lineNumber, line));
-                }
-                Tournament.CancelEndDate = dt;
-
-                int i;
-                if (!int.TryParse(fields[8], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: local handicap field (9) is not a bool {1}", lineNumber, line));
-                }
-                Tournament.LocalHandicap = (i != 0);
-
-                if (!int.TryParse(fields[9], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: scga field (10) is not a bool {1}", lineNumber, line));
-                }
-                Tournament.ScgaTournament = (i != 0);
-
-                if (!int.TryParse(fields[10], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: team size field (11) is not an integer {1}", lineNumber, line));
-                }
-                for (int index = 0; index < Tournament.TeamSizeList.Count; index++)
-                {
-                    if (i == Tournament.TeamSizeList[index])
-                    {
-                        Tournament.TeamSizeSelectedIndex = index;
-                    }
-                }
-
-                if(!int.TryParse(fields[11], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: tournament description key field is not an integer {1}", lineNumber, line));
-                }
-                Tournament.TournamentDescriptionKey = i;
-
-                if(!int.TryParse(fields[12], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: cost field is not an integer {1}", lineNumber, line));
-                }
-                Tournament.Cost = i;
-
-                if (!int.TryParse(fields[13], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: pool field is not an integer {1}", lineNumber, line));
-                }
-                Tournament.Pool = i;
-
-                Tournament.Chairman.Name = fields[14];
-                Tournament.Chairman.Email = fields[15];
-                Tournament.Chairman.Phone = fields[16];
-
-                Tournament.TournamentType = Tournament.TournamentTypes.Stroke;
-                if (!int.TryParse(fields[17], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: stableford field (18) is not a bool {1}", lineNumber, line));
-                }
-                if (i != 0) Tournament.TournamentType = Tournament.TournamentTypes.Stableford;
-
-                if (!int.TryParse(fields[18], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: eclectic field (19) is not a bool {1}", lineNumber, line));
-                }
-                if (i != 0) Tournament.TournamentType = Tournament.TournamentTypes.Eclectic;
-
-                if (!int.TryParse(fields[19], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: send email field (20) is not a bool {1}", lineNumber, line));
-                }
-                Tournament.SendEmail = (i != 0);
-
-                if (!int.TryParse(fields[20], out i))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: require payment field (21) is not a bool {1}", lineNumber, line));
-                }
-                Tournament.RequirePayment = (i != 0);
-
-                Tournament.TournamentSubType = Tournament.TournamentSubTypes.None;
-                if (fields.Length > 21)
-                {
-                    if (!int.TryParse(fields[21], out i))
-                    {
-                        throw new ArgumentException(
-                            string.Format("Website response: line {0}: require payment field (22) is not a bool {1}",
-                                lineNumber, line));
-                    }
-                    if (i != 0) Tournament.TournamentSubType = Tournament.TournamentSubTypes.ScgaQualifier;
-                }
-
-                if (fields.Length > 22)
-                {
-                    if (!int.TryParse(fields[22], out i))
-                    {
-                        throw new ArgumentException(
-                            string.Format("Website response: line {0}: require payment field (23) is not a bool {1}",
-                                lineNumber, line));
-                    }
-                    if (i != 0) Tournament.TournamentSubType = Tournament.TournamentSubTypes.SrClubChampionship;
-                }
-
-                break;
-            }
+            var jss = new JavaScriptSerializer();
+            Tournament = jss.Deserialize<Tournament>(webResponse);
         }
 
         private void GetTournamentDescriptions(object o)
