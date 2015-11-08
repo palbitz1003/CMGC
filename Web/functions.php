@@ -93,4 +93,7 @@ function IsHTML($fname) {
 	}
 	return false;
 }
+function IntToBool($value){
+	return ($value == 0) ? "false" : "true";
+}
 ?>

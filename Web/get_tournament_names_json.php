@@ -1,5 +1,6 @@
 <?php
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . '/login.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/functions.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 class TournamentName {
@@ -37,8 +38,8 @@ while ( $tournament->fetch () ) {
 	$t->EndDate = $endDate;
 	$t->SignupStartDate = $signupStartDate;
 	$t->TournamentKey = $tournamentKey;
-	$t->IsEclectic = ($isEclectic == 0) ? "false" : "true";
-	$t->IsMatchPlay = ($isMatchPlay == 0) ? "false" : "true";
+	$t->IsEclectic = IntToBool($isEclectic);
+	$t->IsMatchPlay = IntToBool($isMatchPlay);
 	$tournamentNames[] = $t;
 }
 
