@@ -17,7 +17,6 @@ namespace WebAdmin
         public const string SubmitTeeTimes = "/submit_tee_times.php";
         public const string SubmitLocalHandicap = "/submit_local_handicap.php";
         public const string SubmitClosestToThePin = "/submit_closest_to_the_pin.php";
-        public const string SubmitResultsHtml = "/submit_results_html.php";
         public const string SubmitResultsCsv = "/submit_results_csv.php";
         public const string SubmitTournamentDescription = "/submit_tournament_description.php";
         public const string SubmitSignUpsWaitingList = "/submit_signups_waiting_list.php";

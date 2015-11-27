@@ -80,15 +80,6 @@ namespace WebAdmin.ViewModel
             set { _closestToThePinsDay2 = value; OnPropertyChanged(); }
         }
 
-        private string _htmlScoresFileName;
-        public string HtmlScoresFileName { get { return _htmlScoresFileName; } set { _htmlScoresFileName = value; OnPropertyChanged(); } }
-
-        private string _htmlChitsFileName;
-        public string HtmlChitsFileName { get { return _htmlChitsFileName; } set { _htmlChitsFileName = value; OnPropertyChanged(); } }
-
-        private string _htmlPoolFileName;
-        public string HtmlPoolFileName { get { return _htmlPoolFileName; } set { _htmlPoolFileName = value; OnPropertyChanged(); } }
-
         private string _csvFolderName;
         public string CSVFolderName {  get { return _csvFolderName;} set { _csvFolderName = value; OnPropertyChanged();} }
 
@@ -152,14 +143,6 @@ namespace WebAdmin.ViewModel
         public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
         public ICommand SubmitClosestToThePinCommand { get { return new ModelCommand(s => SubmitClosestToThePin(s)); } }
         public ICommand ClearClosestToThePinCommand { get { return new ModelCommand(s => ClearClosestToThePin(s)); } }
-
-        public ICommand SubmitHtmlScoresCommand { get { return new ModelCommand(s => SubmitHtmlScores(s)); } }
-        public ICommand SubmitHtmlChitsCommand { get { return new ModelCommand(s => SubmitHtmlChits(s)); } }
-        public ICommand SubmitHtmlPoolCommand { get { return new ModelCommand(s => SubmitHtmlPool(s)); } }
-
-        public ICommand ClearHtmlScoresCommand { get { return new ModelCommand(s => ClearHtmlScores(s)); } }
-        public ICommand ClearHtmlChitsCommand { get { return new ModelCommand(s => ClearHtmlChits(s)); } }
-        public ICommand ClearHtmlPoolCommand { get { return new ModelCommand(s => ClearHtmlPool(s)); } }
 
         public ICommand SubmitCsvCommand { get { return new ModelCommand(s => SubmitCsv(s)); } }
         public ICommand ClearCsvCommand { get { return new ModelCommand(s => ClearCsv(s)); } }
@@ -582,94 +565,6 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void SubmitResultsHtml(string file, string result)
-        {
-            if (string.IsNullOrEmpty(file))
-            {
-                MessageBox.Show("Please fill in the name of the " + result + " file", "Error");
-                return;
-            }
-
-            if (!File.Exists(file))
-            {
-                MessageBox.Show("File does not exist: " + file, "Error");
-                return;
-            }
-
-            // cancelled password input
-            if (string.IsNullOrEmpty(Credentials.LoginPassword))
-            {
-                return;
-            }
-
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
-
-                using (var multipartFormDataContent = new MultipartFormDataContent())
-                {
-                    var values = new[]
-                            {
-                                new KeyValuePair<string, string>("Login", Credentials.LoginName),
-                                new KeyValuePair<string, string>("Password", Credentials.LoginPassword),
-                                new KeyValuePair<string, string>("TournamentKey", TournamentNames[TournamentNameIndex].TournamentKey.ToString()),
-                                new KeyValuePair<string, string>("Action", "Submit"),
-                                new KeyValuePair<string, string>("Result", result)
-                            };
-
-                    foreach (var keyValuePair in values)
-                    {
-                        multipartFormDataContent.Add(new StringContent(keyValuePair.Value),
-                            String.Format("\"{0}\"", keyValuePair.Key));
-                    }
-
-                    multipartFormDataContent.Add(new ByteArrayContent(File.ReadAllBytes(file)),
-                        '"' + "file" + '"',
-                        '"' + file + '"');
-
-                    var requestUri = WebAddresses.ScriptFolder + WebAddresses.SubmitResultsHtml;
-
-                    string responseString;
-                    using (new WaitCursor())
-                    {
-                        var response = client.PostAsync(requestUri, multipartFormDataContent).Result;
-                        responseString = await response.Content.ReadAsStringAsync();
-                        System.Diagnostics.Debug.WriteLine(responseString);
-                    }
-
-                    if (responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        MessageBox.Show("Submitted " + result + " results");
-                    }
-                    else
-                    {
-                        Credentials.CheckForInvalidPassword(responseString);
-                        Logging.Log(requestUri, responseString);
-
-                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
-                        displayWindow.WebBrowser.NavigateToString(responseString);
-                        displayWindow.Owner = App.Current.MainWindow;
-                        displayWindow.ShowDialog();
-                    }
-                }
-            }
-        }
-
-        private void SubmitHtmlScores(object o)
-        {
-            SubmitResultsHtml(HtmlScoresFileName, "scores");
-        }
-
-        private  void SubmitHtmlChits(object o)
-        {
-            SubmitResultsHtml(HtmlChitsFileName, "chits");
-        }
-
-        private  void SubmitHtmlPool(object o)
-        {
-            SubmitResultsHtml(HtmlPoolFileName, "pool");
-        }
-
         private async Task<bool> ClearResults(string result)
         {
             // cancelled password input
@@ -816,30 +711,6 @@ namespace WebAdmin.ViewModel
                 }
             }
             return false;
-        }
-
-        private async void ClearHtmlScores(object o)
-        {
-            if(await ClearResults("scores"))
-            {
-                MessageBox.Show("Cleared scores results");
-            }
-        }
-
-        private async void ClearHtmlChits(object o)
-        {
-            if (await ClearResults("chits"))
-            {
-                MessageBox.Show("Cleared chits results");
-            }
-        }
-
-        private async void ClearHtmlPool(object o)
-        {
-            if (await ClearResults("pool"))
-            {
-                MessageBox.Show("Cleared pool results");
-            }
         }
 
         private int GetFlight(string fileName)
