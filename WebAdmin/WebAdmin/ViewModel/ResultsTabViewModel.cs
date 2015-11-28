@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Security.RightsManagement;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +18,10 @@ namespace WebAdmin.ViewModel
         #region Properties
         public override string Header { get { return "Results"; } }
         #endregion
+
+        private const string ResultsPool = "ResultsPool";
+        private const string ResultsChits = "ResultsChits";
+        private const string MatchPlayResultsScores = "MatchPlayResultsScores";
 
         private Visibility _getTournamentsVisible;
         public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
@@ -87,7 +92,15 @@ namespace WebAdmin.ViewModel
         public string CsvScoresFileName { get { return _csvScoresFileName; } set { _csvScoresFileName = value; OnPropertyChanged(); } }
 
         private string _csvChitsFileName;
-        public string CsvChitsFileName { get { return _csvChitsFileName; } set { _csvChitsFileName = value; OnPropertyChanged(); } }
+        public string CsvChitsFileName { 
+            get { return _csvChitsFileName; } 
+            set 
+            { 
+                _csvChitsFileName = value;
+                UpdateChitsWinnings();
+                OnPropertyChanged(); 
+            } 
+        }
 
         private List<KeyValuePair<string, string>>[] _csvDay1PoolKvp;
 
@@ -121,17 +134,13 @@ namespace WebAdmin.ViewModel
             set { _csvDay2PoolTotal = value; OnPropertyChanged(); }
         }
 
-        private bool _csvExpanded;
-        public bool CsvExpanded { get { return _csvExpanded; } set { _csvExpanded = value; OnPropertyChanged(); } }
+        private List<KeyValuePair<string, string>> _kvpChitsList;
 
-        private int _poolTotal;
-        public int PoolTotal { get { return _poolTotal; } set { _poolTotal = value; OnPropertyChanged(); } }
+        private string _chitsTotal;
+        public string ChitsTotal { get { return _chitsTotal; } set { _chitsTotal = value; OnPropertyChanged(); } }
 
-        private int _chitsTotal;
-        public int ChitsTotal { get { return _chitsTotal; } set { _chitsTotal = value; OnPropertyChanged(); } }
-
-        private ObservableCollection<PoolWinnings> _poolWinnings;
-        public ObservableCollection<PoolWinnings> PoolWinningsList { get { return _poolWinnings; } set { _poolWinnings = value; OnPropertyChanged(); } }
+        private ObservableCollection<EventWinnings> _eventWinningsList;
+        public ObservableCollection<EventWinnings> EventWinningsList { get { return _eventWinningsList; } set { _eventWinningsList = value; OnPropertyChanged(); } }
 
         private bool _isEclectic;
         public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); ResetFileNames(); } }
@@ -149,6 +158,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand CSVDay1PoolAdjustCommand { get { return new ModelCommand(s => CSVDay1PoolAdjust(s)); } }
         public ICommand CSVDay2PoolAdjustCommand { get { return new ModelCommand(s => CSVDay2PoolAdjust(s)); } }
+        public ICommand ChitsAdjustCommand { get { return new ModelCommand(s => ChitsAdjust(s)); } }
         #endregion
 
         public ResultsTabViewModel()
@@ -158,7 +168,6 @@ namespace WebAdmin.ViewModel
             GotTournamentsVisible = Visibility.Collapsed;
             Is2DayTournament = Visibility.Collapsed;
             TournamentNameIndex = -1;
-            CsvExpanded = true;
 
             CreateEmptyClosestToThePin();
             CsvDay1PoolFileName = new ObservableCollection<string>();
@@ -174,6 +183,7 @@ namespace WebAdmin.ViewModel
                 CsvDay1PoolTotal.Add("$0 Day 1");
                 CsvDay2PoolTotal.Add("$0 Day 2");
             }
+            ChitsTotal = "$0 Chits";
 
             _csvDay1PoolKvp = new List<KeyValuePair<string, string>>[4];
             _csvDay2PoolKvp = new List<KeyValuePair<string, string>>[4];
@@ -208,7 +218,7 @@ namespace WebAdmin.ViewModel
                 AddPoolEntries(CsvDay1PoolFileName[fileIndex], fileIndex + 1, 0, _csvDay1PoolKvp[fileIndex]);
                 LoadAdjustments(CsvDay1PoolFileName[fileIndex], _csvDay1PoolKvp[fileIndex]);
             }
-            CsvDay1PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[fileIndex]).ToString("F0") + " Day 1";
+            CsvDay1PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[fileIndex], ResultsPool).ToString("F0") + " Day 1";
         }
 
         void CsvDay2PoolFileName_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -221,17 +231,29 @@ namespace WebAdmin.ViewModel
                 AddPoolEntries(CsvDay2PoolFileName[fileIndex], fileIndex + 1, 1, _csvDay2PoolKvp[fileIndex]);
                 LoadAdjustments(CsvDay2PoolFileName[fileIndex], _csvDay2PoolKvp[fileIndex]);
             }
-            CsvDay2PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[fileIndex]).ToString("F0") + " Day 2";
-
+            CsvDay2PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[fileIndex], ResultsPool).ToString("F0") + " Day 2";
         }
 
-        private float GetWinningsTotal(List<KeyValuePair<string, string>> kvpPoolList)
+        private void UpdateChitsWinnings()
+        {
+            _kvpChitsList = new List<KeyValuePair<string, string>>();
+
+            if (!string.IsNullOrEmpty(CsvChitsFileName))
+            {
+                AddChitsEntries(CsvChitsFileName, _kvpChitsList);
+                LoadAdjustments(CsvChitsFileName, _kvpChitsList);
+            }
+
+            ChitsTotal = "$" + GetWinningsTotal(_kvpChitsList, ResultsChits).ToString("F0") + " Chits";
+        }
+
+        private float GetWinningsTotal(List<KeyValuePair<string, string>> kvpPoolList, string eventName)
         {
             float winnings = 0;
             bool indexFound = true;
             for (int index = 0; (index < kvpPoolList.Count) && indexFound; index++)
             {
-                string key = string.Format("ResultsPool[{0}][Winnings]", index);
+                string key = string.Format("{0}[{1}][Winnings]", eventName, index);
 
                 indexFound = false;
                 foreach (var kvp in kvpPoolList)
@@ -746,7 +768,7 @@ namespace WebAdmin.ViewModel
             int index = 0;
             foreach(var kvp in kvpList)
             {
-                string key = string.Format("ResultsPool[{0}][Flight]", index);
+                string key = string.Format("{0}[{1}][Flight]", ResultsPool, index);
                 if(kvp.Key == key)
                 {
                     index++;
@@ -767,11 +789,11 @@ namespace WebAdmin.ViewModel
                         if (line.Length == 6)
                         {
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Flight]", index), flight.ToString()));
+                                string.Format("{0}[{1}][Flight]", ResultsPool, index), flight.ToString()));
 
                             // since these are not skins, set the hole number to 0
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Hole]", index), "0"));
+                                string.Format("{0}[{1}][Hole]", ResultsPool, index), "0"));
 
                             DateTime dt;
                             if (TournamentNameIndex >= 0)
@@ -784,13 +806,13 @@ namespace WebAdmin.ViewModel
                             }
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Date]", index), dt.ToString("yyyy-MM-dd")));
+                                string.Format("{0}[{1}][Date]", ResultsPool, index), dt.ToString("yyyy-MM-dd")));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Place]", index), line[2]));
+                                string.Format("{0}[{1}][Place]", ResultsPool, index), line[2]));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Score]", index), line[4]));
+                                string.Format("{0}[{1}][Score]", ResultsPool, index), line[4]));
 
                             float winnings;
                             if (!float.TryParse(line[5], out winnings))
@@ -801,7 +823,7 @@ namespace WebAdmin.ViewModel
                             int w = ((int)((winnings + 2.5f) / 5f)) * 5;
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Winnings]", index), w.ToString()));
+                                string.Format("{0}[{1}][Winnings]", ResultsPool, index), w.ToString()));
 
                             // field 3 looks like "(1 )  Albitz, Paul , 9079663"
                             int paren = line[3].IndexOf(')');
@@ -820,23 +842,23 @@ namespace WebAdmin.ViewModel
                             }
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][TeamNumber]", index), team.Trim()));
+                                string.Format("{0}[{1}][TeamNumber]", ResultsPool, index), team.Trim()));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Name]", index), fields[0].Trim() + ", " + fields[1].Trim()));
+                                string.Format("{0}[{1}][Name]", ResultsPool, index), fields[0].Trim() + ", " + fields[1].Trim()));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][GHIN]", index), fields[2].Trim()));
+                                string.Format("{0}[{1}][GHIN]", ResultsPool, index), fields[2].Trim()));
                         }
 
                         else // skins files have 15 fields
                         {
                             kvpList.Add(new KeyValuePair<string, string>(
-                                    string.Format("ResultsPool[{0}][Flight]", index), flight.ToString()));
+                                    string.Format("{0}[{1}][Flight]", ResultsPool, index), flight.ToString()));
 
                             // with skins, set the Place field to 0
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Place]", index), "0"));
+                                string.Format("{0}[{1}][Place]", ResultsPool, index), "0"));
 
                             DateTime dt;
                             if (TournamentNameIndex >= 0)
@@ -849,13 +871,13 @@ namespace WebAdmin.ViewModel
                             }
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Date]", index), dt.ToString("yyyy-MM-dd")));
+                                string.Format("{0}[{1}][Date]", ResultsPool, index), dt.ToString("yyyy-MM-dd")));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Hole]", index), line[9]));
+                                string.Format("{0}[{1}][Hole]", ResultsPool, index), line[9]));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Score]", index), line[10]));
+                                string.Format("{0}[{1}][Score]", ResultsPool, index), line[10]));
 
                             float winnings;
                             if (!float.TryParse(line[11], out winnings))
@@ -866,13 +888,13 @@ namespace WebAdmin.ViewModel
                             int w = ((int)((winnings + 2.5f) / 5f)) * 5;
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Winnings]", index), w.ToString()));
+                                string.Format("{0}[{1}][Winnings]", ResultsPool, index), w.ToString()));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][TeamNumber]", index), "0"));
+                                string.Format("{0}[{1}][TeamNumber]", ResultsPool, index), "0"));
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][Name]", index), line[8]));
+                                string.Format("{0}[{1}][Name]", ResultsPool, index), line[8]));
 
                             GHINEntry gi = GHINEntry.FindName(GHINEntries, line[8]);
                             int ghinNumber = 0;
@@ -884,7 +906,7 @@ namespace WebAdmin.ViewModel
                             }
 
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsPool[{0}][GHIN]", index), ghinNumber.ToString()));
+                                string.Format("{0}[{1}][GHIN]", ResultsPool, index), ghinNumber.ToString()));
                         }
                         index++;
                     }
@@ -933,13 +955,13 @@ namespace WebAdmin.ViewModel
                         }
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][Date]", index), dt.ToString("yyyy-MM-dd")));
+                            string.Format("{0}[{1}][Date]",ResultsChits , index), dt.ToString("yyyy-MM-dd")));
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][Place]", index), line[3]));
+                            string.Format("{0}[{1}][Place]", ResultsChits , index), line[3]));
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][Score]", index), line[5]));
+                            string.Format("{0}[{1}][Score]", ResultsChits , index), line[5]));
 
                         float winnings;
                         if (!float.TryParse(line[6], out winnings))
@@ -950,7 +972,7 @@ namespace WebAdmin.ViewModel
                         int w = (int)Math.Round(winnings);
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][Winnings]", index), w.ToString()));
+                            string.Format("{0}[{1}][Winnings]", ResultsChits , index), w.ToString()));
 
                         // flight looks like FLT. 1 (0-19)
                         // or: "A"  (QUALIFIER)
@@ -968,16 +990,16 @@ namespace WebAdmin.ViewModel
                         if (!currentFlight.ToLower().Contains("flight") && !currentFlight.ToLower().Contains("flt"))
                         {
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsChits[{0}][FlightName]", index), "Flight " + currentFlight));
+                                string.Format("{0}[{1}][FlightName]", ResultsChits , index), "Flight " + currentFlight));
                         }
                         else
                         {
                             kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("ResultsChits[{0}][FlightName]", index), currentFlight));
+                                string.Format("{0}[{1}][FlightName]", ResultsChits , index), currentFlight));
                         }
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][Flight]", index), currentFlightIndex.ToString()));
+                            string.Format("{0}[{1}][Flight]", ResultsChits , index), currentFlightIndex.ToString()));
 
                         // field 3 looks like "(1 )  Albitz, Paul , 9079663"
                         int paren = line[4].IndexOf(')');
@@ -996,13 +1018,13 @@ namespace WebAdmin.ViewModel
                         }
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][TeamNumber]", index), team.Trim()));
+                            string.Format("{0}[{1}][TeamNumber]", ResultsChits , index), team.Trim()));
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][Name]", index), fields[0].Trim() + ", " + fields[1].Trim()));
+                            string.Format("{0}[{1}][Name]", ResultsChits , index), fields[0].Trim() + ", " + fields[1].Trim()));
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("ResultsChits[{0}][GHIN]", index), fields[2].Trim()));
+                            string.Format("{0}[{1}][GHIN]", ResultsChits , index), fields[2].Trim()));
 
                         index++;
                     }
@@ -1059,13 +1081,13 @@ namespace WebAdmin.ViewModel
                         }
 
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("MatchPlayResultsScores[{0}][Round]", index), line[0]));
+                            string.Format("{0}[{1}][Round]", MatchPlayResultsScores, index), line[0]));
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("MatchPlayResultsScores[{0}][MatchNumber]", index), line[1]));
+                            string.Format("{0}[{1}][MatchNumber]", MatchPlayResultsScores, index), line[1]));
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("MatchPlayResultsScores[{0}][Player1]", index), line[2]));
+                            string.Format("{0}[{1}][Player1]", MatchPlayResultsScores, index), line[2]));
                         kvpList.Add(new KeyValuePair<string, string>(
-                            string.Format("MatchPlayResultsScores[{0}][Player2]", index), line[3]));
+                            string.Format("{0}[{1}][Player2]", MatchPlayResultsScores, index), line[3]));
                         index++;
                     }
                 }
@@ -1256,12 +1278,12 @@ namespace WebAdmin.ViewModel
         }
         
 
-        private void MergeKvp(List<KeyValuePair<string, string>> mergedList, List<KeyValuePair<string, string>> list)
+        private void MergeResultsPoolKvp(List<KeyValuePair<string, string>> mergedList, List<KeyValuePair<string, string>> list)
         {
             int lastIndex = 0;
             foreach (var kvp in mergedList)
             {
-                string key = string.Format("ResultsPool[{0}][Flight]", lastIndex);
+                string key = string.Format("{0}[{1}][Flight]", ResultsPool, lastIndex);
                 if (kvp.Key == key)
                 {
                     lastIndex++;
@@ -1296,7 +1318,7 @@ namespace WebAdmin.ViewModel
             {
                 if (kvp != null)
                 {
-                    MergeKvp(kvpPoolList, kvp);
+                    MergeResultsPoolKvp(kvpPoolList, kvp);
                 }
             }
 
@@ -1304,12 +1326,9 @@ namespace WebAdmin.ViewModel
             {
                 if (kvp != null)
                 {
-                    MergeKvp(kvpPoolList, kvp);
+                    MergeResultsPoolKvp(kvpPoolList, kvp);
                 }
             }
-
-            List<KeyValuePair<string, string>> kvpChitsList = new List<KeyValuePair<string, string>>();
-            AddChitsEntries(CsvChitsFileName, kvpChitsList);
 
             List<List<KeyValuePair<string, string>>> scoresListList = IsMatchPlay 
                 ? AddMatchPlayEntries(CsvScoresFileName) 
@@ -1335,9 +1354,9 @@ namespace WebAdmin.ViewModel
                 submitted += "pool";
             }
 
-            if (kvpChitsList.Count > 0)
+            if (_kvpChitsList.Count > 0)
             {
-                if (!await SubmitResultsCsv(kvpChitsList, "chits", true))
+                if (!await SubmitResultsCsv(_kvpChitsList, "chits", true))
                 {
                     MessageBox.Show("Failed to submit chits results.  Did not try to upload scores.");
                     return;
@@ -1406,9 +1425,9 @@ namespace WebAdmin.ViewModel
         {
             int poolIndex = int.Parse((string)o);
 
-            if (UpdatePool(_csvDay1PoolKvp[poolIndex]))
+            if (UpdateEventWinnings(_csvDay1PoolKvp[poolIndex], ResultsPool))
             {
-                CsvDay1PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[poolIndex]).ToString("F0") + " Day 1";
+                CsvDay1PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[poolIndex], ResultsPool).ToString("F0") + " Day 1";
                 SaveAdjustments(CsvDay1PoolFileName[poolIndex], _csvDay1PoolKvp[poolIndex]);
             }
         }
@@ -1417,10 +1436,19 @@ namespace WebAdmin.ViewModel
         {
             int poolIndex = int.Parse((string)o);
 
-            if (UpdatePool(_csvDay2PoolKvp[poolIndex]))
+            if (UpdateEventWinnings(_csvDay2PoolKvp[poolIndex], ResultsPool))
             {
-                CsvDay2PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[poolIndex]).ToString("F0") + " Day 2";
+                CsvDay2PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[poolIndex], ResultsPool).ToString("F0") + " Day 2";
                 SaveAdjustments(CsvDay2PoolFileName[poolIndex], _csvDay2PoolKvp[poolIndex]);
+            }
+        }
+
+        private void ChitsAdjust(object o)
+        {
+            if (UpdateEventWinnings(_kvpChitsList, ResultsChits))
+            {
+                ChitsTotal = "$" + GetWinningsTotal(_kvpChitsList, ResultsChits).ToString("F0") + " Chits";
+                SaveAdjustments(CsvChitsFileName, _kvpChitsList);
             }
         }
 
@@ -1463,17 +1491,18 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private bool UpdatePool(List<KeyValuePair<string, string>> kvpList)
+        private bool UpdateEventWinnings(List<KeyValuePair<string, string>> kvpList, string eventName)
         {
-            // Convert key value pair list into list of PoolWinningsWindow
-            PoolWinningsList = ConvertKvpToPoolWinnings(kvpList);
-            PoolWinningsWindow pww = new PoolWinningsWindow();
-            pww.DataContext = this;
+            // Convert key value pair list into list of EventWinningsWindow
+            EventWinningsList = ConvertKvpToEventWinnings(kvpList, eventName);
+            EventWinningsWindow eventWinningsWindow = new EventWinningsWindow();
+            eventWinningsWindow.DataContext = this;
+            eventWinningsWindow.Owner = App.Current.MainWindow;
 
-            pww.ShowDialog();
-            if (pww.DialogResult.HasValue && pww.DialogResult.Value)
+            eventWinningsWindow.ShowDialog();
+            if (eventWinningsWindow.DialogResult.HasValue && eventWinningsWindow.DialogResult.Value)
             {
-                foreach(var pw in PoolWinningsList)
+                foreach(var pw in EventWinningsList)
                 {
                     int winnings;
                     if(!int.TryParse(pw.Winnings.Trim(), out winnings))
@@ -1486,20 +1515,29 @@ namespace WebAdmin.ViewModel
                 // Replace all the entries in the list, so the ones with 0 winnings can be removed
                 int index = 0;
                 kvpList.Clear();
-                foreach (var pw in PoolWinningsList)
+                foreach (var pw in EventWinningsList)
                 {
                     int winnings = int.Parse(pw.Winnings.Trim());
                     if(winnings > 0)
                     {
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Winnings]", index), winnings.ToString()));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Flight]", index), pw.Flight));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Date]", index), pw.Date));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Place]", index), pw.Place));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Score]", index), pw.Score));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][TeamNumber]", index), pw.TeamNumber));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Name]", index), pw.Name));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][GHIN]", index), pw.GHIN));
-                        kvpList.Add(new KeyValuePair<string, string>(string.Format("ResultsPool[{0}][Hole]", index), pw.Hole));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][Winnings]", eventName, index), winnings.ToString(CultureInfo.InvariantCulture)));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][Flight]", eventName, index), pw.Flight));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][Date]", eventName, index), pw.Date));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][Place]", eventName, index), pw.Place));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][Score]", eventName, index), pw.Score));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][TeamNumber]", eventName, index), pw.TeamNumber));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][Name]", eventName, index), pw.Name));
+                        kvpList.Add(new KeyValuePair<string, string>(string.Format("{0}[{1}][GHIN]", eventName, index), pw.GHIN));
+                        if (string.CompareOrdinal(eventName, ResultsPool) == 0)
+                        {
+                            kvpList.Add(new KeyValuePair<string, string>(
+                                string.Format("{0}[{1}][Hole]", eventName, index), pw.Hole));
+                        }
+                        if (string.CompareOrdinal(eventName, ResultsChits) == 0)
+                        {
+                            kvpList.Add(new KeyValuePair<string, string>(
+                                string.Format("{0}[{1}][FlightName]", eventName, index), pw.FlightName));
+                        }
                         index++;
                     }
                 }
@@ -1510,9 +1548,9 @@ namespace WebAdmin.ViewModel
             return false;
         }
 
-        private ObservableCollection<PoolWinnings> ConvertKvpToPoolWinnings(List<KeyValuePair<string, string>> kvp)
+        private ObservableCollection<EventWinnings> ConvertKvpToEventWinnings(List<KeyValuePair<string, string>> kvp, string eventName)
         {
-            ObservableCollection<PoolWinnings> winnings = new ObservableCollection<PoolWinnings>();
+            ObservableCollection<EventWinnings> winnings = new ObservableCollection<EventWinnings>();
 
             // Convert the list to a dictionary for easier lookup
             Dictionary<string, string> winningsDict = new Dictionary<string, string>();
@@ -1524,26 +1562,31 @@ namespace WebAdmin.ViewModel
             bool indexExists = true;
             for (int index = 0; indexExists; index++ )
             {
-                string key = string.Format("ResultsPool[{0}][Flight]", index);
+                string key = string.Format("{0}[{1}][Flight]", eventName, index);
                 if (winningsDict.ContainsKey(key))
                 {
-                    PoolWinnings pw = new PoolWinnings();
-                    pw.Index = index;
-                    pw.Flight = winningsDict[string.Format("ResultsPool[{0}][Flight]", index)];
-                    pw.Date = winningsDict[string.Format("ResultsPool[{0}][Date]", index)];
-                    pw.Place = winningsDict[string.Format("ResultsPool[{0}][Place]", index)];
-                    pw.Score = winningsDict[string.Format("ResultsPool[{0}][Score]", index)];
-                    pw.Winnings = winningsDict[string.Format("ResultsPool[{0}][Winnings]", index)];
-                    pw.TeamNumber = winningsDict[string.Format("ResultsPool[{0}][TeamNumber]", index)];
-                    pw.Name = winningsDict[string.Format("ResultsPool[{0}][Name]", index)];
-                    pw.GHIN = winningsDict[string.Format("ResultsPool[{0}][GHIN]", index)];
-                    pw.Hole = winningsDict[string.Format("ResultsPool[{0}][Hole]", index)];
+                    EventWinnings eventWinnings = new EventWinnings();
+                    eventWinnings.Index = index;
+                    eventWinnings.Flight = winningsDict[string.Format("{0}[{1}][Flight]", eventName, index)];
+                    eventWinnings.Date = winningsDict[string.Format("{0}[{1}][Date]", eventName, index)];
+                    eventWinnings.Place = winningsDict[string.Format("{0}[{1}][Place]", eventName, index)];
+                    eventWinnings.Score = winningsDict[string.Format("{0}[{1}][Score]", eventName, index)];
+                    eventWinnings.Winnings = winningsDict[string.Format("{0}[{1}][Winnings]", eventName, index)];
+                    eventWinnings.TeamNumber = winningsDict[string.Format("{0}[{1}][TeamNumber]", eventName, index)];
+                    eventWinnings.Name = winningsDict[string.Format("{0}[{1}][Name]", eventName, index)];
+                    eventWinnings.GHIN = winningsDict[string.Format("{0}[{1}][GHIN]", eventName, index)];
+
+                    // Pool will have "Hole" entry
+                    string hole = string.Format("{0}[{1}][Hole]", eventName, index);
+                    eventWinnings.Hole = winningsDict.ContainsKey(hole) ? winningsDict[hole] : "0";
+
+                    string flightName = string.Format("{0}[{1}][FlightName]", eventName, index);
+                    eventWinnings.FlightName = winningsDict.ContainsKey(flightName) ? winningsDict[flightName] : string.Empty;
 
                     // If skins, then the hole will be > 0
-                    pw.PlaceOrHole = (int.Parse(pw.Hole) > 0) ? pw.Hole : pw.Place;
+                    eventWinnings.PlaceOrHole = (int.Parse(eventWinnings.Hole) > 0) ? eventWinnings.Hole : eventWinnings.Place;
 
-
-                    winnings.Add(pw);
+                    winnings.Add(eventWinnings);
                 }
                 else
                 {

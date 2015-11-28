@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebAdmin
 {
-    public class PoolWinnings
+    public class EventWinnings
     {
         public int Index { get; set; }
         public string Flight { get; set; }
@@ -19,5 +19,6 @@ namespace WebAdmin
         public string GHIN { get; set; }
         public string Hole { get; set; }
         public string PlaceOrHole { get; set; }
+        public string FlightName { get; set; }
     }
 }

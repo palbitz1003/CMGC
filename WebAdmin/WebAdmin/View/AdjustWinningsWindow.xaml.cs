@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace WebAdmin.View
 {
     /// <summary>
-    /// Interaction logic for PoolWinningsWindow.xaml
+    /// Interaction logic for EventWinningsWindow.xaml
     /// </summary>
-    public partial class PoolWinningsWindow : Window
+    public partial class EventWinningsWindow : Window
     {
-        public PoolWinningsWindow()
+        public EventWinningsWindow()
         {
             InitializeComponent();
         }

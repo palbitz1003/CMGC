@@ -96,6 +96,11 @@
                 <TextBox Grid.Row="0" Grid.Column="3" x:Name="CSVChitsTextBox" Margin="5" Width="220" 
                                 Text="{Binding Path=CsvChitsFileName, UpdateSourceTrigger=PropertyChanged}"/>
 
+                <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal" Margin="5" HorizontalAlignment="Center">
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Path=ChitsTotal}"/>
+                    <Button Margin="5,0,5,0" Command="{Binding Path=ChitsAdjustCommand}" CommandParameter="0">Adj</Button>
+                </StackPanel>
+
                 <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">Flight 1</TextBlock>
                 <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">Flight 2</TextBlock>
                 <TextBlock Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">Flight 3</TextBlock>

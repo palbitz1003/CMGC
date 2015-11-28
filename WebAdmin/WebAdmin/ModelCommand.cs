@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace WebAdmin
@@ -28,7 +24,7 @@ namespace WebAdmin
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute != null ? _canExecute(parameter) : true;
+            return _canExecute == null || _canExecute(parameter);
         }
 
         public void Execute(object parameter)
@@ -44,7 +40,7 @@ namespace WebAdmin
 
         #endregion
 
-        private readonly Action<object> _execute = null;
-        private readonly Predicate<object> _canExecute = null;
+        private readonly Action<object> _execute;
+        private readonly Predicate<object> _canExecute;
     }
 }
