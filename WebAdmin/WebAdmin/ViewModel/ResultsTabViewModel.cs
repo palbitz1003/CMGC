@@ -948,6 +948,17 @@ namespace WebAdmin.ViewModel
                             continue;
                         }
 
+                        float winnings;
+                        if (!float.TryParse(line[6], out winnings))
+                        {
+                            throw new ArgumentException(file + ": winnings must be a decimal number: " + line[6]);
+                        }
+                        // round to a multiple of 5
+                        int w = ((int)((winnings + 2.5f) / 5f)) * 5;
+
+                        // skip over players with winnings 0
+                        if (w == 0) continue;
+
                         DateTime dt;
                         if (!DateTime.TryParse(line[0], out dt))
                         {
@@ -962,14 +973,6 @@ namespace WebAdmin.ViewModel
 
                         kvpList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Score]", ResultsChits , index), line[5]));
-
-                        float winnings;
-                        if (!float.TryParse(line[6], out winnings))
-                        {
-                            throw new ArgumentException(file + ": winnings must be a decimal number: " + line[6]);
-                        }
-                        // round to a multiple of 5
-                        int w = (int)Math.Round(winnings);
 
                         kvpList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Winnings]", ResultsChits , index), w.ToString()));

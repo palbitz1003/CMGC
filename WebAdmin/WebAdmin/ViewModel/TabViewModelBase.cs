@@ -144,7 +144,7 @@ namespace WebAdmin.ViewModel
                 {
                     tournamentNames.Add(tournamentName);
                 }
-                else if (tournamentName.StartDate.AddYears(1) > DateTime.Now)
+                else if (tournamentName.StartDate.AddMonths(3) > DateTime.Now)
                 {
                     tournamentNames.Add(tournamentName);
                 }

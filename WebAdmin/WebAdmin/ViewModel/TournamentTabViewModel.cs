@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Web.Script.Serialization;
 using System.Windows.Input;
@@ -219,7 +220,7 @@ namespace WebAdmin.ViewModel
 
                 foreach (var tournamentName in _allTournamentNames)
                 {
-                    if (tournamentName.StartDate.AddYears(1) > DateTime.Now)
+                    if (tournamentName.StartDate.AddMonths(3) > DateTime.Now)
                     {
                         TournamentNames.Add(tournamentName);
                     }
@@ -436,9 +437,23 @@ namespace WebAdmin.ViewModel
 
                     var response = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetTournament, content);
                     var responseString = await response.Content.ReadAsStringAsync();
-                    //MessageBox.Show(responseString);
 
-                    LoadTournamentFromWebResponse(responseString);
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        LoadTournamentFromWebResponse(responseString);
+                    }
+                    else
+                    {
+                        Logging.Log(WebAddresses.ScriptFolder + WebAddresses.GetTournament, responseString);
+
+                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                        if (!string.IsNullOrEmpty(responseString))
+                        {
+                            displayWindow.WebBrowser.NavigateToString(responseString);
+                            displayWindow.Owner = App.Current.MainWindow;
+                            displayWindow.ShowDialog();
+                        }
+                    }
                 }
             }
 
