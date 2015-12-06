@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security.RightsManagement;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -139,6 +140,9 @@ namespace WebAdmin.ViewModel
         private string _chitsTotal;
         public string ChitsTotal { get { return _chitsTotal; } set { _chitsTotal = value; OnPropertyChanged(); } }
 
+        private string _chitsFlights;
+        public string ChitsFlights { get { return _chitsFlights; } set { _chitsFlights = value; OnPropertyChanged(); }}
+
         private ObservableCollection<EventWinnings> _eventWinningsList;
         public ObservableCollection<EventWinnings> EventWinningsList { get { return _eventWinningsList; } set { _eventWinningsList = value; OnPropertyChanged(); } }
 
@@ -183,7 +187,8 @@ namespace WebAdmin.ViewModel
                 CsvDay1PoolTotal.Add("$0 Day 1");
                 CsvDay2PoolTotal.Add("$0 Day 2");
             }
-            ChitsTotal = "$0 Chits";
+            ChitsTotal = "$0 Total chits";
+            ChitsFlights = string.Empty;
 
             _csvDay1PoolKvp = new List<KeyValuePair<string, string>>[4];
             _csvDay2PoolKvp = new List<KeyValuePair<string, string>>[4];
@@ -244,7 +249,8 @@ namespace WebAdmin.ViewModel
                 LoadAdjustments(CsvChitsFileName, _kvpChitsList);
             }
 
-            ChitsTotal = "$" + GetWinningsTotal(_kvpChitsList, ResultsChits).ToString("F0") + " Chits";
+            ChitsTotal = "$" + GetWinningsTotal(_kvpChitsList, ResultsChits).ToString("F0") + " Total chits";
+            ChitsFlights = GetWinningsFlights(_kvpChitsList, ResultsChits);
         }
 
         private float GetWinningsTotal(List<KeyValuePair<string, string>> kvpPoolList, string eventName)
@@ -270,6 +276,59 @@ namespace WebAdmin.ViewModel
             return winnings;
         }
 
+        private string GetWinningsFlights(List<KeyValuePair<string, string>> kvpPoolList, string eventName)
+        {
+            Dictionary<int,string> indexToFlight = new Dictionary<int, string>();
+            List<string> flightNames = new List<string>();
+            List<int> winnings = new List<int>();
+            string flightWinnings = "Flight chits: ";
+
+            Regex exprFlightName = new Regex(eventName + @"\[(\d+)\]\[FlightName\]");
+
+            for (int index = 0; index < kvpPoolList.Count; index++)
+            {
+                Match m = exprFlightName.Match(kvpPoolList[index].Key);
+                if(m.Success)
+                {
+                    indexToFlight[int.Parse(m.Groups[1].Value)] = kvpPoolList[index].Value;
+
+                    if(!flightNames.Contains(kvpPoolList[index].Value))
+                    {
+                        flightNames.Add(kvpPoolList[index].Value);
+                        winnings.Add(0);
+                    }
+                }
+            }
+
+            Regex exprWinnings = new Regex(eventName + @"\[(\d+)\]\[Winnings\]");
+
+            for (int index = 0; index < kvpPoolList.Count; index++)
+            {
+                Match m = exprWinnings.Match(kvpPoolList[index].Key);
+                if (m.Success)
+                {
+                    try
+                    {
+                        int i = int.Parse(m.Groups[1].Value);
+                        int i2 = flightNames.IndexOf(indexToFlight[i]);
+                        winnings[i2] += int.Parse(kvpPoolList[index].Value);
+                    }
+                    catch (Exception)
+                    {
+                        throw new ApplicationException("Failed to collect flight winnings for line: " + kvpPoolList[index].Key);
+                    }
+                    
+                }
+            }
+
+            for(int index = 0; index < winnings.Count; index++)
+            {
+                flightWinnings += (index > 0) ? "/" : string.Empty;
+                flightWinnings += "$" + winnings[index];
+            }
+
+            return flightWinnings;
+        }
 
 
         private void CreateEmptyClosestToThePin()
@@ -1450,7 +1509,7 @@ namespace WebAdmin.ViewModel
         {
             if (UpdateEventWinnings(_kvpChitsList, ResultsChits))
             {
-                ChitsTotal = "$" + GetWinningsTotal(_kvpChitsList, ResultsChits).ToString("F0") + " Chits";
+                ChitsTotal = "$" + GetWinningsTotal(_kvpChitsList, ResultsChits).ToString("F0") + " Total chits";
                 SaveAdjustments(CsvChitsFileName, _kvpChitsList);
             }
         }
@@ -1584,7 +1643,7 @@ namespace WebAdmin.ViewModel
                     eventWinnings.Hole = winningsDict.ContainsKey(hole) ? winningsDict[hole] : "0";
 
                     string flightName = string.Format("{0}[{1}][FlightName]", eventName, index);
-                    eventWinnings.FlightName = winningsDict.ContainsKey(flightName) ? winningsDict[flightName] : string.Empty;
+                    eventWinnings.FlightName = winningsDict.ContainsKey(flightName) ? winningsDict[flightName] : "Flight " + eventWinnings.Flight;
 
                     // If skins, then the hole will be > 0
                     eventWinnings.PlaceOrHole = (int.Parse(eventWinnings.Hole) > 0) ? eventWinnings.Hole : eventWinnings.Place;

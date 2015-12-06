@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Event Winnings"
         WindowStartupLocation="CenterOwner"
-        Height="500" Width="330">
+        Height="500" Width="430">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -13,6 +13,7 @@
                           CanUserAddRows="false" Margin="5" 
                           x:Name="PoolWinningsDataGrid" >
             <DataGrid.Columns>
+                <DataGridTextColumn Header="Flight" Width="120" IsReadOnly="True" Binding="{Binding Path=FlightName}"/>
                 <DataGridTextColumn Header="Name" Width="150" IsReadOnly="True" Binding="{Binding Path=Name}"/>
                 <DataGridTextColumn Header="Place" Width="40" IsReadOnly="True" Binding="{Binding Path=PlaceOrHole}"/>
                 <DataGridTextColumn Header="Winnings" Width="60" Binding="{Binding Path=Winnings}"/>
