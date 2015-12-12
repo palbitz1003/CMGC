@@ -15,15 +15,7 @@ if (isset ( $_POST ['TournamentKey'] )) {
 	die('TournamentKey is not set');
 }
 $t = GetTournament($connection, $tournamentKey);
-
-$t->LocalHandicap = IntToBool($t->LocalHandicap);
-$t->ScgaTournament = IntToBool($t->ScgaTournament);
-$t->SendEmail = IntToBool($t->SendEmail);
-$t->RequirePayment = IntToBool($t->RequirePayment);
-$t->Eclectic = IntToBool($t->Eclectic);
-$t->Stableford = IntToBool($t->Stableford);
-$t->SCGAQualifier = IntToBool($t->SCGAQualifier);
-$t->SrClubChampionship = IntToBool($t->SrClubChampionship);
+$t->ConvertToBool();
 
 echo json_encode($t);
 

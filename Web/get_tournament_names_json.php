@@ -10,7 +10,19 @@ class TournamentName {
 	public $SignupStartDate;
 	public $TournamentKey;
 	public $IsEclectic;
-	public $IsMatchPlay;
+	public $MatchPlay;
+	
+	private function IntToBool($value){
+		return (!isset($value) || ($value == 0)) ? "false" : "true";
+	}
+	
+	// I didn't figure out how to convert 0/1
+	// to true/false on the receiving end ...
+	public function ConvertToBool()
+	{
+		$this->IsEclectic = IntToBool($this->IsEclectic);
+		$this->MatchPlay = IntToBool($this->MatchPlay);
+	}
 }
 $connection = new mysqli ( 'p:' . $db_hostname, $db_username, $db_password, $db_database );
 
@@ -28,7 +40,7 @@ if (! $tournament->execute ()) {
 	die ( $sqlCmd . " execute failed: " . $connection->error );
 }
 
-$tournament->bind_result ( $tournamentKey, $name, $startDate, $endDate, $signupStartDate, $isEclectic, $isMatchPlay );
+$tournament->bind_result ( $tournamentKey, $name, $startDate, $endDate, $signupStartDate, $isEclectic, $matchPlay );
 
 $tournamentNames = array();
 while ( $tournament->fetch () ) {
@@ -38,8 +50,9 @@ while ( $tournament->fetch () ) {
 	$t->EndDate = $endDate;
 	$t->SignupStartDate = $signupStartDate;
 	$t->TournamentKey = $tournamentKey;
-	$t->IsEclectic = IntToBool($isEclectic);
-	$t->IsMatchPlay = IntToBool($isMatchPlay);
+	$t->IsEclectic = $isEclectic;
+	$t->MatchPlay = $matchPlay;
+	$t->ConvertToBool();
 	$tournamentNames[] = $t;
 }
 

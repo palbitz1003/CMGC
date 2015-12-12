@@ -48,8 +48,22 @@ if ($_POST ['Action'] == 'Delete') {
 	$t->RequirePayment = $_POST ['RequirePayment'];
 	$t->SCGAQualifier = $_POST ['SCGAQualifier'];
 	$t->SrClubChampionship = $_POST ['SrClubChampionship'];
-	$t->OnlineSignUp = 1;
-	$t->MatchPlay = 0;
+	if(isset($_POST['OnlineSignUp'])){
+		$t->OnlineSignUp = $_POST['OnlineSignUp'];
+	} else {
+		$t->OnlineSignUp = 1;
+	}
+	if(isset($_POST['MatchPlay'])) {
+		$t->MatchPlay = $_POST['MatchPlay'];
+	} else {
+		$t->MatchPlay = 0;
+	}
+	if(isset($_POST['AllowNonMemberSignup'])){
+		$t->AllowNonMemberSignup = $_POST['AllowNonMemberSignup'];
+	} else {
+		$t->AllowNonMemberSignup = 0;
+	}
+	
 	
 	// var_dump($t);
 	
@@ -82,6 +96,9 @@ if ($_POST ['Action'] == 'Delete') {
 		UpdateTournament($connection, $t->TournamentKey, 'RequirePayment', $t->RequirePayment, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'SCGAQualifier', $t->SCGAQualifier, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'SrClubChampionship', $t->SrClubChampionship, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'OnlineSignUp', $t->OnlineSignUp, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'MatchPlay', $t->MatchPlay, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'AllowNonMemberSignup', $t->AllowNonMemberSignup, 'i');
 	}
 }
 echo "Success";

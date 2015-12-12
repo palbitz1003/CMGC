@@ -76,6 +76,13 @@ if (isset ( $_POST ['Player'] )) {
 			}
 		}
 		
+		
+		// If you put in a GHIN of 0, empty("0") returns true, so change
+		// the GHIN number to "0000000"
+		if (isset($GHIN [$i]) && $GHIN [$i] === '0'){
+			$GHIN [$i] = "0000000";
+		}
+		
 		// Check that both GHIN and Last Name were filled in
 		if (! empty ( $GHIN [$i] ) && empty ( $LastName [$i] )) {
 			$errorList [$i] = 'Player ' . ($i + 1) . ' Last Name must be filled in';
@@ -88,6 +95,7 @@ if (isset ( $_POST ['Player'] )) {
 			} else {
 				// Check that last name matches GHIN database
 				$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
+				
 				// $errorList[$i] = 'Last name is ' . $lastName;
 				if (empty ( $rosterEntry )) {
 					$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is not a member of the Coronado Men's Golf Club";
