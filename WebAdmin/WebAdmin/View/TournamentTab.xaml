@@ -16,8 +16,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <ListBox Grid.Row="0" Grid.Column="0" Name="TournamentListBox" Width="250" Margin="5" 
@@ -33,6 +32,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -51,6 +51,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
@@ -65,10 +67,10 @@
             <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center">Team Size:</TextBlock>
             <TextBlock Grid.Row="10" Grid.Column="0" VerticalAlignment="Center">Cost:</TextBlock>
             <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center">Sign Up:</TextBlock>
-            <TextBlock Grid.Row="12" Grid.Column="0" VerticalAlignment="Center">Chairman:</TextBlock>
-            <TextBlock Grid.Row="13" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
-            <TextBlock Grid.Row="14" Grid.Column="0" VerticalAlignment="Center">Email:</TextBlock>
-            <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Center">Phone:</TextBlock>
+            <TextBlock Grid.Row="13" Grid.Column="0" VerticalAlignment="Center">Chairman:</TextBlock>
+            <TextBlock Grid.Row="14" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
+            <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Center">Email:</TextBlock>
+            <TextBlock Grid.Row="16" Grid.Column="0" VerticalAlignment="Center">Phone:</TextBlock>
             
             <TextBox Grid.Row="0" Grid.Column="1" Name="NameTextbox" Margin="5" Width="300" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Name}"></TextBox>
@@ -92,32 +94,22 @@
 
             <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="Stroke" GroupName="TournamentType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.TournamentType, Mode=TwoWay, 
-                                 Converter={StaticResource enumConverter},
-                                 ConverterParameter=Stroke}"  />
+                    IsChecked="{Binding Path=Tournament.StrokePlay, Mode=TwoWay}" />
                 <RadioButton Content="Eclectic" GroupName="TournamentType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.TournamentType, Mode=TwoWay, 
-                                 Converter={StaticResource enumConverter},
-                                 ConverterParameter=Eclectic}"  />
+                    IsChecked="{Binding Path=Tournament.Eclectic, Mode=TwoWay}"  />
                 <RadioButton Content="Stableford" GroupName="TournamentType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.TournamentType, Mode=TwoWay, 
-                                 Converter={StaticResource enumConverter},
-                                 ConverterParameter=Stableford}"  />
+                    IsChecked="{Binding Path=Tournament.Stableford, Mode=TwoWay }"/>
+                <RadioButton Content="Match Play" Margin="5"
+                    IsChecked="{Binding Path=Tournament.MatchPlay, Mode=TwoWay}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="None" GroupName="TournamentSubType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.TournamentSubType, Mode=TwoWay, 
-                                 Converter={StaticResource enumConverter},
-                                 ConverterParameter=None}"  />
+                    IsChecked="{Binding Path=Tournament.NonSpecificTournament, Mode=TwoWay}"  />
                 <RadioButton Content="SCGA Qualifier" GroupName="TournamentSubType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.TournamentSubType, Mode=TwoWay, 
-                                 Converter={StaticResource enumConverter},
-                                 ConverterParameter=ScgaQualifier}"  />
+                    IsChecked="{Binding Path=Tournament.ScgaQualifier, Mode=TwoWay}"  />
                 <RadioButton Content="Sr Championship" GroupName="TournamentSubType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.TournamentSubType, Mode=TwoWay, 
-                                 Converter={StaticResource enumConverter},
-                                 ConverterParameter=SrClubChampionship}"  />
+                    IsChecked="{Binding Path=Tournament.SrClubChampionship, Mode=TwoWay}"  />
             </StackPanel>
 
             <ListBox Grid.Row="9" Grid.Column="1" Margin="5" Name="TeamSizeListbox" Width="20" HorizontalAlignment="Left"
@@ -140,18 +132,39 @@
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.RequirePayment}">Require Payment</CheckBox>
             </StackPanel>
 
-            <ComboBox Grid.Row="12" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
-                      ItemsSource="{Binding Path=TournamentChairmen}" SelectedIndex="{Binding Path=TournamentChairmenSelectedIndex, Mode=TwoWay}"/>
+            <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
+                <CheckBox  Margin="5" Name="OnLineSignupCheckbox" 
+                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.OnlineSignUp}">Web Signup</CheckBox>
+                <CheckBox  Margin="5" Name="AllowNonMemberSignupCheckbox" 
+                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.AllowNonMemberSignup}">Allow Non-members</CheckBox>
+                </StackPanel>
+
+            <ComboBox Grid.Row="13" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
+                    ItemsSource="{Binding Path=TournamentChairmen}" SelectedIndex="{Binding Path=TournamentChairmenSelectedIndex, Mode=TwoWay}"/>
             
-            <TextBox Grid.Row="13" Grid.Column="1"  Name="ChairmanNameTextbox" Margin="5" Width="150" 
-                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Chairman.Name}"></TextBox>
-            <TextBox Grid.Row="14" Grid.Column="1"  Name="ChairmanEmailTextbox" Margin="5" Width="300" 
-                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Chairman.Email}"></TextBox>
-            <TextBox Grid.Row="15" Grid.Column="1"  Name="ChairmanPhoneTextbox" Margin="5" Width="150" 
-                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Chairman.Phone}"></TextBox>
+            <TextBox Grid.Row="14" Grid.Column="1"  Name="ChairmanNameTextbox" Margin="5" Width="150" 
+                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanName}"></TextBox>
+            <TextBox Grid.Row="15" Grid.Column="1"  Name="ChairmanEmailTextbox" Margin="5" Width="300" 
+                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanEmail}"></TextBox>
+            <TextBox Grid.Row="16" Grid.Column="1"  Name="ChairmanPhoneTextbox" Margin="5" Width="150" 
+                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanPhone}"></TextBox>
+
+            <Grid Grid.Row="0" Grid.RowSpan="20" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ComboBox Grid.Row="0" Grid.Column="0" Margin="5" x:Name="DescriptionListbox" Width="200" HorizontalAlignment="Center"
+                        ItemsSource="{Binding Path=TournamentDescriptionNames}"
+                        SelectedIndex="{Binding Path=TournamentDescriptionNameIndex, Mode=TwoWay}" IsEditable="True" SelectionChanged="DescriptionListbox_SelectionChanged">
+                </ComboBox>
+                <Border Grid.Row="1" Grid.Column="0" Margin="5" BorderThickness="1" BorderBrush="Black">
+                    <WebBrowser  x:Name="WebBrowser"></WebBrowser>
+                </Border>
+            </Grid>
         </Grid>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" HorizontalAlignment="left">
             <Button  Name="SubmitTournamentButton" Margin="5" Padding="5" 
                     Command="{Binding Path=AddTournamentsCommand}">Add Tournament</Button>
             <Button  Name="UpdateTournamentButton" Margin="5" Padding="5" 
@@ -160,22 +173,12 @@
                     Command="{Binding Path=DeleteTournamentsCommand}">Delete Tournament</Button>
         </StackPanel>
 
-        <Grid Grid.Row="0" Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <ComboBox Grid.Row="0" Grid.Column="0" Margin="5" x:Name="DescriptionListbox" Width="200" HorizontalAlignment="Center"
-                     ItemsSource="{Binding Path=TournamentDescriptionNames}"
-                 SelectedIndex="{Binding Path=TournamentDescriptionNameIndex, Mode=TwoWay}" IsEditable="True" SelectionChanged="DescriptionListbox_SelectionChanged">
-            </ComboBox>
-            <WebBrowser  x:Name="WebBrowser" Margin="5" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch"></WebBrowser>
-        </Grid>
-
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" HorizontalAlignment="right" Margin="0,0,70,0">
             <Button Margin="5" Padding="5" Name="GetTournamentDescriptionsButton" 
                 VerticalAlignment="Center" HorizontalAlignment="Center" 
                 Command="{Binding Path=GetTournamentDescriptionCommand}">Get Tournament Descriptions</Button>
         </StackPanel>
+
+        
     </Grid>
 </UserControl>

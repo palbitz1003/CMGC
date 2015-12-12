@@ -21,20 +21,6 @@ namespace WebAdmin
             }
         }
 
-        public enum TournamentTypes
-        {
-            Stroke,
-            Eclectic,
-            Stableford
-        };
-
-        public enum TournamentSubTypes
-        {
-            None,
-            ScgaQualifier,
-            SrClubChampionship
-        };
-
         private string _name;
         public string Name { get { return _name; } set { _name = value; OnPropertyChanged(); } }
 
@@ -85,8 +71,6 @@ namespace WebAdmin
         private bool _scgaTournament;
         public bool ScgaTournament { get { return _scgaTournament; } set { _scgaTournament = value; OnPropertyChanged(); } }
 
-        
-
         public int TeamSize { get { return _teamSizeList[_teamSizeSelectedIndex]; }  }
 
         private ObservableCollection<int> _teamSizeList;
@@ -104,8 +88,14 @@ namespace WebAdmin
         private int _pool;
         public int Pool { get { return _pool; } set { _pool = value; OnPropertyChanged(); } }
 
-        private TournamentChairman _chairman = new TournamentChairman();
-        public TournamentChairman Chairman { get { return _chairman; } set { _chairman = value; OnPropertyChanged(); } }
+        private string _chairmanName;
+        public string ChairmanName { get { return _chairmanName; } set { _chairmanName = value; OnPropertyChanged(); } }
+
+        private string _chairmanEmail;
+        public string ChairmanEmail { get { return _chairmanEmail; } set { _chairmanEmail = value; OnPropertyChanged(); } }
+
+        private string _chairmanPhone;
+        public string ChairmanPhone { get { return _chairmanPhone; } set { _chairmanPhone = value; OnPropertyChanged(); } }
 
         private bool _sendEmail;
         public bool SendEmail { get { return _sendEmail; } set { _sendEmail = value; OnPropertyChanged(); } }
@@ -113,25 +103,53 @@ namespace WebAdmin
         private bool _requirePayment;
         public bool RequirePayment { get { return _requirePayment; } set { _requirePayment = value; OnPropertyChanged(); } }
 
-        public bool Eclectic { get { return TournamentType == TournamentTypes.Eclectic; } }
-        public bool Stableford { get { return TournamentType == TournamentTypes.Stableford; } }
-
-        private TournamentTypes _tournamentType;
-        public TournamentTypes TournamentType
+        public bool StrokePlay
         {
-            get { return _tournamentType; }
-            set { _tournamentType = value; OnPropertyChanged(); }
+            get { return !Eclectic && !Stableford && !MatchPlay; }
+            set
+            {
+                if (value)
+                {
+                    Eclectic = false;
+                    Stableford = false;
+                    MatchPlay = false;
+                }
+            }
         }
 
-        public bool ScgaQualifier { get { return TournamentSubType == TournamentSubTypes.ScgaQualifier; } }
-        public bool SrClubChampionship { get { return TournamentSubType == TournamentSubTypes.SrClubChampionship; } }
+        private bool _eclectic;
+        public bool Eclectic { get { return _eclectic; } set { _eclectic = value; OnPropertyChanged(); OnPropertyChanged("StrokePlay"); } }
 
-        private TournamentSubTypes _tournamentSubType;
-        public TournamentSubTypes TournamentSubType
+        private bool _stableford;
+        public bool Stableford { get { return _stableford; } set { _stableford = value; OnPropertyChanged(); OnPropertyChanged("StrokePlay"); } }
+
+        private bool _matchPlay;
+        public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); OnPropertyChanged("StrokePlay"); } }
+
+        public bool NonSpecificTournament
         {
-            get { return _tournamentSubType; }
-            set { _tournamentSubType = value; OnPropertyChanged(); }
+            get { return !ScgaQualifier && !SrClubChampionship; }
+            set
+            {
+                if (value)
+                {
+                    ScgaQualifier = false;
+                    SrClubChampionship = false;
+                }
+            }
         }
+
+        private bool _scgaQualifier;
+        public bool ScgaQualifier { get { return _scgaQualifier; } set { _scgaQualifier = value; OnPropertyChanged(); } }
+
+        private bool _srClubChampionship;
+        public bool SrClubChampionship { get { return _srClubChampionship; } set { _srClubChampionship = value; OnPropertyChanged(); } }
+
+        private bool _onlineSignUp;
+        public bool OnlineSignUp { get { return _onlineSignUp; } set { _onlineSignUp = value; OnPropertyChanged(); } }
+
+        private bool _allowNonMemberSignup;
+        public bool AllowNonMemberSignup { get { return _allowNonMemberSignup; } set { _allowNonMemberSignup = value; OnPropertyChanged(); } }
 
         public Tournament()
         {
@@ -157,11 +175,13 @@ namespace WebAdmin
             TournamentDescriptionKey = -1;
             Cost = 25;
             Pool = 10;
-            Chairman.Name = String.Empty;
-            Chairman.Email = String.Empty;
-            Chairman.Phone = String.Empty;
-            TournamentType = TournamentTypes.Stroke;
-            TournamentSubType = TournamentSubTypes.None;
+            ChairmanName = String.Empty;
+            ChairmanEmail = String.Empty;
+            ChairmanPhone = String.Empty;
+            Eclectic = false;
+            Stableford = false;
+            ScgaQualifier = false;
+            SrClubChampionship = false;
             SendEmail = true;
             RequirePayment = true;
         }
@@ -183,15 +203,18 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("TournamentDescriptionKey", TournamentDescriptionKey.ToString()));
             values.Add(new KeyValuePair<string, string>("Cost", Cost.ToString()));
             values.Add(new KeyValuePair<string, string>("Pool", Pool.ToString()));
-            values.Add(new KeyValuePair<string, string>("ChairmanName", Chairman.Name));
-            values.Add(new KeyValuePair<string, string>("ChairmanEmail", Chairman.Email));
-            values.Add(new KeyValuePair<string, string>("ChairmanPhone", Chairman.Phone));
+            values.Add(new KeyValuePair<string, string>("ChairmanName", ChairmanName));
+            values.Add(new KeyValuePair<string, string>("ChairmanEmail", ChairmanEmail));
+            values.Add(new KeyValuePair<string, string>("ChairmanPhone", ChairmanPhone));
             values.Add(new KeyValuePair<string, string>("Stableford", Stableford ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("Eclectic", Eclectic ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SendEmail", SendEmail ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("RequirePayment", RequirePayment ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SCGAQualifier", ScgaQualifier ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SrClubChampionship", SrClubChampionship ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("OnlineSignUp", OnlineSignUp ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("MatchPlay", MatchPlay ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("AllowNonMemberSignup", AllowNonMemberSignup ? "1" : "0"));
 
             return values;
         }

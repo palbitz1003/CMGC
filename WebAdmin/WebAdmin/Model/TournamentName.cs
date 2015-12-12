@@ -39,8 +39,8 @@ namespace WebAdmin
         private bool _isEclectic;
         public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); } }
 
-        private bool _isMatchPlay;
-        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged(); } }
+        private bool _matchPlay;
+        public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); } }
 
         public override string ToString()
         {

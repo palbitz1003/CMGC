@@ -193,9 +193,9 @@ namespace WebAdmin.ViewModel
         {
             if(TournamentChairmenSelectedIndex >= 0)
             {
-                Tournament.Chairman.Name = TournamentChairmen[TournamentChairmenSelectedIndex].Name;
-                Tournament.Chairman.Email = TournamentChairmen[TournamentChairmenSelectedIndex].Email;
-                Tournament.Chairman.Phone = TournamentChairmen[TournamentChairmenSelectedIndex].Phone;
+                Tournament.ChairmanName = TournamentChairmen[TournamentChairmenSelectedIndex].Name;
+                Tournament.ChairmanEmail = TournamentChairmen[TournamentChairmenSelectedIndex].Email;
+                Tournament.ChairmanPhone = TournamentChairmen[TournamentChairmenSelectedIndex].Phone;
             }
         }
 

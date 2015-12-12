@@ -52,7 +52,7 @@ namespace WebAdmin.ViewModel
                         Is2DayTournament = (TournamentNames[value].StartDate != TournamentNames[value].EndDate) 
                                                     ? Visibility.Visible : Visibility.Collapsed;
                         IsEclectic = TournamentNames[value].IsEclectic;
-                        IsMatchPlay = TournamentNames[value].IsMatchPlay;
+                        MatchPlay = TournamentNames[value].MatchPlay;
                         LoadClosestToThePinFromWeb();
                     }
                     else
@@ -149,8 +149,8 @@ namespace WebAdmin.ViewModel
         private bool _isEclectic;
         public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); ResetFileNames(); } }
 
-        private bool _isMatchPlay;
-        public bool IsMatchPlay { get { return _isMatchPlay; } set { _isMatchPlay = value; OnPropertyChanged(); } }
+        private bool _matchPlay;
+        public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); } }
 
         #region Commands
         public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
@@ -1392,7 +1392,7 @@ namespace WebAdmin.ViewModel
                 }
             }
 
-            List<List<KeyValuePair<string, string>>> scoresListList = IsMatchPlay 
+            List<List<KeyValuePair<string, string>>> scoresListList = MatchPlay 
                 ? AddMatchPlayEntries(CsvScoresFileName) 
                 : AddScoresEntries(CsvScoresFileName);
 
@@ -1432,7 +1432,7 @@ namespace WebAdmin.ViewModel
             {
                 foreach (var kvpScoresList in scoresListList)
                 {
-                    if (!await SubmitResultsCsv(kvpScoresList, IsMatchPlay ? "match play scores" : "scores", kvpScoresList == scoresListList[0]))
+                    if (!await SubmitResultsCsv(kvpScoresList, MatchPlay ? "match play scores" : "scores", kvpScoresList == scoresListList[0]))
                     {
                         MessageBox.Show("Failed to submit scores results.");
                         return;
