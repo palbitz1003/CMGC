@@ -98,7 +98,7 @@ function InsertSignUpPlayers($connection, $tournamentKey, $submitKey, $GHIN, $Na
 	$playersAdded = 0;
 	$position = 0;
 	for($i = 0; $i < count ( $GHIN ); ++ $i) {
-		if (! empty ( $GHIN [$i] )) {
+		if (isset ( $GHIN [$i] ) && (strlen($GHIN [$i]) > 0) ) {
 			++ $playersAdded;
 			if (! $insert->bind_param ( 'iiiiss', $submitKey, $tournamentKey, $position, $GHIN [$i], $Name [$i], $extra[$i] )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
@@ -171,16 +171,16 @@ function IsPlayerSignedUp($connection, $tournamentKey, $playerGHIN) {
 /*
  * Remove a player from the signup list
  */
-function RemoveSignedUpPlayer($connection, $tournamentKey, $playerGHIN) {
+function RemoveSignedUpPlayer($connection, $tournamentKey, $playerGHIN, $lastName) {
 
-	$sqlCmd = "DELETE FROM `SignUpsPlayers` WHERE `TournamentKey` = ? AND `PlayerGHIN` = ? ";
+	$sqlCmd = "DELETE FROM `SignUpsPlayers` WHERE `TournamentKey` = ? AND `PlayerGHIN` = ? AND `LastName` = ?";
 	$player = $connection->prepare ( $sqlCmd );
 
 	if (! $player) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 
-	if (! $player->bind_param ( 'ii', $tournamentKey, $playerGHIN )) {
+	if (! $player->bind_param ( 'iis', $tournamentKey, $playerGHIN, $lastName )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 

@@ -49,6 +49,7 @@ if (isset ( $_POST ['Player'] )) {
 		
 		$LastName[$i] = stripslashes ( $LastName[$i] ); // remove any slashes before quotes
 		$LastName[$i] = str_replace("'", "", $LastName[$i]); // remove single quotes
+		$LastName[$i] = str_replace('"', "", $LastName[$i]); // remove double quotes
 		$RequestedTime = $_POST ['RequestedTime'];
 		
 		if(($t->TeamSize == 2) && ($t->SCGAQualifier))
@@ -84,7 +85,14 @@ if (isset ( $_POST ['Player'] )) {
 		}
 		
 		// Check that both GHIN and Last Name were filled in
-		if (! empty ( $GHIN [$i] ) && empty ( $LastName [$i] )) {
+		if ($t->AllowNonMemberSignup && ! empty ( $GHIN [$i] ) && !empty ( $LastName [$i]) && ($GHIN [$i] === "0000000")) {
+			if (strpos($LastName [$i], ',') !== FALSE){
+				// No checks for name matching GHIN or if player is already signed up
+				$FullName[$i] = $LastName [$i];
+			} else {
+				$errorList [$i] = 'Please fill in "last name, first name" when using GHIN 0';
+			}
+		} else if (! empty ( $GHIN [$i] ) && empty ( $LastName [$i] )) {
 			$errorList [$i] = 'Player ' . ($i + 1) . ' Last Name must be filled in';
 		} else if (empty ( $GHIN [$i] ) && ! empty ( $LastName [$i] )) {
 			$errorList [$i] = 'Player ' . ($i + 1) . ' GHIN must be filled in';

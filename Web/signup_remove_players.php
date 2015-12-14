@@ -75,7 +75,7 @@ if (isset ( $_POST ['PlayersToRemove'] ) && (count($_POST ['PlayersToRemove']) >
 				$removed = false;
 				for($j = 0; ($j < count($players)) && !$removed; ++$j){
 					if($players[$j]->GHIN == $playersToRemove[$i]){
-						RemoveSignedUpPlayer ( $connection, $tournamentKey, $playersToRemove[$i] );
+						RemoveSignedUpPlayer ( $connection, $tournamentKey, $playersToRemove[$i], $players[$j]->LastName );
 						$playersRemoved[] = $players[$j]->LastName;
 						$removed = true;
 						$playerIndexRemoved = $players[$j]->Position;

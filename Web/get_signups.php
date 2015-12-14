@@ -27,7 +27,11 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 		if (! empty ( $players )) {
 			$players = $players . ",";
 		}
-		$players = $players . '"' . $playersSignedUp [$p]->LastName . '",' . $playersSignedUp [$p]->GHIN . ',' . $playersSignedUp [$p]->Extra;
+		$extra = $playersSignedUp [$p]->Extra;
+		if((strlen($extra) == 0) && ($playersSignedUp [$p]->GHIN === 0)){
+			$extra = "N";
+		}
+		$players = $players . '"' . $playersSignedUp [$p]->LastName . '",' . $playersSignedUp [$p]->GHIN . ',' . $extra;
 	}
 	
 	if (!empty($players)) {

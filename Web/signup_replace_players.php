@@ -83,6 +83,12 @@ if(!$emptyForm){
 
 			for($i = 0; $i < count($_POST ['Player']); ++ $i) {
 				
+				// If you put in a GHIN of 0, empty("0") returns true, so change
+				// the GHIN number to "0000000"
+				if (isset($GHIN [$i]) && $GHIN [$i] === '0'){
+					$GHIN [$i] = "0000000";
+				}
+				
 				// Check if the player is already in the group
 				$playerIsInGroup = false;
 				if (! empty ( $GHIN [$i] ) && ! empty ( $LastName [$i] )) {
@@ -92,10 +98,17 @@ if(!$emptyForm){
 						}
 					}
 				}
-			
+				
 				// Check that both GHIN and Last Name were filled in.
 				// These are the same checks used when signing up.
-				if (! empty ( $GHIN [$i] ) && empty ( $LastName [$i] )) {
+				if ($t->AllowNonMemberSignup && ! empty ( $GHIN [$i] ) && !empty ( $LastName [$i]) && ($GHIN [$i] === "0000000")) {
+					if (strpos($LastName [$i], ',') !== FALSE){
+						// No checks for name matching GHIN or if player is already signed up
+						$FullName[$i] = $LastName [$i];
+					} else {
+						$errorList [$i] = 'Please fill in "last name, first name" when using GHIN 0';
+					}
+				} else if (! empty ( $GHIN [$i] ) && empty ( $LastName [$i] )) {
 					$errorList [$i] = 'Player ' . ($i + 1) . ' Last Name must be filled in';
 				} else if (empty ( $GHIN [$i] ) && ! empty ( $LastName [$i] )) {
 					$errorList [$i] = 'Player ' . ($i + 1) . ' GHIN must be filled in';
@@ -223,7 +236,7 @@ else {
 	
 	// Remove all the players in the group
 	for($i = 0; $i < count($players); ++$i){
-		RemoveSignedUpPlayer ( $connection, $tournamentKey, $players[$i]->GHIN );
+		RemoveSignedUpPlayer ( $connection, $tournamentKey, $players[$i]->GHIN, $players[$i]->LastName );
 	}
 	
 	// Fill in the player fields that were left empty
