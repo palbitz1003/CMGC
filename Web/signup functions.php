@@ -469,15 +469,16 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			echo '<td>' . $signUpArray [$i]->RequestedTime . '</td>';
 			echo '<td>' . $players . '</td>';
 			echo '<td>';
-			if($signUpArray [$i]->Payment >= $signUpArray [$i]->PaymentDue){
-				//echo 'Paid';
-			}
-			else {
+			$needToPay = $signUpArray [$i]->Payment < $signUpArray [$i]->PaymentDue;
+			if($needToPay) {
 				echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp';
 			}
 			echo '<a href="' . $script_folder_href . 'signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
 			echo '<a href="' . $script_folder_href . 'signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
 			echo '<a href="' . $script_folder_href . 'signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
+			if(!$needToPay){
+				echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_merge.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Merge</a>';
+			}
 			echo '</td></tr>' . PHP_EOL;
 		}
 	}
