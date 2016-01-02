@@ -112,9 +112,9 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	
 	if(count($potentialMergeGroups) == 0){
 		if(count($players) == 4){
-			echo '<p>Your group is already full.</p>' . PHP_EOL;
+			echo '<p style="color:red;">Your group is already full.</p>' . PHP_EOL;
 		} else {
-			echo '<p>There are no groups of size ' . $maxSize . ' or less available for merging.</p>' . PHP_EOL;
+			echo '<p style="color:red;">There are no groups of size ' . $maxSize . ' or less available for merging.</p>' . PHP_EOL;
 		}
 	} else {
 		echo '<form name="input" method="post">' . PHP_EOL;
@@ -138,7 +138,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 		
 		for($i = 0; $i < count ( $potentialMergeGroups ); ++ $i) {
 			echo '<option ';
-			if(isset($signup2) && ($signup2->SignUpKey == $potentialMergeGroups [$i]->SignUpKey)){
+			if((isset($signup2) && ($signup2->SignUpKey == $potentialMergeGroups [$i]->SignUpKey)) || (count($potentialMergeGroups) == 1)){
 				echo 'selected="selected" ';
 			}
 			echo 'value="' . $potentialMergeGroups [$i]->SignUpKey . '">' . $potentialMergeGroups [$i]->PlayerNames . '</option>' . PHP_EOL;
@@ -151,10 +151,39 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	}
 } else {
 	// Make the modifications
-
+	$players2 = GetPlayersForSignUp($connection, $signup2->SignUpKey);
+	
+	if(count($players2) == 0){
+		die ("There are no players for merge group signup code " . $signup2->SignUpKey);
+	}
+	
+	// Update the signup position for the players merging into the
+	// group. Position is 0 based.
+	$position = count($players);
+	for($i = 0; $i < count($players2); ++$i){
+		UpdateSignupPlayer($connection, $signup2->SignUpKey, $players2[$i]->GHIN, 'Position', $position, 'i');
+		++$position;
+		// Change the signup key to be the key for the 1st group
+		UpdateSignupPlayer($connection, $signup2->SignUpKey, $players2[$i]->GHIN, 'SignUpKey', $signupKey, 'i');
+	}
+	
+	// Update the payment and payment due to be the sum of the 2 groups
+	UpdateSignup($connection, $signupKey, 'Payment', $signup->Payment + $signup2->Payment, 'd');
+	UpdateSignup($connection, $signupKey, 'PaymentDue', $signup->PaymentDue + $signup2->PaymentDue, 'd');
+	
+	// Remove the 2nd signup
+	DeleteSignup($connection, $signup2->SignUpKey);
 	
 	echo '<p>' . PHP_EOL;
 	echo 'The groups have been merged.' . PHP_EOL;
+	echo '</p>' . PHP_EOL;
+	
+	echo '<p>New group:</p><p>' . PHP_EOL;
+	$players = GetPlayersForSignUp($connection, $signupKey);
+	
+	for($i = 0; $i < count($players); ++$i){
+		echo '&nbsp;&nbsp;&nbsp;' . $players[$i]->LastName . '<br>' . PHP_EOL;
+	}
 	echo '</p>' . PHP_EOL;
 } // end of else clause
 
