@@ -390,7 +390,7 @@ function ShowSignups($connection, $tournamentKey) {
 	
 	echo '<h2 style="text-align:center">' . $t->Name . ' Signups</h2>' . PHP_EOL;
 	
-	echo '<table style="border: none; margin-left:auto;margin-right:auto; width: 95%">' . PHP_EOL;
+	echo '<table style="border: none; margin-left:auto;margin-right:auto;">' . PHP_EOL;
 	echo '<tbody>' . PHP_EOL;
 	
 	if($t->SrClubChampionship){

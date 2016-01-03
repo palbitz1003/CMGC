@@ -174,12 +174,24 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	// Remove the 2nd signup
 	DeleteSignup($connection, $signup2->SignUpKey);
 	
-	echo '<p>' . PHP_EOL;
-	echo 'The groups have been merged.' . PHP_EOL;
-	echo '</p>' . PHP_EOL;
+	echo '<p>The groups have been merged.</p>' . PHP_EOL;
+	
+	$players = GetPlayersForSignUp($connection, $signupKey);
+	
+	if(($t->TeamSize == 2) && ($t->SCGAQualifier)){
+		if(count($players) >= 2){
+			if($players[0]->Extra !== $players[1]->Extra){
+				echo '<p style="color:red;">The flight choices for players 1 & 2 do not match. Use the Modify action from the View Signups page to update the flight choice.' . PHP_EOL;
+			}
+		}
+		if(count($players) == 4){
+			if($players[2]->Extra !== $players[3]->Extra){
+				echo '<p style="color:red;">The flight choices for players 3 & 4 do not match. Use the Modify action from the View Signups page to update the flight choice.' . PHP_EOL;
+			}
+		}
+	}
 	
 	echo '<p>New group:</p><p>' . PHP_EOL;
-	$players = GetPlayersForSignUp($connection, $signupKey);
 	
 	for($i = 0; $i < count($players); ++$i){
 		echo '&nbsp;&nbsp;&nbsp;' . $players[$i]->LastName . '<br>' . PHP_EOL;
