@@ -118,7 +118,7 @@ if ($hasError || !isset ( $_POST ['RequestedTime'] )) {
 	echo '</p>' . PHP_EOL;
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
-	echo 'Access Code: <input type="text" name="AccessCode" value="' .  $_POST['AccessCode'] . '"><br><br>' . PHP_EOL;
+	echo 'Access Code: <input type="text" name="AccessCode" maxlength="4" size="4" value="' .  $_POST['AccessCode'] . '"><br><br>' . PHP_EOL;
 	if(!empty($error)){
 		echo '<p style="color:red;">' . $error . '</p>' . PHP_EOL;
 	}

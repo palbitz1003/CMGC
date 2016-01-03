@@ -173,7 +173,7 @@ if ($hasError || !empty($invalidAccessCodeError) || $emptyForm ) {
 	
 	echo '	<tr>' . PHP_EOL;
 	echo '		<td style="border: none;">Access Code:</td>' . PHP_EOL;
-	echo '		<td style="border: none;"><input type="text" name="AccessCode"' . PHP_EOL;
+	echo '		<td style="border: none;"><input type="text" name="AccessCode " maxlength="4" size="4"' . PHP_EOL;
 	echo '			value="' . $_POST['AccessCode'] . '"></td>' . PHP_EOL;
 	echo '		<td style="border: none;"></td>' . PHP_EOL;
 	echo '	</tr>' . PHP_EOL;
