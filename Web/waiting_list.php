@@ -36,7 +36,7 @@ $query->bind_result ( $position, $name, $dateAdded );
 while ( $query->fetch () ) {
 	$waitingListEntry = new WaitingListEntry();
 	$waitingListEntry->Position = $position;
-	$waitingListEntry->Name = strtoupper($name);  // force upper case, for now
+	$waitingListEntry->Name = $name;
 	$waitingListEntry->DateAdded = $dateAdded;
 	$waitingListEntriesByPosition [] = $waitingListEntry;
 }
@@ -62,7 +62,7 @@ $query->bind_result ( $position, $name, $dateAdded );
 while ( $query->fetch () ) {
 	$waitingListEntry = new WaitingListEntry();
 	$waitingListEntry->Position = $position;
-	$waitingListEntry->Name = strtoupper($name);  // force upper case, for now
+	$waitingListEntry->Name = $name; 
 	$waitingListEntry->DateAdded = $dateAdded;
 	$waitingListEntriesByName [] = $waitingListEntry;
 }

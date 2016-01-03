@@ -28,7 +28,24 @@ if (! isset ( $_POST ['WaitingList'] )) {
 			die ( $sqlCmd . " prepare failed: " . $connection->error );
 		}
 		
-		if (! $insert->bind_param ( 'iss', $_POST ['WaitingList'][$i]['Position'], stripslashes($_POST ['WaitingList'][$i]['Name']), $_POST ['WaitingList'][$i]['DateAdded'] )) {
+		// Change upper case name to normal case
+		$name = stripslashes($_POST ['WaitingList'][$i]['Name']);
+		$nameArray = explode(',', $name);
+		$lastName = ucfirst(strtolower(trim($nameArray[0])));
+		if (strpos($lastName, "'") !== FALSE){
+			// Upper case first letter after apostrophe
+			$nameArray2 = explode("'", $lastName);
+			$lastName = $nameArray2[0] . "'" . ucfirst($nameArray2[1]);
+		}
+		$firstName = ucfirst(strtolower(trim($nameArray[1])));
+		if (strpos($firstName, '(') !== FALSE){
+			// change (ty) back to (Ty)
+			$nameArray2 = explode('(', $firstName);
+			$firstName = $nameArray2[0] . '(' . ucfirst($nameArray2[1]);
+		}
+		$name = $lastName . ', ' . $firstName;
+		
+		if (! $insert->bind_param ( 'iss', $_POST ['WaitingList'][$i]['Position'], $name, $_POST ['WaitingList'][$i]['DateAdded'] )) {
 			die ( $sqlCmd . " bind_param failed: " . $connection->error );
 		}
 		
