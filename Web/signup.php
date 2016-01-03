@@ -107,14 +107,25 @@ if (isset ( $_POST ['Player'] )) {
 				// $errorList[$i] = 'Last name is ' . $lastName;
 				if (empty ( $rosterEntry )) {
 					$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is not a member of the Coronado Men's Golf Club";
-				} else if (strcasecmp ( $LastName [$i], $rosterEntry->LastName ) != 0) {
-					$errorList [$i] = 'Last name for GHIN ' . $GHIN [$i] . ' is not ' . $LastName [$i];
 				} else if(!$rosterEntry->Active) {
 					$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is not an active member of the Coronado Men's Golf Club";
 				} else {
-					// Use the database casing for the last name
-					$LastName [$i] = $rosterEntry->LastName;
-					$FullName[$i] = $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
+					if (strpos($rosterEntry->LastName, ' ') !== FALSE){
+						// Only compare the part before the space
+						$nameArray1 = explode(' ', $rosterEntry->LastName);
+						$nameArray2 = explode(' ', $LastName [$i]);
+						$lastNamesMatch = strcasecmp ( $nameArray1[0], $nameArray2[0] ) == 0;
+					} else {
+						$lastNamesMatch = strcasecmp ( $LastName [$i], $rosterEntry->LastName ) == 0;
+					}
+					
+					if (!$lastNamesMatch) {
+						$errorList [$i] = 'Last name for GHIN ' . $GHIN [$i] . ' is not ' . $LastName [$i];
+					} else {
+						// Use the database casing for the last name
+						$LastName [$i] = $rosterEntry->LastName;
+						$FullName[$i] = $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
+					}
 				}
 			}
 		}
