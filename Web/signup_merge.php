@@ -7,7 +7,7 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
-$overrideTitle = "Merge 2 Groups";
+$overrideTitle = "Add Players";
 
 class MergeSignUpClass {
 	public $SignUpKey;
@@ -76,13 +76,13 @@ if (isset ( $_POST['AccessCode1'] ) || isset ( $_POST['AccessCode2'] ) || isset(
 		$signup2 = GetSignup($connection, $_POST['MergeGroup']);
 		
 		if(empty($signup2)){
-			die("There is no data for signup key (group to merge with): " . $_POST['MergeGroup']);
+			die("There is no data for signup key (group to add): " . $_POST['MergeGroup']);
 		}
 		
 		$accessCode2 = trim($_POST['AccessCode2']);
 	
 		if(empty($accessCode2)){
-			$errorAccessCode2 = "Fill in the access code for the group to merge with";
+			$errorAccessCode2 = "Fill in the access code for the group to add";
 		}
 		else if($signup2->AccessCode != $accessCode2){
 			$errorAccessCode2 = "Invalid access code";
@@ -97,15 +97,14 @@ if (!empty($errorAccessCode1) || ! empty ($errorAccessCode2) || !empty($mergeErr
 
 echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 echo '<div id="content" role="main">' . PHP_EOL;
-echo '<h2 class="entry-title">Merge 2 Groups</h2>' . PHP_EOL;
+echo '<h2 class="entry-title">Add Players</h2>' . PHP_EOL;
 echo '<h3>' . $t->Name . '</h3>' . PHP_EOL;
 
 // If this page has not been filled in or there is an error, show the form
 if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 
-	echo '<p>' . PHP_EOL;
-	echo 'Select a group to merge with, fill in the access codes for both groups, and click Submit' . PHP_EOL;
-	echo '</p>' . PHP_EOL;
+	echo '<p>You can add players to your group. The players must have already signed up and paid.</p>' . PHP_EOL;
+	echo '<p>Select a group to add, fill in the access codes for both groups, and click Submit</p>' . PHP_EOL;
 	
 	$maxSize = 4 - count($players);
 	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey);
@@ -124,7 +123,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 			echo '<p style="color:red;">' . $errorAccessCode1 . '</p>' . PHP_EOL;
 		}
 		
-		echo "Merge Group's Access Code: " . '<input type="text" name="AccessCode2" maxlength="4" size="4" value="' .  $_POST['AccessCode2'] . '"><br><br>' . PHP_EOL;
+		echo "Added Group's Access Code: " . '<input type="text" name="AccessCode2" maxlength="4" size="4" value="' .  $_POST['AccessCode2'] . '"><br><br>' . PHP_EOL;
 		if(!empty($errorAccessCode2)){
 			echo '<p style="color:red;">' . $errorAccessCode2 . '</p>' . PHP_EOL;
 		}
@@ -154,7 +153,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	$players2 = GetPlayersForSignUp($connection, $signup2->SignUpKey);
 	
 	if(count($players2) == 0){
-		die ("There are no players for merge group signup code " . $signup2->SignUpKey);
+		die ("There are no players for added group signup code " . $signup2->SignUpKey);
 	}
 	
 	// Update the signup position for the players merging into the
@@ -174,7 +173,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	// Remove the 2nd signup
 	DeleteSignup($connection, $signup2->SignUpKey);
 	
-	echo '<p>The groups have been merged.</p>' . PHP_EOL;
+	echo '<p>The new players have been added to your group.</p>' . PHP_EOL;
 	
 	$players = GetPlayersForSignUp($connection, $signupKey);
 	

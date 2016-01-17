@@ -477,7 +477,7 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			echo '<a href="' . $script_folder_href . 'signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
 			echo '<a href="' . $script_folder_href . 'signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
 			if(!$needToPay){
-				echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_merge.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Merge</a>';
+				echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
 			}
 			echo '</td></tr>' . PHP_EOL;
 		}
