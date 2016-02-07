@@ -42,13 +42,6 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		echo '<td style="border:none">' . $currentTournaments[$i]->Name . '</td>';
 		echo '<td style="border:none"><a href="' . $script_folder_href . 'tournament_description.php?tournament='  . $currentTournaments [$i]-> TournamentKey . '">Description</a></td>';
 		
-		if ($details->TeeTimesPostedDate != TournamentDetails::EMPTYDATE) {
-			echo '<td style="border:none"><a href="' . $script_folder_href . 'tee_times.php?tournament=' . $currentTournaments[$i]->TournamentKey . '">Tee Times</a></td>';
-		} else {
-			echo '<td style="border:none">Tee Times</td>';
-		}
-		
-		
 		if($now < $startSignUp){
 			if($currentTournaments[$i]->Name == 'Member-Guest'){
 				echo '<td style="border:none">Mail-In Signup</td>';
@@ -68,8 +61,12 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'signups.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">View Signups</a></td>';
 			}
 		}
-		else {
-			echo '<td style="border:none">Sign-up closed</td>';
+		else if ($details->TeeTimesPostedDate != TournamentDetails::EMPTYDATE) {
+			$friendlyDate = date ( 'M d', strtotime ( $details->TeeTimesPostedDate ));
+			echo '<td style="border:none"><a href="' . $script_folder_href . 'tee_times.php?tournament=' . $currentTournaments[$i]->TournamentKey . '">Tee Times</a> (<span style="font-size:small;">posted ' . $friendlyDate . '</span>)</td>';
+			echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>';
+		} else {
+			echo '<td style="border:none">Tee Times (<span style="font-size:small;">pending</span>)</td>';
 			echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>';
 		}
 		
@@ -82,8 +79,6 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		}
 	}
 	echo '</table>' . PHP_EOL;
-	
-	
 }
 
 ShowRecentlyCompletedTournaments($connection, $script_folder_href);
