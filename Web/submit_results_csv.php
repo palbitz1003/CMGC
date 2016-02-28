@@ -53,7 +53,7 @@ if ($_POST ['Action'] == 'Submit') {
 			$p->Date = $_POST ['ResultsPool'] [$i] ['Date'];
 			$p->Flight = $_POST ['ResultsPool'] [$i] ['Flight'];
 			$p->GHIN = $_POST ['ResultsPool'] [$i] ['GHIN'];
-			$p->Name = $_POST ['ResultsPool'] [$i] ['Name'];
+			$p->Name = FixNameCasing($_POST ['ResultsPool'] [$i] ['Name']);
 			if(isset($_POST ['ResultsPool'] [$i] ['Place'])){
 				$p->Place = $_POST ['ResultsPool'] [$i] ['Place'];
 			}
@@ -85,7 +85,7 @@ if ($_POST ['Action'] == 'Submit') {
 			$c->Date = $_POST ['ResultsChits'] [$i] ['Date'];
 			$c->Flight = $_POST ['ResultsChits'] [$i] ['Flight'];
 			$c->GHIN = $_POST ['ResultsChits'] [$i] ['GHIN'];
-			$c->Name = $_POST ['ResultsChits'] [$i] ['Name'];
+			$c->Name = FixNameCasing($_POST ['ResultsChits'] [$i] ['Name']);
 			$c->Place = $_POST ['ResultsChits'] [$i] ['Place'];
 			$c->Score = $_POST ['ResultsChits'] [$i] ['Score'];
 			$c->TeamNumber = $_POST ['ResultsChits'] [$i] ['TeamNumber'];
@@ -107,13 +107,13 @@ if ($_POST ['Action'] == 'Submit') {
 			$c->Date = $_POST ['ResultsScores'] [$i] ['Date'];
 			$c->Flight = $_POST ['ResultsScores'] [$i] ['Flight'];
 			$c->GHIN1 = $_POST ['ResultsScores'] [$i] ['GHIN1'];
-			$c->Name1 = $_POST ['ResultsScores'] [$i] ['Name1'];
+			$c->Name1 = FixNameCasing($_POST ['ResultsScores'] [$i] ['Name1']);
 			$c->GHIN2 = $_POST ['ResultsScores'] [$i] ['GHIN2'];
-			$c->Name2 = $_POST ['ResultsScores'] [$i] ['Name2'];
+			$c->Name2 = FixNameCasing($_POST ['ResultsScores'] [$i] ['Name2']);
 			$c->GHIN3 = $_POST ['ResultsScores'] [$i] ['GHIN3'];
-			$c->Name3 = $_POST ['ResultsScores'] [$i] ['Name3'];
+			$c->Name3 = FixNameCasing($_POST ['ResultsScores'] [$i] ['Name3']);
 			$c->GHIN4 = $_POST ['ResultsScores'] [$i] ['GHIN4'];
-			$c->Name4 = $_POST ['ResultsScores'] [$i] ['Name4'];
+			$c->Name4 = FixNameCasing($_POST ['ResultsScores'] [$i] ['Name4']);
 			$c->ScoreRound1 = $_POST ['ResultsScores'] [$i] ['ScoreRound1'];
 			$c->ScoreRound2 = $_POST ['ResultsScores'] [$i] ['ScoreRound2'];
 			$c->ScoreTotal = $_POST ['ResultsScores'] [$i] ['ScoreTotal'];
@@ -132,8 +132,8 @@ if ($_POST ['Action'] == 'Submit') {
 			$c->TournamentKey = $tournamentKey;
 			$c->Round = $_POST ['MatchPlayResultsScores'] [$i] ['Round'];
 			$c->MatchNumber = $_POST ['MatchPlayResultsScores'] [$i] ['MatchNumber'];
-			$c->Name1 = $_POST ['MatchPlayResultsScores'] [$i] ['Player1'];
-			$c->Name2 = $_POST ['MatchPlayResultsScores'] [$i] ['Player2'];
+			$c->Name1 = FixNameCasing($_POST ['MatchPlayResultsScores'] [$i] ['Player1']);
+			$c->Name2 = FixNameCasing($_POST ['MatchPlayResultsScores'] [$i] ['Player2']);
 			
 			$ScoresResults[] = $c;
 		}

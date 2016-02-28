@@ -38,7 +38,7 @@ if (! isset ( $_POST ['TournamentKey'] )) {
 			// Remove the slashes that PHP adds to single and double quotes
 			$date = stripslashes ( $_POST ['CTP'] [$i] ['Date'] );
 			$ghin = stripslashes ( $_POST ['CTP'] [$i] ['GHIN'] );
-			$name = stripslashes ( $_POST ['CTP'] [$i] ['Name'] );
+			$name = FixNameCasing ( $_POST ['CTP'] [$i] ['Name'] );
 			$hole = stripslashes ( $_POST ['CTP'] [$i] ['Hole'] );
 			$distance = stripslashes ( $_POST ['CTP'] [$i] ['Distance'] );
 			$prize = stripslashes ( $_POST ['CTP'] [$i] ['Prize'] );

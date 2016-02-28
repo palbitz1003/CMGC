@@ -96,4 +96,51 @@ function IsHTML($fname) {
 function IntToBool($value){
 	return ($value == 0) ? "false" : "true";
 }
+function FixNameCasing($name)
+{
+	if(empty($name)){
+		return $name;
+	}
+	
+	$name = stripslashes($name);
+	$nameArray = explode(',', $name);
+	if(count($nameArray) == 1){
+		return ucfirst(strtolower(trim($nameArray[0])));
+	}
+	
+	$lastName = ucfirst(strtolower(trim($nameArray[0])));
+	if(strpos($lastName, ' ') !== FALSE){
+		$lastName = FixCasingWithinName($lastName, ' ');
+	}
+	if (strpos($lastName, "'") !== FALSE){
+		// Upper case first letter after apostrophe
+		$lastName = FixCasingWithinName($lastName, "'");
+	}
+	
+	$firstName = ucfirst(strtolower(trim($nameArray[1])));
+	if(strpos($firstName, ' ') !== FALSE){
+		$firstName = FixCasingWithinName($firstName, ' ');
+	}
+	if (strpos($firstName, '(') !== FALSE){
+		// change (ty) back to (Ty)
+		$firstName = FixCasingWithinName($firstName, '(');
+	}
+	
+	return $lastName . ', ' . $firstName;
+}
+
+function FixCasingWithinName($name, $separator)
+{
+	$nameArray = explode($separator, $name);
+	for($i = 0; $i < count($nameArray); ++$i)
+	{
+		if($i === 0){
+			$name = ucfirst($nameArray[$i]);
+		}
+		else {
+			$name = $name . $separator . ucfirst($nameArray[$i]);
+		}
+	}
+	return $name;
+}
 ?>
