@@ -27,7 +27,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		$tournamentKey = $_POST ['TeeTime'] [$i] ['TournamentKey'];
 		
 		for($player = 0; $player < count ( $_POST ['TeeTime'] [$i] ['Player'] ); ++ $player) {
-			$teeTime->Players [] = $_POST ['TeeTime'] [$i] ['Player'] [$player];
+			$teeTime->Players [] = FixNameCasing($_POST ['TeeTime'] [$i] ['Player'] [$player]);
 			$teeTime->GHIN [] = $_POST ['TeeTime'] [$i] ['GHIN'] [$player];
 		}
 		
