@@ -29,6 +29,7 @@ class Tournament {
 	public $OnlineSignUp;
 	public $MatchPlay;
 	public $AllowNonMemberSignup;
+	public $AnnouncementOnly;
 	
 	private function IntToBool($value){
 		return (!isset($value) || ($value == 0)) ? "false" : "true";
@@ -49,6 +50,7 @@ class Tournament {
 		$this->OnlineSignUp = IntToBool($this->OnlineSignUp);
 		$this->MatchPlay = IntToBool($this->MatchPlay);
 		$this->AllowNonMemberSignup = IntToBool($this->AllowNonMemberSignup);
+		$this->AnnouncementOnly = IntToBool($this->AnnouncementOnly);
 	}
 }
 class TournamentDetails {
@@ -130,7 +132,7 @@ function GetTournaments($connection, $year) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, 
 			$TournamentDescriptionKey, $cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup );
+			$allowNonMemberSignup, $announcementOnly );
 
 	$tournaments = array();
 	while ( $tournament->fetch () ) {
@@ -161,6 +163,7 @@ function GetTournaments($connection, $year) {
 		$t->OnlineSignUp = $onlineSignUp;
 		$t->MatchPlay = $matchPlay;
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
+		$t->AnnouncementOnly = $announcementOnly;
 		
 		if(empty($year)){
 			// return all tournaments
@@ -203,7 +206,7 @@ function GetTournament($connection, $tournamentKey) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, $tournamentDescriptionKey,
 			$cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup ); 
+			$allowNonMemberSignup, $announcementOnly ); 
 
 	$t = null;
 	if($tournament->fetch ()){
@@ -233,6 +236,7 @@ function GetTournament($connection, $tournamentKey) {
 		$t->OnlineSignUp = $onlineSignUp;
 		$t->MatchPlay = $matchPlay;
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
+		$t->AnnouncementOnly = $announcementOnly;
 	}
 
 	$tournament->close ();
@@ -395,16 +399,23 @@ function ShowRecentlyCompletedTournaments($connection, $script_folder_href){
 	
 		for($i = 0; $i < count($currentTournaments); ++$i){
 			echo '<tr style="background-color:white;font-size:large;">';
-			ShowTournamentResults($connection, $currentTournaments [$i], 'style="border:none"', true, $script_folder_href);
+			ShowTournamentResults($connection, $currentTournaments [$i], 'style="border:none"', true, $script_folder_href, false);
 			echo '</tr>' . PHP_EOL;
 		}
 		echo '</tbody></table>' . PHP_EOL;
 	}
 }
 
-function ShowTournamentResults($connection, $tournament, $style, $abbreviated, $script_folder_href)
+function ShowTournamentResults($connection, $tournament, $style, $abbreviated, $script_folder_href, $showAnnouncements)
 {
 	echo '<td ' . $style . '>' . GetFriendlyTournamentDates($tournament) . '</td>';
+	
+	if($tournament->AnnouncementOnly){
+		if($showAnnouncements){
+			echo '<td colspan="6" style="text-align:center" ' . $style . '> ------ ' . $tournament->Name . ' ------ </td>';
+		}
+		return;
+	}
 	
 	echo '<td ' . $style . '>' . $tournament->Name . '</td>';
 	if(!$abbreviated){
@@ -459,20 +470,21 @@ function ShowTournamentResultsLinks($connection, $tournament, $style, $skipThisR
  * Insert a tournament into the database
  */
 function InsertTournament($connection, $tournament) {
-	$sqlCmd = "INSERT INTO `Tournaments` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	$sqlCmd = "INSERT INTO `Tournaments` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 	
-	if (! $insert->bind_param ( 'sssssssiiiiiisssiiiiiiiii', $tournament->Name, $tournament->Year, $tournament->StartDate, $tournament->EndDate, 
+	if (! $insert->bind_param ( 'sssssssiiiiiisssiiiiiiiiii', $tournament->Name, $tournament->Year, $tournament->StartDate, $tournament->EndDate, 
 			$tournament->SignupStartDate, $tournament->SignupEndDate, $tournament->CancelEndDate, $tournament->LocalHandicap, 
 			$tournament->ScgaTournament, $tournament->TeamSize, $tournament->TournamentDescriptionKey,
 			$tournament->Cost, $tournament->Pool, $tournament->ChairmanName, $tournament->ChairmanEmail, 
 			$tournament->ChairmanPhone, $tournament->Stableford, $tournament->Eclectic, $tournament->SendEmail,
 			$tournament->RequirePayment, $tournament->SCGAQualifier, $tournament->SrClubChampionship,
-			$tournament->OnlineSignUp, $tournament->MatchPlay, $tournament->AllowNonMemberSignup )) {
+			$tournament->OnlineSignUp, $tournament->MatchPlay, $tournament->AllowNonMemberSignup,
+			$tournament->AnnouncementOnly )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	

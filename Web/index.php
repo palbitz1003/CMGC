@@ -39,43 +39,50 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		
 		echo '<tr style="font-size:large;">';
 		echo '<td style="border:none">' . GetFriendlyTournamentDates($currentTournaments[$i]) . '</td>';
-		echo '<td style="border:none">' . $currentTournaments[$i]->Name . '</td>';
-		echo '<td style="border:none"><a href="' . $script_folder_href . 'tournament_description.php?tournament='  . $currentTournaments [$i]-> TournamentKey . '">Description</a></td>';
-		
-		if($now < $startSignUp){
-			if($currentTournaments[$i]->Name == 'Member-Guest'){
-				echo '<td style="border:none">Mail-In Signup</td>';
+		if($currentTournaments[$i]->AnnouncementOnly){
+			if($now >= $startSignUp){
+				echo '<td style="border:none;text-align:center" colspan="4"> ------ ' . $currentTournaments[$i]->Name . ' ------ </td>';
 			}
-			else {
-				echo '<td style="border:none">Sign-up starts ' . date ( 'M d', strtotime ( $currentTournaments [$i]->SignupStartDate ) ) . '</td>';
-			}
-			echo '<td style="border:none"></td>';
 		}
-		else if($now <= $endSignUp){
-			if($currentTournaments[$i]->Name == 'Member-Guest'){
-				echo '<td style="border:none">Mail-In Signup</td>';
+		else {
+			echo '<td style="border:none">' . $currentTournaments[$i]->Name . '</td>';
+			echo '<td style="border:none"><a href="' . $script_folder_href . 'tournament_description.php?tournament='  . $currentTournaments [$i]-> TournamentKey . '">Description</a></td>';
+			
+			if($now < $startSignUp){
+				if($currentTournaments[$i]->Name == 'Member-Guest'){
+					echo '<td style="border:none">Mail-In Signup</td>';
+				}
+				else {
+					echo '<td style="border:none">Sign-up starts ' . date ( 'M d', strtotime ( $currentTournaments [$i]->SignupStartDate ) ) . '</td>';
+				}
 				echo '<td style="border:none"></td>';
 			}
-			else {
-				echo '<td style="border:none"><a href="' . $script_folder_href . 'signup.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Sign up</a> (<span style="font-size:small;">ends ' . $endSignUpFriendlyDate . '</span>)</td>';
-				echo '<td style="border:none"><a href="' . $script_folder_href . 'signups.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">View Signups</a></td>';
+			else if($now <= $endSignUp){
+				if($currentTournaments[$i]->Name == 'Member-Guest'){
+					echo '<td style="border:none">Mail-In Signup</td>';
+					echo '<td style="border:none"></td>';
+				}
+				else {
+					echo '<td style="border:none"><a href="' . $script_folder_href . 'signup.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Sign up</a> (<span style="font-size:small;">ends ' . $endSignUpFriendlyDate . '</span>)</td>';
+					echo '<td style="border:none"><a href="' . $script_folder_href . 'signups.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">View Signups</a></td>';
+				}
 			}
-		}
-		else if ($details->TeeTimesPostedDate != TournamentDetails::EMPTYDATE) {
-			$friendlyDate = date ( 'M d', strtotime ( $details->TeeTimesPostedDate ));
-			echo '<td style="border:none"><a href="' . $script_folder_href . 'tee_times.php?tournament=' . $currentTournaments[$i]->TournamentKey . '">Tee Times</a> (<span style="font-size:small;">posted ' . $friendlyDate . '</span>)</td>';
-			echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>';
-		} else {
-			echo '<td style="border:none">Tee Times (<span style="font-size:small;">pending</span>)</td>';
-			echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>';
-		}
-		
-		echo '</tr>' . PHP_EOL;
-		
-		if($currentTournaments[$i]->MatchPlay == 1){
-			echo '<tr><td style="border:none" colspan="6">' . PHP_EOL;
-			ShowMatchResults($connection, $currentTournaments[$i]->TournamentKey);
-			echo '</td></tr>' . PHP_EOL;
+			else if ($details->TeeTimesPostedDate != TournamentDetails::EMPTYDATE) {
+				$friendlyDate = date ( 'M d', strtotime ( $details->TeeTimesPostedDate ));
+				echo '<td style="border:none"><a href="' . $script_folder_href . 'tee_times.php?tournament=' . $currentTournaments[$i]->TournamentKey . '">Tee Times</a> (<span style="font-size:small;">posted ' . $friendlyDate . '</span>)</td>';
+				echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>';
+			} else {
+				echo '<td style="border:none">Tee Times (<span style="font-size:small;">pending</span>)</td>';
+				echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>';
+			}
+			
+			echo '</tr>' . PHP_EOL;
+			
+			if($currentTournaments[$i]->MatchPlay == 1){
+				echo '<tr><td style="border:none" colspan="6">' . PHP_EOL;
+				ShowMatchResults($connection, $currentTournaments[$i]->TournamentKey);
+				echo '</td></tr>' . PHP_EOL;
+			}
 		}
 	}
 	echo '</table>' . PHP_EOL;

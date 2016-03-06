@@ -41,7 +41,7 @@ for($i = 0; $i < count ( $tournaments ); ++ $i) {
 		echo '<tr class="d0">';
 	}
 	
-	ShowTournamentResults($connection, $tournaments [$i], '', false, '');
+	ShowTournamentResults($connection, $tournaments [$i], '', false, '', true);
 
 	echo '</tr>' . PHP_EOL;
 }

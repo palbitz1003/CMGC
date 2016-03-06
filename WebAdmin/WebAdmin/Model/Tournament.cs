@@ -105,7 +105,7 @@ namespace WebAdmin
 
         public bool StrokePlay
         {
-            get { return !Eclectic && !Stableford && !MatchPlay; }
+            get { return !Eclectic && !Stableford && !MatchPlay && !AnnouncementOnly; }
             set
             {
                 if (value)
@@ -113,6 +113,7 @@ namespace WebAdmin
                     Eclectic = false;
                     Stableford = false;
                     MatchPlay = false;
+                    AnnouncementOnly = false;
                 }
             }
         }
@@ -125,6 +126,9 @@ namespace WebAdmin
 
         private bool _matchPlay;
         public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); OnPropertyChanged("StrokePlay"); } }
+
+        private bool _announcementOnly;
+        public bool AnnouncementOnly { get { return _announcementOnly; } set { _announcementOnly = value; OnPropertyChanged(); OnPropertyChanged("StrokePlay"); } }
 
         public bool NonSpecificTournament
         {
@@ -182,6 +186,7 @@ namespace WebAdmin
             Stableford = false;
             ScgaQualifier = false;
             SrClubChampionship = false;
+            AnnouncementOnly = false;
             SendEmail = true;
             RequirePayment = true;
         }
@@ -208,6 +213,7 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("ChairmanPhone", ChairmanPhone));
             values.Add(new KeyValuePair<string, string>("Stableford", Stableford ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("Eclectic", Eclectic ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("AnnouncementOnly", AnnouncementOnly ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SendEmail", SendEmail ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("RequirePayment", RequirePayment ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SCGAQualifier", ScgaQualifier ? "1" : "0"));

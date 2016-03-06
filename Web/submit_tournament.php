@@ -63,6 +63,11 @@ if ($_POST ['Action'] == 'Delete') {
 	} else {
 		$t->AllowNonMemberSignup = 0;
 	}
+	if(isset($_POST['AnnouncementOnly'])){
+		$t->AnnouncementOnly = $_POST['AnnouncementOnly'];
+	} else {
+		$t->AnnouncementOnly = 0;
+	}
 	
 	
 	// var_dump($t);
@@ -99,6 +104,7 @@ if ($_POST ['Action'] == 'Delete') {
 		UpdateTournament($connection, $t->TournamentKey, 'OnlineSignUp', $t->OnlineSignUp, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'MatchPlay', $t->MatchPlay, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'AllowNonMemberSignup', $t->AllowNonMemberSignup, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'AnnouncementOnly', $t->AnnouncementOnly, 'i');
 	}
 }
 echo "Success";
