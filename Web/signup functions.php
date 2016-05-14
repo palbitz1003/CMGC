@@ -772,7 +772,13 @@ function AddPlayerTable($t)
 {
 	echo '<table style="border: none;">' . PHP_EOL;
 	echo '	<colgroup>' . PHP_EOL;
-	echo '		<col style="width: 140px">' . PHP_EOL;
+	if($t->MemberGuest){
+		echo '		<col style="width: 170px">' . PHP_EOL;
+	}
+	else {
+		echo '		<col style="width: 140px">' . PHP_EOL;
+	}
+	
 	echo '		<col>' . PHP_EOL;
 	if($t->SrClubChampionship){
 		echo '		<col>' . PHP_EOL;

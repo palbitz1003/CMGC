@@ -39,6 +39,7 @@ $LastName = array ();
 $FullName = array();
 $Extra = array();
 $RequestedTime = "None";
+$memberSignedUp = array_fill(0, 3, false);
 
 if (isset ( $_POST ['Player'] )) {
 	
@@ -77,17 +78,44 @@ if (isset ( $_POST ['Player'] )) {
 			}
 		}
 		
-		
 		// If you put in a GHIN of 0, empty("0") returns true, so change
 		// the GHIN number to "0000000"
 		if (isset($GHIN [$i]) && $GHIN [$i] === '0'){
 			$GHIN [$i] = "0000000";
 		}
 		
-		// Check that both GHIN and Last Name were filled in
-		if ($t->AllowNonMemberSignup && ! empty ( $GHIN [$i] ) && !empty ( $LastName [$i]) && ($GHIN [$i] === "0000000")) {
+		$guest = ($i % 2) == 1;
+		
+		if($t->MemberGuest && $guest){
+			if(!$memberSignedUp[$i - 1]){
+				// Only check guest if member is signed up
+			} else if(empty ( $LastName [$i]) && empty ( $GHIN [$i] )){
+				// Must sign up with a guest
+				$errorList [$i] = 'No guest signed up with ' . $LastName[$i - 1];
+			} else {
+				if (strpos($LastName [$i], ',') !== FALSE){
+					// No checks for name matching GHIN or if player is already signed up
+					// Just save the the full name.
+					$FullName[$i] = $LastName [$i];
+					
+					if(empty ( $GHIN [$i] ))
+					{
+						$errorList [$i] = 'Fill in GHIN for guest';
+					} else if($GHIN [$i] !== "0000000"){
+						$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
+						if (!empty ( $rosterEntry )) {
+							$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+						}
+					}
+				} else {
+					$errorList [$i] = 'Please fill in "last name, first name" for guests';
+				} 
+			}
+		} else if ($t->AllowNonMemberSignup && ! empty ( $GHIN [$i] ) && !empty ( $LastName [$i]) && ($GHIN [$i] === "0000000")) {
+			// Check that both GHIN and Last Name were filled in
 			if (strpos($LastName [$i], ',') !== FALSE){
 				// No checks for name matching GHIN or if player is already signed up
+				// Just save the the full name.
 				$FullName[$i] = $LastName [$i];
 			} else {
 				$errorList [$i] = 'Please fill in "last name, first name" when using GHIN 0';
@@ -125,6 +153,9 @@ if (isset ( $_POST ['Player'] )) {
 						// Use the database casing for the last name
 						$LastName [$i] = $rosterEntry->LastName;
 						$FullName[$i] = $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
+						if($t->MemberGuest){
+							$memberSignedUp[$i] = true;
+						}
 					}
 				}
 			}
@@ -337,18 +368,56 @@ function AddPlayer($t, $playerNumber, $GHIN, $lastName, $extraForPlayer, $errorF
 {
 	$index = $playerNumber - 1;
 	echo '<tr>' . PHP_EOL;
-	echo '<td style="border: none;">Player ' . $playerNumber . ' GHIN:</td>' . PHP_EOL;
+	echo '<td style="border: none;">' . GetPlayerGHINLabel($t, $playerNumber) . '</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" name="Player[' . $index . '][GHIN]"';
 	echo '    value="' . $GHIN . '"></td>' . PHP_EOL;
 	AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, 2);
 	
 	echo '</tr>' . PHP_EOL;
 	echo '<tr>' . PHP_EOL;
-	echo '<td style="border: none;">Player ' . $playerNumber . ' Last Name:</td>' . PHP_EOL;
+	echo '<td style="border: none;">' . GetPlayerNameLabel($t, $playerNumber) . '</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text"';
 	echo '    name="Player[' . $index . '][LastName]" value="' . $lastName . '"></td>' . PHP_EOL;
 	
 	echo '</tr>';
+}
+
+function GetPlayerGHINLabel($t, $playerNumber)
+{
+	if($t->MemberGuest)
+	{
+		if($playerNumber % 2 != 0)
+		{
+			return 'Member GHIN:';
+		}
+		else 
+		{
+			return 'Guest GHIN:';
+		}
+	}
+	else 
+	{
+		return 'Player ' . $playerNumber . ' GHIN:';
+	}
+}
+
+function GetPlayerNameLabel($t, $playerNumber)
+{
+	if($t->MemberGuest)
+	{
+		if($playerNumber % 2 != 0)
+		{
+			return 'Member Last Name:';
+		}
+		else
+		{
+			return 'Guest Name:<br>(Last Name, First Name)';
+		}
+	}
+	else
+	{
+		return 'Player ' . $playerNumber . ' Last Name:';
+	}
 }
 
 
