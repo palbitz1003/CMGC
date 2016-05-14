@@ -53,6 +53,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -65,13 +66,13 @@
             <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Handicap:</TextBlock>
             <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Type:</TextBlock>
             <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center">Sub-Type:</TextBlock>
-            <TextBlock Grid.Row="10" Grid.Column="0" VerticalAlignment="Center">Team Size:</TextBlock>
-            <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center">Cost:</TextBlock>
-            <TextBlock Grid.Row="12" Grid.Column="0" VerticalAlignment="Center">Sign Up:</TextBlock>
-            <TextBlock Grid.Row="14" Grid.Column="0" VerticalAlignment="Center">Chairman:</TextBlock>
-            <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
-            <TextBlock Grid.Row="16" Grid.Column="0" VerticalAlignment="Center">Email:</TextBlock>
-            <TextBlock Grid.Row="17" Grid.Column="0" VerticalAlignment="Center">Phone:</TextBlock>
+            <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center">Team Size:</TextBlock>
+            <TextBlock Grid.Row="12" Grid.Column="0" VerticalAlignment="Center">Cost:</TextBlock>
+            <TextBlock Grid.Row="13" Grid.Column="0" VerticalAlignment="Center">Sign Up:</TextBlock>
+            <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Center">Chairman:</TextBlock>
+            <TextBlock Grid.Row="16" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
+            <TextBlock Grid.Row="17" Grid.Column="0" VerticalAlignment="Center">Email:</TextBlock>
+            <TextBlock Grid.Row="18" Grid.Column="0" VerticalAlignment="Center">Phone:</TextBlock>
             
             <TextBox Grid.Row="0" Grid.Column="1" Name="NameTextbox" Margin="5" Width="300" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Name}"></TextBox>
@@ -118,7 +119,14 @@
                     IsChecked="{Binding Path=Tournament.SrClubChampionship, Mode=TwoWay}"  />
             </StackPanel>
 
-            <ListBox Grid.Row="10" Grid.Column="1" Margin="5" Name="TeamSizeListbox" HorizontalAlignment="Left"
+            <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
+                <RadioButton Content="Member Guest" GroupName="TournamentSubType" Margin="5" 
+                    IsChecked="{Binding Path=Tournament.MemberGuest, Mode=TwoWay}"  />
+                <RadioButton Content="New Member Mixer" GroupName="TournamentSubType" Margin="5" 
+                    IsChecked="{Binding Path=Tournament.AllowNonMemberSignup, Mode=TwoWay}"  />
+            </StackPanel>
+
+            <ListBox Grid.Row="11" Grid.Column="1" Margin="5" Name="TeamSizeListbox" HorizontalAlignment="Left"
                      ItemsSource="{Binding Path=Tournament.TeamSizeList}" 
                      SelectedIndex="{Binding Path=Tournament.TeamSizeSelectedIndex, Mode=TwoWay}">
                 <ListBox.ItemsPanel>
@@ -127,7 +135,7 @@
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
-            <StackPanel Grid.Row="11" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
                 <TextBlock Margin="5" VerticalAlignment="Center">Entry:</TextBlock>
                 <TextBox  Name="CostTextbox" Margin="5" Width="30" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Cost}"></TextBox>
@@ -136,28 +144,26 @@
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Pool}"></TextBox>
             </StackPanel>
 
-            <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
                 <CheckBox  Margin="5" Name="SendEmailCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.SendEmail}">Send Email</CheckBox>
                 <CheckBox  Margin="5" Name="RequirePaymentCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.RequirePayment}">Require Payment</CheckBox>
             </StackPanel>
 
-            <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="14" Grid.Column="1" Orientation="Horizontal">
                 <CheckBox  Margin="5" Name="OnLineSignupCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.OnlineSignUp}">Web Signup</CheckBox>
-                <CheckBox  Margin="5" Name="AllowNonMemberSignupCheckbox" 
-                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.AllowNonMemberSignup}">Allow Non-members</CheckBox>
                 </StackPanel>
 
-            <ComboBox Grid.Row="14" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
+            <ComboBox Grid.Row="15" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
                     ItemsSource="{Binding Path=TournamentChairmen}" SelectedIndex="{Binding Path=TournamentChairmenSelectedIndex, Mode=TwoWay}"/>
             
-            <TextBox Grid.Row="15" Grid.Column="1"  Name="ChairmanNameTextbox" Margin="5" Width="150" 
+            <TextBox Grid.Row="16" Grid.Column="1"  Name="ChairmanNameTextbox" Margin="5" Width="150" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanName}"></TextBox>
-            <TextBox Grid.Row="16" Grid.Column="1"  Name="ChairmanEmailTextbox" Margin="5" Width="300" 
+            <TextBox Grid.Row="17" Grid.Column="1"  Name="ChairmanEmailTextbox" Margin="5" Width="300" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanEmail}"></TextBox>
-            <TextBox Grid.Row="17" Grid.Column="1"  Name="ChairmanPhoneTextbox" Margin="5" Width="150" 
+            <TextBox Grid.Row="18" Grid.Column="1"  Name="ChairmanPhoneTextbox" Margin="5" Width="150" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanPhone}"></TextBox>
 
             <Grid Grid.Row="0" Grid.RowSpan="20" Grid.Column="2">

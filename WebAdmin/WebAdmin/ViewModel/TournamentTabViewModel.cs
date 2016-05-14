@@ -257,6 +257,12 @@ namespace WebAdmin.ViewModel
                 }
             }
 
+            if(Tournament.ScgaQualifier && Tournament.TeamSize != 2)
+            {
+                MessageBox.Show("SCGA qualifier requires team size to be set to 2.");
+                return;
+            }
+
             Tournament.TournamentDescriptionKey = TournamentDescription.TournamentDescriptionKey;
             bool success = false;
             using (var client = new HttpClient())
@@ -314,6 +320,12 @@ namespace WebAdmin.ViewModel
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
             {
+                return;
+            }
+
+            if (Tournament.ScgaQualifier && Tournament.TeamSize != 2)
+            {
+                MessageBox.Show("SCGA qualifier requires team size to be set to 2.");
                 return;
             }
 

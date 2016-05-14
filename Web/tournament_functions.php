@@ -30,6 +30,7 @@ class Tournament {
 	public $MatchPlay;
 	public $AllowNonMemberSignup;
 	public $AnnouncementOnly;
+	public $MemberGuest;
 	
 	private function IntToBool($value){
 		return (!isset($value) || ($value == 0)) ? "false" : "true";
@@ -51,6 +52,7 @@ class Tournament {
 		$this->MatchPlay = IntToBool($this->MatchPlay);
 		$this->AllowNonMemberSignup = IntToBool($this->AllowNonMemberSignup);
 		$this->AnnouncementOnly = IntToBool($this->AnnouncementOnly);
+		$this->MemberGuest = IntToBool($this->MemberGuest);
 	}
 }
 class TournamentDetails {
@@ -132,7 +134,7 @@ function GetTournaments($connection, $year) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, 
 			$TournamentDescriptionKey, $cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup, $announcementOnly );
+			$allowNonMemberSignup, $announcementOnly, $memberGuest );
 
 	$tournaments = array();
 	while ( $tournament->fetch () ) {
@@ -164,6 +166,7 @@ function GetTournaments($connection, $year) {
 		$t->MatchPlay = $matchPlay;
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
 		$t->AnnouncementOnly = $announcementOnly;
+		$t->MemberGuest = $memberGuest;
 		
 		if(empty($year)){
 			// return all tournaments
@@ -206,7 +209,7 @@ function GetTournament($connection, $tournamentKey) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, $tournamentDescriptionKey,
 			$cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup, $announcementOnly ); 
+			$allowNonMemberSignup, $announcementOnly, $memberGuest ); 
 
 	$t = null;
 	if($tournament->fetch ()){
@@ -237,6 +240,7 @@ function GetTournament($connection, $tournamentKey) {
 		$t->MatchPlay = $matchPlay;
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
 		$t->AnnouncementOnly = $announcementOnly;
+		$t->MemberGuest = $memberGuest;
 	}
 
 	$tournament->close ();

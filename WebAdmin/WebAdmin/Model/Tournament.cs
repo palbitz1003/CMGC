@@ -71,7 +71,21 @@ namespace WebAdmin
         private bool _scgaTournament;
         public bool ScgaTournament { get { return _scgaTournament; } set { _scgaTournament = value; OnPropertyChanged(); } }
 
-        public int TeamSize { get { return _teamSizeList[_teamSizeSelectedIndex]; }  }
+        public int TeamSize
+        {
+            get { return _teamSizeList[_teamSizeSelectedIndex]; }
+            set
+            {
+                for (int i = 0; i < _teamSizeList.Count; i++)
+                {
+                    if(value == _teamSizeList[i])
+                    {
+                        _teamSizeSelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
 
         private ObservableCollection<int> _teamSizeList;
         public ObservableCollection<int> TeamSizeList { get { return _teamSizeList; } set { _teamSizeList = value; OnPropertyChanged(); } }
@@ -155,6 +169,9 @@ namespace WebAdmin
         private bool _allowNonMemberSignup;
         public bool AllowNonMemberSignup { get { return _allowNonMemberSignup; } set { _allowNonMemberSignup = value; OnPropertyChanged(); } }
 
+        private bool _memberGuest;
+        public bool MemberGuest { get { return _memberGuest; } set { _memberGuest = value; OnPropertyChanged();} } 
+
         public Tournament()
         {
             TeamSizeList = new ObservableCollection<int>() { 1, 2, 4 };
@@ -189,6 +206,7 @@ namespace WebAdmin
             AnnouncementOnly = false;
             SendEmail = true;
             RequirePayment = true;
+            MemberGuest = false;
         }
 
         public List<KeyValuePair<string, string>> ToKeyValuePairs()
@@ -221,6 +239,7 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("OnlineSignUp", OnlineSignUp ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("MatchPlay", MatchPlay ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("AllowNonMemberSignup", AllowNonMemberSignup ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("MemberGuest", MemberGuest ? "1" : "0"));
 
             return values;
         }
