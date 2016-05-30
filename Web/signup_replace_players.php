@@ -99,9 +99,26 @@ if(!$emptyForm){
 					}
 				}
 				
-				// Check that both GHIN and Last Name were filled in.
-				// These are the same checks used when signing up.
-				if ($t->AllowNonMemberSignup && ! empty ( $GHIN [$i] ) && !empty ( $LastName [$i]) && ($GHIN [$i] === "0000000")) {
+				// These are the same checks used during signup
+				if($t->MemberGuest && $players[$i]->Extra == "G" && (!empty ( $GHIN [$i] ) || !empty ( $LastName [$i]))){
+					if (strpos($LastName [$i], ',') !== FALSE){
+						// No checks for name matching GHIN or if player is already signed up
+						// Just save the the full name.
+						$FullName[$i] = $LastName [$i];
+							
+						if(empty ( $GHIN [$i] ))
+						{
+							$errorList [$i] = 'Fill in GHIN for guest';
+						} else if($GHIN [$i] !== "0000000"){
+							$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
+							if (!empty ( $rosterEntry )) {
+								$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+							}
+						}
+					} else {
+						$errorList [$i] = 'Please fill in "last name, first name" for guests';
+					}
+				} else if ($t->AllowNonMemberSignup && ! empty ( $GHIN [$i] ) && !empty ( $LastName [$i]) && ($GHIN [$i] === "0000000")) {
 					if (strpos($LastName [$i], ',') !== FALSE){
 						// No checks for name matching GHIN or if player is already signed up
 						$FullName[$i] = $LastName [$i];
@@ -165,28 +182,33 @@ if ($hasError || !empty($invalidAccessCodeError) || $emptyForm ) {
 	echo '<form name="input" method="post">' . PHP_EOL;
 
 	echo '<table style="border: none;">' . PHP_EOL;
-	echo '	<colgroup>' . PHP_EOL;
-	echo '		<col style="width: 140px">' . PHP_EOL;
-	echo '		<col>' . PHP_EOL;
-	echo '		<col>' . PHP_EOL;
-	echo '	</colgroup>' . PHP_EOL;
 	
 	echo '	<tr>' . PHP_EOL;
 	echo '		<td style="border: none;">Access Code:</td>' . PHP_EOL;
-	echo '		<td style="border: none;"><input type="text" name="AccessCode " maxlength="4" size="4"' . PHP_EOL;
+	echo '		<td style="border: none;"><input type="text" name="AccessCode" maxlength="4" size="4"' . PHP_EOL;
 	echo '			value="' . $_POST['AccessCode'] . '"></td>' . PHP_EOL;
 	echo '		<td style="border: none;"></td>' . PHP_EOL;
 	echo '	</tr>' . PHP_EOL;
 	insert_error_line($invalidAccessCodeError, 3);
 
 	echo '	<tr>' . PHP_EOL;
-	echo '		<td style="border: none;">Player 1 GHIN:</td>' . PHP_EOL;
+	if($t->MemberGuest){
+		echo '		<td style="border: none;">Member 1 GHIN:</td>' . PHP_EOL;
+	} else {
+		echo '		<td style="border: none;">Player 1 GHIN:</td>' . PHP_EOL;
+	}
+	
 	echo '		<td style="border: none;"><input type="text" name="Player[0][GHIN]"' . PHP_EOL;
 	echo '			value="' . $GHIN[0] . '"></td>' . PHP_EOL;
 	echo '		<td style="border: none;"></td>' . PHP_EOL;
 	echo '	</tr>' . PHP_EOL;
 	echo '	<tr>' . PHP_EOL;
-	echo '		<td style="border: none;">Player 1 Last Name:</td>' . PHP_EOL;
+	if($t->MemberGuest){
+		echo '		<td style="border: none;">Member 1 Last Name:</td>' . PHP_EOL;
+	} else {
+		echo '		<td style="border: none;">Player 1 Last Name:</td>' . PHP_EOL;
+	}
+	
 	echo '		<td style="border: none;"><input type="text"' . PHP_EOL;
 	echo '			name="Player[0][LastName]" value="' . $LastName[0] . '"></td>' . PHP_EOL;
 	echo '		<td style="border: none;">Replaces ' . $players[0]->LastName . '</td>' . PHP_EOL;
@@ -195,13 +217,23 @@ if ($hasError || !empty($invalidAccessCodeError) || $emptyForm ) {
 	
 	if(count($players) > 1){
 		echo '	<tr>' . PHP_EOL;
-		echo '		<td style="border: none;">Player 2 GHIN:</td>' . PHP_EOL;
+		if($t->MemberGuest){
+			echo '		<td style="border: none;">Guest 2 GHIN:</td>' . PHP_EOL;
+		} else {
+			echo '		<td style="border: none;">Player 2 GHIN:</td>' . PHP_EOL;
+		}
+		
 		echo '		<td style="border: none;"><input type="text" name="Player[1][GHIN]"' . PHP_EOL;
 		echo '			value="' . $GHIN[1] . '"></td>' . PHP_EOL;
 		echo '		<td style="border: none;"></td>' . PHP_EOL;
 		echo '	</tr>' . PHP_EOL;
 		echo '	<tr>' . PHP_EOL;
-		echo '		<td style="border: none;">Player 2 Last Name:</td>' . PHP_EOL;
+		if($t->MemberGuest){
+			echo '		<td style="border: none;">Guest 2 Name (Last, First):</td>' . PHP_EOL;
+		} else {
+			echo '		<td style="border: none;">Player 2 Name:</td>' . PHP_EOL;
+		}
+		
 		echo '		<td style="border: none;"><input type="text"' . PHP_EOL;
 		echo '			name="Player[1][LastName]" value="' . $LastName[1] . '"></td>' . PHP_EOL;
 		echo '		<td style="border: none;">Replaces ' . $players[1]->LastName . '</td>' . PHP_EOL;
@@ -210,13 +242,23 @@ if ($hasError || !empty($invalidAccessCodeError) || $emptyForm ) {
 		}
 	if(count($players) > 2){
 		echo '	<tr>' . PHP_EOL;
-		echo '		<td style="border: none;">Player 3 GHIN:</td>' . PHP_EOL;
+		if($t->MemberGuest){
+			echo '		<td style="border: none;">Member 3 GHIN:</td>' . PHP_EOL;
+		}else {
+			echo '		<td style="border: none;">Player 3 GHIN:</td>' . PHP_EOL;
+		}
+		
 		echo '		<td style="border: none;"><input type="text" name="Player[2][GHIN]"' . PHP_EOL;
 		echo '			value="' . $GHIN[2] . '"></td>' . PHP_EOL;
 		echo '		<td style="border: none;"></td>' . PHP_EOL;
 		echo '	</tr>' . PHP_EOL;
 		echo '	<tr>' . PHP_EOL;
-		echo '		<td style="border: none;">Player 3 Last Name:</td>' . PHP_EOL;
+		if($t->MemberGuest){
+			echo '		<td style="border: none;">Member 3 Last Name:</td>' . PHP_EOL;
+		} else {
+			echo '		<td style="border: none;">Player 3 Last Name:</td>' . PHP_EOL;
+		}
+		
 		echo '		<td style="border: none;"><input type="text"' . PHP_EOL;
 		echo '			name="Player[2][LastName]" value="' . $LastName[2]. '"></td>' . PHP_EOL;
 		echo '		<td style="border: none;">Replaces ' . $players[2]->LastName . '</td>' . PHP_EOL;
@@ -225,13 +267,23 @@ if ($hasError || !empty($invalidAccessCodeError) || $emptyForm ) {
 	}
 	if(count($players) > 3){
 		echo '	<tr>' . PHP_EOL;
-		echo '		<td style="border: none;">Player 4 GHIN:</td>' . PHP_EOL;
+		if($t->MemberGuest){
+			echo '		<td style="border: none;">Guest 4 GHIN:</td>' . PHP_EOL;
+		} else {
+			echo '		<td style="border: none;">Player 4 GHIN:</td>' . PHP_EOL;
+		}
+		
 		echo '		<td style="border: none;"><input type="text" name="Player[3][GHIN]"' . PHP_EOL;
 		echo '			value="' . $GHIN[3] . '"></td>' . PHP_EOL;
 		echo '		<td style="border: none;"></td>' . PHP_EOL;
 		echo '	</tr>' . PHP_EOL;
 		echo '	<tr>' . PHP_EOL;
-		echo '		<td style="border: none;">Player 4 Last Name:</td>' . PHP_EOL;
+		if($t->MemberGuest){
+			echo '		<td style="border: none;">Guest 4 Name (Last, First):</td>' . PHP_EOL;
+		} else {
+			echo '		<td style="border: none;">Player 4 Last Name:</td>' . PHP_EOL;
+		}
+		
 		echo '		<td style="border: none;"><input type="text"' . PHP_EOL;
 		echo '			name="Player[3][LastName]" value="' . $LastName[3] . '"></td>' . PHP_EOL;
 		echo '		<td style="border: none;">Replaces ' . $players[3]->LastName . '</td>' . PHP_EOL;

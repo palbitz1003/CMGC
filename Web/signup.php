@@ -97,6 +97,7 @@ if (isset ( $_POST ['Player'] )) {
 					// No checks for name matching GHIN or if player is already signed up
 					// Just save the the full name.
 					$FullName[$i] = $LastName [$i];
+					$Extra[$i] = "G"; // "Guest" flight
 					
 					if(empty ( $GHIN [$i] ))
 					{
@@ -155,6 +156,7 @@ if (isset ( $_POST ['Player'] )) {
 						$FullName[$i] = $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
 						if($t->MemberGuest){
 							$memberSignedUp[$i] = true;
+							$Extra[$i] = "M"; // "Member" flight
 						}
 					}
 				}
@@ -201,7 +203,12 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		DisplayTournamentDetails($t); 
 	}
 	echo '<p>' . PHP_EOL;
-	echo 'Fill in the GHIN and last name for 1-4 players.  Player 1 must be filled in.' . PHP_EOL;
+	if($t->MemberGuest){
+		echo 'Fill in the GHIN and last name for members and GHIN and both the last name and first name for guests.' . PHP_EOL;
+	} else {
+		echo 'Fill in the GHIN and last name for 1-4 players.  Player 1 must be filled in.' . PHP_EOL;
+	}
+	
 	echo '</p>' . PHP_EOL;
 	if($t->RequirePayment) { 
 		echo '<p>This is only step 1.  After entering the list of players, you will be asked to pay the tournament fee.</p>' . PHP_EOL;

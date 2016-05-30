@@ -75,10 +75,25 @@ if (isset ( $_POST ['PlayersToRemove'] ) && (count($_POST ['PlayersToRemove']) >
 				$removed = false;
 				for($j = 0; ($j < count($players)) && !$removed; ++$j){
 					if($players[$j]->GHIN == $playersToRemove[$i]){
+						if($tournament->MemberGuest){
+							// Check that the database is consistent
+							if($players[$j]->Extra != "M") die("Remove failed: This is member/guest and the person to remove is not the member");
+							if(($j + 1) > count($players)) die("Remove failed: This is member/guest and the array does not have a 2nd player to remove");
+							if($players[$j+1]->Extra != "G") die("Remove failed: This is member/guest and the guest is not the next player signed up");
+						}
 						RemoveSignedUpPlayer ( $connection, $tournamentKey, $playersToRemove[$i], $players[$j]->LastName );
 						$playersRemoved[] = $players[$j]->LastName;
 						$removed = true;
 						$playerIndexRemoved = $players[$j]->Position;
+						
+						if($tournament->MemberGuest){
+							// Remove the guest too, which will be the next one signed up
+							++$j;
+							RemoveSignedUpPlayer ( $connection, $tournamentKey, $players[$j]->GHIN, $players[$j]->LastName );
+							$playersRemoved[] = $players[$j]->LastName;
+							$removed = true;
+							$playerIndexRemoved = $players[$j]->Position;
+						}
 					}
 				}
 				
@@ -137,6 +152,13 @@ if (isset ( $_POST ['PlayersToRemove'] ) && (count($_POST ['PlayersToRemove']) >
 					}
 				}
 			}
+			else {
+				// Just update everyone's position to fill the missing spot
+				$players = GetPlayersForSignUp($connection, $signupKey);
+				for($i = 0; ($i < count($players)); ++$i){
+					UpdateSignupPlayer($connection, $signupKey, $players[$i]->GHIN, 'Position', $i, 'i');
+				}
+			}
 			
 			$players = GetPlayersForSignUp($connection, $signupKey);
 			if(empty($players)){
@@ -171,7 +193,13 @@ else {
 	echo 'Players to remove:<p>' . PHP_EOL;
 	
 	for($i = 0; $i < count($players); ++$i){
-		echo '&nbsp;&nbsp;&nbsp;<input  type="checkbox" name="PlayersToRemove[]" value="' . $players[$i]->GHIN . '">' . $players[$i]->LastName . '<br>' . PHP_EOL;
+		if($tournament->MemberGuest && $players[$i]->Extra == "M"){
+			// Removing the member will also remove the guest
+			echo '&nbsp;&nbsp;&nbsp;<input  type="checkbox" name="PlayersToRemove[]" value="' . $players[$i]->GHIN . '">' . $players[$i]->LastName . " and " . $players[$i+1]->LastName . '<br>' . PHP_EOL;
+			++$i; // skip over guest
+		} else {
+			echo '&nbsp;&nbsp;&nbsp;<input  type="checkbox" name="PlayersToRemove[]" value="' . $players[$i]->GHIN . '">' . $players[$i]->LastName . '<br>' . PHP_EOL;
+		}
 	}
 	
 	echo '</p>' . PHP_EOL;
