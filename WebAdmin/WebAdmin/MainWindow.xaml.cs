@@ -28,12 +28,6 @@ namespace WebAdmin
         private const string OptionsFileName = "options.xml";
         public ObservableCollection<ITabViewModel> TabViewModels { get; set; }
         public ITabViewModel SelectedTabViewModel { get; set; }
-        
-
-        const string PayoffReport = "Payoff.vpi";
-        const string SubPayoffReport = "SubPayoff.vpi";
-        const string VPFolder = @"C:\Program Files (x86)\VP Golf\Database and Reports3";
-        const string OrigExtension = ".orig";
 
         private StatusMsg _statusMsg;
         public StatusMsg StatusMsg { get { return _statusMsg; } set { _statusMsg = value; OnPropertyChanged(); } }
@@ -105,109 +99,8 @@ namespace WebAdmin
                     MessageBox.Show("Please go to the Admin tab and specify the GHIN file name.  Without the GHIN file, auto-completion will not work.");
                 }
             }
-
-            SwapInModifiedReportFiles();
         }
 
-
-        private void SwapInModifiedReportFiles()
-        {
-            string vpPayoffReport = System.IO.Path.Combine(VPFolder, PayoffReport);
-            string vpSubPayoffReport = System.IO.Path.Combine(VPFolder, SubPayoffReport);
-
-
-            if(File.Exists(PayoffReport) && File.Exists(vpPayoffReport))
-            {
-                if (File.Exists(vpPayoffReport + OrigExtension))
-                {
-                    // Delete, since we are not renaming the file
-                    File.Delete(vpPayoffReport);
-                }
-                else
-                {
-                    // Rename the file to save it for later
-                    try
-                    {
-                        File.Move(vpPayoffReport, vpPayoffReport + OrigExtension);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Unable to rename " + vpPayoffReport + Environment.NewLine + Environment.NewLine + " Exit VP golf before starting up WebAdmin.");
-                        Application.Current.Shutdown();
-                        return;
-                    }
-                }
-                // Copy in our local version
-                File.Copy(PayoffReport, vpPayoffReport);
-            }
-
-            if(File.Exists(SubPayoffReport) && File.Exists(vpSubPayoffReport))
-            {
-                if (File.Exists(vpSubPayoffReport + OrigExtension))
-                {
-                    // Delete, since we are not renaming the file
-                    File.Delete(vpSubPayoffReport);
-                }
-                else
-                {
-                    // Rename the file to save it for later
-                    try 
-                    { 
-                        File.Move(vpSubPayoffReport, vpSubPayoffReport + OrigExtension);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Unable to rename " + vpSubPayoffReport + Environment.NewLine + Environment.NewLine + " Exit VP golf before starting up WebAdmin.");
-                        Application.Current.Shutdown();
-                        return;
-                    }
-                }
-                // Copy in our local version
-                File.Copy(SubPayoffReport, vpSubPayoffReport);
-            }
-        }
-
-        private void RestoreOriginalReportFiles()
-        {
-            string vpPayoffReport = System.IO.Path.Combine(VPFolder, PayoffReport);
-            string vpSubPayoffReport = System.IO.Path.Combine(VPFolder, SubPayoffReport);
-
-            if(File.Exists(vpPayoffReport + OrigExtension))
-            {
-                // Restore the original version
-                if(File.Exists(vpPayoffReport))
-                {
-                    try
-                    {
-                        File.Delete(vpPayoffReport);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Unable to restore the original VP file: " + PayoffReport + Environment.NewLine + Environment.NewLine + "Exit VP Golf, then start and exit WebAdmin to restore the file");
-                        return;
-                    }
-                }
-                File.Move(vpPayoffReport + OrigExtension, vpPayoffReport);
-            }
-
-            if(File.Exists(vpSubPayoffReport + OrigExtension))
-            {
-                // Restore the original version
-                if(File.Exists(vpSubPayoffReport))
-                {
-                    try
-                    {
-                        File.Delete(vpSubPayoffReport);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Unable to restore the original VP file: " + vpSubPayoffReport + Environment.NewLine + Environment.NewLine + "Exit VP Golf, then start and exit WebAdmin to restore the file");
-                        return;
-                    }
-                }
-                File.Move(vpSubPayoffReport + OrigExtension, vpSubPayoffReport);
-            }
-        }
 
         void CurrentDispatcher_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
@@ -252,7 +145,6 @@ namespace WebAdmin
         {
             base.OnClosing(e);
             TabViewModelBase.Options.Save(OptionsFileName);
-            RestoreOriginalReportFiles();
         }
     }
 }

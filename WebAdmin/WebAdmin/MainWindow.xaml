@@ -1,7 +1,6 @@
 ﻿<Window x:Class="WebAdmin.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:WebAdmin"
         xmlns:localView="clr-namespace:WebAdmin.View"
         xmlns:localViewModel="clr-namespace:WebAdmin.ViewModel"
         Title="WebAdmin 1.17" Height="670" Width="1024">
@@ -17,10 +16,10 @@
             <DataTemplate DataType="{x:Type localViewModel:SignupTabViewModel}">
                 <localView:SignupTab />
             </DataTemplate>
-                <DataTemplate DataType="{x:Type localViewModel:PaymentsTabViewModel}">
+            <DataTemplate DataType="{x:Type localViewModel:PaymentsTabViewModel}">
                     <localView:PaymentsTab />
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type localViewModel:ResultsTabViewModel}">
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type localViewModel:ResultsTabViewModel}">
                 <localView:ResultsTab />
             </DataTemplate>
             <DataTemplate DataType="{x:Type localViewModel:TournamentTabViewModel}">
