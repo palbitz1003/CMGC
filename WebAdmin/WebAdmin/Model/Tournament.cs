@@ -146,13 +146,15 @@ namespace WebAdmin
 
         public bool NonSpecificTournament
         {
-            get { return !ScgaQualifier && !SrClubChampionship; }
+            get { return !ScgaQualifier && !SrClubChampionship && !AllowNonMemberSignup && !MemberGuest; }
             set
             {
                 if (value)
                 {
                     ScgaQualifier = false;
                     SrClubChampionship = false;
+                    AllowNonMemberSignup = false;
+                    MemberGuest = false;
                 }
             }
         }

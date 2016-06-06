@@ -329,6 +329,12 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
+            if(Tournament.MemberGuest && Tournament.TeamSize != 2)
+            {
+                MessageBox.Show("Member/guest requires team size to be set to 2.");
+                return;
+            }
+
             Tournament.TournamentDescriptionKey = TournamentDescription.TournamentDescriptionKey;
 
             using (var client = new HttpClient())
