@@ -31,6 +31,10 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 		if((strlen($extra) == 0) && ($playersSignedUp [$p]->GHIN === 0)){
 			$extra = "N";
 		}
+		if(($extra === "G") && $tournament->MemberGuest)
+		{
+			$extra = $playersSignedUp [$p]->GHIN;
+		}
 		$players = $players . '"' . $playersSignedUp [$p]->LastName . '",' . $playersSignedUp [$p]->GHIN . ',' . $extra;
 	}
 	
