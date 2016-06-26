@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Net.Http;
 using System.Windows.Controls;
@@ -175,13 +176,13 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand GetTournamentsCommand { get { return new ModelCommand(GetTournaments); } }
+        public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
 
-        public ICommand LoadSignupsCommand { get { return new ModelCommand(LoadSignupsFromWeb); } }
+        public ICommand LoadSignupsCommand { get { return new ModelCommand(s => LoadSignupsFromWeb(s)); } }
 
-        public ICommand LoadTeetimesCommand { get { return new ModelCommand(LoadTeeTimesFromWeb); } }
+        public ICommand LoadTeetimesCommand { get { return new ModelCommand(s => LoadTeeTimesFromWeb(s)); } }
 
-        public ICommand UploadTeetimesCommand { get { return new ModelCommand(UploadToWeb); } }
+        public ICommand UploadTeetimesCommand { get { return new ModelCommand(s => UploadToWeb(s)); } }
 
         public ICommand SaveAsCsvCommand { get { return new ModelCommand(SaveAsCsv); } }
 
@@ -191,7 +192,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand UploadVpCsvCommand { get { return new ModelCommand(UploadVpCsv); } }
 
-        public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(UploadWaitingListFile); } }
+        public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(s => UploadWaitingListFile(s)); } }
         #endregion
 
         public SignupTabViewModel()
@@ -288,7 +289,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void GetTournaments(object o)
+        private async Task GetTournaments(object o)
         {
             string responseString = await GetTournamentNames();
 
@@ -451,7 +452,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void UploadToWeb(object o)
+        private async Task UploadToWeb(object o)
         {
             _teeTimesDirty = false;
 
@@ -584,7 +585,7 @@ namespace WebAdmin.ViewModel
             return true;
         }
 
-        private async void LoadSignupsFromWeb(object o)
+        private async Task LoadSignupsFromWeb(object o)
         {
             if (TournamentNames.Count == 0)
             {
@@ -674,7 +675,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void LoadTeeTimesFromWeb(object o)
+        private async Task LoadTeeTimesFromWeb(object o)
         {
             if (!CheckContinue()) return;
 
@@ -1015,7 +1016,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void UploadWaitingListFile(object o)
+        private async Task UploadWaitingListFile(object o)
         {
             if (string.IsNullOrEmpty(WaitingListFile))
             {

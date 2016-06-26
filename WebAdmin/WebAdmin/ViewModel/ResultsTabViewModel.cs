@@ -346,7 +346,7 @@ namespace WebAdmin.ViewModel
             ClosestToThePinsDay2.Add(new ClosestToThePin { Hole = 15 });
         }
 
-        private async void GetTournaments(object o)
+        private async Task GetTournaments(object o)
         {
             string responseString = await GetTournamentNames();
 
@@ -374,7 +374,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void LoadClosestToThePinFromWeb()
+        private async Task LoadClosestToThePinFromWeb()
         {
             using (var client = new HttpClient())
             {
@@ -476,7 +476,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void SubmitClosestToThePin(object o)
+        private async Task SubmitClosestToThePin(object o)
         {
             if (TournamentNameIndex == -1)
             {
@@ -604,7 +604,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void ClearClosestToThePin(object o)
+        private async Task ClearClosestToThePin(object o)
         {
             if (TournamentNameIndex == -1)
             {
@@ -1372,7 +1372,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void SubmitCsv(object o)
+        private async Task SubmitCsv(object o)
         {
             List<KeyValuePair<string, string>> kvpPoolList = new List<KeyValuePair<string, string>>();
 
@@ -1446,7 +1446,7 @@ namespace WebAdmin.ViewModel
             MessageBox.Show("Submitted results for " + submitted);
         }
 
-        private async void ClearCsv(object o)
+        private async Task ClearCsv(object o)
         {
             string cleared = string.Empty;
 

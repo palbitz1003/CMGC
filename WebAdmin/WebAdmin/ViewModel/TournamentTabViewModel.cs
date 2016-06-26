@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Input;
 using System.Windows;
@@ -199,7 +200,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void GetTournaments(object o)
+        private async Task GetTournaments(object o)
         {
             string responseString = await GetTournamentNames();
 
@@ -234,7 +235,7 @@ namespace WebAdmin.ViewModel
             TournamentChairmenSelectedIndex = -1;
         }
 
-        private async void AddTournament(object o)
+        private async Task AddTournament(object o)
         {
             if(string.IsNullOrEmpty(Tournament.Name))
             {
@@ -309,7 +310,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void UpdateTournament(object o)
+        private async Task UpdateTournament(object o)
         {
             if ((Tournament.TournamentKey < 0) || string.IsNullOrEmpty(Tournament.Name))
             {
@@ -374,7 +375,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void DeleteTournament(object o)
+        private async Task DeleteTournament(object o)
         {
             if ((Tournament.TournamentKey < 0) || string.IsNullOrEmpty(Tournament.Name))
             {
@@ -427,7 +428,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void TournamentSelectionChanged(int selectedIndex)
+        private async Task TournamentSelectionChanged(int selectedIndex)
         {
             if (selectedIndex < 0)
             {
@@ -514,7 +515,7 @@ namespace WebAdmin.ViewModel
             GetTournamentDescriptions(true);
         }
 
-        private async void GetTournamentDescriptions(bool defaultIndex)
+        private async Task GetTournamentDescriptions(bool defaultIndex)
         {
             TournamentDescriptionNames.Clear();
             TournamentDescriptionNameIndex = -1;

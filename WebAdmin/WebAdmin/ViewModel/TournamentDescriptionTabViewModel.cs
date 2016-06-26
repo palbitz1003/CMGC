@@ -67,7 +67,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void GetTournamentDescriptions(object o)
+        private async Task GetTournamentDescriptions(object o)
         {
             TournamentDescriptionNames.Clear();
             TournamentDescriptionNameIndex = -1;
@@ -126,7 +126,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void AddTournamentDescription(bool add)
+        private async Task AddTournamentDescription(bool add)
         {
             if (string.IsNullOrEmpty(TournamentDescription.Name))
             {
@@ -194,7 +194,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void DeleteTournamentDescription(object o)
+        private async Task DeleteTournamentDescription(object o)
         {
             if (TournamentDescriptionNameIndex < 0)
             {

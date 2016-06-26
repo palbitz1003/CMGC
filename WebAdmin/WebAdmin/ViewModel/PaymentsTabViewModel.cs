@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Net.Http;
 using System.Windows.Input;
@@ -75,11 +76,11 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand GetTournamentsCommand { get { return new ModelCommand(GetTournaments); } }
+        public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
 
-        public ICommand LoadSignupsCommand { get { return new ModelCommand(LoadSignupsFromWeb); } }
+        public ICommand LoadSignupsCommand { get { return new ModelCommand(s => LoadSignupsFromWeb(s)); } }
 
-        public ICommand UploadSignupsCommand { get { return new ModelCommand(UploadToWeb); } }
+        public ICommand UploadSignupsCommand { get { return new ModelCommand(s => UploadToWeb(s)); } }
         #endregion
 
         public PaymentsTabViewModel()
@@ -91,7 +92,7 @@ namespace WebAdmin.ViewModel
             GotTournamentsVisible = Visibility.Collapsed;
         }
 
-        private async void GetTournaments(object o)
+        private async Task GetTournaments(object o)
         {
             string responseString = await GetTournamentNames();
 
@@ -125,7 +126,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void UploadToWeb(object o)
+        private async Task UploadToWeb(object o)
         {
             PaymentsDue = 0;
             PaymentsMade = 0;
@@ -211,7 +212,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void LoadSignupsFromWeb(object o)
+        private async Task LoadSignupsFromWeb(object o)
         {
             if (TournamentNames.Count == 0)
             {

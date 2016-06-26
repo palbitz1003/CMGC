@@ -73,7 +73,7 @@ namespace WebAdmin.ViewModel
             public DateTime DateAdded { get; set; }
         }
 
-        private async void SubmitWaitingList(object s)
+        private async Task SubmitWaitingList(object s)
         {
             var waitingList = LoadWaitingList(Options.WaitListFileName);
 
@@ -210,7 +210,7 @@ namespace WebAdmin.ViewModel
             public DateTime Birthday { get; set; }
         }
 
-        private async void SubmitRoster(object s)
+        private async Task SubmitRoster(object s)
         {
             var roster = LoadRoster(Options.RosterFileName);
 
@@ -417,7 +417,7 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region GHIN
-        private async void SubmitGHIN(object s)
+        private async Task SubmitGHIN(object s)
         {
             if ((GHINEntries != null) && (GHINEntries.Count > 0))
             {
@@ -511,7 +511,7 @@ namespace WebAdmin.ViewModel
             public string LocalHandicap { get; set; }
         }
 
-        private async void SubmitLocalHandicap(object s)
+        private async Task SubmitLocalHandicap(object s)
         {
             var localHandicap = LoadLocalHandicap(Options.LocalHandicapFileName);
 
@@ -634,7 +634,7 @@ namespace WebAdmin.ViewModel
         }
         #endregion
 
-        private async void GetDues(object s)
+        private async Task GetDues(object s)
         {
             if(string.IsNullOrEmpty(PlayerName))
             {
@@ -651,7 +651,7 @@ namespace WebAdmin.ViewModel
             LoadDuesFromWeb();
         }
 
-        private async void PayDues(object s)
+        private async Task PayDues(object s)
         {
             if (string.IsNullOrEmpty(PlayerName))
             {
@@ -680,7 +680,7 @@ namespace WebAdmin.ViewModel
             SubmitDues();
         }
 
-        private async void LoadDuesFromWeb()
+        private async Task LoadDuesFromWeb()
         {
             using (var client = new HttpClient())
             {
@@ -708,7 +708,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async void SubmitDues()
+        private async Task SubmitDues()
         {
 
             using (var client = new HttpClient())
