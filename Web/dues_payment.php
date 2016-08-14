@@ -58,6 +58,38 @@ if (isset ( $_POST ['Player'] )) {
 				}
 			}
 	}
+	
+	if(empty($error)){
+		$now = new DateTime ( "now" );
+		$year = $now->format('Y');
+		
+		$endBasicDues = new DateTime($year . '-10-01');
+		$endExtendedDues = new DateTime($year . '-11-01');
+		
+		$membershipType = $rosterEntry->MembershipType;
+		if(($now > $endBasicDues) && ($now < $endExtendedDues))
+		{
+			$membershipType = $membershipType . "_Late";
+		}
+		if($now > $endExtendedDues)
+		{
+			die("Error: Last day for payments was " . $endExtendedDues->format('Y-m-d'));
+		}
+		if($testMode){
+			$membershipType = "Test";
+		}
+		
+		$paypalDetails = GetPayPalDuesDetails($connection, $membershipType);
+		
+		if(empty($paypalDetails)){
+			die("Error: Membership type " . $membershipType . " is not in the PayPal Dues table");
+		} else if($paypalDetails->TournamentFee == 0){
+			$error = "Membership type " . $rosterEntry->MembershipType . " does not require a yearly dues payment.";
+		}
+		else if(empty($paypalDetails->PayPayButton)) {
+			die("Error: No PayPal button for membership type " . $membershipType);
+		}
+	}
 }
 
 $overrideTitle = "Pay Dues";
@@ -109,30 +141,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '</div><!-- #content-container -->' . PHP_EOL;
 
 } else {
-	$now = new DateTime ( "now" );
-	$year = $now->format('Y');
 	
-	$endBasicDues = new DateTime($year . '-10-01');
-	$endExtendedDues = new DateTime($year . '-11-01');
-	
-	$cost = 150;
-	if(($now > $endBasicDues) && ($now < $endExtendedDues))
-	{
-		$cost = 175;
-	}
-	if($now > $endExtendedDues)
-	{
-		die("Error: Last day for payments was " . $endExtendedDues->format('Y-m-d'));
-	}
-	if($testMode){
-		$cost = 3;
-	}
-		
-	$paypalDetails = GetPayPalDuesDetails($connection, $cost);
-		
-	if(!isset($paypalDetails->PayPayButton)){
-		die("Error: No PayPal button for yearly dues $" . $cost);
-	}
 
 	if(empty($playerDues)){
 		InsertPlayerForDues($connection, $year + 1, $GHIN, $FullName);
@@ -149,7 +158,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	
 	echo '<p>You must pay the dues now.  You have not payed your dues until the PayPal step is complete!</p>' . PHP_EOL;
 	echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>" . PHP_EOL;
-	echo '<p style="text-align: center;"><b>Dues: $' . number_format( $cost, 2) . '</b></p>' . PHP_EOL;
+	echo '<p style="text-align: center;"><b>Dues: $' . number_format( $paypalDetails->TournamentFee, 2) . '</b></p>' . PHP_EOL;
 	
 	echo '<form style="text-align:center" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">' . PHP_EOL;
 	echo '<input type="hidden" name="cmd" value="_s-xclick">' . PHP_EOL;
@@ -169,15 +178,15 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '</div><!-- #content-container -->' . PHP_EOL;
 } // end of else clause
 
-function GetPayPalDuesDetails($connection, $dues){
-	$sqlCmd = "SELECT * FROM `PayPalDues` WHERE `Dues` = ?";
+function GetPayPalDuesDetails($connection, $membershipType){
+	$sqlCmd = "SELECT * FROM `PayPalDues` WHERE `MembershipType` = ?";
 	$payPal = $connection->prepare ( $sqlCmd );
 
 	if (! $payPal) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 
-	if (! $payPal->bind_param ( 'i', $dues )) {
+	if (! $payPal->bind_param ( 's', $membershipType )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 
@@ -185,10 +194,11 @@ function GetPayPalDuesDetails($connection, $dues){
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$payPal->bind_result ( $payPalButton, $fee );
+	$payPal->bind_result ( $payPalButton, $fee, $membership );
 
-	$details = new PayPalDetails();
+	$details = null;
 	if($payPal->fetch ()){
+		$details = new PayPalDetails();
 		$details->PayPayButton = $payPalButton;
 		$details->TournamentFee = $fee;
 	}

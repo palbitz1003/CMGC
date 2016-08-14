@@ -9,6 +9,7 @@ class Dues {
 	public $PaymentDateTime;
 	public $PayerName;
 	public $PayerEmail;
+	// RIGS is "resigned in good standing" (not used)
 	public $RIGS;
 }
 
@@ -21,14 +22,17 @@ class RosterWithDues {
 
 function GetPlayerDues($connection, $playerGHIN) {
 
-	$sqlCmd = "SELECT * FROM `Dues` WHERE `GHIN` = ?";
+	$sqlCmd = "SELECT * FROM `Dues` WHERE `GHIN` = ? AND `Year` = ?";
 	$player = $connection->prepare ( $sqlCmd );
 
 	if (! $player) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
+	
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
 
-	if (! $player->bind_param ( 'i', $playerGHIN )) {
+	if (! $player->bind_param ( 'ii', $playerGHIN, $year )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 
@@ -64,20 +68,71 @@ function GetPlayerDues($connection, $playerGHIN) {
 	return $playerDues;
 }
 
-function GetPlayerDuesNotPaid($connection) {
+function GetPlayersDuesPaid($connection) {
 
-	$sqlCmd = "SELECT Roster.GHIN, Roster.LastName, Roster.FirstName, Roster.Active, Dues.Payment FROM `Roster` LEFT JOIN `Dues` ON Roster.GHIN = Dues.GHIN ORDER BY Roster.LastName ASC, Roster.FirstName ASC";
+	$sqlCmd = "SELECT * FROM `Dues` WHERE `Payment` > 0 AND `Year` = ? ORDER BY `Name` ASC";
 	$player = $connection->prepare ( $sqlCmd );
 
 	if (! $player) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+
+	if (! $player->bind_param ( 'i', $year )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
 	if (! $player->execute ()) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$player->bind_result ( $ghin, $lastName, $firstName, $active, $payment);
+	$player->bind_result ( $year, $ghin, $name, $payment, $paymentDateTime, $payerName, $payerEmail, $rigs);
+
+	$players = array();
+	while($player->fetch()) {
+
+		$p = new Dues();
+		$p->Year = $year;
+		$p->GHIN = $ghin;
+		$p->Name = $name;
+		$p->Payment = $payment;
+		$p->PaymentDateTime = $paymentDateTime;
+		$p->PayerName = $payerName;
+		$p->PayerEmail = $payerEmail;
+		$p->RIGS = $rigs;
+
+		$players[] = $p;
+
+	}
+
+	$player->close ();
+
+	return $players;
+}
+
+function GetPlayerDuesNotPaid($connection) {
+
+	$sqlCmd = "SELECT Roster.GHIN, Roster.LastName, Roster.FirstName, Roster.Active, Dues.Payment, Dues.Year FROM `Roster` LEFT JOIN `Dues` ON (Roster.GHIN = Dues.GHIN AND Dues.Year = ?) ORDER BY Roster.LastName ASC, Roster.FirstName ASC";
+	$player = $connection->prepare ( $sqlCmd );
+
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+	
+	if (! $player->bind_param ( 'i', $year )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$player->bind_result ( $ghin, $lastName, $firstName, $active, $payment, $year);
 
 	$notPaid = array();
 	while($player->fetch()) {
@@ -118,43 +173,6 @@ function InsertPlayerForDues($connection, $year, $ghin, $name) {
 	}
 
 	$insert->close();
-}
-
-function GetPlayersDuesPaid($connection) {
-
-	$sqlCmd = "SELECT * FROM `Dues` WHERE `Payment` > 0 ORDER BY `Name` ASC";
-	$player = $connection->prepare ( $sqlCmd );
-
-	if (! $player) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
-
-	if (! $player->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
-	}
-
-	$player->bind_result ( $year, $ghin, $name, $payment, $paymentDateTime, $payerName, $payerEmail, $rigs);
-
-	$players = array();
-	while($player->fetch()) {
-
-		$p = new Dues();
-		$p->Year = $year;
-		$p->GHIN = $ghin;
-		$p->Name = $name;
-		$p->Payment = $payment;
-		$p->PaymentDateTime = $paymentDateTime;
-		$p->PayerName = $payerName;
-		$p->PayerEmail = $payerEmail;
-		$p->RIGS = $rigs;
-
-		$players[] = $p;
-
-	}
-
-	$player->close ();
-
-	return $players;
 }
 
 function UpdateDuesDatabase($connection, $ghin, $payment, $payerName, $payerEmail, $logMessage){
