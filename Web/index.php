@@ -101,7 +101,7 @@ function ShowDues($script_folder_href){
 	$now = new DateTime ( "now" );
 	$year = $now->format('Y');
 	
-	$startDues = new DateTime($year . '-08-21');
+	$startDues = new DateTime($year . '-09-01');
 	$endExtendedDues = new DateTime($year . '-11-01');
 	
 	if(($now >= $startDues) && ($now < $endExtendedDues))
