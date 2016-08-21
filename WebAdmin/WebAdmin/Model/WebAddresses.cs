@@ -31,5 +31,6 @@ namespace WebAdmin
         public const string GetTournamentDescriptions = "/get_tournament_descriptions.php";
         public const string GetSignUpsWaitingList = "/get_signups_waiting_list.php";
         public const string GetDues = "/get_dues_paid_json.php";
+        public const string GetMembershipTypes = "/get_membership_types.php";
     }
 }

@@ -44,10 +44,10 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand GetTournamentDescriptionCommand { get { return new ModelCommand(s => GetTournamentDescriptions(s)); } }
+        public ICommand GetTournamentDescriptionCommand { get { return new ModelCommand(async s => await GetTournamentDescriptions(s)); } }
         public ICommand AddTournamentDescriptionCommand { get { return new ModelCommand(s => AddTournamentDescription(s)); } }
         public ICommand UpdateTournamentDescriptionCommand { get { return new ModelCommand(s => UpdateTournamentDescription(s)); } }
-        public ICommand DeleteTournamentDescriptionCommand { get { return new ModelCommand(s => DeleteTournamentDescription(s)); } }
+        public ICommand DeleteTournamentDescriptionCommand { get { return new ModelCommand(async s => await DeleteTournamentDescription(s)); } }
         #endregion
 
         public TournamentDescriptionTabViewModel()

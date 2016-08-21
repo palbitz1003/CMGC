@@ -76,11 +76,11 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
+        public ICommand GetTournamentsCommand { get { return new ModelCommand(async s => await GetTournaments(s)); } }
 
-        public ICommand LoadSignupsCommand { get { return new ModelCommand(s => LoadSignupsFromWeb(s)); } }
+        public ICommand LoadSignupsCommand { get { return new ModelCommand(async s => await LoadSignupsFromWeb(s)); } }
 
-        public ICommand UploadSignupsCommand { get { return new ModelCommand(s => UploadToWeb(s)); } }
+        public ICommand UploadSignupsCommand { get { return new ModelCommand(async s => await UploadToWeb(s)); } }
         #endregion
 
         public PaymentsTabViewModel()

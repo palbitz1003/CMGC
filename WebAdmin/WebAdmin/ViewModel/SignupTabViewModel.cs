@@ -176,13 +176,13 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
+        public ICommand GetTournamentsCommand { get { return new ModelCommand(async s => await GetTournaments(s)); } }
 
-        public ICommand LoadSignupsCommand { get { return new ModelCommand(s => LoadSignupsFromWeb(s)); } }
+        public ICommand LoadSignupsCommand { get { return new ModelCommand(async s => await LoadSignupsFromWeb(s)); } }
 
-        public ICommand LoadTeetimesCommand { get { return new ModelCommand(s => LoadTeeTimesFromWeb(s)); } }
+        public ICommand LoadTeetimesCommand { get { return new ModelCommand(async s => await LoadTeeTimesFromWeb(s)); } }
 
-        public ICommand UploadTeetimesCommand { get { return new ModelCommand(s => UploadToWeb(s)); } }
+        public ICommand UploadTeetimesCommand { get { return new ModelCommand(async s => await UploadToWeb(s)); } }
 
         public ICommand SaveAsCsvCommand { get { return new ModelCommand(SaveAsCsv); } }
 
@@ -192,7 +192,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand UploadVpCsvCommand { get { return new ModelCommand(UploadVpCsv); } }
 
-        public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(s => UploadWaitingListFile(s)); } }
+        public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(async s => await UploadWaitingListFile(s)); } }
         #endregion
 
         public SignupTabViewModel()

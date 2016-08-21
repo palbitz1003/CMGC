@@ -70,7 +70,7 @@ if (! isset ( $_POST ['GHIN'] )) {
 			// record does not exist, just insert
 			$query->close ();
 			
-			$sqlCmd = "INSERT INTO `Roster` VALUES (?, ?, ?, ?, ?, ?, ?)";
+			$sqlCmd = "INSERT INTO `Roster` VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			$insert = $connection->prepare ( $sqlCmd );
 			
 			if (! $insert) {
@@ -81,7 +81,8 @@ if (! isset ( $_POST ['GHIN'] )) {
 			$dateAdded = date ( "Y-n-j" );
 			$email = "";
 			$birthdate = "";
-			if (! $insert->bind_param ( 'ississs', $_POST ['GHIN'] [$i] ['GHIN'], $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $active, $email, $birthdate, $dateAdded )) {
+			$membershipType = "R";
+			if (! $insert->bind_param ( 'ississss', $_POST ['GHIN'] [$i] ['GHIN'], $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $active, $email, $birthdate, $dateAdded, $membershipType )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
 			}
 			

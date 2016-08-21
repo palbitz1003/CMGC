@@ -13,6 +13,7 @@ if ($connection->connect_error)
 
 login($_POST ['Login'], $_POST ['Password']);
 
+$errors = null;
 if (! isset ( $_POST ['Roster'] )) {
 	die ( "No roster provided." );
 } else {
@@ -38,14 +39,18 @@ if (! isset ( $_POST ['Roster'] )) {
 			// record exists, update it
 			$query->close ();
 			
-			$sqlCmd = "UPDATE `Roster` SET `Email`= ?, `BirthDate` = ? WHERE `GHIN` = ?";
+			$sqlCmd = "UPDATE `Roster` SET `Email`= ?, `BirthDate` = ?, `MembershipType` = ? WHERE `GHIN` = ?";
 			$update = $connection->prepare ( $sqlCmd );
 			
 			if (! $update) {
 				die ( $sqlCmd . " prepare failed: " . $connection->error );
 			}
 			
-			if (! $update->bind_param ( 'ssi', $_POST ['Roster'] [$i] ['Email'], $_POST ['Roster'] [$i] ['Birthdate'], $_POST ['Roster'] [$i] ['GHIN'] )) {
+			if(empty($_POST ['Roster'] [$i] ['MembershipType'])){
+				die ("Missing membership type for GHIN " . $_POST ['Roster'] [$i] ['GHIN']);
+			}
+			
+			if (! $update->bind_param ( 'sssi', $_POST ['Roster'] [$i] ['Email'], $_POST ['Roster'] [$i] ['Birthdate'], $_POST ['Roster'] [$i] ['MembershipType'], $_POST ['Roster'] [$i] ['GHIN'] )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
 			}
 			
@@ -56,10 +61,17 @@ if (! isset ( $_POST ['Roster'] )) {
 		} else {
 			// record does not exist, skip it
 			$query->close ();
+			
+			$errors = $errors . "<br>Failed to find player for GHIN " . $_POST ['Roster'] [$i] ['GHIN'];
 		}
 	}
 	
 	$connection->close ();
-	echo 'Success';
+	if(!empty($errors)){
+		echo $errors;
+	}
+	else {
+		echo 'Success';
+	}
 }
 ?>

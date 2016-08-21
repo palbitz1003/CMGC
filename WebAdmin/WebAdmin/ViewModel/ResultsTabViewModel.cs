@@ -153,12 +153,12 @@ namespace WebAdmin.ViewModel
         public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); } }
 
         #region Commands
-        public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
-        public ICommand SubmitClosestToThePinCommand { get { return new ModelCommand(s => SubmitClosestToThePin(s)); } }
-        public ICommand ClearClosestToThePinCommand { get { return new ModelCommand(s => ClearClosestToThePin(s)); } }
+        public ICommand GetTournamentsCommand { get { return new ModelCommand(async s => await GetTournaments(s)); } }
+        public ICommand SubmitClosestToThePinCommand { get { return new ModelCommand(async s => await SubmitClosestToThePin(s)); } }
+        public ICommand ClearClosestToThePinCommand { get { return new ModelCommand(async s => await ClearClosestToThePin(s)); } }
 
-        public ICommand SubmitCsvCommand { get { return new ModelCommand(s => SubmitCsv(s)); } }
-        public ICommand ClearCsvCommand { get { return new ModelCommand(s => ClearCsv(s)); } }
+        public ICommand SubmitCsvCommand { get { return new ModelCommand(async s => await SubmitCsv(s)); } }
+        public ICommand ClearCsvCommand { get { return new ModelCommand(async s => await ClearCsv(s)); } }
 
         public ICommand CSVDay1PoolAdjustCommand { get { return new ModelCommand(s => CSVDay1PoolAdjust(s)); } }
         public ICommand CSVDay2PoolAdjustCommand { get { return new ModelCommand(s => CSVDay2PoolAdjust(s)); } }

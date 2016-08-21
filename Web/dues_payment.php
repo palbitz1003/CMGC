@@ -106,7 +106,9 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<div id="content" role="main">' . PHP_EOL;
 	echo '<h2 class="entry-title" style="text-align:center">Pay Yearly Dues</h2>' . PHP_EOL;
 	
-	echo '<p>Only regular members can use on-line payment. The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175. After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
+	echo '<p>All members can use on-line payment. The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175.';
+	echo ' Life members pay the annual SCGA fee of $36.'. PHP_EOL;
+	echo '<p>After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
 	echo '<p>Fill in your GHIN and last name below.</p>' . PHP_EOL;
 
 	echo '<p>This is only step 1.  After entering your GHIN and last name and passing the verification step, you will be shown a page with a PayPal button to pay the yearly dues. Click on the PayPal button and complete the payment.</p>' . PHP_EOL;

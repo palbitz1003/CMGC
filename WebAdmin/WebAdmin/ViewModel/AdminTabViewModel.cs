@@ -36,13 +36,13 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand SubmitWaitingListCommand { get { return new ModelCommand(s => SubmitWaitingList(s)); } }
-        public ICommand SubmitRosterCommand { get { return new ModelCommand(s => SubmitRoster(s)); } }
-        public ICommand SubmitGHINCommand { get { return new ModelCommand(s => SubmitGHIN(s)); } }
-        public ICommand SubmitLocalHandicapCommand { get { return new ModelCommand(s => SubmitLocalHandicap(s)); } }
+        public ICommand SubmitWaitingListCommand { get { return new ModelCommand(async s => await SubmitWaitingList(s)); } }
+        public ICommand SubmitRosterCommand { get { return new ModelCommand(async s => await SubmitRoster(s)); } }
+        public ICommand SubmitGHINCommand { get { return new ModelCommand(async s => await SubmitGHIN(s)); } }
+        public ICommand SubmitLocalHandicapCommand { get { return new ModelCommand(async s => await SubmitLocalHandicap(s)); } }
         public ICommand LoginCommand { get { return new ModelCommand(s => Login(s)); } }
-        public ICommand GetDuesCommand { get { return new ModelCommand(s => GetDues(s)); } }
-        public ICommand PayDuesCommand { get { return new ModelCommand(s => PayDues(s)); } }
+        public ICommand GetDuesCommand { get { return new ModelCommand(async s => await GetDues(s)); } }
+        public ICommand PayDuesCommand { get { return new ModelCommand(async s => await PayDues(s)); } }
         #endregion
 
         private void Login(object s)
@@ -208,11 +208,12 @@ namespace WebAdmin.ViewModel
             public bool Active { get; set; }
             public string Email { get; set; }
             public DateTime Birthday { get; set; }
+            public string MembershipType { get; set; }
         }
 
         private async Task SubmitRoster(object s)
         {
-            var roster = LoadRoster(Options.RosterFileName);
+            var roster = await LoadRoster(Options.RosterFileName);
 
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
@@ -254,6 +255,10 @@ namespace WebAdmin.ViewModel
                             string.Format("Roster[{0}][Birthdate]", chunkIndex),
                              roster[i].Birthday.ToString("yyyy-MM-dd")));
 
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Roster[{0}][MembershipType]", chunkIndex),
+                             roster[i].MembershipType));
+
                         chunkIndex++;
                         // If too much data is sent at once, you get an error 503
                         if (values.Count >= 500)
@@ -262,10 +267,10 @@ namespace WebAdmin.ViewModel
                             chunkIndex = 0;
 
                             // Send partial list
-                            if (!sent)
-                            {
-                                return;
-                            }
+                            //if (!sent)
+                            //{
+                            //    return;
+                            //}
 
                             // start over with a new list
                             values.Clear();
@@ -292,12 +297,15 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private List<RosterEntry> LoadRoster(string rosterFileName)
+        private async Task<List<RosterEntry>> LoadRoster(string rosterFileName)
         {
             if(!File.Exists(rosterFileName))
             {
                 throw new FileNotFoundException("File does not exist: " + rosterFileName);
             }
+
+            string[] membershipTypes = await GetMembershipTypesFromWeb();
+
             List<RosterEntry> entries = new List<RosterEntry>();
             List<RosterEntry> entriesMissingGHIN = new List<RosterEntry>();
             string[][] csvFileEntries;
@@ -306,11 +314,11 @@ namespace WebAdmin.ViewModel
                 csvFileEntries = CSVParser.Parse(tr);
             }
 
-            int lastNameColumn = -1;
-            int firstNameColumn = -1;
+            int nameColumn = -1;
             int ghinColumn = -1;
             int emailColumn = -1;
             int birthdateColumn = -1;
+            int membershipTypeColumn = -1;
 
             bool emptyLine = false;
             for (int row = 0; (row < csvFileEntries.Length) && !emptyLine; row++)
@@ -323,40 +331,56 @@ namespace WebAdmin.ViewModel
                         {
                             switch (csvFileEntries[row][col].ToLower())
                             {
-                                case "last name":
-                                    lastNameColumn = col;
-                                    break;
-                                case "first name":
-                                    firstNameColumn = col;
+                                case "name":
+                                    nameColumn = col;
                                     break;
                                 case "ghin #":
                                     ghinColumn = col;
                                     break;
-                                case "email":
+                                case "email address":
                                     emailColumn = col;
                                     break;
-                                case "birthdate":
+                                case "dob":
                                     birthdateColumn = col;
+                                    break;
+                                case "type":
+                                    membershipTypeColumn = col;
                                     break;
                             }
                         }
                     }
 
-                    if (lastNameColumn == -1) { throw new KeyNotFoundException("Unable to find 'Last Name' in the file header"); }
-                    if (firstNameColumn == -1) { throw new KeyNotFoundException("Unable to find 'First Name' in the file header"); }
+                    if (nameColumn == -1) { throw new KeyNotFoundException("Unable to find 'Name' in the file header"); }
                     if (ghinColumn == -1) { throw new KeyNotFoundException("Unable to find 'GHIN #' in the file header"); }
-                    if (emailColumn == -1) { throw new KeyNotFoundException("Unable to find 'Email' in the file header"); }
-                    if (birthdateColumn == -1) { throw new KeyNotFoundException("Unable to find 'Birthdate' in the file header"); }
+                    if (emailColumn == -1) { throw new KeyNotFoundException("Unable to find 'Email Address' in the file header"); }
+                    if (birthdateColumn == -1) { throw new KeyNotFoundException("Unable to find 'DOB' in the file header"); }
+                    if (membershipTypeColumn == -1) {  throw new KeyNotFoundException("Unable to find 'Type' in the file header");}
                 }
                 else
                 {
-                    if ((csvFileEntries[row].Length >= birthdateColumn) && 
-                        !string.IsNullOrEmpty(csvFileEntries[row][1]) && 
+                    if (!string.IsNullOrEmpty(csvFileEntries[row][1]) && 
                         !string.IsNullOrEmpty(csvFileEntries[row][2]))
                     {
                         RosterEntry re = new RosterEntry();
-                        re.LastName = csvFileEntries[row][lastNameColumn];
-                        re.FirstName = csvFileEntries[row][firstNameColumn];
+                        string name = csvFileEntries[row][nameColumn];
+                        int commaIndex = name.IndexOf(',');
+                        if(commaIndex < 0)
+                        {
+                            throw new ArgumentException(string.Format("No comma found in name field \"{0}\" on row {1}", csvFileEntries[row][nameColumn], row + 1));
+                        }
+                        re.LastName = name.Substring(0, commaIndex);
+                        re.FirstName = name.Substring(commaIndex + 1).Trim();
+
+                        re.MembershipType = csvFileEntries[row][membershipTypeColumn].Trim();
+                        if (string.IsNullOrEmpty(re.MembershipType))
+                        {
+                            throw new ArgumentException(string.Format("Membership type is empty for \"{0}\" on row {1}", csvFileEntries[row][nameColumn], row + 1));
+                        }
+                        if (!membershipTypes.Contains(re.MembershipType))
+                        {
+                            throw new ArgumentException(string.Format("Unexpected membership type \"{0}\" on row {1}. Allowed types are {2}.", 
+                                re.MembershipType, row + 1, string.Join(", ", membershipTypes)));
+                        }
 
                         if (string.IsNullOrEmpty(csvFileEntries[row][ghinColumn]))
                         {
@@ -413,6 +437,26 @@ namespace WebAdmin.ViewModel
                 System.Windows.MessageBox.Show("Skipping entries that do not have a GHIN number: " + names);
             }
             return entries;
+        }
+
+        private async Task<string[]> GetMembershipTypesFromWeb()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
+
+                using (new WaitCursor())
+                {
+                    var responseString = await client.GetStringAsync(WebAddresses.ScriptFolder + WebAddresses.GetMembershipTypes);
+
+                    Logging.Log("GetMembershipTypesFromWeb", responseString);
+
+                    var jss = new JavaScriptSerializer();
+                    string[] membershipTypes = jss.Deserialize<string[]>(responseString);
+
+                    return membershipTypes;
+                }
+            }
         }
         #endregion
 

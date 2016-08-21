@@ -141,10 +141,10 @@ namespace WebAdmin.ViewModel
         #endregion
 
         #region Commands
-        public ICommand GetTournamentsCommand { get { return new ModelCommand(s => GetTournaments(s)); } }
-        public ICommand AddTournamentsCommand { get { return new ModelCommand(s => AddTournament(s)); } }
-        public ICommand UpdateTournamentsCommand { get { return new ModelCommand(s => UpdateTournament(s)); } }
-        public ICommand DeleteTournamentsCommand { get { return new ModelCommand(s => DeleteTournament(s)); } }
+        public ICommand GetTournamentsCommand { get { return new ModelCommand(async s => await GetTournaments(s)); } }
+        public ICommand AddTournamentsCommand { get { return new ModelCommand(async s => await AddTournament(s)); } }
+        public ICommand UpdateTournamentsCommand { get { return new ModelCommand(async s => await UpdateTournament(s)); } }
+        public ICommand DeleteTournamentsCommand { get { return new ModelCommand(async s => await DeleteTournament(s)); } }
         public ICommand GetTournamentDescriptionCommand { get { return new ModelCommand(s => GetTournamentDescriptions(s)); } }
 
         #endregion
