@@ -26,6 +26,10 @@ if (isset ( $_POST ['Player'] )) {
 	
 		$GHIN = trim ( $_POST ['Player'] ['GHIN'] );
 		$LastName = trim ( $_POST ['Player'] ['LastName'] );
+		$BirthMonth = trim ($_POST ['Player'] ['BirthMonth']);
+		$BirthDay = trim ($_POST ['Player'] ['BirthDay']);
+		$BirthYear = trim ($_POST ['Player'] ['BirthYear']);
+		$Email = trim ($_POST ['Player'] ['Email']);
 		
 		$LastName = stripslashes ( $LastName ); // remove any slashes before quotes
 		$LastName = str_replace("'", "", $LastName); // remove single quotes
@@ -57,6 +61,42 @@ if (isset ( $_POST ['Player'] )) {
 					$FullName = $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
 				}
 			}
+	}
+	
+	if(empty($error)){
+		$now = new DateTime ( "now" );
+		$year = $now->format('Y');
+		
+		if(empty($BirthMonth) || empty($BirthDay) || empty($BirthYear)){
+			$error = "You must fill in your birthdate.";
+		} else if(empty($Email)){
+			$error = 'Fill in an email address. If you do not have an email address, type in "none"';
+		} else if(!ctype_digit($BirthMonth) || ($BirthMonth < 1) || ($BirthMonth > 12)){
+			$error = "Invalid birth month. Valid values are 1 to 12.";
+		} else if(!ctype_digit($BirthDay) || ($BirthDay < 1) || ($BirthDay > 31)){
+			$error = "Invalid birth day. Valid values are 1 to 31";
+		} else if(!ctype_digit($BirthYear) || ($BirthYear < 1900) || ($BirthYear > $year)){
+			$error = "Invalid year. Valid values are 1900 to $year";
+		} else if(strtolower($Email) != "none"  && !filter_var($Email, FILTER_VALIDATE_EMAIL)){
+			$error = "Invalid email address";
+		} else 
+		{
+			$changed = null;
+			$dob = $BirthYear . '-' . FormatMonthOrDay($BirthMonth)  . '-' . FormatMonthOrDay($BirthDay);
+			if(empty($rosterEntry->BirthDate) || strcmp($dob, $rosterEntry->BirthDate) != 0){
+				$changed = "DOB: " . $dob . PHP_EOL;
+			}
+			if ((strtolower($Email) != "none") &&
+				 (empty($rosterEntry->Email) ||
+				 (strcasecmp($Email, $rosterEntry->Email) != 0))) {
+				$changed = $changed . "Email: " . $Email . PHP_EOL;
+			}
+			if(!empty($changed)){
+				$message = $FullName . " (" . $GHIN . ")" . PHP_EOL;
+				$message = $message . $changed;
+				mail("dwatson003@me.com", 'Updated Coronado Player Info', $message, "From: DoNotReply@" . $web_site);
+			}
+		}
 	}
 	
 	if(empty($error)){
@@ -106,12 +146,12 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<div id="content" role="main">' . PHP_EOL;
 	echo '<h2 class="entry-title" style="text-align:center">Pay Yearly Dues</h2>' . PHP_EOL;
 	
-	echo '<p>All members can use on-line payment. The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175.';
-	echo ' Life members pay the annual SCGA fee of $36.'. PHP_EOL;
+	echo '<p>Most members can use on-line payment. The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175.';
+	echo ' Life members pay the annual SCGA fee of $36. Social members should send a check to the CMGC office.' . PHP_EOL;
 	echo '<p>After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
 	echo '<p>Fill in your GHIN and last name below.</p>' . PHP_EOL;
 
-	echo '<p>This is only step 1.  After entering your GHIN and last name and passing the verification step, you will be shown a page with a PayPal button to pay the yearly dues. Click on the PayPal button and complete the payment.</p>' . PHP_EOL;
+	echo '<p>This is only step 1.  After entering your GHIN, last name, date of birth, and email address and passing the verification step, you will be shown a page with a PayPal button to pay the yearly dues. Click on the PayPal button and complete the payment.</p>' . PHP_EOL;
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
 	echo '<table style="border: none;">' . PHP_EOL;
@@ -127,6 +167,20 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<td style="border: none;"><input type="text"';
 	echo '    name="Player[LastName]" value="' . $LastName . '"></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
+	
+	echo '<tr>' . PHP_EOL;
+	echo '<td style="border: none;">Date of Birth:</td>' . PHP_EOL;
+	echo '<td style="border: none;">Month: <input type="text" size = "2" name="Player[BirthMonth]" value="' . $BirthMonth . '">';
+	echo '     Day: <input type="text" size = "2" name="Player[BirthDay]" value="' . $BirthDay . '">';
+	echo '     Year: <input type="text" size = "4" name="Player[BirthYear]" value="' . $BirthYear . '">';
+	echo '    (e.g.: 5/29/1958)</td>' . PHP_EOL;
+	echo '</tr>'  . PHP_EOL;
+	
+	echo '<tr>' . PHP_EOL;
+	echo '<td style="border: none;">Email Address:</td>' . PHP_EOL;
+	echo '<td style="border: none;"><input type="text" size=50';
+	echo '    name="Player[Email]" value="' . $Email . '"></td>' . PHP_EOL;
+	echo '</tr>'  . PHP_EOL;
 	//insert_error_line($error, 2);
 	
 	echo '</table>' . PHP_EOL;
@@ -137,7 +191,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 		echo '</p>' . PHP_EOL;
 	}
 
-	echo '<input type="submit" value="Step 1: Verify GHIN and Last Name"> <br> <br>' . PHP_EOL;
+	echo '<input type="submit" value="Step 1: Verify input data"> <br> <br>' . PHP_EOL;
 	echo '</form>' . PHP_EOL;
 	echo '</div><!-- #content -->' . PHP_EOL;
 	echo '</div><!-- #content-container -->' . PHP_EOL;
@@ -212,6 +266,16 @@ function GetPayPalDuesDetails($connection, $membershipType){
 
 if (isset ( $connection )) {
 	$connection->close ();
+}
+
+function FormatMonthOrDay($number)
+{
+	if($number < 10){
+		if($number[0] !== '0'){
+			return '0' . $number;
+		}
+	}
+	return $number;
 }
 
 get_footer ();
