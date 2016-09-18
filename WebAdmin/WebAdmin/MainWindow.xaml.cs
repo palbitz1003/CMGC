@@ -56,7 +56,7 @@ namespace WebAdmin
             TabViewModelBase.Status = StatusMsg;
             StatusTextBlock.DataContext = this;
 
-            WebAddresses.BaseAddress = "http://" +  TabViewModelBase.Options.WebSite;
+            WebAddresses.BaseAddress = "https://" +  TabViewModelBase.Options.WebSite;
             WebAddresses.ScriptFolder = string.IsNullOrEmpty(TabViewModelBase.Options.ScriptFolder)
                 ? string.Empty
                 : "/" + TabViewModelBase.Options.ScriptFolder;

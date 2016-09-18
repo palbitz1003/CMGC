@@ -223,8 +223,8 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<input type="hidden" name="custom" value="Yearly Dues;' . $GHIN . ';' . $LastName . '">' . PHP_EOL;
 	echo '<input type="hidden" name="on0" value="Yearly Dues">' . PHP_EOL;
 	echo '<input type="hidden" name="currency_code" value="USD">' . PHP_EOL;
-	echo '<input type="hidden" name="notify_url" value="http://' . $web_site . '/' . $ipn_dues_file . '">' . PHP_EOL;
-	echo '<input type="hidden" name="return" value="http://' . $web_site . '/' . $script_folder_href . 'dues_payment_completed.php">' . PHP_EOL;
+	echo '<input type="hidden" name="notify_url" value="https://' . $web_site . '/' . $ipn_dues_file . '">' . PHP_EOL;
+	echo '<input type="hidden" name="return" value="https://' . $web_site . '/' . $script_folder_href . 'dues_payment_completed.php">' . PHP_EOL;
 	echo '<input type="hidden" name="rm" value="1">' . PHP_EOL;
 	echo '<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">' . PHP_EOL;
 	echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">' . PHP_EOL;

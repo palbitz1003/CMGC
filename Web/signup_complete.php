@@ -19,7 +19,7 @@ echo 'You may log into your account at <a href="https://www.paypal.com/us">www.p
 
 $tournamentKey = $_GET ['tournament'];
 if(!empty($tournamentKey)){
-	echo '<p><a href="http://' . $web_site . '/' . $script_folder_href . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>';
+	echo '<p><a href="https://' . $web_site . '/' . $script_folder_href . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>';
 }
 
 //$everything = get_defined_vars();

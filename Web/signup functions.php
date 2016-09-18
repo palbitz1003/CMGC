@@ -648,8 +648,8 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 	echo '<input type="hidden" name="on0" value="Entry Fees">' . PHP_EOL;
 	echo '<input type="hidden" name="os0" value="' .  $payPalComboBoxChoice . '">' . PHP_EOL; 
 	echo '<input type="hidden" name="currency_code" value="USD">' . PHP_EOL;
-	echo '<input type="hidden" name="notify_url" value="http://' . $web_site . '/' . $ipn_file . '">' . PHP_EOL;
-	echo '<input type="hidden" name="return" value="http://' . $web_site . '/' . $script_folder_href . 'signup_complete.php?tournament=' . $tournament->TournamentKey . '">' . PHP_EOL;
+	echo '<input type="hidden" name="notify_url" value="https://' . $web_site . '/' . $ipn_file . '">' . PHP_EOL;
+	echo '<input type="hidden" name="return" value="https://' . $web_site . '/' . $script_folder_href . 'signup_complete.php?tournament=' . $tournament->TournamentKey . '">' . PHP_EOL;
 	echo '<input type="hidden" name="rm" value="1">' . PHP_EOL;
 	echo '<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">' . PHP_EOL;
 	echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">' . PHP_EOL;

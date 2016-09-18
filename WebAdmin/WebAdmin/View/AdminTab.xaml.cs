@@ -179,7 +179,7 @@ namespace WebAdmin.View
         {
             TabViewModelBase.Options.WebSite = WebSiteTextBox.Text;
 
-            WebAddresses.BaseAddress = "http://" + TabViewModelBase.Options.WebSite;
+            WebAddresses.BaseAddress = "https://" + TabViewModelBase.Options.WebSite;
         }
 
         private void ScriptFolderTextBox_KeyUp(object sender, KeyEventArgs e)

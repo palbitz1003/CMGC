@@ -94,7 +94,7 @@ if ($tournamentKey) {
 
 function ShowFile($web_site, $file)
 {
-	echo '<iframe src="http://' . $web_site . '/results/' . $file . '" name="resultsframe" width="80%" height="1300" style="border: none;display: block;margin-left:auto;margin-right:auto" />' . PHP_EOL;
+	echo '<iframe src="https://' . $web_site . '/results/' . $file . '" name="resultsframe" width="80%" height="1300" style="border: none;display: block;margin-left:auto;margin-right:auto" />' . PHP_EOL;
 }
 
 

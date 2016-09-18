@@ -10,7 +10,7 @@ echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
 echo 'This page is obsolete. Please delete your bookmark if you have this page bookmarked and instead use ';
-echo '<a href="http://coronadomensgolf.org">Coronado Men\'s Golf Club Home Page</a>';
+echo '<a href="https://coronadomensgolf.org">Coronado Men\'s Golf Club Home Page</a>';
 
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
