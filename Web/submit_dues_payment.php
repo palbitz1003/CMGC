@@ -31,6 +31,10 @@ if (! isset ( $_POST ['GHIN'] )) {
 		InsertPlayerForDues($connection, $year + 1, $_POST ['GHIN'], $_POST['Name']);
 	}
 	else {
+		// Update name in case the name was uploaded wrong the first time because
+		// auto-complete was off in WebAdmin and they typed in a name and GHIN.
+		UpdateName($connection, $_POST ['GHIN'], $_POST['Name']);
+		
 		// If set from WebAdmin, make the starting point 0 by subtracting what is already
 		// in the payment field.
 		if($player->Payment > 0){
@@ -43,5 +47,30 @@ if (! isset ( $_POST ['GHIN'] )) {
 
 	$connection->close ();
 	echo 'Success';
+}
+
+function UpdateName($connection, $ghin, $name)
+{
+	$player = GetPlayerDues($connection, $ghin);
+	if(empty($player)){
+		return;
+	}
+	
+	$sqlCmd = "UPDATE `Dues` SET `Name`= ? WHERE `GHIN` = ?";
+	$update = $connection->prepare ( $sqlCmd );
+	
+	if (! $update) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $update->bind_param ( 'si',  $name, $ghin)) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $update->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$update->close ();
 }
 ?>
