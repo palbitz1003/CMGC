@@ -409,7 +409,7 @@ function ShowSignups($connection, $tournamentKey) {
 	
 	if(!empty($signUpArray)){
 		echo '<tr><td style="border: none">';
-		echo 'These players have not payed their tournament fee. You are not in the tournament until your fee has been paid. ';
+		echo 'These players have not paid their tournament fee. You are not in the tournament until your fee has been paid. ';
 		echo '</td></tr>' . PHP_EOL;
 		echo '<tr><td style="border: none">';
 		echo 'If you have completed payment, but it is not yet recorded, be patient as PayPal may not have notified us yet. ';
