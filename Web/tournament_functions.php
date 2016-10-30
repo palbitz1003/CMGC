@@ -474,21 +474,21 @@ function ShowTournamentResultsLinks($connection, $tournament, $style, $skipThisR
  * Insert a tournament into the database
  */
 function InsertTournament($connection, $tournament) {
-	$sqlCmd = "INSERT INTO `Tournaments` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	$sqlCmd = "INSERT INTO `Tournaments` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 	
-	if (! $insert->bind_param ( 'sssssssiiiiiisssiiiiiiiiii', $tournament->Name, $tournament->Year, $tournament->StartDate, $tournament->EndDate, 
+	if (! $insert->bind_param ( 'sssssssiiiiiisssiiiiiiiiiii', $tournament->Name, $tournament->Year, $tournament->StartDate, $tournament->EndDate, 
 			$tournament->SignupStartDate, $tournament->SignupEndDate, $tournament->CancelEndDate, $tournament->LocalHandicap, 
 			$tournament->ScgaTournament, $tournament->TeamSize, $tournament->TournamentDescriptionKey,
 			$tournament->Cost, $tournament->Pool, $tournament->ChairmanName, $tournament->ChairmanEmail, 
 			$tournament->ChairmanPhone, $tournament->Stableford, $tournament->Eclectic, $tournament->SendEmail,
 			$tournament->RequirePayment, $tournament->SCGAQualifier, $tournament->SrClubChampionship,
 			$tournament->OnlineSignUp, $tournament->MatchPlay, $tournament->AllowNonMemberSignup,
-			$tournament->AnnouncementOnly )) {
+			$tournament->AnnouncementOnly, $tournament->MemberGuest )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	
