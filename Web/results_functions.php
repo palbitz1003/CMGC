@@ -521,9 +521,14 @@ function ShowMatchResults($connection, $tournamentKey)
 				
 				echo '<polyline points="' . $x1 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y2Adjusted . ' ' . $x1 . ',' . $y2Adjusted . '" style="fill:none;stroke:black;stroke-width:2" />' . PHP_EOL;
 				if ( $query->fetch () ) {
-	
 					echo '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">' . $name1 . '</text>' . PHP_EOL;
 					echo '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">' . $name2 . '</text>' . PHP_EOL;
+				}
+				else {
+					if($round == 1){
+						echo '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">TBD</text>' . PHP_EOL;
+						echo '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">TBD</text>' . PHP_EOL;
+					}
 				}
 			}
 		}
