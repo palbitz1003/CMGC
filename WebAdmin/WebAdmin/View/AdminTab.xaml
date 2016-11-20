@@ -39,41 +39,32 @@
         </DockPanel>
 
         <Button Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitGHINCommand}">
-            <TextBlock TextWrapping="Wrap">Upload GHIN to Web</TextBlock>
+            <TextBlock TextWrapping="Wrap">Upload Roster to Web</TextBlock>
         </Button>
-        <TextBlock Grid.Row="3" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">GHIN CSV File:</TextBlock>
+        <TextBlock Grid.Row="3" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Roster CSV File:</TextBlock>
         <DockPanel Grid.Row="3" Grid.Column="2" LastChildFill="true" Margin="5">
             <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseGHINButton" DockPanel.Dock="Right" Click="BrowseGHINButton_Click">Browse ...</Button>
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="GHINTextBox" IsReadOnly="true"></TextBox>
         </DockPanel>
 
-        <Button Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitRosterCommand}">
-            <TextBlock TextWrapping="Wrap">Add Roster Data to Web</TextBlock>
-        </Button>
-        <TextBlock Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Roster CSV File:</TextBlock>
-        <DockPanel Grid.Row="4" Grid.Column="2" LastChildFill="true" Margin="5">
-            <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseRosterButton" DockPanel.Dock="Right" Click="BrowseRosterButton_Click">Browse ...</Button>
-            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="RosterTextBox" IsReadOnly="true"></TextBox>
-        </DockPanel>
-
-        <Button Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitLocalHandicapCommand}">
+        <Button Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitLocalHandicapCommand}">
             <TextBlock TextWrapping="Wrap">Upload Local Handicap to Web</TextBlock>
         </Button>
-        <TextBlock Grid.Row="5" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Local Handicap CSV File:</TextBlock>
-        <DockPanel Grid.Row="5" Grid.Column="2" LastChildFill="true" Margin="5">
+        <TextBlock Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Local Handicap CSV File:</TextBlock>
+        <DockPanel Grid.Row="4" Grid.Column="2" LastChildFill="true" Margin="5">
             <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseLocalHandicapButton" DockPanel.Dock="Right" Click="BrowseLocalHandicapButton_Click">Browse ...</Button>
             <DatePicker  Margin="5" Name="LocalHandicapDatePicker"  DockPanel.Dock="Left"  VerticalAlignment="Center" 
                          Text="{Binding Path=LocalHandicapDate, Mode=TwoWay}"></DatePicker>
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="LocalHandicapTextBox" IsReadOnly="true"></TextBox>
         </DockPanel>
 
-        <Button Grid.Row="6" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding GetDuesCommand}">
+        <Button Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding GetDuesCommand}">
             <TextBlock TextWrapping="Wrap">Get Dues</TextBlock>
         </Button>
-        <Button Grid.Row="6" Grid.Column="1" Margin="5" VerticalAlignment="Center" Command="{Binding PayDuesCommand}">
+        <Button Grid.Row="5" Grid.Column="1" Margin="5" VerticalAlignment="Center" Command="{Binding PayDuesCommand}">
             <TextBlock TextWrapping="Wrap">Pay  Dues</TextBlock>
         </Button>
-        <StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal">
+        <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal">
             <TextBlock Margin="5" VerticalAlignment="Center">Player</TextBlock>
             <TextBox Margin="5" Width="150" x:Name="PlayerNameTextBox" Text="{Binding Path=PlayerName, Mode=TwoWay}" 
                  KeyDown="PlayerNameTextBox_KeyDown" TextChanged="PlayerNameTextBox_TextChanged" LostFocus="PlayerNameTextBox_LostFocus"/>

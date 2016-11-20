@@ -94,9 +94,14 @@ namespace WebAdmin
                 {
                     MessageBox.Show("GHIN file does not exist: " + TabViewModelBase.Options.GHINFileName + ". Auto-completion will not work");
                 }
+                catch(ArgumentException ex)
+                {
+                    MessageBox.Show("Failed to load roster file " + TabViewModelBase.Options.GHINFileName + ": " +
+                                    ex.Message + ". Please go to the Admin tab and specify a valid roster file name. Without the roster file, auto-completion will not work.");
+                }
                 catch
                 {
-                    MessageBox.Show("Please go to the Admin tab and specify the GHIN file name.  Without the GHIN file, auto-completion will not work.");
+                    MessageBox.Show("Please go to the Admin tab and specify the roster file name. Without the roster file, auto-completion will not work.");
                 }
             }
         }

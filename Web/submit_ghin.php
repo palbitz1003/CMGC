@@ -48,17 +48,20 @@ if (! isset ( $_POST ['GHIN'] )) {
 		}
 		
 		if ($query->fetch ()) {
-			// record exists, update last name, first name, and active
+			// record exists, update all the fields
 			$query->close ();
 			
-			$sqlCmd = "UPDATE `Roster` SET `LastName`= ?, `FirstName` = ?, `Active` = 1 WHERE `GHIN` = ?";
+			$sqlCmd = "UPDATE `Roster` SET `LastName`= ?, `FirstName` = ?,`Email`= ?, `BirthDate` = ?, `MembershipType` = ?, `Active` = 1 WHERE `GHIN` = ?";
 			$update = $connection->prepare ( $sqlCmd );
 			
 			if (! $update) {
 				die ( $sqlCmd . " prepare failed: " . $connection->error );
 			}
 			
-			if (! $update->bind_param ( 'ssi', $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $_POST ['GHIN'] [$i] ['GHIN'] )) {
+			$email = $_POST ['GHIN'] [$i] ['Email'];
+			$birthdate = $_POST ['GHIN'] [$i] ['Birthdate'];
+			$membershipType = $_POST ['GHIN'] [$i] ['MembershipType'];
+			if (! $update->bind_param ( 'sssssi', $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $email, $birthdate, $membershipType, $_POST ['GHIN'] [$i] ['GHIN'] )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
 			}
 			
@@ -79,9 +82,9 @@ if (! isset ( $_POST ['GHIN'] )) {
 			
 			$active = 1;
 			$dateAdded = date ( "Y-n-j" );
-			$email = "";
-			$birthdate = "";
-			$membershipType = "R";
+			$email = $_POST ['GHIN'] [$i] ['Email'];
+			$birthdate = $_POST ['GHIN'] [$i] ['Birthdate'];
+			$membershipType = $_POST ['GHIN'] [$i] ['MembershipType'];
 			if (! $insert->bind_param ( 'ississss', $_POST ['GHIN'] [$i] ['GHIN'], $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $active, $email, $birthdate, $dateAdded, $membershipType )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
 			}

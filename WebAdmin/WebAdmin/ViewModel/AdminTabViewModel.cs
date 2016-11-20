@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.ComponentModel;
 using System.Web.Script.Serialization;
 using System.Windows;
 using System.Windows.Input;
@@ -15,10 +11,8 @@ using WebAdmin.View;
 
 namespace WebAdmin.ViewModel
 {
-    public class AdminTabViewModel : TabViewModelBase, ITabViewModel
+    public class AdminTabViewModel : TabViewModelBase
     {
-        
-
         #region Properties
         public override string Header { get { return "Admin"; } }
 
@@ -28,8 +22,8 @@ namespace WebAdmin.ViewModel
         private string _playerName;
         public string PlayerName { get { return _playerName; } set { _playerName = value; OnPropertyChanged(); } }
 
-        private string _playerGHIN;
-        public string PlayerGHIN { get { return _playerGHIN; } set { _playerGHIN = value; OnPropertyChanged(); } }
+        private string _playerGhin;
+        public string PlayerGhin { get { return _playerGhin; } set { _playerGhin = value; OnPropertyChanged(); } }
 
         private string _playerDues;
         public string PlayerDues { get { return _playerDues; } set { _playerDues = value; OnPropertyChanged(); } }
@@ -37,8 +31,7 @@ namespace WebAdmin.ViewModel
 
         #region Commands
         public ICommand SubmitWaitingListCommand { get { return new ModelCommand(async s => await SubmitWaitingList(s)); } }
-        public ICommand SubmitRosterCommand { get { return new ModelCommand(async s => await SubmitRoster(s)); } }
-        public ICommand SubmitGHINCommand { get { return new ModelCommand(async s => await SubmitGHIN(s)); } }
+        public ICommand SubmitGhinCommand { get { return new ModelCommand(async s => await SubmitGhin(s)); } }
         public ICommand SubmitLocalHandicapCommand { get { return new ModelCommand(async s => await SubmitLocalHandicap(s)); } }
         public ICommand LoginCommand { get { return new ModelCommand(s => Login(s)); } }
         public ICommand GetDuesCommand { get { return new ModelCommand(async s => await GetDues(s)); } }
@@ -53,9 +46,9 @@ namespace WebAdmin.ViewModel
         public AdminTabViewModel()
         {
             DateTime d;
-            if (File.Exists(TabViewModelBase.Options.LocalHandicapFileName))
+            if (File.Exists(Options.LocalHandicapFileName))
             {
-                d = File.GetLastWriteTime(TabViewModelBase.Options.LocalHandicapFileName);
+                d = File.GetLastWriteTime(Options.LocalHandicapFileName);
             }
             else
             {
@@ -120,11 +113,11 @@ namespace WebAdmin.ViewModel
 
                         if (responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            System.Windows.MessageBox.Show("Waiting list uploaded");
+                            MessageBox.Show("Waiting list uploaded");
                         }
                         else
                         {
-                            TabViewModelBase.Credentials.CheckForInvalidPassword(responseString);
+                            Credentials.CheckForInvalidPassword(responseString);
                             Logging.Log(WebAddresses.ScriptFolder + WebAddresses.SubmitWaitingList, responseString);
 
                             HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
@@ -202,267 +195,24 @@ namespace WebAdmin.ViewModel
         }
         #endregion
 
-        #region Roster
-        private class RosterEntry : GHINEntry
+        #region GHIN
+        private async Task SubmitGhin(object s)
         {
-            public bool Active { get; set; }
-            public string Email { get; set; }
-            public DateTime Birthday { get; set; }
-            public string MembershipType { get; set; }
-        }
-
-        private async Task SubmitRoster(object s)
-        {
-            var roster = await LoadRoster(Options.RosterFileName);
-
-            // cancelled password input
-            if (string.IsNullOrEmpty(Credentials.LoginPassword))
-            {
-                return;
-            }
-
-            if ((roster != null) && (roster.Count > 0))
-            {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri(WebAddresses.BaseAddress);
-
-                    var values = new List<KeyValuePair<string, string>>();
-
-                    values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
-                    values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
-
-                    int chunkIndex = 0;
-                    for (int i = 0; i < roster.Count; i++)
-                    {
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("Roster[{0}][LastName]", chunkIndex),
-                            roster[i].LastName));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("Roster[{0}][FirstName]", chunkIndex),
-                             roster[i].FirstName));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("Roster[{0}][GHIN]", chunkIndex),
-                             roster[i].GHIN.ToString()));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("Roster[{0}][Email]", chunkIndex),
-                             roster[i].Email));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("Roster[{0}][Birthdate]", chunkIndex),
-                             roster[i].Birthday.ToString("yyyy-MM-dd")));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("Roster[{0}][MembershipType]", chunkIndex),
-                             roster[i].MembershipType));
-
-                        chunkIndex++;
-                        // If too much data is sent at once, you get an error 503
-                        if (values.Count >= 500)
-                        {
-                            bool sent = await HttpSend(client, HtmlRequestType.Post, values, WebAddresses.ScriptFolder + WebAddresses.SubmitRoster);
-                            chunkIndex = 0;
-
-                            // Send partial list
-                            //if (!sent)
-                            //{
-                            //    return;
-                            //}
-
-                            // start over with a new list
-                            values.Clear();
-
-                            values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
-                            values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
-                        }
-
-                    }
-
-                    if (chunkIndex > 0)
-                    {
-                        bool sent = await HttpSend(client, HtmlRequestType.Post, values, WebAddresses.ScriptFolder + WebAddresses.SubmitRoster);
-
-                        if (!sent)
-                        {
-                            return;
-                        }
-                    }
-
-                    System.Windows.MessageBox.Show("Roster updated");
-
-                }
-            }
-        }
-
-        private async Task<List<RosterEntry>> LoadRoster(string rosterFileName)
-        {
-            if(!File.Exists(rosterFileName))
-            {
-                throw new FileNotFoundException("File does not exist: " + rosterFileName);
-            }
-
             string[] membershipTypes = await GetMembershipTypesFromWeb();
 
-            List<RosterEntry> entries = new List<RosterEntry>();
-            List<RosterEntry> entriesMissingGHIN = new List<RosterEntry>();
-            string[][] csvFileEntries;
-            using (TextReader tr = new StreamReader(rosterFileName))
+            foreach (var ghinEntry in GHINEntries)
             {
-                csvFileEntries = CSVParser.Parse(tr);
-            }
-
-            int nameColumn = -1;
-            int ghinColumn = -1;
-            int emailColumn = -1;
-            int birthdateColumn = -1;
-            int membershipTypeColumn = -1;
-
-            bool emptyLine = false;
-            for (int row = 0; (row < csvFileEntries.Length) && !emptyLine; row++)
-            {
-                if (row == 0)
+                if (string.IsNullOrEmpty(ghinEntry.MembershipType))
                 {
-                    for(int col = 0; col < csvFileEntries[row].Length; col++)
-                    {
-                        if (!string.IsNullOrEmpty(csvFileEntries[row][col]))
-                        {
-                            switch (csvFileEntries[row][col].ToLower())
-                            {
-                                case "name":
-                                    nameColumn = col;
-                                    break;
-                                case "ghin #":
-                                    ghinColumn = col;
-                                    break;
-                                case "email address":
-                                    emailColumn = col;
-                                    break;
-                                case "dob":
-                                    birthdateColumn = col;
-                                    break;
-                                case "type":
-                                    membershipTypeColumn = col;
-                                    break;
-                            }
-                        }
-                    }
-
-                    if (nameColumn == -1) { throw new KeyNotFoundException("Unable to find 'Name' in the file header"); }
-                    if (ghinColumn == -1) { throw new KeyNotFoundException("Unable to find 'GHIN #' in the file header"); }
-                    if (emailColumn == -1) { throw new KeyNotFoundException("Unable to find 'Email Address' in the file header"); }
-                    if (birthdateColumn == -1) { throw new KeyNotFoundException("Unable to find 'DOB' in the file header"); }
-                    if (membershipTypeColumn == -1) {  throw new KeyNotFoundException("Unable to find 'Type' in the file header");}
+                    throw new ArgumentException(string.Format("Membership type is empty for \"{0}\"", ghinEntry.LastNameFirstName));
                 }
-                else
+                if (!membershipTypes.Contains(ghinEntry.MembershipType))
                 {
-                    if (!string.IsNullOrEmpty(csvFileEntries[row][1]) && 
-                        !string.IsNullOrEmpty(csvFileEntries[row][2]))
-                    {
-                        RosterEntry re = new RosterEntry();
-                        string name = csvFileEntries[row][nameColumn];
-                        int commaIndex = name.IndexOf(',');
-                        if(commaIndex < 0)
-                        {
-                            throw new ArgumentException(string.Format("No comma found in name field \"{0}\" on row {1}", csvFileEntries[row][nameColumn], row + 1));
-                        }
-                        re.LastName = name.Substring(0, commaIndex);
-                        re.FirstName = name.Substring(commaIndex + 1).Trim();
-
-                        re.MembershipType = csvFileEntries[row][membershipTypeColumn].Trim();
-                        if (string.IsNullOrEmpty(re.MembershipType))
-                        {
-                            throw new ArgumentException(string.Format("Membership type is empty for \"{0}\" on row {1}", csvFileEntries[row][nameColumn], row + 1));
-                        }
-                        if (!membershipTypes.Contains(re.MembershipType))
-                        {
-                            throw new ArgumentException(string.Format("Unexpected membership type \"{0}\" on row {1}. Allowed types are {2}.", 
-                                re.MembershipType, row + 1, string.Join(", ", membershipTypes)));
-                        }
-
-                        if (string.IsNullOrEmpty(csvFileEntries[row][ghinColumn]))
-                        {
-                            entriesMissingGHIN.Add(re);
-                        }
-                        else
-                        {
-                            int ghinNumber;
-                            if (!int.TryParse(csvFileEntries[row][ghinColumn], out ghinNumber))
-                            {
-                                throw new ArgumentException(string.Format("Invalid GHIN number on row {0}: '{1}'", row + 1, csvFileEntries[row][ghinColumn]));
-                            }
-
-                            re.GHIN = ghinNumber;
-                            re.Email = csvFileEntries[row][emailColumn].Trim();
-
-                            DateTime dt = new DateTime(2014, 1, 1);
-                            if (!string.IsNullOrEmpty(csvFileEntries[row][birthdateColumn]))
-                            {
-                                if (!DateTime.TryParse(csvFileEntries[row][birthdateColumn], out dt))
-                                {
-                                    throw new ArgumentException(string.Format("Invalid birthdate on row {0}: '{1}'", row + 1, csvFileEntries[row][birthdateColumn]));
-                                }
-                            }
-                            re.Birthday = dt;
-
-                            entries.Add(re);
-                        }
-                    }
-                    else
-                    {
-                        emptyLine = true;
-                        for(int col = 0; col < csvFileEntries[row].Length; col++)
-                        {
-                            if(!string.IsNullOrEmpty(csvFileEntries[row][col]))
-                            {
-                                emptyLine = false;
-                                break;
-                            }
-                        }
-                    }
+                    throw new ArgumentException(string.Format("Unexpected membership type \"{0}\" for {1}. Allowed types are {2}.",
+                        ghinEntry.MembershipType, ghinEntry.LastNameFirstName, string.Join(", ", membershipTypes)));
                 }
             }
 
-            if(entriesMissingGHIN.Count > 0)
-            {
-                string names = string.Empty;
-                for(int i = 0; i < entriesMissingGHIN.Count; i++)
-                {
-                    if (i > 0) names += ", ";
-                    names += entriesMissingGHIN[i].LastName;
-                }
-
-                System.Windows.MessageBox.Show("Skipping entries that do not have a GHIN number: " + names);
-            }
-            return entries;
-        }
-
-        private async Task<string[]> GetMembershipTypesFromWeb()
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
-
-                using (new WaitCursor())
-                {
-                    var responseString = await client.GetStringAsync(WebAddresses.ScriptFolder + WebAddresses.GetMembershipTypes);
-
-                    Logging.Log("GetMembershipTypesFromWeb", responseString);
-
-                    var jss = new JavaScriptSerializer();
-                    string[] membershipTypes = jss.Deserialize<string[]>(responseString);
-
-                    return membershipTypes;
-                }
-            }
-        }
-        #endregion
-
-        #region GHIN
-        private async Task SubmitGHIN(object s)
-        {
             if ((GHINEntries != null) && (GHINEntries.Count > 0))
             {
                 // cancelled password input
@@ -502,9 +252,21 @@ namespace WebAdmin.ViewModel
                             string.Format("GHIN[{0}][GHIN]", chunkIndex),
                              GHINEntries[i].GHIN.ToString()));
 
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("GHIN[{0}][Email]", chunkIndex),
+                             GHINEntries[i].Email));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("GHIN[{0}][Birthdate]", chunkIndex),
+                             GHINEntries[i].Birthday.ToString("yyyy-MM-dd")));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("GHIN[{0}][MembershipType]", chunkIndex),
+                             GHINEntries[i].MembershipType));
+
                         chunkIndex++;
                         // If too much data is sent at once, you get an error 503
-                        if (values.Count >= 500)
+                        if (values.Count >= 400)
                         {
                             bool sent = await HttpSend(client, HtmlRequestType.Post, values, WebAddresses.ScriptFolder + WebAddresses.SubmitGHIN);
                             chunkIndex = 0;
@@ -534,24 +296,42 @@ namespace WebAdmin.ViewModel
                         }
                     }
 
-                    System.Windows.MessageBox.Show("GHIN updated");
+                    MessageBox.Show("Roster updated");
 
                 }
             }
             else
             {
-                System.Windows.MessageBox.Show("No GHIN entries to submit.  Was there a problem loading the GHIN file?");
+                MessageBox.Show("No roster entries to submit.  Was there a problem loading the roster file?");
             }
         }
 
-        
+        private async Task<string[]> GetMembershipTypesFromWeb()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
+
+                using (new WaitCursor())
+                {
+                    var responseString = await client.GetStringAsync(WebAddresses.ScriptFolder + WebAddresses.GetMembershipTypes);
+
+                    Logging.Log("GetMembershipTypesFromWeb", responseString);
+
+                    var jss = new JavaScriptSerializer();
+                    string[] membershipTypes = jss.Deserialize<string[]>(responseString);
+
+                    return membershipTypes;
+                }
+            }
+        }
         #endregion
 
         #region Local Handicap
         private class LocalHandicapEntry
         {
-            public int GHIN { get; set; }
-            public string SCGAHandicap { get; set; }
+            public int Ghin { get; set; }
+            public string ScgaHandicap { get; set; }
             public string LocalHandicap { get; set; }
         }
 
@@ -589,11 +369,11 @@ namespace WebAdmin.ViewModel
 
                         values.Add(new KeyValuePair<string, string>(
                             string.Format("LocalHandicap[{0}][GHIN]", chunkIndex),
-                            localHandicap[i].GHIN.ToString()));
+                            localHandicap[i].Ghin.ToString()));
 
                         values.Add(new KeyValuePair<string, string>(
                             string.Format("LocalHandicap[{0}][SCGAHandicap]", chunkIndex),
-                             localHandicap[i].SCGAHandicap));
+                             localHandicap[i].ScgaHandicap));
 
                         values.Add(new KeyValuePair<string, string>(
                             string.Format("LocalHandicap[{0}][LocalHandicap]", chunkIndex),
@@ -631,7 +411,7 @@ namespace WebAdmin.ViewModel
                         }
                     }
 
-                    System.Windows.MessageBox.Show("Local Handicap updated");
+                    MessageBox.Show("Local Handicap updated");
 
                 }
             }
@@ -666,8 +446,8 @@ namespace WebAdmin.ViewModel
                         throw new ArgumentException(string.Format("Invalid GHIN number on row {0}: '{1}'", row + 1, csvFileEntries[row][ghinColumn]));
                     }
 
-                    localHandicapEntry.GHIN = ghinNumber;
-                    localHandicapEntry.SCGAHandicap = csvFileEntries[row][scgaHandicapColumn];
+                    localHandicapEntry.Ghin = ghinNumber;
+                    localHandicapEntry.ScgaHandicap = csvFileEntries[row][scgaHandicapColumn];
                     localHandicapEntry.LocalHandicap = csvFileEntries[row][localHandicapColumn];
 
                     entries.Add(localHandicapEntry);
@@ -686,13 +466,13 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            if (string.IsNullOrEmpty(PlayerGHIN))
+            if (string.IsNullOrEmpty(PlayerGhin))
             {
                 MessageBox.Show("Fill in the player GHIN");
                 return;
             }
 
-            LoadDuesFromWeb();
+            await LoadDuesFromWeb();
         }
 
         private async Task PayDues(object s)
@@ -703,7 +483,7 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            if (string.IsNullOrEmpty(PlayerGHIN))
+            if (string.IsNullOrEmpty(PlayerGhin))
             {
                 MessageBox.Show("Fill in the player GHIN");
                 return;
@@ -721,7 +501,7 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            SubmitDues();
+            await SubmitDues();
         }
 
         private async Task LoadDuesFromWeb()
@@ -734,7 +514,7 @@ namespace WebAdmin.ViewModel
                 {
                     var values = new List<KeyValuePair<string, string>>();
 
-                    values.Add(new KeyValuePair<string, string>("GHIN", PlayerGHIN));
+                    values.Add(new KeyValuePair<string, string>("GHIN", PlayerGhin));
 
                     var content = new FormUrlEncodedContent(values);
 
@@ -764,7 +544,7 @@ namespace WebAdmin.ViewModel
                 values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
                 values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
 
-                values.Add(new KeyValuePair<string, string>("GHIN", PlayerGHIN));
+                values.Add(new KeyValuePair<string, string>("GHIN", PlayerGhin));
                 values.Add(new KeyValuePair<string, string>("Name", PlayerName));
                 values.Add(new KeyValuePair<string, string>("Payment", PlayerDues));
 
@@ -773,7 +553,7 @@ namespace WebAdmin.ViewModel
 
                 if (sent)
                 {
-                    System.Windows.MessageBox.Show("Dues updated");
+                    MessageBox.Show("Dues updated");
                 }
             }
         }

@@ -12,7 +12,6 @@ namespace WebAdmin
         public static string ScriptFolder { get; set; }
         public const string SubmitTournament = "/submit_tournament.php";
         public const string SubmitWaitingList = "/submit_waiting_list.php";
-        public const string SubmitRoster = "/submit_roster.php";
         public const string SubmitGHIN = "/submit_ghin.php";
         public const string SubmitTeeTimes = "/submit_tee_times.php";
         public const string SubmitLocalHandicap = "/submit_local_handicap.php";

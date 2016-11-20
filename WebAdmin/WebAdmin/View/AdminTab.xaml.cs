@@ -46,7 +46,6 @@ namespace WebAdmin.View
             WebSiteTextBox.Text = TabViewModelBase.Options.WebSite;
             ScriptFolderTextBox.Text = TabViewModelBase.Options.ScriptFolder;
             WaitListTextBox.Text = TabViewModelBase.Options.WaitListFileName;
-            RosterTextBox.Text = TabViewModelBase.Options.RosterFileName;
             GHINTextBox.Text = TabViewModelBase.Options.GHINFileName;
             LocalHandicapTextBox.Text = TabViewModelBase.Options.LocalHandicapFileName;
         }
@@ -77,35 +76,6 @@ namespace WebAdmin.View
             {
                 WaitListTextBox.Text = dlg.FileName;
                 TabViewModelBase.Options.WaitListFileName = dlg.FileName;
-            }
-        }
-
-        private void BrowseRosterButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Create OpenFileDialog 
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-
-            if (!string.IsNullOrEmpty(RosterTextBox.Text))
-            {
-                string dir = System.IO.Path.GetDirectoryName(RosterTextBox.Text);
-                if (Directory.Exists(dir))
-                {
-                    dlg.InitialDirectory = dir;
-                }
-            }
-
-            // Set filter for file extension and default file extension 
-            dlg.DefaultExt = ".csv";
-            dlg.Filter = "CSV Files (*.csv)|*.csv";
-
-            // Display OpenFileDialog by calling ShowDialog method 
-            Nullable<bool> result = dlg.ShowDialog();
-
-            // Get the selected file name and display in a TextBox 
-            if (result == true)
-            {
-                RosterTextBox.Text = dlg.FileName;
-                TabViewModelBase.Options.RosterFileName = dlg.FileName;
             }
         }
 
@@ -234,7 +204,7 @@ namespace WebAdmin.View
                     {
                         AutoCompleteFeedback.Text = player.LastNameFirstName;
                         PlayerGhinTextBox.Text = player.GHIN.ToString();
-                        OnPropertyChanged("PlayerGHIN");
+                        OnPropertyChanged("PlayerGhin");
                         return;
                     }
                 }
