@@ -38,7 +38,7 @@
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WaitListTextBox" IsReadOnly="true"></TextBox>
         </DockPanel>
 
-        <Button Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitGHINCommand}">
+        <Button Grid.Row="3" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitGhinCommand}">
             <TextBlock TextWrapping="Wrap">Upload Roster to Web</TextBlock>
         </Button>
         <TextBlock Grid.Row="3" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Roster CSV File:</TextBlock>
@@ -70,7 +70,7 @@
                  KeyDown="PlayerNameTextBox_KeyDown" TextChanged="PlayerNameTextBox_TextChanged" LostFocus="PlayerNameTextBox_LostFocus"/>
             <TextBlock Width="150" Margin="5" VerticalAlignment="Center" x:Name="AutoCompleteFeedback"/>
             <TextBlock Margin="5" VerticalAlignment="Center">GHIN</TextBlock>
-            <TextBox Margin="5" Width="70" x:Name="PlayerGhinTextBox" Text="{Binding Path=PlayerGHIN, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBox Margin="5" Width="70" x:Name="PlayerGhinTextBox" Text="{Binding Path=PlayerGhin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             <TextBlock Margin="5" VerticalAlignment="Center">Amount</TextBlock>
             <TextBox Margin="5" Width="50" x:Name="PlayerDuesTextBox" Text="{Binding Path=PlayerDues, Mode=TwoWay}"></TextBox>
         </StackPanel>
