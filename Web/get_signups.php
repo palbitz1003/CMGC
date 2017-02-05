@@ -17,6 +17,9 @@ if ($connection->connect_error)
 $tournament = GetTournament($connection, $tournamentKey);
 $signUpArray = GetSignups ( $connection, $tournamentKey, 'ORDER BY `SubmitKey` ASC' );
 
+$eightyYearsAgo = new DateTime ( $tournament->StartDate );
+$eightyYearsAgo->sub(new DateInterval ( 'P80Y' ));
+
 //var_dump($signUpArray);
 
 for($i = 0; $i < count ( $signUpArray ); ++ $i) {
@@ -35,7 +38,19 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 		{
 			$extra = $playersSignedUp [$p]->GHIN;
 		}
-		$players = $players . '"' . $playersSignedUp [$p]->LastName . '",' . $playersSignedUp [$p]->GHIN . ',' . $extra;
+		$over80 = "";
+		if($playersSignedUp [$p]->GHIN !== 0){
+			$rosterEntry = GetRosterEntry ( $connection, $playersSignedUp [$p]->GHIN );
+			if($rosterEntry){
+				if($rosterEntry->BirthDate !== "0001-01-01"){
+					$birthday = new DateTime($rosterEntry->BirthDate);
+					if($birthday <= $eightyYearsAgo){
+						$over80 = " >80";
+					}
+				}
+			}
+		}
+		$players = $players . '"' . $playersSignedUp [$p]->LastName . '",' . $playersSignedUp [$p]->GHIN . ',' . $extra . $over80;
 	}
 	
 	if (!empty($players)) {
