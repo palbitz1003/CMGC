@@ -48,22 +48,22 @@ namespace LocalHandicap
             this.LocalHandicapDateRangeLabel = new System.Windows.Forms.Label();
             this.CalculateHandicapButton = new System.Windows.Forms.Button();
             this.CourseInfoGroupBox1 = new System.Windows.Forms.GroupBox();
+            this.CourseRatingTextBox3 = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.TeeTextBox3 = new System.Windows.Forms.TextBox();
+            this.CourseRatingTextBox2 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.TeeTextBox2 = new System.Windows.Forms.TextBox();
+            this.CourseRatingTextBox1 = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.TeeTextBox1 = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.UsedByLabel = new System.Windows.Forms.Label();
             this.CourseSlopeTextBox = new System.Windows.Forms.TextBox();
             this.CourseNameTextBox = new System.Windows.Forms.TextBox();
             this.CourseSlopeLabel = new System.Windows.Forms.Label();
             this.CourseNameLabel = new System.Windows.Forms.Label();
             this.VersionLabel = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.TeeTextBox1 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.CourseRatingTextBox1 = new System.Windows.Forms.TextBox();
-            this.CourseRatingTextBox2 = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.TeeTextBox2 = new System.Windows.Forms.TextBox();
-            this.CourseRatingTextBox3 = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.TeeTextBox3 = new System.Windows.Forms.TextBox();
             this.SCGAIndexGroupBox.SuspendLayout();
             this.LocalHandicapGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumberOfTournamentsNumericUpDown)).BeginInit();
@@ -360,6 +360,109 @@ namespace LocalHandicap
             this.CourseInfoGroupBox1.TabStop = false;
             this.CourseInfoGroupBox1.Text = "Course Information";
             // 
+            // CourseRatingTextBox3
+            // 
+            this.CourseRatingTextBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.CourseRatingTextBox3.Location = new System.Drawing.Point(499, 68);
+            this.CourseRatingTextBox3.Margin = new System.Windows.Forms.Padding(2);
+            this.CourseRatingTextBox3.Name = "CourseRatingTextBox3";
+            this.CourseRatingTextBox3.Size = new System.Drawing.Size(55, 20);
+            this.CourseRatingTextBox3.TabIndex = 14;
+            this.CourseRatingTextBox3.TextChanged += new System.EventHandler(this.CourseRatingTextBox3_TextChanged);
+            this.CourseRatingTextBox3.Validating += new System.ComponentModel.CancelEventHandler(this.CourseRatingTextBox3_Validating);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(483, 71);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(12, 13);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "/";
+            // 
+            // TeeTextBox3
+            // 
+            this.TeeTextBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.TeeTextBox3.Location = new System.Drawing.Point(424, 68);
+            this.TeeTextBox3.Margin = new System.Windows.Forms.Padding(2);
+            this.TeeTextBox3.Name = "TeeTextBox3";
+            this.TeeTextBox3.Size = new System.Drawing.Size(55, 20);
+            this.TeeTextBox3.TabIndex = 12;
+            this.TeeTextBox3.TextChanged += new System.EventHandler(this.TeeTextBox3_TextChanged);
+            // 
+            // CourseRatingTextBox2
+            // 
+            this.CourseRatingTextBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.CourseRatingTextBox2.Location = new System.Drawing.Point(329, 68);
+            this.CourseRatingTextBox2.Margin = new System.Windows.Forms.Padding(2);
+            this.CourseRatingTextBox2.Name = "CourseRatingTextBox2";
+            this.CourseRatingTextBox2.Size = new System.Drawing.Size(55, 20);
+            this.CourseRatingTextBox2.TabIndex = 11;
+            this.CourseRatingTextBox2.TextChanged += new System.EventHandler(this.CourseRatingTextBox2_TextChanged);
+            this.CourseRatingTextBox2.Validating += new System.ComponentModel.CancelEventHandler(this.CourseRatingTextBox2_Validating);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(313, 71);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(12, 13);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "/";
+            // 
+            // TeeTextBox2
+            // 
+            this.TeeTextBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.TeeTextBox2.Location = new System.Drawing.Point(254, 68);
+            this.TeeTextBox2.Margin = new System.Windows.Forms.Padding(2);
+            this.TeeTextBox2.Name = "TeeTextBox2";
+            this.TeeTextBox2.Size = new System.Drawing.Size(55, 20);
+            this.TeeTextBox2.TabIndex = 9;
+            this.TeeTextBox2.TextChanged += new System.EventHandler(this.TeeTextBox2_TextChanged);
+            // 
+            // CourseRatingTextBox1
+            // 
+            this.CourseRatingTextBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.CourseRatingTextBox1.Location = new System.Drawing.Point(166, 68);
+            this.CourseRatingTextBox1.Margin = new System.Windows.Forms.Padding(2);
+            this.CourseRatingTextBox1.Name = "CourseRatingTextBox1";
+            this.CourseRatingTextBox1.Size = new System.Drawing.Size(55, 20);
+            this.CourseRatingTextBox1.TabIndex = 8;
+            this.CourseRatingTextBox1.TextChanged += new System.EventHandler(this.CourseRatingTextBox1_TextChanged);
+            this.CourseRatingTextBox1.Validating += new System.ComponentModel.CancelEventHandler(this.CourseRatingTextBox1_Validating);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(150, 71);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(12, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "/";
+            // 
+            // TeeTextBox1
+            // 
+            this.TeeTextBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.TeeTextBox1.Location = new System.Drawing.Point(91, 68);
+            this.TeeTextBox1.Margin = new System.Windows.Forms.Padding(2);
+            this.TeeTextBox1.Name = "TeeTextBox1";
+            this.TeeTextBox1.Size = new System.Drawing.Size(55, 20);
+            this.TeeTextBox1.TabIndex = 6;
+            this.TeeTextBox1.TextChanged += new System.EventHandler(this.TeeTextBox1_TextChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(14, 71);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(71, 13);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Tee / Rating:";
+            // 
             // UsedByLabel
             // 
             this.UsedByLabel.AutoSize = true;
@@ -420,112 +523,9 @@ namespace LocalHandicap
             this.VersionLabel.Location = new System.Drawing.Point(542, 403);
             this.VersionLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(57, 12);
+            this.VersionLabel.Size = new System.Drawing.Size(52, 12);
             this.VersionLabel.TabIndex = 10;
-            this.VersionLabel.Text = "Version 1.18";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 71);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(71, 13);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Tee / Rating:";
-            // 
-            // TeeTextBox1
-            // 
-            this.TeeTextBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.TeeTextBox1.Location = new System.Drawing.Point(91, 68);
-            this.TeeTextBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.TeeTextBox1.Name = "TeeTextBox1";
-            this.TeeTextBox1.Size = new System.Drawing.Size(55, 20);
-            this.TeeTextBox1.TabIndex = 6;
-            this.TeeTextBox1.TextChanged += new System.EventHandler(this.TeeTextBox1_TextChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(150, 71);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(12, 13);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "/";
-            // 
-            // CourseRatingTextBox1
-            // 
-            this.CourseRatingTextBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.CourseRatingTextBox1.Location = new System.Drawing.Point(166, 68);
-            this.CourseRatingTextBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.CourseRatingTextBox1.Name = "CourseRatingTextBox1";
-            this.CourseRatingTextBox1.Size = new System.Drawing.Size(55, 20);
-            this.CourseRatingTextBox1.TabIndex = 8;
-            this.CourseRatingTextBox1.TextChanged += new System.EventHandler(this.CourseRatingTextBox1_TextChanged);
-            this.CourseRatingTextBox1.Validating += new System.ComponentModel.CancelEventHandler(this.CourseRatingTextBox1_Validating);
-            // 
-            // CourseRatingTextBox2
-            // 
-            this.CourseRatingTextBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.CourseRatingTextBox2.Location = new System.Drawing.Point(329, 68);
-            this.CourseRatingTextBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.CourseRatingTextBox2.Name = "CourseRatingTextBox2";
-            this.CourseRatingTextBox2.Size = new System.Drawing.Size(55, 20);
-            this.CourseRatingTextBox2.TabIndex = 11;
-            this.CourseRatingTextBox2.TextChanged += new System.EventHandler(this.CourseRatingTextBox2_TextChanged);
-            this.CourseRatingTextBox2.Validating += new System.ComponentModel.CancelEventHandler(this.CourseRatingTextBox2_Validating);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(313, 71);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(12, 13);
-            this.label3.TabIndex = 10;
-            this.label3.Text = "/";
-            // 
-            // TeeTextBox2
-            // 
-            this.TeeTextBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.TeeTextBox2.Location = new System.Drawing.Point(254, 68);
-            this.TeeTextBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.TeeTextBox2.Name = "TeeTextBox2";
-            this.TeeTextBox2.Size = new System.Drawing.Size(55, 20);
-            this.TeeTextBox2.TabIndex = 9;
-            this.TeeTextBox2.TextChanged += new System.EventHandler(this.TeeTextBox2_TextChanged);
-            // 
-            // CourseRatingTextBox3
-            // 
-            this.CourseRatingTextBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.CourseRatingTextBox3.Location = new System.Drawing.Point(499, 68);
-            this.CourseRatingTextBox3.Margin = new System.Windows.Forms.Padding(2);
-            this.CourseRatingTextBox3.Name = "CourseRatingTextBox3";
-            this.CourseRatingTextBox3.Size = new System.Drawing.Size(55, 20);
-            this.CourseRatingTextBox3.TabIndex = 14;
-            this.CourseRatingTextBox3.TextChanged += new System.EventHandler(this.CourseRatingTextBox3_TextChanged);
-            this.CourseRatingTextBox3.Validating += new System.ComponentModel.CancelEventHandler(this.CourseRatingTextBox3_Validating);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(483, 71);
-            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(12, 13);
-            this.label4.TabIndex = 13;
-            this.label4.Text = "/";
-            // 
-            // TeeTextBox3
-            // 
-            this.TeeTextBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.TeeTextBox3.Location = new System.Drawing.Point(424, 68);
-            this.TeeTextBox3.Margin = new System.Windows.Forms.Padding(2);
-            this.TeeTextBox3.Name = "TeeTextBox3";
-            this.TeeTextBox3.Size = new System.Drawing.Size(55, 20);
-            this.TeeTextBox3.TabIndex = 12;
-            this.TeeTextBox3.TextChanged += new System.EventHandler(this.TeeTextBox3_TextChanged);
+            this.VersionLabel.Text = "Version 2.0";
             // 
             // LocalHandicapForm
             // 

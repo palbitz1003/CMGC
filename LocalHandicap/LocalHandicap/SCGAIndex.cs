@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-//using System.Data.OleDb;
+
 
 
 namespace LocalHandicap
@@ -34,6 +34,43 @@ namespace LocalHandicap
             _GHINIndexDBByNumber.Clear();
         }
 
+        public bool ExcelFile(string filename)
+        {
+            ReadExcelFile readExcelFile = new ReadExcelFile(filename);
+            if ((readExcelFile.ExcelContents == null) && (readExcelFile.ExcelContents.Count == 0))
+            {
+                return false;
+            }
+
+            if (String.Compare(Path.GetExtension(filename), ".xls", true) != 0)
+            {
+                MessageBox.Show("Expected .xls file, but file does not end in .xls: " + filename);
+                return false;
+            }
+
+            string csvFile = filename.Replace(".xls", ".csv");
+
+            if (File.Exists(csvFile))
+            {
+                File.Delete(csvFile);
+            }
+
+            using (TextWriter tw = new StreamWriter(csvFile))
+            {
+                foreach (string s in readExcelFile.ExcelContents)
+                {
+                    tw.WriteLine(s);
+                }
+            }
+
+            for (int i = 1; i <= readExcelFile.ExcelContents.Count; i++)
+            {
+                addCSVLine(readExcelFile.ExcelContents[i - 1], 1);
+            }
+
+            return true;
+        }
+
         public bool CSVFile(string fileName)
         {
             try
@@ -47,8 +84,13 @@ namespace LocalHandicap
 
                 if (!File.Exists(fileName))
                 {
-                    MessageBox.Show("CSV file does not exist: " + fileName);
+                    MessageBox.Show("File does not exist: " + fileName);
                     return false;
+                }
+
+                if (String.Compare(Path.GetExtension(fileName), ".xls", true) == 0)
+                {
+                    return ExcelFile(fileName);
                 }
 
                 bool textFile = String.Compare(Path.GetExtension(fileName), ".txt", true) == 0;

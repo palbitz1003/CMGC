@@ -279,7 +279,7 @@ namespace LocalHandicap
                     dlg.InitialDirectory = Path.GetDirectoryName(_settings.SCGAFile);
                 }
                 dlg.DefaultExt = ".txt"; // Default file extension
-                dlg.Filter = "Text or CSV|*.csv;*.txt"; // Filter files by extension
+                dlg.Filter = "Excel, csv, or text|*.xls;*.csv;*.txt"; // Filter files by extension
 
                 // Show open file dialog box
                 result = dlg.ShowDialog();
