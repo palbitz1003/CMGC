@@ -40,9 +40,7 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		echo '<tr style="font-size:large;">';
 		echo '<td style="border:none">' . GetFriendlyTournamentDates($currentTournaments[$i]) . '</td>';
 		if($currentTournaments[$i]->AnnouncementOnly){
-			if($now >= $startSignUp){
 				echo '<td style="border:none;text-align:center" colspan="4"> ------ ' . $currentTournaments[$i]->Name . ' ------ </td>';
-			}
 		}
 		else {
 			echo '<td style="border:none">' . $currentTournaments[$i]->Name . '</td>';
