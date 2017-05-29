@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Text;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace LocalHandicap
 {
@@ -38,7 +39,7 @@ namespace LocalHandicap
 
             Excel.Range excelRange = sheet.UsedRange;
 
-            dynamic value = excelRange.get_Value(
+            dynamic spreadsheetValue = excelRange.get_Value(
                     Excel.XlRangeValueDataType.xlRangeValueDefault);
 
             Marshal.ReleaseComObject(excelRange);
@@ -51,67 +52,117 @@ namespace LocalHandicap
 
             ExcelContents = new List<string>();
 
-            if (value is object)
+            List<int> ghinColumns = new List<int>();
+
+            if (spreadsheetValue is object)
             {
-                Type type = value.GetType();
+                Type type = spreadsheetValue.GetType();
                 if (type.IsArray)
                 {
-                    object[,] valueArray = (object[,])value;
+                    object[,] valueArray = (object[,])spreadsheetValue;
                     for (int i = 1; i < valueArray.GetLength(0); i++)
                     {
-                        // Look for a line with 3 non-null
-                        if ((valueArray.GetLength(1) >= 3) && (valueArray[i, 1] != null) &&
-                            (valueArray[i, 2] != null) && (valueArray[i, 3] != null))
+                        if (ghinColumns.Count == 0)
                         {
-                            // If the line is more than 3 entries, then the 4th must be null
-                            if ((valueArray.GetLength(1) >= 4) && (valueArray[i, 4] != null))
+                            for (int j = 1; j < valueArray.GetLength(1); j++)
                             {
-                                continue;
-                            }
-
-                            // If the content is double/string/double if it looks like this: 9079663	Albitz, Paul	2.3	
-                            // If the content is double/string/string if it looks like this: 9079663	Albitz, Paul	2.3M	
-                            string playerEntry = string.Empty;
-                            if ((valueArray[i, 1] is double) && (valueArray[i, 2] is string))
-                            {
-                                // Create CSV line with name first, then GHIN, then index
-                                if (valueArray[i, 3] is double)
+                                string value = valueArray[i, j] as string;
+                                if ((value != null) && value.ToLower().Contains("ghin"))
                                 {
-                                    ExcelContents.Add("\"" + (string)valueArray[i, 2] + "\"," + ((double)valueArray[i, 1]).ToString() + "," +  ((double)valueArray[i, 3]).ToString());
-                                }
-                                else if (valueArray[i, 3] is string)
-                                {
-                                    ExcelContents.Add("\"" + (string)valueArray[i, 2] + "\"," + ((double)valueArray[i, 1]).ToString() + "," +  (string)valueArray[i, 3]);
+                                    ghinColumns.Add(j);
                                 }
                             }
                         }
+                        else
+                        {
+                            foreach (var col in ghinColumns)
+                            {
+                                if ((valueArray.GetLength(1) >= (col + 2)) && (valueArray[i, col] != null) &&
+                                    (valueArray[i, col + 1] != null) && (valueArray[i, col + 2] != null))
+                                {
+                                    AddCsvLine(valueArray, i, col);
+                                }
+                            }
+                        }
+
                         //for (int j = 1; j < valueArray.GetLength(1); j++)
                         //{
-                            
-                            //if (valueArray[i, j] is string)
-                            //{
-                            //    System.Diagnostics.Debug.WriteLine("String (" + i + "," + j + "): " + (string)valueArray[i, j]);
-                            //}
-                            //else if (valueArray[i, j] is float)
-                            //{
-                            //    System.Diagnostics.Debug.WriteLine("Float (" + i + "," + j + "): " + ((float)valueArray[i, j]).ToString());
-                            //}
-                            //else if (valueArray[i, j] is int)
-                            //{
-                            //    System.Diagnostics.Debug.WriteLine("Int (" + i + "," + j + "): " + (int)valueArray[i, j]);
-                            //}
-                            //else if (valueArray[i, j] is double)
-                            //{
-                            //    System.Diagnostics.Debug.WriteLine("Double (" + i + "," + j + "): " + ((double)valueArray[i, j]).ToString());
-                            //}
-                            //else
-                            //{
-                            //    System.Diagnostics.Debug.WriteLine("??? (" + i + "," + j + "): " + valueArray[i, j].GetType());
-                            //}
+
+                        //    if (valueArray[i, j] is string)
+                        //    {
+                        //        System.Diagnostics.Debug.WriteLine("String (" + i + "," + j + "): " + (string)valueArray[i, j]);
+                        //    }
+                        //    else if (valueArray[i, j] is float)
+                        //    {
+                        //        System.Diagnostics.Debug.WriteLine("Float (" + i + "," + j + "): " + ((float)valueArray[i, j]).ToString());
+                        //    }
+                        //    else if (valueArray[i, j] is int)
+                        //    {
+                        //        System.Diagnostics.Debug.WriteLine("Int (" + i + "," + j + "): " + (int)valueArray[i, j]);
+                        //    }
+                        //    else if (valueArray[i, j] is double)
+                        //    {
+                        //        System.Diagnostics.Debug.WriteLine("Double (" + i + "," + j + "): " + ((double)valueArray[i, j]).ToString());
+                        //    }
+                        //    else if (valueArray[i, j] == null)
+                        //    {
+                        //        // ignore
+                        //    }
+                        //    else
+                        //    {
+                        //        System.Diagnostics.Debug.WriteLine("??? (" + i + "," + j + "): " + valueArray[i, j].GetType());
+                        //    }
                         //}
                     }
                 }
             }
+        }
+
+        private bool AddCsvLine(object[,] valueArray, int row, int column)
+        {
+            if ((valueArray[row, column] == null) || (valueArray[row, column + 1] == null) || (valueArray[row, column + 2] == null))
+            {
+                return false;
+            }
+
+            // If the content is double/string/double if it looks like this: 9079663	Albitz, Paul	2.3	
+            // If the content is double/string/string if it looks like this: 9079663	Albitz, Paul	2.3M	
+                string playerEntry = string.Empty;
+            if ((valueArray[row, column] is double) && (valueArray[row, column + 1] is string))
+            {
+                // Create CSV line with name first, then GHIN, then index
+                if (valueArray[row, column + 2] is double)
+                {
+                    ExcelContents.Add("\"" + (string)valueArray[row, column + 1] + "\"," + ((double)valueArray[row, column]).ToString() + "," + ((double)valueArray[row, column + 2]).ToString());
+                    return true;
+                }
+                else if (valueArray[row, column + 2] is string)
+                {
+                    // The 3rd field can be "NH", "2.3R" or "+0.9"
+                    string value = valueArray[row, column + 2] as string;
+                    value = value.Trim();
+                    if (value.Length > 0)
+                    {
+                        string valueWithoutLastChar = value.Remove(value.Length - 1, 1);
+                        string valueWithoutFirstChar = value.Remove(0, 1);
+                        float index;
+                        if ((value.ToLower() == "nh") || float.TryParse(valueWithoutLastChar, out index) || float.TryParse(valueWithoutFirstChar, out index))
+                        {
+                            ExcelContents.Add("\"" + (string)valueArray[row, column + 1] + "\"," + ((double)valueArray[row, column]).ToString() + "," + (string)valueArray[row, column + 2]);
+                            return true;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Ignoring this line because the index is not of the expected form: " +
+                                ((double)valueArray[row, column]).ToString() + " " +
+                                (string)valueArray[row, column + 1] + " " +
+                                (string)valueArray[row, column + 2]);
+                        }
+
+                    }
+                }
+            }
+            return false;
         }
     }
 }
