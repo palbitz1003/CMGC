@@ -2,6 +2,7 @@
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/results_functions.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/dues_functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
@@ -17,7 +18,7 @@ if ($connection->connect_error)
 echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
-ShowDues($script_folder_href);
+ShowDues($connection, $script_folder_href);
 
 $currentTournaments = GetCurrentTournaments ( $connection );
 if(isset($currentTournaments) && (count($currentTournaments) > 0)){
@@ -94,18 +95,20 @@ if (have_posts()) {
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
 
-function ShowDues($script_folder_href){
+function ShowDues($connection, $script_folder_href){
 
 	$now = new DateTime ( "now" );
-	$year = $now->format('Y');
-	
-	$startDues = new DateTime($year . '-09-01');
-	$endExtendedDues = new DateTime($year . '-11-01');
+	$startDues = GetDuesStartDate();
+	$endExtendedDues = GetDuesEndExtendedDate();
 	
 	if(($now >= $startDues) && ($now < $endExtendedDues))
 	{
+		$dues = GetPayPalDuesDetails($connection, 'R');
+		$extendedDues = GetPayPalDuesDetails($connection, 'R_Late');
+		$scgaOnly = GetPayPalDuesDetails($connection, 'L');
+		
 		echo '<h2>Yearly Dues Payment</h2>';
-		echo '<p style="margin-left:30px;">The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175. Life members pay the annual SCGA fee of $36. Social members should send a check to the CMGC office. After Oct 31, you will be dropped from membership automatically. ';
+		echo '<p style="margin-left:30px;">The dues for regular members is $' . $dues->TournamentFee . ' before Oct 1. From Oct 1 through Oct 31, the dues are $' . $extendedDues->TournamentFee .'. Life members pay the annual SCGA fee of $' . $scgaOnly->TournamentFee .'. Social members should send a check to the CMGC office. After Oct 31, you will be dropped from membership automatically. ';
 		echo '<p style="margin-left:30px;font-size:large;">' . PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_payment.php">Pay Dues</a>&nbsp;&nbsp;&nbsp;&nbsp;'. PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_not_paid.php">View Have Not Paid List</a>'. PHP_EOL;

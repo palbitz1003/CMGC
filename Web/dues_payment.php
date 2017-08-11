@@ -22,6 +22,20 @@ $LastName = "";
 $FullName = "";
 $playerDues = null;
 
+$now = new DateTime ( "now" );
+$startDues = GetDuesStartDate();
+$endExtendedDues = GetDuesEndExtendedDate();
+
+if(!(($now >= $startDues) && ($now < $endExtendedDues)))
+{
+	get_header ();
+	get_sidebar ();
+	echo 'You can pay your dues only between ' . $startDues->format('M d, Y') . ' and ' . $endExtendedDues->format( 'M d, Y');
+	get_footer ();
+	return;
+}
+
+
 if (isset ( $_POST ['Player'] )) {
 	
 		$GHIN = trim ( $_POST ['Player'] ['GHIN'] );
@@ -94,7 +108,7 @@ if (isset ( $_POST ['Player'] )) {
 			if(!empty($changed)){
 				$message = $FullName . " (" . $GHIN . ")" . PHP_EOL;
 				$message = $message . $changed;
-				mail("dwatson003@me.com", 'Updated Coronado Player Info', $message, "From: DoNotReply@" . $web_site);
+				mail("cmgcoffice@att.net", 'Updated Coronado Player Info', $message, "From: DoNotReply@" . $web_site);
 			}
 		}
 	}
@@ -103,8 +117,8 @@ if (isset ( $_POST ['Player'] )) {
 		$now = new DateTime ( "now" );
 		$year = $now->format('Y');
 		
-		$endBasicDues = new DateTime($year . '-10-01');
-		$endExtendedDues = new DateTime($year . '-11-01');
+		$endBasicDues = GetDuesEndBasicDate();
+		$endExtendedDues = GetDuesEndExtendedDate();
 		
 		$membershipType = $rosterEntry->MembershipType;
 		if(($now > $endBasicDues) && ($now < $endExtendedDues))
@@ -142,12 +156,16 @@ get_sidebar ();
 // If this page has not been filled in or there is an error, show the form
 if (!empty($error) || !isset ( $_POST ['Player'] )) {
 
+	$dues = GetPayPalDuesDetails($connection, 'R');
+	$extendedDues = GetPayPalDuesDetails($connection, 'R_Late');
+	$scgaOnly = GetPayPalDuesDetails($connection, 'L');
+	
 	echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 	echo '<div id="content" role="main">' . PHP_EOL;
 	echo '<h2 class="entry-title" style="text-align:center">Pay Yearly Dues</h2>' . PHP_EOL;
 	
-	echo '<p>Most members can use on-line payment. The dues for regular members is $150 before Oct 1. From Oct 1 through Oct 31, the dues are $175.';
-	echo ' Life members pay the annual SCGA fee of $36. Social members should send a check to the CMGC office.' . PHP_EOL;
+	echo '<p>Most members can use on-line payment. The dues for regular members is $' . $dues->TournamentFee . ' before Oct 1. From Oct 1 through Oct 31, the dues are $' . $extendedDues->TournamentFee .'.';
+	echo ' Life members pay the annual SCGA fee of $' . $scgaOnly->TournamentFee .'. Social members should send a check to the CMGC office.' . PHP_EOL;
 	echo '<p>After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
 	echo '<p>Fill in your GHIN and last name below.</p>' . PHP_EOL;
 
@@ -233,36 +251,6 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '</div><!-- #content -->' . PHP_EOL;
 	echo '</div><!-- #content-container -->' . PHP_EOL;
 } // end of else clause
-
-function GetPayPalDuesDetails($connection, $membershipType){
-	$sqlCmd = "SELECT * FROM `PayPalDues` WHERE `MembershipType` = ?";
-	$payPal = $connection->prepare ( $sqlCmd );
-
-	if (! $payPal) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
-
-	if (! $payPal->bind_param ( 's', $membershipType )) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
-	}
-
-	if (! $payPal->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
-	}
-
-	$payPal->bind_result ( $payPalButton, $fee, $membership );
-
-	$details = null;
-	if($payPal->fetch ()){
-		$details = new PayPalDetails();
-		$details->PayPayButton = $payPalButton;
-		$details->TournamentFee = $fee;
-	}
-
-	$payPal->close ();
-
-	return $details;
-}
 
 if (isset ( $connection )) {
 	$connection->close ();

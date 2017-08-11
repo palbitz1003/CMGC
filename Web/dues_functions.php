@@ -244,4 +244,55 @@ function SendDuesEmail($connection, $ghin, $payment, $web_site){
 
 	return null;
 }
+
+function GetPayPalDuesDetails($connection, $membershipType){
+	$sqlCmd = "SELECT * FROM `PayPalDues` WHERE `MembershipType` = ?";
+	$payPal = $connection->prepare ( $sqlCmd );
+
+	if (! $payPal) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $payPal->bind_param ( 's', $membershipType )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $payPal->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$payPal->bind_result ( $payPalButton, $fee, $membership );
+
+	$details = null;
+	if($payPal->fetch ()){
+		$details = new PayPalDetails();
+		$details->PayPayButton = $payPalButton;
+		$details->TournamentFee = $fee;
+	}
+
+	$payPal->close ();
+
+	return $details;
+}
+
+function GetDuesStartDate(){
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y');
+	
+	return new DateTime($year . '-09-01');
+}
+
+function GetDuesEndBasicDate(){
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y');
+
+	return new DateTime($year . '-10-01');
+}
+
+function GetDuesEndExtendedDate(){
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y');
+
+	return new DateTime($year . '-11-01');
+}
 ?>
