@@ -26,7 +26,7 @@ $now = new DateTime ( "now" );
 $startDues = GetDuesStartDate();
 $endExtendedDues = GetDuesEndExtendedDate();
 
-if(!(($now >= $startDues) && ($now < $endExtendedDues)))
+if(!(($now >= $startDues) && ($now < $endExtendedDues)) && $_GET['skipdatecheck'] !== '1')
 {
 	get_header ();
 	get_sidebar ();

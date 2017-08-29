@@ -461,7 +461,8 @@ function AddMatchPlayScoresResults($connection, $tournamentKey, $scoresResults)
 }
 function ShowMatchResults($connection, $tournamentKey)
 {
-	echo '<svg height="420" width="850">' . PHP_EOL;
+	$dataProvided = false;
+	$matchString = '<svg height="420" width="850">' . PHP_EOL;
 	
 	for($round = 1; $round <= 4; ++$round){
 		$sqlCmd = "SELECT * FROM `MatchPlayResults` WHERE `TournamentKey` = ? AND `Round` = ? ORDER BY `MatchNumber` ASC";
@@ -510,8 +511,8 @@ function ShowMatchResults($connection, $tournamentKey)
 		
 		if($round == 4){
 			if ( $query->fetch () ) {
-				echo '<line x1="620" y1="225" x2="820" y2="225" style="stroke:rgb(0,0,0);stroke-width:2" />' . PHP_EOL;
-				echo '<text x="630" y="215">' . $name1 . '</text>' . PHP_EOL;
+				$matchString = $matchString . '<line x1="620" y1="225" x2="820" y2="225" style="stroke:rgb(0,0,0);stroke-width:2" />' . PHP_EOL;
+				$matchString = $matchString . '<text x="630" y="215">' . $name1 . '</text>' . PHP_EOL;
 			}
 		} else {
 			for($currentMatch = 0; $currentMatch < $matchCount; ++$currentMatch){
@@ -519,15 +520,16 @@ function ShowMatchResults($connection, $tournamentKey)
 				$y1Adjusted = $y1 + ($currentMatch * $yIncrement);
 				$y2Adjusted = $y2 + ($currentMatch * $yIncrement);
 				
-				echo '<polyline points="' . $x1 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y2Adjusted . ' ' . $x1 . ',' . $y2Adjusted . '" style="fill:none;stroke:black;stroke-width:2" />' . PHP_EOL;
+				$matchString = $matchString . '<polyline points="' . $x1 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y1Adjusted . ' ' . $x2 . ',' . $y2Adjusted . ' ' . $x1 . ',' . $y2Adjusted . '" style="fill:none;stroke:black;stroke-width:2" />' . PHP_EOL;
 				if ( $query->fetch () ) {
-					echo '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">' . $name1 . '</text>' . PHP_EOL;
-					echo '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">' . $name2 . '</text>' . PHP_EOL;
+					$dataProvided = true;
+					$matchString = $matchString . '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">' . $name1 . '</text>' . PHP_EOL;
+					$matchString = $matchString . '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">' . $name2 . '</text>' . PHP_EOL;
 				}
 				else {
 					if($round == 1){
-						echo '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">TBD</text>' . PHP_EOL;
-						echo '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">TBD</text>' . PHP_EOL;
+						$matchString = $matchString . '<text x="' . ($x1 + 10) . '" y="' . ($y1Adjusted - 10) . '">TBD</text>' . PHP_EOL;
+						$matchString = $matchString . '<text x="' . ($x1 + 10) . '" y="' . ($y2Adjusted - 10) . '">TBD</text>' . PHP_EOL;
 					}
 				}
 			}
@@ -535,7 +537,10 @@ function ShowMatchResults($connection, $tournamentKey)
 		
 		$query->close();
 	}
-	echo '</svg>' . PHP_EOL;
+	$matchString = $matchString . '</svg>' . PHP_EOL;
+	if($dataProvided){
+		echo $matchString;
+	}
 }
 
 ?>
