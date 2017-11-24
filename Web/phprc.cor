@@ -1,1 +1,5 @@
-sendmail_from = DoNotReply@coronadomensgolf.org
+; {{{ The following lines were automatically added by DreamHost
+zend_extension=opcache.so
+; }}} That's all from DreamHost
+
+max_input_vars = 2000
