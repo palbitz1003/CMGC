@@ -69,7 +69,7 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 		echo "," . $paymentDateTime;
 		echo "," . $signUpArray [$i]->AccessCode;
 		echo "," . $signUpArray [$i]->SignUpKey;
-		echo "," . $signUpArray [$i]->PayerName;
+		echo ',"' . $signUpArray [$i]->PayerName . '"';
 		echo "," . $signUpArray [$i]->PayerEmail;
 		echo "," . $players . PHP_EOL;
 	}
