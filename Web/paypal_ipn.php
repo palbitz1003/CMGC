@@ -171,6 +171,12 @@ function UpdateDatabase($connection, $tournamentKey, $submitKey, $payment, $paye
 	}
 	
 	$updatedPayment = $signup->Payment + $payment;
+
+	// check that PayPal has not re-sent the transaction by
+	// capping the payment at the payment due.
+	if($updatedPayment > $signup->PaymentDue){
+		$updatedPayment = $signup->PaymentDue;
+	}
 	
 	// Duplicate the UpdateSignup code here so the die messages can be replace with log messages
 	//UpdateSignup($connection, $submitKey, 'Payment', $updatedPayment, 'd');
