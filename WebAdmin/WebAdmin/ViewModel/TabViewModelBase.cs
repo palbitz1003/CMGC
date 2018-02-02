@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Net.Http;
 using System.Web.Script.Serialization;
 using WebAdmin.View;
+using System.Net;
 
 namespace WebAdmin.ViewModel
 {
@@ -40,7 +41,10 @@ namespace WebAdmin.ViewModel
 
         public TabViewModelBase()
         {
-            if(Credentials == null)
+            // The default is TLS 1.0, which is not supported by DreamHost as of January 29, 2018.
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+            if (Credentials == null)
             {
                 Credentials = new Credentials();
             }
