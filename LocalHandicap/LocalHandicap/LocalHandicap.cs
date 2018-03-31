@@ -161,54 +161,73 @@ namespace LocalHandicap
 
         public void convertToGHIN(FileInfo fi, string GHINFileName)
         {
+            Cursor oldCursor = Cursor.Current;
+            Cursor.Current = Cursors.WaitCursor;
+
             try
             {
+                SortedDictionary<float, List<string>> entries = new SortedDictionary<float, List<string>>();
                 int lineNumber = 0;
                 _duplicateDetection.Clear();
-                using (TextWriter streamWriter = new StreamWriter(GHINFileName))
-                {
-                    using (TextReader streamReader = new StreamReader(fi.FullName))
-                    {
-                        Cursor oldCursor = Cursor.Current;
-                        Cursor.Current = Cursors.WaitCursor;
 
-                        string line;
-                        while ((line = streamReader.ReadLine()) != null)
+                using (TextReader streamReader = new StreamReader(fi.FullName))
+                {
+                    string line;
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        if (lineNumber == 0)
                         {
-                            if (lineNumber == 0)
+                            if (!checkLine0(line))
                             {
-                                if (!checkLine0(line))
-                                {
-                                    break;
-                                }
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (_duplicateDetection.ContainsKey(line))
+                            {
+                                logError(fi.Name + ": Line " + (lineNumber + 1) + " is a duplicate of line " +
+                                    _duplicateDetection[line] + ".  Skipping ...");
                             }
                             else
                             {
-                                if (_duplicateDetection.ContainsKey(line))
+                                _duplicateDetection.Add(line, lineNumber + 1);
+                                string GHINLine;
+                                float courseRating;
+                                convertToGHIN(fi.FullName, line, lineNumber + 1, out GHINLine, out courseRating);
+                                if (GHINLine != null)
                                 {
-                                    logError(fi.Name + ": Line " + (lineNumber + 1) + " is a duplicate of line " +
-                                        _duplicateDetection[line] + ".  Skipping ...");
-                                }
-                                else
-                                {
-                                    _duplicateDetection.Add(line, lineNumber + 1);
-                                    string GHINLine = convertToGHIN(fi.FullName, line, lineNumber + 1);
-                                    if (GHINLine != null)
+                                    if (!entries.ContainsKey(courseRating))
                                     {
-                                        streamWriter.WriteLine(GHINLine);
+                                        entries.Add(courseRating, new List<string>());
                                     }
+                                    entries[courseRating].Add(GHINLine);
+
                                 }
                             }
-                            lineNumber++;
                         }
-                        Cursor.Current = oldCursor;
+                        lineNumber++;
+                    }
+
+                }
+                using (TextWriter streamWriter = new StreamWriter(GHINFileName))
+                {
+                    foreach (var key in entries.Keys)
+                    {
+                        var values = entries[key];
+                        foreach (var value in values)
+                        {
+                            streamWriter.WriteLine(value);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
+                Cursor.Current = oldCursor;
                 MessageBox.Show("Error in " + fi.FullName + ": " + ex.Message);
             }
+            Cursor.Current = oldCursor;
         }
 
         private Score ParseLine(string fileName, string line, int lineNumber)
@@ -381,21 +400,23 @@ namespace LocalHandicap
             }
         }
 
-        public string convertToGHIN(string fileName, string line, int lineNumber)
+        public void convertToGHIN(string fileName, string line, int lineNumber, out string GHINLine, out float courseRating)
         {
             Score score = ParseLine(fileName, line, lineNumber);
+            GHINLine = null;
+            courseRating = 0;
             if (score == null)
             {
-                return null;
+                return;
             }
 
             string[] fields = line.Split(',');
             string newDate = score.DT.ToString("#yyyy-MM-dd#");
-            string GHINLine = String.Format("{1}{0}\"{2}\"{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}", ",",
+            GHINLine = String.Format("{1}{0}\"{2}\"{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}", ",",
                 fields[0], score.PlayerNumber, fields[3], fields[4], fields[5], fields[6],
                 (fields[8] == "\" \"") ? "\"H\"" : fields[8], newDate);
 
-            return GHINLine;
+            float.TryParse(fields[4], out courseRating);
         }
 
         private bool checkLine0(string line)
