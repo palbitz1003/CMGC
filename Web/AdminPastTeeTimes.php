@@ -6,6 +6,8 @@ $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_d
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
+$time = new DateTime('now');
+$oneYearAgo = $time->modify('-1 year')->format('Ymd');
 
 $sqlCmd = 'SELECT ' .
 	'TeeTimesPlayers.Name, ' .
@@ -24,7 +26,7 @@ $sqlCmd = 'SELECT ' .
 	'INNER JOIN SignUps ' .
 		'ON SignUps.SubmitKey = SignUpsPlayers.SignUpKey ' .
 'WHERE Tournaments.StartDate < ' . date("Ymd") . ' ' .
-'AND Tournaments.EndDate > 20150207 ' .
+'AND Tournaments.EndDate > ' .  $oneYearAgo . ' ' .
 'AND Tournaments.MatchPlay = 0 ' .
 "AND TeeTimesPlayers.Name <> '' " .
 'ORDER BY TeeTimesPlayers.Name ASC, Tournaments.StartDate ASC';
