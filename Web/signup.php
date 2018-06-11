@@ -87,6 +87,7 @@ if (isset ( $_POST ['Player'] )) {
 		$guest = ($i % 2) == 1;
 		
 		if($t->MemberGuest && $guest){
+			$guestIsMember = false;
 			if(!$memberSignedUp[$i - 1]){
 				// Only check guest if member is signed up
 			} else if(empty ( $LastName [$i]) && empty ( $GHIN [$i] )){
@@ -96,7 +97,9 @@ if (isset ( $_POST ['Player'] )) {
 				if(!empty ( $GHIN [$i] ) && ($GHIN [$i] !== "0000000")){
 					$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
 					if (!empty ( $rosterEntry )) {
-						$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+						// Comment out check below and allow member-member signup
+						$guestIsMember = true;
+						//$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
 					}
 				}
 					
@@ -110,7 +113,11 @@ if (isset ( $_POST ['Player'] )) {
 						// No checks for name matching GHIN or if player is already signed up
 						// Just save the the full name.
 						$FullName[$i] = $LastName [$i];
-						$Extra[$i] = "G"; // "Guest" flight
+						if($guestIsMember){
+							$Extra[$i] = "M"; // "Member" flight
+						} else {
+							$Extra[$i] = "G"; // "Guest" flight
+						}
 					} 
 				}
 			}

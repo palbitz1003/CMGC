@@ -112,7 +112,8 @@ if(!$emptyForm){
 						} else if($GHIN [$i] !== "0000000"){
 							$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
 							if (!empty ( $rosterEntry )) {
-								$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+								// Allow member-member
+								//$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
 							}
 						}
 					} else {

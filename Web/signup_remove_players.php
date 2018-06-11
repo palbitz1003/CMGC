@@ -79,7 +79,8 @@ if (isset ( $_POST ['PlayersToRemove'] ) && (count($_POST ['PlayersToRemove']) >
 							// Check that the database is consistent
 							if($players[$j]->Extra != "M") die("Remove failed: This is member/guest and the person to remove is not the member");
 							if(($j + 1) > count($players)) die("Remove failed: This is member/guest and the array does not have a 2nd player to remove");
-							if($players[$j+1]->Extra != "G") die("Remove failed: This is member/guest and the guest is not the next player signed up");
+							// Guest can be member, so remove this check
+							//if($players[$j+1]->Extra != "G") die("Remove failed: This is member/guest and the guest is not the next player signed up");
 						}
 						RemoveSignedUpPlayer ( $connection, $tournamentKey, $playersToRemove[$i], $players[$j]->LastName );
 						$playersRemoved[] = $players[$j]->LastName;
