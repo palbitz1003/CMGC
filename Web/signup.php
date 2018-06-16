@@ -97,9 +97,11 @@ if (isset ( $_POST ['Player'] )) {
 				if(!empty ( $GHIN [$i] ) && ($GHIN [$i] !== "0000000")){
 					$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
 					if (!empty ( $rosterEntry )) {
-						// Comment out check below and allow member-member signup
-						$guestIsMember = true;
-						//$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+						if($rosterEntry->Active){
+							$guestIsMember = true;
+							// Comment out check below and allow member-member signup
+							//$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+						}
 					}
 				}
 					
