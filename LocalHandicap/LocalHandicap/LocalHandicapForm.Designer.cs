@@ -483,6 +483,7 @@ namespace LocalHandicap
             this.CourseSlopeTextBox.Name = "CourseSlopeTextBox";
             this.CourseSlopeTextBox.Size = new System.Drawing.Size(38, 20);
             this.CourseSlopeTextBox.TabIndex = 3;
+            this.CourseSlopeTextBox.Visible = false;
             this.CourseSlopeTextBox.TextChanged += new System.EventHandler(this.CourseSlopeTextBox_TextChanged);
             this.CourseSlopeTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.CourseSlopeTextBox_Validating);
             // 
