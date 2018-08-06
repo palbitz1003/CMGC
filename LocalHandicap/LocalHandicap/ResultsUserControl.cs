@@ -797,10 +797,10 @@ namespace LocalHandicap
             if (HandicapTab.SelectedIndex == 0)
             {
                 SaveAsCSVButton.Visible = true;
-                SaveAsTSVButton.Visible = true;
-                SaveAsHTMLButton.Visible = true;
-                SaveAsTextButton.Visible = true;
-                ExcludePlayersButton.Visible = true;
+                SaveAsTSVButton.Visible = false;
+                SaveAsHTMLButton.Visible = false;
+                SaveAsTextButton.Visible = false;
+                ExcludePlayersButton.Visible = false;
             }
             else
             {

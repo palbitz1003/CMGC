@@ -473,6 +473,7 @@ namespace LocalHandicap
             this.UsedByLabel.Size = new System.Drawing.Size(137, 13);
             this.UsedByLabel.TabIndex = 4;
             this.UsedByLabel.Text = "(Used by \"Save as HTML\")";
+            this.UsedByLabel.Visible = false;
             // 
             // CourseSlopeTextBox
             // 
@@ -504,6 +505,7 @@ namespace LocalHandicap
             this.CourseSlopeLabel.Size = new System.Drawing.Size(73, 13);
             this.CourseSlopeLabel.TabIndex = 1;
             this.CourseSlopeLabel.Text = "Course Slope:";
+            this.CourseSlopeLabel.Visible = false;
             // 
             // CourseNameLabel
             // 

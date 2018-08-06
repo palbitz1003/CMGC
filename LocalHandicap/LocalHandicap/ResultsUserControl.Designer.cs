@@ -410,6 +410,7 @@ namespace LocalHandicap
             this.SaveAsHTMLButton.TabIndex = 1;
             this.SaveAsHTMLButton.Text = "Save as HTML";
             this.SaveAsHTMLButton.UseVisualStyleBackColor = true;
+            this.SaveAsHTMLButton.Visible = false;
             this.SaveAsHTMLButton.Click += new System.EventHandler(this.SaveAsHTMLButton_Click);
             // 
             // SaveAsCSVButton
@@ -434,6 +435,7 @@ namespace LocalHandicap
             this.SaveAsTextButton.TabIndex = 1;
             this.SaveAsTextButton.Text = "Save as Text";
             this.SaveAsTextButton.UseVisualStyleBackColor = true;
+            this.SaveAsTextButton.Visible = false;
             this.SaveAsTextButton.Click += new System.EventHandler(this.SaveAsTextButton_Click);
             // 
             // LocalHandicapExistsCheckbox
@@ -459,6 +461,7 @@ namespace LocalHandicap
             this.SaveAsTSVButton.TabIndex = 1;
             this.SaveAsTSVButton.Text = "Save as Tab Sep";
             this.SaveAsTSVButton.UseVisualStyleBackColor = true;
+            this.SaveAsTSVButton.Visible = false;
             this.SaveAsTSVButton.Click += new System.EventHandler(this.SaveAsTSVButton_Click);
             // 
             // ExcludePlayersButton
@@ -471,6 +474,7 @@ namespace LocalHandicap
             this.ExcludePlayersButton.TabIndex = 1;
             this.ExcludePlayersButton.Text = "Exclude Players";
             this.ExcludePlayersButton.UseVisualStyleBackColor = true;
+            this.ExcludePlayersButton.Visible = false;
             this.ExcludePlayersButton.Click += new System.EventHandler(this.ExcludePlayersButton_Click);
             // 
             // UpperCaseCheckBox
