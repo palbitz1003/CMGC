@@ -519,13 +519,14 @@ namespace LocalHandicap
             // 
             this.VersionLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.VersionLabel.AutoSize = true;
+            this.VersionLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(176)))), ((int)(((byte)(0)))));
             this.VersionLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
             this.VersionLabel.Location = new System.Drawing.Point(542, 403);
             this.VersionLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(52, 12);
             this.VersionLabel.TabIndex = 10;
-            this.VersionLabel.Text = "Version 2.2";
+            this.VersionLabel.Text = "Version 2.3";
             // 
             // LocalHandicapForm
             // 

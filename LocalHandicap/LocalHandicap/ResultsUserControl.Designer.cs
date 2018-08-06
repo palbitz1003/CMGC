@@ -29,11 +29,11 @@ namespace LocalHandicap
         private void InitializeComponent()
         {
             this.ResultsListView = new System.Windows.Forms.ListView();
-            this.NameColumn = new System.Windows.Forms.ColumnHeader();
-            this.SCGANumberColumn = new System.Windows.Forms.ColumnHeader();
-            this.HandicapColumn = new System.Windows.Forms.ColumnHeader();
-            this.SCGAIndexColumn = new System.Windows.Forms.ColumnHeader();
-            this.LocalHandicapColumn = new System.Windows.Forms.ColumnHeader();
+            this.NameColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SCGANumberColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.HandicapColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SCGAIndexColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.LocalHandicapColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.DoneButton = new System.Windows.Forms.Button();
             this.HandicapTab = new System.Windows.Forms.TabControl();
             this.LowHandicapTab = new System.Windows.Forms.TabPage();
@@ -137,9 +137,9 @@ namespace LocalHandicap
             // 
             // HandicapTab
             // 
-            this.HandicapTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.HandicapTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.HandicapTab.Controls.Add(this.LowHandicapTab);
             this.HandicapTab.Controls.Add(this.DetailsTab);
             this.HandicapTab.Controls.Add(this.SummaryTab);
@@ -475,6 +475,7 @@ namespace LocalHandicap
             // 
             // UpperCaseCheckBox
             // 
+            this.UpperCaseCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.UpperCaseCheckBox.AutoSize = true;
             this.UpperCaseCheckBox.Location = new System.Drawing.Point(14, 358);
             this.UpperCaseCheckBox.Name = "UpperCaseCheckBox";

@@ -351,15 +351,23 @@ namespace LocalHandicap
                     dr.Tournament.Width = dr.Tournament.PreferredWidth;
                 }
 
-                // Default to slope. Replace with tee name if configured
-                dr.Tees.Text = score.CourseSlope.ToString();
+                // Save the name of the tee with the closest course rating.
+                // Test for "closest" instead of "exact" since course ratings
+                // can change over time.
+                float maxDifference = float.MaxValue;
                 foreach (TeeAndRating tar in _teeAndRatings)
                 {
-                    if (Math.Abs(score.CourseRating - tar.Rating) < 0.001)
+                    if (Math.Abs(score.CourseRating - tar.Rating) < maxDifference)
                     {
                         dr.Tees.Text = tar.Tee;
-                        break;
+                        maxDifference = Math.Abs(score.CourseRating - tar.Rating);
                     }
+                }
+                // If no course ratings are within 1, just show the course rating.
+                // This assumes the course rating doesn't change by 1 over time.
+                if (maxDifference > 1)
+                {
+                    dr.Tees.Text = score.CourseSlope.ToString();
                 }
                 
                 if ((dr.Tees.Left + dr.Tees.PreferredWidth + 5) > dr.Score.Left)
