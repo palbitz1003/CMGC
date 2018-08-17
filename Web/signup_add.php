@@ -175,6 +175,8 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	
 	echo '<p>The new players have been added to your group.</p>' . PHP_EOL;
 	
+	// Save original group for email below
+	$players1 = $players;
 	$players = GetPlayersForSignUp($connection, $signupKey);
 	
 	if(($t->TeamSize == 2) && ($t->SCGAQualifier)){
@@ -196,6 +198,8 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 		echo '&nbsp;&nbsp;&nbsp;' . $players[$i]->LastName . '<br>' . PHP_EOL;
 	}
 	echo '</p>' . PHP_EOL;
+
+	SendMergeEmail($t, $players1, $players2, $web_site);
 } // end of else clause
 
 echo '<p>' . PHP_EOL;

@@ -730,6 +730,25 @@ function SendRefundEmail($connection, $tournament, $signup, $players, $playersRe
 	return null;
 }
 
+function SendMergeEmail($tournament, $playersGroup1, $playersGroup2, $web_site){
+
+	$message = "";
+
+	// compose message
+	$message .= "\n\nFYI\n\nThese players:";
+	for($i = 0; $i < count($playersGroup2); ++$i){
+		$message .= "\n    " . $playersGroup2[$i]->LastName;
+	}
+	$message .= "\n\nwere added to the group with these players:";
+	for($i = 0; $i < count($playersGroup1); ++$i){
+		$message .= "\n    " . $playersGroup1[$i]->LastName;
+	}
+
+	mail($tournament->ChairmanEmail, 'Coronado Mens Golf Tournament groups merged', $message, "From: DoNotReply@" . $web_site);
+
+	return null;
+}
+
 function GetTeamFlightIndex($teamNumber)
 {
 	if($teamNumber == 1) return 'Team1Flight';
