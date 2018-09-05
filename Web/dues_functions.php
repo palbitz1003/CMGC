@@ -70,7 +70,8 @@ function GetPlayerDues($connection, $playerGHIN) {
 
 function GetPlayersDuesPaid($connection) {
 
-	$sqlCmd = "SELECT * FROM `Dues` WHERE `Payment` > 0 AND `Year` = ? ORDER BY `Name` ASC";
+	$sqlCmd = "SELECT Roster.GHIN, Roster.LastName, Roster.FirstName, Roster.Active, Dues.Payment, Dues.Year FROM `Roster` LEFT JOIN `Dues` ON (Roster.GHIN = Dues.GHIN AND Dues.Year = ?) ORDER BY Roster.LastName ASC, Roster.FirstName ASC";
+
 	$player = $connection->prepare ( $sqlCmd );
 
 	if (! $player) {
@@ -88,23 +89,19 @@ function GetPlayersDuesPaid($connection) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$player->bind_result ( $year, $ghin, $name, $payment, $paymentDateTime, $payerName, $payerEmail, $rigs);
+	$player->bind_result ( $ghin, $lastName, $firstName, $active, $payment, $year);
 
 	$players = array();
 	while($player->fetch()) {
+		if(($active == 1) && ($payment > 0)){
+			$p = new RosterWithDues();
+			$p->GHIN = $ghin;
+			$p->Name = $lastName . ', ' . $firstName;
+			$p->Active = $active;
+			$p->Payment = $payment;
 
-		$p = new Dues();
-		$p->Year = $year;
-		$p->GHIN = $ghin;
-		$p->Name = $name;
-		$p->Payment = $payment;
-		$p->PaymentDateTime = $paymentDateTime;
-		$p->PayerName = $payerName;
-		$p->PayerEmail = $payerEmail;
-		$p->RIGS = $rigs;
-
-		$players[] = $p;
-
+			$players[] = $p;
+		}
 	}
 
 	$player->close ();
