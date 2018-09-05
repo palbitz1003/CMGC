@@ -66,13 +66,14 @@
         </Button>
         <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal">
             <TextBlock Margin="5" VerticalAlignment="Center">Player</TextBlock>
-            <TextBox Margin="5" Width="150" x:Name="PlayerNameTextBox" Text="{Binding Path=PlayerName, Mode=TwoWay}" 
+            <TextBox Margin="5" Width="150" x:Name="PlayerNameTextBox" Text="{Binding Path=PlayerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  KeyDown="PlayerNameTextBox_KeyDown" TextChanged="PlayerNameTextBox_TextChanged" LostFocus="PlayerNameTextBox_LostFocus"/>
             <TextBlock Width="150" Margin="5" VerticalAlignment="Center" x:Name="AutoCompleteFeedback"/>
             <TextBlock Margin="5" VerticalAlignment="Center">GHIN</TextBlock>
-            <TextBox Margin="5" Width="70" x:Name="PlayerGhinTextBox" Text="{Binding Path=PlayerGhin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBox Margin="5" Width="70" x:Name="PlayerGhinTextBox" Text="{Binding Path=PlayerGhin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     TextChanged="PlayerGhinTextBox_TextChanged"></TextBox>
             <TextBlock Margin="5" VerticalAlignment="Center">Amount</TextBlock>
-            <TextBox Margin="5" Width="50" x:Name="PlayerDuesTextBox" Text="{Binding Path=PlayerDues, Mode=TwoWay}"></TextBox>
+            <TextBox Margin="5" Width="50" x:Name="PlayerDuesTextBox" Text="{Binding Path=PlayerDues, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -17,6 +17,8 @@ namespace WebAdmin.View
     {
 
         private List<GHINEntry> _ghinList = null;
+        private bool _changingPlayerName = false;
+        private bool _changingPlayerGhin = false;
 
         #region PropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
@@ -175,8 +177,18 @@ namespace WebAdmin.View
             {
                 if (!string.IsNullOrEmpty(AutoCompleteFeedback.Text))
                 {
-                    PlayerNameTextBox.Text = AutoCompleteFeedback.Text;
+                    try
+                    {
+                        _changingPlayerName = true;
+                        PlayerNameTextBox.Text = AutoCompleteFeedback.Text;
+                    }
+                    finally
+                    {
+                        _changingPlayerName = false;
+                    }
+
                     AutoCompleteFeedback.Text = string.Empty;
+                    
                     e.Handled = true;
                 }
                 PlayerDuesTextBox.Text = string.Empty;
@@ -185,7 +197,15 @@ namespace WebAdmin.View
 
         private void PlayerNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            _changingPlayerGhin = false;
+
+            // Ignore if changed from event handler
+            if (_changingPlayerName) return;
+
             LoadGHIN();
+
+            PlayerDuesTextBox.Text = string.Empty;
+            OnPropertyChanged("PlayerDues");
 
             if (!string.IsNullOrEmpty(PlayerNameTextBox.Text) && (_ghinList != null))
             {
@@ -194,26 +214,101 @@ namespace WebAdmin.View
                     if (player.LastNameFirstName.StartsWith(PlayerNameTextBox.Text, StringComparison.InvariantCultureIgnoreCase))
                     {
                         AutoCompleteFeedback.Text = player.LastNameFirstName;
-                        PlayerGhinTextBox.Text = player.GHIN.ToString();
-                        OnPropertyChanged("PlayerGhin");
+
+                        try
+                        {
+                            _changingPlayerGhin = true;
+                            PlayerGhinTextBox.Text = player.GHIN.ToString();
+                            OnPropertyChanged("PlayerGhin");
+                        }
+                        finally
+                        {
+                            _changingPlayerGhin = false;
+                        }
+
                         return;
                     }
                 }
             }
 
             AutoCompleteFeedback.Text = null;
-            PlayerGhinTextBox.Text = string.Empty;
-            PlayerDuesTextBox.Text = string.Empty;
+            try
+            {
+                _changingPlayerGhin = true;
+                PlayerGhinTextBox.Text = string.Empty;
+            }
+            finally
+            {
+                _changingPlayerGhin = false;
+            }
         }
 
         private void PlayerNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(AutoCompleteFeedback.Text))
             {
-                PlayerNameTextBox.Text = AutoCompleteFeedback.Text;
+                try
+                {
+                    _changingPlayerName = true;
+                    PlayerNameTextBox.Text = AutoCompleteFeedback.Text;
+                }
+                finally
+                {
+                    _changingPlayerName = false;
+                }
                 AutoCompleteFeedback.Text = string.Empty;
             }
             PlayerDuesTextBox.Text = string.Empty;
+        }
+
+        private void PlayerGhinTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _changingPlayerName = false;
+
+            // Ignore if changed from event handler
+            if (_changingPlayerGhin) return;
+
+            LoadGHIN();
+
+            PlayerDuesTextBox.Text = string.Empty;
+            OnPropertyChanged("PlayerDues");
+
+            if (!string.IsNullOrEmpty(PlayerGhinTextBox.Text) && (_ghinList != null))
+            {
+                int ghin;
+                if (int.TryParse(PlayerGhinTextBox.Text.Trim(), out ghin))
+                {
+                    foreach (var player in _ghinList)
+                    {
+
+                        if (player.GHIN == ghin)
+                        {
+                            try
+                            {
+                                _changingPlayerName = true;
+                                PlayerNameTextBox.Text = player.LastNameFirstName;
+                                OnPropertyChanged("PlayerName");
+                            }
+                            finally
+                            {
+                                _changingPlayerName = false;
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+
+            AutoCompleteFeedback.Text = null;
+            try
+            {
+                _changingPlayerName = true;
+                PlayerNameTextBox.Text = string.Empty;
+            }
+            finally
+            {
+                _changingPlayerName = false;
+            }
         }
     }
 }

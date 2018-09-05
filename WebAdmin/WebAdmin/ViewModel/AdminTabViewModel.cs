@@ -495,6 +495,13 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
+            int dues;
+            if (!int.TryParse(PlayerDues, out dues))
+            {
+                MessageBox.Show("Dues amount is not a number");
+                return;
+            }
+
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
             {
