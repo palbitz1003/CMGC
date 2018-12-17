@@ -33,6 +33,23 @@ if ($connection->connect_error)
 	die ( $connection->connect_error );
 
 $t = GetTournament($connection, $tournamentKey);
+
+if(empty($t)){
+	die("There is no tournament numbered " . $tournamentKey);
+}
+
+if(IsPastSignupPeriod($t)) {
+	echo '<p>' . PHP_EOL;
+	echo "The signup period has ended for this tournament.";
+	echo '</p>' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 $players = GetPlayersForSignUp($connection, $signupKey);
 
 if(count($players) == 0){

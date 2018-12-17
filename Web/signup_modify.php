@@ -44,6 +44,18 @@ if(empty($t)){
 	die("There is no tournament numbered " . $tournamentKey);
 }
 
+if(IsPastSignupPeriod($t)) {
+	echo '<p>' . PHP_EOL;
+	echo "The signup period has ended for this tournament.";
+	echo '</p>' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 //var_dump($_POST);
 
 $error = null;

@@ -48,6 +48,18 @@ if(empty($tournament)){
 	die("There is no tournament numbered " . $tournamentKey);
 }
 
+if(IsPastSignupPeriod($tournament)) {
+	echo '<p>' . PHP_EOL;
+	echo "The signup period has ended for this tournament.";
+	echo '</p>' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 $refundRequested = false;
 $refundFees = 0;
 $allPlayersRemoved = false;

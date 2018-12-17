@@ -538,4 +538,15 @@ function UpdateTournament($connection, $tournamentKey, $field, $value, $paramTyp
 	$update->close ();
 }
 
+function IsPastSignupPeriod($tournament)
+{
+	$now = new DateTime ( "now" );
+	$endSignUp = new DateTime($tournament->SignupEndDate);
+	$endSignUp->add(new DateInterval ( 'PT12H00M' )); // noon
+	if($now > $endSignUp) {
+		return true;
+	}
+	return false;
+}
+
 ?>
