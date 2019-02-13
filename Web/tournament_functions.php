@@ -423,7 +423,7 @@ function ShowRecentlyCompletedTournaments($connection, $script_folder_href){
 	
 		for($i = 0; $i < count($currentTournaments); ++$i){
 			echo '<tr style="background-color:white;font-size:large;">';
-			ShowTournamentResults($connection, $currentTournaments [$i], 'C"', true, $script_folder_href, false);
+			ShowTournamentResults($connection, $currentTournaments [$i], 'style="border:none"', true, $script_folder_href, false);
 			echo '</tr>' . PHP_EOL;
 		}
 		echo '</tbody></table>' . PHP_EOL;
