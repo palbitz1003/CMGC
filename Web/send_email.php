@@ -33,7 +33,7 @@ if(empty($tournament)){
 	die ("Did not find tournament for key: " . $signup->TournamentKey);
 }
 
-$tournamenDates = GetFriendlyTournamentDates($tournament);
+$tournamenDates = GetFriendlyNonHtmlTournamentDates($tournament);
 
 //$errors = SendSignupEmail($connection, $tournament, $tournamenDates, $signupKey, $web_site);
 

@@ -87,6 +87,23 @@ class PayPalDetails {
 	public $Players3;  // PayPal index into combobox for 3 players
 	public $Players4;  // PayPal index into combobox for 4 players
 }
+
+function GetFriendlyNonHtmlTournamentDates($tournament){
+    if (strcmp ( $tournament->StartDate, $tournament->EndDate ) == 0) {
+        return date ( 'M d', strtotime ( $tournament->StartDate ) );
+	} else {
+        $startMonth = date ( 'M', strtotime ( $tournament->StartDate ) );
+        $endMonth = date ( 'M', strtotime ( $tournament->EndDate ) );
+        if (strcmp ( $startMonth, $endMonth ) == 0) {
+            // same month
+            return date ( 'M d-', strtotime ( $tournament->StartDate ) ) . date ( 'd', strtotime ( $tournament->EndDate ) );
+        } else {
+            // different months
+            return date ( 'M d-', strtotime ( $tournament->StartDate ) ) . date ( 'M d', strtotime ( $tournament->EndDate ) );
+        }
+    }
+}
+
 function GetFriendlyTournamentDates($tournament){
 	if (strcmp ( $tournament->StartDate, $tournament->EndDate ) == 0) {
 		

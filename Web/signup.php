@@ -369,7 +369,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		echo '<p><a href="' . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>' . PHP_EOL;
 
 		if($t->SendEmail ){
-			$tournamentDates = GetFriendlyTournamentDates($t);
+			$tournamentDates = GetFriendlyNonHtmlTournamentDates($t);
 			$errorMsg = SendSignupEmail($connection, $t, $tournamentDates, $insertId, $web_site);
 			if(!empty($errorMsg)){
 				echo '<p>' . $errorMsg . '</p>' . PHP_EOL;
