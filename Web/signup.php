@@ -101,6 +101,13 @@ if (isset ( $_POST ['Player'] )) {
 							$guestIsMember = true;
 							// Comment out check below and allow member-member signup
 							//$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+
+							// If they only filled in the last name for the member in the guest field,
+							// change it to be the roster name. Otherwise, the check below for "last name, first name" will fail.
+							// TODO: check here for last name matching GHIN or that player is already signed up.
+							if (strpos($LastName [$i], ',') === FALSE){
+								$LastName [$i] =  $rosterEntry->LastName . ', ' . $rosterEntry->FirstName;
+							}
 						}
 					}
 				}
