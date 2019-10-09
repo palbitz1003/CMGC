@@ -23,8 +23,11 @@ else {
 	$t = GetTournament ( $connection, $tournamentKey );
 
 	if (isset ( $t )) {
-		echo '<p>The online signup period has ended. Contact ' . $t->ChairmanName . ' directly for any changes at ' . $t->ChairmanPhone;
-		echo ' or <a href="mailto:' . $t->ChairmanEmail . '">' . email . '.</a></p>';
+		echo '<p>The online signup period has ended. Contact ' . $t->ChairmanName . ' directly for any changes at ';
+		if(!empty($t->ChairmanPhone)){
+			echo " phone number " . $t->ChairmanPhone . " or ";
+		}
+		echo '<a href="mailto:' . $t->ChairmanEmail . '">email.</a></p>';
 	} else {
 		echo "Invalid tournament: " . $tournamentKey;
 	}
