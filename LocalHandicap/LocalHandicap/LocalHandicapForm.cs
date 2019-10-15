@@ -30,6 +30,7 @@ namespace LocalHandicap
             private int _maxLocalScores = 10;
             private string _lastVPTFileFolder;
             private string _lastSavedGHINFileFolder;
+            private string _saveAsCSVFolder;
             private string _SCGAClubCode;
             private string _courseName;
             private string _courseSlope;
@@ -75,6 +76,12 @@ namespace LocalHandicap
             {
                 get { return _lastSavedGHINFileFolder; }
                 set { _lastSavedGHINFileFolder = value; }
+            }
+
+            public string SaveAsCSVFolder
+            {
+                get { return _saveAsCSVFolder; }
+                set { _saveAsCSVFolder = value; }
             }
 
             public string CourseName
@@ -158,6 +165,7 @@ namespace LocalHandicap
             if (_resultsUserControl != null)
             {
                 _settings.UpperCaseNames = _resultsUserControl.UpperCaseNames;
+                _settings.SaveAsCSVFolder = _resultsUserControl.SaveAsCSVFolder;
                 SaveSettings();
             }
         }
@@ -402,7 +410,8 @@ namespace LocalHandicap
                         _settings.CourseSlope,
                         _settings.CourseName,
                         tarList,
-                        _settings.UpperCaseNames);
+                        _settings.UpperCaseNames,
+                        _settings.SaveAsCSVFolder);
                 _resultsUserControl.Dock = DockStyle.Fill;
                 this.Controls.Add(_resultsUserControl);
                 _resultsUserControl.BringToFront();

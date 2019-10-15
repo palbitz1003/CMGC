@@ -46,7 +46,8 @@ namespace LocalHandicap
             string courseSlope,
             string courseName,
             List<TeeAndRating> teeAndRatings,
-            bool upperCaseNames)
+            bool upperCaseNames,
+            string saveAsCSVFolder)
         {
             InitializeComponent();
             _dateList = dateList;
@@ -57,6 +58,7 @@ namespace LocalHandicap
             _courseName = courseName;
             _teeAndRatings = teeAndRatings;
             UpperCaseCheckBox.Checked = upperCaseNames;
+            SaveAsCSVFolder = saveAsCSVFolder;
 
             AddSummaryColumns();
             ResetScores();
@@ -78,6 +80,7 @@ namespace LocalHandicap
         }
 
         public bool UpperCaseNames { get { return UpperCaseCheckBox.Checked; } }
+        public string SaveAsCSVFolder { get; private set; }
 
         void ResultsListView_DoubleClick(object sender, EventArgs e)
         {
@@ -439,10 +442,18 @@ namespace LocalHandicap
                 dlg.DefaultExt = ".csv"; // Default file extension
                 dlg.Filter = "CSV file (.csv)|*.csv"; // Filter files by extension
                 dlg.ValidateNames = true;
+                if (!string.IsNullOrEmpty(SaveAsCSVFolder))
+                {
+                    if (Directory.Exists(SaveAsCSVFolder))
+                    {
+                        dlg.InitialDirectory = SaveAsCSVFolder;
+                    }
+                }
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     fileName = dlg.FileName;
+                    SaveAsCSVFolder = Directory.GetParent(dlg.FileName).FullName;
                 }
                 else
                 {
