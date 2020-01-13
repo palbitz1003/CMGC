@@ -127,18 +127,54 @@ namespace LocalHandicap
 
             // If the content is double/string/double if it looks like this: 9079663	Albitz, Paul	2.3	
             // If the content is double/string/string if it looks like this: 9079663	Albitz, Paul	2.3M	
+            // 2020: newer report has 9079663   Paul Albitz  2.3
                 string playerEntry = string.Empty;
             if ((valueArray[row, column] is double) && (valueArray[row, column + 1] is string))
             {
+                string lastNameFirstName = (string)valueArray[row, column + 1];
+                // If the format is not "last, first" then fix up the name to meet that format
+                if (!lastNameFirstName.Contains(","))
+                {
+                    // Remove spaces at the end and any double spaces in the middle
+                    lastNameFirstName = lastNameFirstName.Trim().Replace("  ", " ");
+                    string[] components = lastNameFirstName.Split(' ');
+                    if (components.Length > 1)
+                    {
+                        int lastIndex = components.Length - 1;
+                        bool containsSuffix = false;
+                        // Check for ending with "jr" or "jr."
+                        if (components[lastIndex].ToLower().StartsWith("jr") && (components[lastIndex].Length <= 3))
+                        {
+                            containsSuffix = true;
+                            lastIndex--;
+                        }
+                        lastNameFirstName = components[lastIndex] + ", ";
+                        // Add in the first and middle names
+                        for (int i = lastIndex - 1; i >= 0; i--)
+                        {
+                            // Sometimes there are extra spaces in the name
+                            if (!string.IsNullOrEmpty(components[i]))
+                            {
+                                lastNameFirstName += components[i] + " ";
+                            }
+                        }
+
+                        if (containsSuffix)
+                        {
+                            lastNameFirstName += components[components.Length - 1];
+                        }
+                        lastNameFirstName = lastNameFirstName.TrimEnd();
+                    }
+                }
                 // Create CSV line with name first, then GHIN, then index
                 if (valueArray[row, column + 2] is double)
                 {
-                    ExcelContents.Add("\"" + (string)valueArray[row, column + 1] + "\"," + ((double)valueArray[row, column]).ToString() + "," + ((double)valueArray[row, column + 2]).ToString());
+                    ExcelContents.Add("\"" + lastNameFirstName + "\"," + ((double)valueArray[row, column]).ToString() + "," + ((double)valueArray[row, column + 2]).ToString());
                     return true;
                 }
                 else if (valueArray[row, column + 2] is string)
                 {
-                    // The 3rd field can be "NH", "2.3R" or "+0.9"
+                    // The 3rd field can be "NH", "2.3R" or "+0.9" or "2.6" but listed as type string
                     string value = valueArray[row, column + 2] as string;
                     value = value.Trim();
                     if (value.Length > 0)
@@ -146,9 +182,9 @@ namespace LocalHandicap
                         string valueWithoutLastChar = value.Remove(value.Length - 1, 1);
                         string valueWithoutFirstChar = value.Remove(0, 1);
                         float index;
-                        if ((value.ToLower() == "nh") || float.TryParse(valueWithoutLastChar, out index) || float.TryParse(valueWithoutFirstChar, out index))
+                        if ((value.ToLower() == "nh") || float.TryParse(value, out index) || float.TryParse(valueWithoutLastChar, out index) || float.TryParse(valueWithoutFirstChar, out index))
                         {
-                            ExcelContents.Add("\"" + (string)valueArray[row, column + 1] + "\"," + ((double)valueArray[row, column]).ToString() + "," + (string)valueArray[row, column + 2]);
+                            ExcelContents.Add("\"" + lastNameFirstName + "\"," + ((double)valueArray[row, column]).ToString() + "," + (string)valueArray[row, column + 2]);
                             return true;
                         }
                         else
