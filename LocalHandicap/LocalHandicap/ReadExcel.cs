@@ -53,6 +53,8 @@ namespace LocalHandicap
             ExcelContents = new List<string>();
 
             List<int> ghinColumns = new List<int>();
+            List<int> nameColumns = new List<int>();
+            List<int> indexColumns = new List<int>();
 
             if (spreadsheetValue is object)
             {
@@ -67,20 +69,41 @@ namespace LocalHandicap
                             for (int j = 1; j < valueArray.GetLength(1); j++)
                             {
                                 string value = valueArray[i, j] as string;
-                                if ((value != null) && value.ToLower().Contains("ghin"))
+                                if (value != null)
                                 {
-                                    ghinColumns.Add(j);
+                                    if (value.ToLower().Contains("ghin"))
+                                    {
+                                        ghinColumns.Add(j);
+                                    }
+                                    else if (value.ToLower().Contains("name"))
+                                    {
+                                        nameColumns.Add(j);
+                                    }
+                                    else if (value.ToLower().Contains("h.i."))
+                                    {
+                                        indexColumns.Add(j);
+                                    }
                                 }
+                            }
+
+                            // Make sure the same number of column headers were found
+                            if ((ghinColumns.Count != nameColumns.Count) ||
+                                (ghinColumns.Count != indexColumns.Count))
+                            {
+                                MessageBox.Show("Found " + ghinColumns.Count + " GHIN # column headers, " +
+                                    nameColumns.Count + " name column headers, and " +
+                                    indexColumns.Count + " H.I. column headers", "Error");
+                                return;
                             }
                         }
                         else
                         {
-                            foreach (var col in ghinColumns)
+                            for (int cols = 0; cols < ghinColumns.Count; cols++)
                             {
-                                if ((valueArray.GetLength(1) >= (col + 2)) && (valueArray[i, col] != null) &&
-                                    (valueArray[i, col + 1] != null) && (valueArray[i, col + 2] != null))
+                                if ((valueArray.GetLength(1) >= (indexColumns[cols])) && (valueArray[i, ghinColumns[cols]] != null) &&
+                                    (valueArray[i, nameColumns[cols]] != null) && (valueArray[i, indexColumns[cols]] != null))
                                 {
-                                    AddCsvLine(valueArray, i, col);
+                                    AddCsvLine(valueArray, i, ghinColumns[cols], nameColumns[cols], indexColumns[cols]);
                                 }
                             }
                         }
@@ -116,11 +139,16 @@ namespace LocalHandicap
                     }
                 }
             }
+
+            if (ExcelContents.Count == 0)
+            {
+                MessageBox.Show("No valid headers found in Excel file", "Error");
+            }
         }
 
-        private bool AddCsvLine(object[,] valueArray, int row, int column)
+        private bool AddCsvLine(object[,] valueArray, int row, int ghinColumn, int nameColumn, int indexColumn)
         {
-            if ((valueArray[row, column] == null) || (valueArray[row, column + 1] == null) || (valueArray[row, column + 2] == null))
+            if ((valueArray[row, ghinColumn] == null) || (valueArray[row, nameColumn] == null) || (valueArray[row, indexColumn] == null))
             {
                 return false;
             }
@@ -129,9 +157,9 @@ namespace LocalHandicap
             // If the content is double/string/string if it looks like this: 9079663	Albitz, Paul	2.3M	
             // 2020: newer report has 9079663   Paul Albitz  2.3
                 string playerEntry = string.Empty;
-            if ((valueArray[row, column] is double) && (valueArray[row, column + 1] is string))
+            if ((valueArray[row, ghinColumn] is double) && (valueArray[row, nameColumn] is string))
             {
-                string lastNameFirstName = (string)valueArray[row, column + 1];
+                string lastNameFirstName = (string)valueArray[row, nameColumn];
                 // If the format is not "last, first" then fix up the name to meet that format
                 if (!lastNameFirstName.Contains(","))
                 {
@@ -167,15 +195,15 @@ namespace LocalHandicap
                     }
                 }
                 // Create CSV line with name first, then GHIN, then index
-                if (valueArray[row, column + 2] is double)
+                if (valueArray[row, indexColumn] is double)
                 {
-                    ExcelContents.Add("\"" + lastNameFirstName + "\"," + ((double)valueArray[row, column]).ToString() + "," + ((double)valueArray[row, column + 2]).ToString());
+                    ExcelContents.Add("\"" + lastNameFirstName + "\"," + ((double)valueArray[row, ghinColumn]).ToString() + "," + ((double)valueArray[row, indexColumn]).ToString());
                     return true;
                 }
-                else if (valueArray[row, column + 2] is string)
+                else if (valueArray[row, indexColumn] is string)
                 {
                     // The 3rd field can be "NH", "2.3R" or "+0.9" or "2.6" but listed as type string
-                    string value = valueArray[row, column + 2] as string;
+                    string value = valueArray[row, indexColumn] as string;
                     value = value.Trim();
                     if (value.Length > 0)
                     {
@@ -184,15 +212,15 @@ namespace LocalHandicap
                         float index;
                         if ((value.ToLower() == "nh") || float.TryParse(value, out index) || float.TryParse(valueWithoutLastChar, out index) || float.TryParse(valueWithoutFirstChar, out index))
                         {
-                            ExcelContents.Add("\"" + lastNameFirstName + "\"," + ((double)valueArray[row, column]).ToString() + "," + (string)valueArray[row, column + 2]);
+                            ExcelContents.Add("\"" + lastNameFirstName + "\"," + ((double)valueArray[row, ghinColumn]).ToString() + "," + (string)valueArray[row, indexColumn]);
                             return true;
                         }
                         else
                         {
                             MessageBox.Show("Ignoring this line because the index is not of the expected form: " +
-                                ((double)valueArray[row, column]).ToString() + " " +
-                                (string)valueArray[row, column + 1] + " " +
-                                (string)valueArray[row, column + 2]);
+                                ((double)valueArray[row, ghinColumn]).ToString() + " " +
+                                (string)valueArray[row, nameColumn] + " " +
+                                (string)valueArray[row, indexColumn]);
                         }
 
                     }

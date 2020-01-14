@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace LocalHandicap
 {
@@ -10,7 +11,7 @@ namespace LocalHandicap
     {
         private Dictionary<string, int> _duplicateDetection = new Dictionary<string,int>();
         private SortedDictionary<string, PlayerData> _localHandicapDBByNumber = new SortedDictionary<string, PlayerData>();
-        private SortedDictionary<string, PlayerData> _localHandicapDBByName = new SortedDictionary<string, PlayerData>();
+        private List<PlayerData> _localHandicapDBByName = new List<PlayerData>();
         private List<DateTime> _dateList = new List<DateTime>();
         private SortScoresByDifferential _sortScoresByDifferential = new SortScoresByDifferential();
         private SortScoresByDate _sortScoresByDate = new SortScoresByDate();
@@ -419,6 +420,11 @@ namespace LocalHandicap
             float.TryParse(fields[4], out courseRating);
         }
 
+        public void SortByName()
+        {
+            _localHandicapDBByName = _localHandicapDBByName.OrderBy(x => x.Name).ToList();
+        }
+
         private bool checkLine0(string line)
         {
             string[] fields = line.Split(',');
@@ -509,7 +515,7 @@ namespace LocalHandicap
             get { return _localHandicapDBByNumber; }
         }
 
-        public SortedDictionary<string, PlayerData> LocalHandicapDBByName
+        public List<PlayerData> LocalHandicapDBByName
         {
             get { return _localHandicapDBByName; }
         }

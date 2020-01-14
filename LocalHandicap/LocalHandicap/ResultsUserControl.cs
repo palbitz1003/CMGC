@@ -26,7 +26,7 @@ namespace LocalHandicap
         //public event ShowDetailsHandler ShowDetails;
         List<DateTime> _dateList = null;
         SortedDictionary<string, PlayerData> _localHandicapDBByNumber;
-        SortedDictionary<string, PlayerData> _localHandicapDBByName;
+        List<PlayerData> _localHandicapDBByName;
         int _longestName;
         string _courseSlope;
         string _courseName;
@@ -42,7 +42,7 @@ namespace LocalHandicap
 
         public ResultsUserControl(List<DateTime> dateList,
             SortedDictionary<string, PlayerData> localHandicapDBByNumber,
-            SortedDictionary<string, PlayerData> localHandicapDBByName,
+            List<PlayerData> localHandicapDBByName,
             string courseSlope,
             string courseName,
             List<TeeAndRating> teeAndRatings,
@@ -98,39 +98,39 @@ namespace LocalHandicap
         {
             _longestName = 0;
             ResultsListView.Items.Clear();
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                if (entry.Value.Excluded)
+                if (entry.Excluded)
                 {
                     continue;
                 }
 
-                if (LocalHandicapExistsCheckbox.Checked && (entry.Value.LocalHandicap == null))
+                if (LocalHandicapExistsCheckbox.Checked && (entry.LocalHandicap == null))
                 {
                     continue;
                 }
 
                 if (LocalHandicapLowerCheckBox.Checked &&
-                    ((entry.Value.LocalHandicap == null) ||
-                        (entry.Value.LocalHandicap >= entry.Value.GHINIndex)))
+                    ((entry.LocalHandicap == null) ||
+                        (entry.LocalHandicap >= entry.GHINIndex)))
                 {
                     continue;
                 }
 
-                ListViewItem lvi = new ListViewItem(entry.Value.Name);
-                ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Value.GHINNumber);
+                ListViewItem lvi = new ListViewItem(entry.Name);
+                ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem(lvi, entry.GHINNumber);
                 lvi.SubItems.Add(lvsi);
-                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Value.Handicap.ToString().Replace("-", "+"));
+                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Handicap.ToString().Replace("-", "+"));
                 lvi.SubItems.Add(lvsi);
-                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Value.GHINIndex.ToString().Replace("-", "+"));
+                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.GHINIndex.ToString().Replace("-", "+"));
                 lvi.SubItems.Add(lvsi);
-                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Value.LocalHandicap.ToString().Replace("-", "+"));
+                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.LocalHandicap.ToString().Replace("-", "+"));
                 lvi.SubItems.Add(lvsi);
                 ResultsListView.Items.Add(lvi);
 
-                if (entry.Value.Name.Length > _longestName)
+                if (entry.Name.Length > _longestName)
                 {
-                    _longestName = entry.Value.Name.Length;
+                    _longestName = entry.Name.Length;
                 }
             }
         }
@@ -190,35 +190,35 @@ namespace LocalHandicap
         private void AddSummaryScores()
         {
             HandicapDetailsListView.Items.Clear();
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                if (entry.Value.Excluded)
+                if (entry.Excluded)
                 {
                     continue;
                 }
 
-                if (LocalHandicapExistsCheckbox.Checked && (entry.Value.LocalHandicap == null))
+                if (LocalHandicapExistsCheckbox.Checked && (entry.LocalHandicap == null))
                 {
                     continue;
                 }
 
                 if (LocalHandicapLowerCheckBox.Checked &&
-                    ((entry.Value.LocalHandicap == null) ||
-                        (entry.Value.LocalHandicap >= entry.Value.GHINIndex)))
+                    ((entry.LocalHandicap == null) ||
+                        (entry.LocalHandicap >= entry.GHINIndex)))
                 {
                     continue;
                 }
 
-                ListViewItem lvi = new ListViewItem(entry.Key);
+                ListViewItem lvi = new ListViewItem(entry.Name);
                 lvi.UseItemStyleForSubItems = false;
-                ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Value.GHINNumber);
+                ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem(lvi, entry.GHINNumber);
                 lvi.SubItems.Add(lvsi);
-                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.Value.LocalHandicap.ToString().Replace("-", "+"));
+                lvsi = new ListViewItem.ListViewSubItem(lvi, entry.LocalHandicap.ToString().Replace("-", "+"));
                 lvi.SubItems.Add(lvsi);
                 foreach (DateTime dt in _dateList)
                 {
                     bool found = false;
-                    foreach (Score score in entry.Value.Scores)
+                    foreach (Score score in entry.Scores)
                     {
                         if (score.DT == dt)
                         {
@@ -245,28 +245,28 @@ namespace LocalHandicap
         private void AddIndividualDetails()
         {
             int index = 0;
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                entry.Value.IndividualTabIndex = -1;
+                entry.IndividualTabIndex = -1;
 
-                if (entry.Value.Excluded)
+                if (entry.Excluded)
                 {
                     continue;
                 }
 
-                if (LocalHandicapExistsCheckbox.Checked && (entry.Value.LocalHandicap == null))
+                if (LocalHandicapExistsCheckbox.Checked && (entry.LocalHandicap == null))
                 {
                     continue;
                 }
 
                 if (LocalHandicapLowerCheckBox.Checked &&
-                    ((entry.Value.LocalHandicap == null) ||
-                        (entry.Value.LocalHandicap >= entry.Value.GHINIndex)))
+                    ((entry.LocalHandicap == null) ||
+                        (entry.LocalHandicap >= entry.GHINIndex)))
                 {
                     continue;
                 }
 
-                entry.Value.IndividualTabIndex = index++;
+                entry.IndividualTabIndex = index++;
             }
 
             IndividualDetailsScrollBar.Minimum = 0;
@@ -277,17 +277,17 @@ namespace LocalHandicap
         {
             PlayerData pd = null;
             PlayerData pdLast = null;
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                if (entry.Value.IndividualTabIndex == index)
+                if (entry.IndividualTabIndex == index)
                 {
-                    pd = entry.Value;
+                    pd = entry;
                     break;
                 }
                 // If the scrollbar number is too high, just show the last entry
-                if (!entry.Value.Excluded)
+                if (!entry.Excluded)
                 {
-                    pdLast = entry.Value;
+                    pdLast = entry;
                 }
             }
             if (pd == null)
@@ -836,13 +836,13 @@ namespace LocalHandicap
         private void IndividualSearchTextBox_TextChanged(object sender, EventArgs e)
         {
             string name = IndividualSearchTextBox.Text.ToLower();
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                if (entry.Value.IndividualTabIndex != -1)
+                if (entry.IndividualTabIndex != -1)
                 {
-                    if (entry.Value.Name.ToLower().StartsWith(name))
+                    if (entry.Name.ToLower().StartsWith(name))
                     {
-                       IndividualDetailsScrollBar.Value = entry.Value.IndividualTabIndex;
+                       IndividualDetailsScrollBar.Value = entry.IndividualTabIndex;
                         break;
                     }
                 }

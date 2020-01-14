@@ -529,7 +529,7 @@ namespace LocalHandicap
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(52, 12);
             this.VersionLabel.TabIndex = 10;
-            this.VersionLabel.Text = "Version 2.3";
+            this.VersionLabel.Text = "Version 2.4";
             // 
             // LocalHandicapForm
             // 

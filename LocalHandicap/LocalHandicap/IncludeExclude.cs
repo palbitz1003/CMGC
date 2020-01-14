@@ -11,7 +11,7 @@ namespace LocalHandicap
 {
     public partial class IncludeExclude : Form
     {
-        SortedDictionary<string, PlayerData> _localHandicapDBByName;
+        List<PlayerData> _localHandicapDBByName;
         private static string ExcludedFileName = "Excluded.csv";
         private int _previousCount;
 
@@ -20,7 +20,7 @@ namespace LocalHandicap
             ExcludedFileName = Path.Combine(folder, Path.GetFileName(ExcludedFileName));
         }
 
-        public IncludeExclude(SortedDictionary<string, PlayerData> localHandicapDBByName)
+        public IncludeExclude(List<PlayerData> localHandicapDBByName)
         {
             InitializeComponent();
 
@@ -35,12 +35,12 @@ namespace LocalHandicap
         private void CreateExcludedList()
         {
             int excludedCount = 0;
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                ListViewItem lvi = new ListViewItem(entry.Value.Name);
-                lvi.Tag = entry.Value;
+                ListViewItem lvi = new ListViewItem(entry.Name);
+                lvi.Tag = entry;
 
-                if (entry.Value.Excluded)
+                if (entry.Excluded)
                 {
                     excludedCount++;
                     lvi.Checked = true;
@@ -62,9 +62,9 @@ namespace LocalHandicap
         private void DoneButton_Click(object sender, EventArgs e)
         {
             // Clear all the player data records
-            foreach (KeyValuePair<string, PlayerData> entry in _localHandicapDBByName)
+            foreach (PlayerData entry in _localHandicapDBByName)
             {
-                entry.Value.Excluded = false;
+                entry.Excluded = false;
             }
 
             // Take the excluded list and apply it to the player data
@@ -92,17 +92,17 @@ namespace LocalHandicap
         /// Save the excluded players to a file
         /// </summary>
         /// <param name="localHandicapDBByName"></param>
-        public static void WriteExcludedList(SortedDictionary<string, PlayerData> localHandicapDBByName)
+        public static void WriteExcludedList(List<PlayerData> localHandicapDBByName)
         {
             try
             {
                 using (TextWriter tw = new StreamWriter(ExcludedFileName))
                 {
-                    foreach (KeyValuePair<string, PlayerData> entry in localHandicapDBByName)
+                    foreach (PlayerData entry in localHandicapDBByName)
                     {
-                        if (entry.Value.Excluded)
+                        if (entry.Excluded)
                         {
-                            tw.WriteLine(entry.Value.GHINNumber + "," + entry.Value.Name.Replace(", ", ","));
+                            tw.WriteLine(entry.GHINNumber + "," + entry.Name.Replace(", ", ","));
                         }
                     }
                 }
@@ -119,7 +119,7 @@ namespace LocalHandicap
         /// <param name="localHandicapDBByNumber"></param>
         /// <param name="localHandicapDBByName"></param>
         public static void ReadExcludedList(SortedDictionary<string, PlayerData> localHandicapDBByNumber,
-            SortedDictionary<string, PlayerData> localHandicapDBByName)
+            List<PlayerData> localHandicapDBByName)
         {
             if (!File.Exists(ExcludedFileName))
             {

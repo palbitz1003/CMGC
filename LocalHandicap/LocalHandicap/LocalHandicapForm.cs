@@ -350,11 +350,11 @@ namespace LocalHandicap
                 }
                 _localHandicap.Calculate(_settings.MaxLocalScores);
 
-                foreach (KeyValuePair<string, GHINIndex.Index> GHINEntry in _GHINIndex.DBByName)
+                foreach (GHINIndex.Index GHINEntry in _GHINIndex.DBByName)
                 {
-                    float? localHandicap = _localHandicap.GetLocalHandicap(GHINEntry.Value.GHINNumber);
+                    float? localHandicap = _localHandicap.GetLocalHandicap(GHINEntry.GHINNumber);
 
-                    float? handicap = GHINEntry.Value.CurrentIndex;
+                    float? handicap = GHINEntry.CurrentIndex;
 
                     if(handicap == null)
                     {
@@ -367,24 +367,24 @@ namespace LocalHandicap
 
                     if (handicap != null)
                     {
-                        if (_localHandicap.LocalHandicapDBByNumber.ContainsKey(GHINEntry.Value.GHINNumber))
+                        if (_localHandicap.LocalHandicapDBByNumber.ContainsKey(GHINEntry.GHINNumber))
                         {
                             PlayerData playerData =
-                                _localHandicap.LocalHandicapDBByNumber[GHINEntry.Value.GHINNumber];
-                            playerData.Name = GHINEntry.Value.Name;
-                            playerData.GHINIndex = GHINEntry.Value.CurrentIndex;
+                                _localHandicap.LocalHandicapDBByNumber[GHINEntry.GHINNumber];
+                            playerData.Name = GHINEntry.Name;
+                            playerData.GHINIndex = GHINEntry.CurrentIndex;
                             playerData.Handicap = handicap;
 
-                            _localHandicap.LocalHandicapDBByName.Add(GHINEntry.Value.Name, playerData);
+                            _localHandicap.LocalHandicapDBByName.Add(playerData);
                         }
                         else
                         {
-                            PlayerData playerData = new PlayerData(GHINEntry.Value.GHINNumber);
-                            playerData.Name = GHINEntry.Value.Name;
-                            playerData.GHINIndex = GHINEntry.Value.CurrentIndex;
+                            PlayerData playerData = new PlayerData(GHINEntry.GHINNumber);
+                            playerData.Name = GHINEntry.Name;
+                            playerData.GHINIndex = GHINEntry.CurrentIndex;
                             playerData.Handicap = handicap;
-                            _localHandicap.LocalHandicapDBByName.Add(GHINEntry.Value.Name, playerData);
-                            _localHandicap.LocalHandicapDBByNumber.Add(GHINEntry.Value.GHINNumber, playerData);
+                            _localHandicap.LocalHandicapDBByName.Add(playerData);
+                            _localHandicap.LocalHandicapDBByNumber.Add(GHINEntry.GHINNumber, playerData);
                         }
                     }
                 }
@@ -394,6 +394,9 @@ namespace LocalHandicap
                     this.Controls.Remove(_resultsUserControl);
                     _resultsUserControl.Dispose();
                 }
+
+                // Sort the ByName list
+                _localHandicap.SortByName();
 
                 List<ResultsUserControl.TeeAndRating> tarList = new List<ResultsUserControl.TeeAndRating>();
                 if (!string.IsNullOrEmpty(_settings.Tee1) && !string.IsNullOrEmpty(_settings.CourseRating1))

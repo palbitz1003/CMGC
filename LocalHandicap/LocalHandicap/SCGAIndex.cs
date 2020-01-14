@@ -12,9 +12,9 @@ namespace LocalHandicap
     {
         int errorCount;
         private SortedDictionary<string, Index> _GHINIndexDBByNumber = new SortedDictionary<string, Index>();
-        private SortedDictionary<string, Index> _GHINIndexDBByName = new SortedDictionary<string, Index>();
+        private List<Index> _GHINIndexDBByName = new List<Index>();
 
-        public SortedDictionary<string, Index> DBByName { get { return _GHINIndexDBByName; } }
+        public List<Index> DBByName { get { return _GHINIndexDBByName; } }
 
         public GHINIndex()
         {
@@ -271,15 +271,6 @@ namespace LocalHandicap
 
         private void addIndex(Index index)
         {
-            if (_GHINIndexDBByName.ContainsKey(index.Name))
-            {
-                // duplicate
-            }
-            else
-            {
-                _GHINIndexDBByName.Add(index.Name, index);
-            }
-
             if (_GHINIndexDBByNumber.ContainsKey(index.GHINNumber))
             {
                 // duplicate
@@ -287,6 +278,7 @@ namespace LocalHandicap
             else
             {
                 _GHINIndexDBByNumber.Add(index.GHINNumber, index);
+                _GHINIndexDBByName.Add(index);
             }
         }
     }
