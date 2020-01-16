@@ -77,7 +77,7 @@ if (! $localHandicapEntryArray || (count ( $localHandicapEntryArray ) == 0)) {
 
 echo '<h2 style="text-align:center">Local Handicap for Coronado Men\'s White (' . date ( 'M d, Y', strtotime ( $localHandicapDate ) ) . ')</h2><br>';
 echo '<table style="border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
-echo '<thead><tr class="header"><th>Name</th><th>USGA Index</th><th>Local Handicap</th><th>Local Tournament Handicap</th></tr></thead>' . PHP_EOL;
+echo '<thead><tr class="header"><th>Name</th><th>USGA Index</th><th>Local Handicap</th><th>non-WHS Tournament Handicap</th></tr></thead>' . PHP_EOL;
 echo '<tbody>' . PHP_EOL;
 
 for($i = 0; $i < count ( $localHandicapEntryArray ); ++ $i) {
