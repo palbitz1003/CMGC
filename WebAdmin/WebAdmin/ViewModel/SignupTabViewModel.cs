@@ -125,11 +125,11 @@ namespace WebAdmin.ViewModel
 
         private List<TeeTime> _removedTeeTimes;
 
-        private string _vpTeeTimeFile;
-        public string VpTeeTimeFile
+        private string _ggTeeTimeFile;
+        public string GgTeeTimeFile
         {
-            get { return _vpTeeTimeFile; }
-            set { _vpTeeTimeFile = value; OnPropertyChanged(); }
+            get { return _ggTeeTimeFile; }
+            set { _ggTeeTimeFile = value; OnPropertyChanged(); }
         }
 
         private string _waitingListFile;
@@ -943,52 +943,95 @@ namespace WebAdmin.ViewModel
             }
         }
 
+        //
+        // Expected format of tee sheet file: header followed by individual lines.
+        // 
+        // Tee Time,Handle,GHIN
+        // 7:00 AM,"Albitz, Paul",9079663
+
         private void UploadVpCsv(object o)
         {
-            if(string.IsNullOrEmpty(VpTeeTimeFile))
+            if(string.IsNullOrEmpty(GgTeeTimeFile))
             {
-                MessageBox.Show("Please fill in the VP start time file");
+                MessageBox.Show("Please fill in the tee sheet file");
                 return;
             }
 
-            if (!File.Exists(VpTeeTimeFile))
+            if (!File.Exists(GgTeeTimeFile))
             {
-                MessageBox.Show("File does not exist: " + VpTeeTimeFile);
+                MessageBox.Show("File does not exist: " + GgTeeTimeFile);
                 return;
             }
 
-            using (TextReader tr = new StreamReader(VpTeeTimeFile))
+            using (TextReader tr = new StreamReader(GgTeeTimeFile))
             {
                 _removedTeeTimes.Clear();
                 ClearPlayers();
                 TournamentTeeTimes.Clear();
 
+                TeeTimeRequests.Clear();
+                TeeTimeRequestsUnassigned.Clear();
+                TeeTimeRequestsAssigned.Clear();
+
                 string[][] lines = CSVParser.Parse(tr);
 
-                for(int lineIndex = 0, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
+                int teeTimeColumn = -1;
+                int handleColumn = -1;
+                int ghinColumn = -1;
+
+                if (lines.Length == 0)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": has 0 lines");
+                }
+
+                for (int col = 0; col < lines[0].Length; col++)
+                {
+                    if (string.Compare(lines[0][col], "tee time", true) == 0)
+                    {
+                        teeTimeColumn = col;
+                    }
+                    else if (string.Compare(lines[0][col], "handle", true) == 0)
+                    {
+                        handleColumn = col;
+                    }
+                    else if (string.Compare(lines[0][col], "ghin", true) == 0)
+                    {
+                        ghinColumn = col;
+                    }
+                }
+
+                if (teeTimeColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Tee Time");
+                }
+                if (handleColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Handle");
+                }
+                if (ghinColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: GHIN");
+                }
+
+                for(int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
                 {
                     string[] line = lines[lineIndex];
                     if (line.Length > 0)
                     {
-                        if (line.Length < 17)
+                        if (string.IsNullOrEmpty(line[teeTimeColumn]))
                         {
-                            if ((lineIndex == 0) && (line.Length == 8) && (lines[lineIndex + 1].Length == 9))
-                            {
-                                List<string> mergedLines = line.ToList();
-                                mergedLines.AddRange(lines[lineIndex + 1].ToList());
-                                line = mergedLines.ToArray();
-                                lineIndex++;
-                            }
-                            else
-                            {
-                                throw new ApplicationException(VpTeeTimeFile + ": does not have 17 fields: " + string.Join(", ", line));
-                            }
+                            throw new ApplicationException(GgTeeTimeFile + " (line " + lineIndex + "): Tee Time is empty");
                         }
+                        if (string.IsNullOrEmpty(line[handleColumn]))
+                        {
+                            throw new ApplicationException(GgTeeTimeFile + " (line " + lineIndex + "): Handle (last name, first name) is empty");
+                        }
+                        // Since the GHIN is not actually used, don't require it
 
                         TeeTime tt = null;
                         foreach(var teeTime in TournamentTeeTimes)
                         {
-                            if(String.CompareOrdinal(teeTime.StartTime, line[12]) == 0)
+                            if(String.CompareOrdinal(teeTime.StartTime, line[teeTimeColumn]) == 0)
                             {
                                 tt = teeTime;
                                 break;
@@ -998,16 +1041,14 @@ namespace WebAdmin.ViewModel
                         if(tt == null)
                         {
                             tt = new TeeTime();
-                            tt.StartTime = line[12];
+                            tt.StartTime = line[teeTimeColumn];
                             TournamentTeeTimes.Add(tt);
                         }
 
                         Player player = new Player();
                         player.Position = 1;
-                        player.Name = line[8].Trim();
-
-                        GHINEntry gi = GHINEntry.FindName(GHINEntries, player.Name);
-                        player.GHIN = (gi != null) ? gi.GHIN.ToString(CultureInfo.InvariantCulture) : "0";
+                        player.Name = line[handleColumn].Trim();
+                        player.GHIN = line[ghinColumn].Trim();
 
                         player.TeeTime = tt;
                         tt.AddPlayer(player);
