@@ -545,9 +545,9 @@ namespace WebAdmin.ViewModel
 
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
-                    tw.WriteLine("Tee Time,Last Name, First Name,GHIN,Tee Time Number,Pairing Number,Player Number");
+                    tw.WriteLine("Tee Time,Last Name, First Name,GHIN,Team Id");
 
-                    int pairingNumber = 1;
+                    int teamId = 1;
                     int playerNumber = 1;
                     for (int teeTimeNumber = 0; teeTimeNumber < TournamentTeeTimes.Count; teeTimeNumber++)
                     {
@@ -586,30 +586,40 @@ namespace WebAdmin.ViewModel
                                 playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
                             }
 
-                            // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
-                            //string handle = string.Empty;
-                            //if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
-                            //{
-                            //    handle = '"' + TournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
-                            //    playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
-                            //}
-
-                            tw.Write(TournamentTeeTimes[teeTimeNumber].StartTime + ",");
-                            tw.Write(playerLastName + ",");
-                            tw.Write(playerFirstName + ",");
-                            //tw.Write(handle + ",");
-                            tw.Write(playerGhin + ",");
-                            tw.Write((teeTimeNumber + 1) + ",");
-                            tw.Write(pairingNumber + ",");
-                            tw.Write(playerNumber);
-                            tw.WriteLine();
-
-                            if (playerNumber % 2 == 0)
+                            // Only write out tee time entries if there is a player
+                            if (!string.IsNullOrEmpty(playerLastName))
                             {
-                                pairingNumber++;
+                                // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
+                                //string handle = string.Empty;
+                                //if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
+                                //{
+                                //    handle = '"' + TournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
+                                //    playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                                //}
+
+                                tw.Write(TournamentTeeTimes[teeTimeNumber].StartTime + ",");
+                                tw.Write(playerLastName + ",");
+                                tw.Write(playerFirstName + ",");
+                                //tw.Write(handle + ",");
+                                tw.Write(playerGhin + ",");
+                                tw.Write(teamId + ",");
+                                tw.WriteLine();
+
+                                // TODO: need to update team Id 
+                                // based on number of players per team ...
+                                //if (playerNumber % 2 == 0)
+                                //{
+                                //    teamId++;
+                                //}
+
+                                // TODO: assumes individual play for now ...
+                                teamId++;
+
+                                playerNumber++;
                             }
-                            playerNumber++;
                         }
+
+                        
                     }
                 }
             }
@@ -1117,7 +1127,7 @@ namespace WebAdmin.ViewModel
                         }
 
                         Player player = new Player();
-                        player.Position = 1;
+                        player.Position = tt.Players.Count + 1;
                         if (!string.IsNullOrEmpty(line[firstNameColumn]))
                         {
                             player.Name = line[lastNameColumn].Trim() + ", " + line[firstNameColumn].Trim();
