@@ -19,7 +19,7 @@
         </DockPanel>
         
         <DockPanel Margin="5, 0, 0, 0" Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <Button Margin="5" VerticalAlignment="Center" Command="{Binding UploadVpCsvCommand}" >
+            <Button Margin="5" VerticalAlignment="Center" Command="{Binding UploadGgCsvCommand}" >
                 <TextBlock TextWrapping="Wrap">Load Golf Genius tee sheet csv</TextBlock>
             </Button>
             <DockPanel  LastChildFill="true" Margin="5" VerticalAlignment="Center">

@@ -22,12 +22,12 @@ namespace WebAdmin.ViewModel
 
         private readonly List<string> _defaultTeeTimes = new List<string>
         { 
-            "6:00", "6:07", "6:15", "6:22", "6:30", "6:37", "6:45", "6:52",
-            "7:00", "7:07", "7:15", "7:22", "7:30", "7:37", "7:45", "7:52",
-            "8:00", "8:07", "8:15", "8:22", "8:30", "8:37", "8:45", "8:52",
-            "9:00", "9:07", "9:15", "9:22", "9:30", "9:37", "9:45", "9:52",
-            "10:00", "10:07", "10:15", "10:22", "10:30", "10:37", "10:45", "10:52",
-            "11:00", "11:07", "11:15", "11:22", "11:30", "11:37", "11:45", "11:52"};
+            "6:00 AM", "6:07 AM", "6:15 AM", "6:22 AM", "6:30 AM", "6:37 AM", "6:45 AM", "6:52 AM",
+            "7:00 AM", "7:07 AM", "7:15 AM", "7:22 AM", "7:30 AM", "7:37 AM", "7:45 AM", "7:52 AM",
+            "8:00 AM", "8:07 AM", "8:15 AM", "8:22 AM", "8:30 AM", "8:37 AM", "8:45 AM", "8:52 AM",
+            "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
+            "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
+            "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"};
 
         private Visibility _getTournamentsVisible;
         public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
@@ -190,7 +190,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand PrintCommand { get { return new ModelCommand(Print); } }
 
-        public ICommand UploadVpCsvCommand { get { return new ModelCommand(UploadVpCsv); } }
+        public ICommand UploadGgCsvCommand { get { return new ModelCommand(UploadGgCsv); } }
 
         public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(async s => await UploadWaitingListFile(s)); } }
         #endregion
@@ -545,7 +545,7 @@ namespace WebAdmin.ViewModel
 
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
-                    tw.WriteLine("Tee Time,Last Name, First Name,GHIN,Team Id");
+                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id");
 
                     int teamId = 1;
                     int playerNumber = 1;
@@ -602,7 +602,7 @@ namespace WebAdmin.ViewModel
                                 tw.Write(playerFirstName + ",");
                                 //tw.Write(handle + ",");
                                 tw.Write(playerGhin + ",");
-                                tw.Write(teamId + ",");
+                                tw.Write(teamId);
                                 tw.WriteLine();
 
                                 // TODO: need to update team Id 
@@ -1004,7 +1004,7 @@ namespace WebAdmin.ViewModel
         // Tee Time,Last Name,First Name,GHIN
         // 7:07 AM,Albitz,Paul,9079663
 
-        private void UploadVpCsv(object o)
+        private void UploadGgCsv(object o)
         {
             if(string.IsNullOrEmpty(GgTeeTimeFile))
             {
