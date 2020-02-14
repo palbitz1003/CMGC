@@ -86,6 +86,17 @@ namespace WebAdmin.ViewModel
             set { _closestToThePinsDay2 = value; OnPropertyChanged(); }
         }
 
+        private string _ggTournamentResultsCsvFileName;
+        public string GgTournamentResultsCsvFileName {
+            get { return _ggTournamentResultsCsvFileName; }
+            set
+            {
+                _ggTournamentResultsCsvFileName = value;
+                //AddScoresEntriesGg(value);
+                OnPropertyChanged();
+            }
+        }
+
         private string _csvFolderName;
         public string CSVFolderName {  get { return _csvFolderName;} set { _csvFolderName = value; OnPropertyChanged();} }
 
@@ -103,39 +114,40 @@ namespace WebAdmin.ViewModel
             } 
         }
 
-        private List<KeyValuePair<string, string>>[] _csvDay1PoolKvp;
+        //private List<KeyValuePair<string, string>>[] _csvDay1PoolKvp;
 
-        private ObservableCollection<string> _csvDay1PoolFileName;
-        public ObservableCollection<string> CsvDay1PoolFileName
-        {
-            get { return _csvDay1PoolFileName; }
-            set { _csvDay1PoolFileName = value; OnPropertyChanged(); }
-        }
+        //private ObservableCollection<string> _csvDay1PoolFileName;
+        //public ObservableCollection<string> CsvDay1PoolFileName
+        //{
+        //    get { return _csvDay1PoolFileName; }
+        //    set { _csvDay1PoolFileName = value; OnPropertyChanged(); }
+        //}
 
-        private List<KeyValuePair<string, string>>[] _csvDay2PoolKvp;
+        //private List<KeyValuePair<string, string>>[] _csvDay2PoolKvp;
 
-        private ObservableCollection<string> _csvDay2PoolFileName;
-        public ObservableCollection<string> CsvDay2PoolFileName
-        {
-            get { return _csvDay2PoolFileName; }
-            set { _csvDay2PoolFileName = value; OnPropertyChanged(); }
-        }
+        //private ObservableCollection<string> _csvDay2PoolFileName;
+        //public ObservableCollection<string> CsvDay2PoolFileName
+        //{
+        //    get { return _csvDay2PoolFileName; }
+        //    set { _csvDay2PoolFileName = value; OnPropertyChanged(); }
+        //}
 
-        private ObservableCollection<string> _csvDay1PoolTotal;
-        public ObservableCollection<string> CsvDay1PoolTotal
-        {
-            get { return _csvDay1PoolTotal; }
-            set { _csvDay1PoolTotal = value; OnPropertyChanged(); }
-        }
+        //private ObservableCollection<string> _csvDay1PoolTotal;
+        //public ObservableCollection<string> CsvDay1PoolTotal
+        //{
+        //    get { return _csvDay1PoolTotal; }
+        //    set { _csvDay1PoolTotal = value; OnPropertyChanged(); }
+        //}
 
-        private ObservableCollection<string> _csvDay2PoolTotal;
-        public ObservableCollection<string> CsvDay2PoolTotal
-        {
-            get { return _csvDay2PoolTotal; }
-            set { _csvDay2PoolTotal = value; OnPropertyChanged(); }
-        }
+        //private ObservableCollection<string> _csvDay2PoolTotal;
+        //public ObservableCollection<string> CsvDay2PoolTotal
+        //{
+        //    get { return _csvDay2PoolTotal; }
+        //    set { _csvDay2PoolTotal = value; OnPropertyChanged(); }
+        //}
 
         private List<KeyValuePair<string, string>> _kvpChitsList;
+        private List<List<KeyValuePair<string, string>>> _kvpScoresList;
 
         private string _chitsTotal;
         public string ChitsTotal { get { return _chitsTotal; } set { _chitsTotal = value; OnPropertyChanged(); } }
@@ -160,8 +172,8 @@ namespace WebAdmin.ViewModel
         public ICommand SubmitCsvCommand { get { return new ModelCommand(async s => await SubmitCsv(s)); } }
         public ICommand ClearCsvCommand { get { return new ModelCommand(async s => await ClearCsv(s)); } }
 
-        public ICommand CSVDay1PoolAdjustCommand { get { return new ModelCommand(s => CSVDay1PoolAdjust(s)); } }
-        public ICommand CSVDay2PoolAdjustCommand { get { return new ModelCommand(s => CSVDay2PoolAdjust(s)); } }
+        //public ICommand CSVDay1PoolAdjustCommand { get { return new ModelCommand(s => CSVDay1PoolAdjust(s)); } }
+        //public ICommand CSVDay2PoolAdjustCommand { get { return new ModelCommand(s => CSVDay2PoolAdjust(s)); } }
         public ICommand ChitsAdjustCommand { get { return new ModelCommand(s => ChitsAdjust(s)); } }
         #endregion
 
@@ -174,27 +186,27 @@ namespace WebAdmin.ViewModel
             TournamentNameIndex = -1;
 
             CreateEmptyClosestToThePin();
-            CsvDay1PoolFileName = new ObservableCollection<string>();
-            CsvDay2PoolFileName = new ObservableCollection<string>();
-            CsvDay1PoolTotal = new ObservableCollection<string>();
-            CsvDay2PoolTotal = new ObservableCollection<string>();
+            //CsvDay1PoolFileName = new ObservableCollection<string>();
+            //CsvDay2PoolFileName = new ObservableCollection<string>();
+            //CsvDay1PoolTotal = new ObservableCollection<string>();
+            //CsvDay2PoolTotal = new ObservableCollection<string>();
 
-            for(int i = 0; i < 4; i++)
-            {
-                CsvDay1PoolFileName.Add(string.Empty);
-                CsvDay2PoolFileName.Add(string.Empty);
+            //for(int i = 0; i < 4; i++)
+            //{
+            //    CsvDay1PoolFileName.Add(string.Empty);
+            //    CsvDay2PoolFileName.Add(string.Empty);
 
-                CsvDay1PoolTotal.Add("$0 Day 1");
-                CsvDay2PoolTotal.Add("$0 Day 2");
-            }
+            //    CsvDay1PoolTotal.Add("$0 Day 1");
+            //    CsvDay2PoolTotal.Add("$0 Day 2");
+            //}
             ChitsTotal = "$0 Total chits";
             ChitsFlights = string.Empty;
 
-            _csvDay1PoolKvp = new List<KeyValuePair<string, string>>[4];
-            _csvDay2PoolKvp = new List<KeyValuePair<string, string>>[4];
+            //_csvDay1PoolKvp = new List<KeyValuePair<string, string>>[4];
+            //_csvDay2PoolKvp = new List<KeyValuePair<string, string>>[4];
 
-            CsvDay1PoolFileName.CollectionChanged += CsvDay1PoolFileName_CollectionChanged;
-            CsvDay2PoolFileName.CollectionChanged += CsvDay2PoolFileName_CollectionChanged;
+            //CsvDay1PoolFileName.CollectionChanged += CsvDay1PoolFileName_CollectionChanged;
+            //CsvDay2PoolFileName.CollectionChanged += CsvDay2PoolFileName_CollectionChanged;
         }
 
         private void ResetFileNames()
@@ -203,41 +215,41 @@ namespace WebAdmin.ViewModel
             CsvScoresFileName = string.Empty;
             CsvChitsFileName = string.Empty;
 
-            if (CsvDay1PoolFileName != null)
-            {
-                for (int i = 0; i < CsvDay1PoolFileName.Count; i++)
-                {
-                    CsvDay1PoolFileName[i] = string.Empty;
-                    CsvDay2PoolFileName[i] = string.Empty;
-                }
-            }
+            //if (CsvDay1PoolFileName != null)
+            //{
+            //    for (int i = 0; i < CsvDay1PoolFileName.Count; i++)
+            //    {
+            //        CsvDay1PoolFileName[i] = string.Empty;
+            //        CsvDay2PoolFileName[i] = string.Empty;
+            //    }
+            //}
         }
 
-        void CsvDay1PoolFileName_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            int fileIndex = e.NewStartingIndex;
-            _csvDay1PoolKvp[fileIndex] = new List<KeyValuePair<string, string>>();
+        //void CsvDay1PoolFileName_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        //{
+        //    int fileIndex = e.NewStartingIndex;
+        //    _csvDay1PoolKvp[fileIndex] = new List<KeyValuePair<string, string>>();
 
-            if (!string.IsNullOrEmpty(CsvDay1PoolFileName[fileIndex]))
-            {
-                AddPoolEntries(CsvDay1PoolFileName[fileIndex], fileIndex + 1, 0, _csvDay1PoolKvp[fileIndex]);
-                LoadAdjustments(CsvDay1PoolFileName[fileIndex], _csvDay1PoolKvp[fileIndex]);
-            }
-            CsvDay1PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[fileIndex], ResultsPool).ToString("F0") + " Day 1";
-        }
+        //    if (!string.IsNullOrEmpty(CsvDay1PoolFileName[fileIndex]))
+        //    {
+        //        AddPoolEntries(CsvDay1PoolFileName[fileIndex], fileIndex + 1, 0, _csvDay1PoolKvp[fileIndex]);
+        //        LoadAdjustments(CsvDay1PoolFileName[fileIndex], _csvDay1PoolKvp[fileIndex]);
+        //    }
+        //    CsvDay1PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[fileIndex], ResultsPool).ToString("F0") + " Day 1";
+        //}
 
-        void CsvDay2PoolFileName_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            int fileIndex = e.NewStartingIndex;
-            _csvDay2PoolKvp[fileIndex] = new List<KeyValuePair<string, string>>();
+        //void CsvDay2PoolFileName_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        //{
+        //    int fileIndex = e.NewStartingIndex;
+        //    _csvDay2PoolKvp[fileIndex] = new List<KeyValuePair<string, string>>();
 
-            if (!string.IsNullOrEmpty(CsvDay2PoolFileName[fileIndex]))
-            {
-                AddPoolEntries(CsvDay2PoolFileName[fileIndex], fileIndex + 1, 1, _csvDay2PoolKvp[fileIndex]);
-                LoadAdjustments(CsvDay2PoolFileName[fileIndex], _csvDay2PoolKvp[fileIndex]);
-            }
-            CsvDay2PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[fileIndex], ResultsPool).ToString("F0") + " Day 2";
-        }
+        //    if (!string.IsNullOrEmpty(CsvDay2PoolFileName[fileIndex]))
+        //    {
+        //        AddPoolEntries(CsvDay2PoolFileName[fileIndex], fileIndex + 1, 1, _csvDay2PoolKvp[fileIndex]);
+        //        LoadAdjustments(CsvDay2PoolFileName[fileIndex], _csvDay2PoolKvp[fileIndex]);
+        //    }
+        //    CsvDay2PoolTotal[fileIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[fileIndex], ResultsPool).ToString("F0") + " Day 2";
+        //}
 
         private void UpdateChitsWinnings()
         {
@@ -278,7 +290,7 @@ namespace WebAdmin.ViewModel
 
         private string GetWinningsFlights(List<KeyValuePair<string, string>> kvpPoolList, string eventName)
         {
-            Dictionary<int,string> indexToFlight = new Dictionary<int, string>();
+            Dictionary<int, string> indexToFlight = new Dictionary<int, string>();
             List<string> flightNames = new List<string>();
             List<int> winnings = new List<int>();
             string flightWinnings = "Flight chits: ";
@@ -288,11 +300,11 @@ namespace WebAdmin.ViewModel
             for (int index = 0; index < kvpPoolList.Count; index++)
             {
                 Match m = exprFlightName.Match(kvpPoolList[index].Key);
-                if(m.Success)
+                if (m.Success)
                 {
                     indexToFlight[int.Parse(m.Groups[1].Value)] = kvpPoolList[index].Value;
 
-                    if(!flightNames.Contains(kvpPoolList[index].Value))
+                    if (!flightNames.Contains(kvpPoolList[index].Value))
                     {
                         flightNames.Add(kvpPoolList[index].Value);
                         winnings.Add(0);
@@ -317,11 +329,11 @@ namespace WebAdmin.ViewModel
                     {
                         throw new ApplicationException("Failed to collect flight winnings for line: " + kvpPoolList[index].Key);
                     }
-                    
+
                 }
             }
 
-            for(int index = 0; index < winnings.Count; index++)
+            for (int index = 0; index < winnings.Count; index++)
             {
                 flightWinnings += (index > 0) ? "/" : string.Empty;
                 flightWinnings += "$" + winnings[index];
@@ -816,162 +828,162 @@ namespace WebAdmin.ViewModel
             throw new ApplicationException("File name does not contain 'flight': " + fileName);
         }
 
-        private void AddPoolEntries(string file, int flight, int day, List<KeyValuePair<string, string>> kvpList)
-        {
-            string fullPath = Path.Combine(CSVFolderName, file);
-            if(!File.Exists(fullPath))
-            {
-                throw new ApplicationException("File doesn't exist: " + fullPath);
-            }
+        //private void AddPoolEntries(string file, int flight, int day, List<KeyValuePair<string, string>> kvpList)
+        //{
+        //    string fullPath = Path.Combine(CSVFolderName, file);
+        //    if(!File.Exists(fullPath))
+        //    {
+        //        throw new ApplicationException("File doesn't exist: " + fullPath);
+        //    }
 
-            int index = 0;
-            foreach(var kvp in kvpList)
-            {
-                string key = string.Format("{0}[{1}][Flight]", ResultsPool, index);
-                if(kvp.Key == key)
-                {
-                    index++;
-                }
-            }
-            using(TextReader tr = new StreamReader(fullPath))
-            {
-                string[][] lines = CSVParser.Parse(tr);
-                foreach(var line in lines)
-                {
-                    if (line.Length > 0)
-                    {
-                        if ((line.Length != 6) && (line.Length != 15))
-                        {
-                            throw new ApplicationException(file + ": does not have 6 fields (total score) or 15 fields (skins): " + string.Join(", ", line));
-                        }
+        //    int index = 0;
+        //    foreach(var kvp in kvpList)
+        //    {
+        //        string key = string.Format("{0}[{1}][Flight]", ResultsPool, index);
+        //        if(kvp.Key == key)
+        //        {
+        //            index++;
+        //        }
+        //    }
+        //    using(TextReader tr = new StreamReader(fullPath))
+        //    {
+        //        string[][] lines = CSVParser.Parse(tr);
+        //        foreach(var line in lines)
+        //        {
+        //            if (line.Length > 0)
+        //            {
+        //                if ((line.Length != 6) && (line.Length != 15))
+        //                {
+        //                    throw new ApplicationException(file + ": does not have 6 fields (total score) or 15 fields (skins): " + string.Join(", ", line));
+        //                }
 
-                        if (line.Length == 6)
-                        {
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Flight]", ResultsPool, index), flight.ToString()));
+        //                if (line.Length == 6)
+        //                {
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Flight]", ResultsPool, index), flight.ToString()));
 
-                            // since these are not skins, set the hole number to 0
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Hole]", ResultsPool, index), "0"));
+        //                    // since these are not skins, set the hole number to 0
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Hole]", ResultsPool, index), "0"));
 
-                            DateTime dt;
-                            if (TournamentNameIndex >= 0)
-                            {
-                                dt = TournamentNames[TournamentNameIndex].StartDate.AddDays(day);
-                            }
-                            else if (!DateTime.TryParse(line[0], out dt))
-                            {
-                                throw new ArgumentException(file + ": invalid date: " + lines[0]);
-                            }
+        //                    DateTime dt;
+        //                    if (TournamentNameIndex >= 0)
+        //                    {
+        //                        dt = TournamentNames[TournamentNameIndex].StartDate.AddDays(day);
+        //                    }
+        //                    else if (!DateTime.TryParse(line[0], out dt))
+        //                    {
+        //                        throw new ArgumentException(file + ": invalid date: " + lines[0]);
+        //                    }
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Date]", ResultsPool, index), dt.ToString("yyyy-MM-dd")));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Date]", ResultsPool, index), dt.ToString("yyyy-MM-dd")));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Place]", ResultsPool, index), line[2]));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Place]", ResultsPool, index), line[2]));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Score]", ResultsPool, index), line[4]));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Score]", ResultsPool, index), line[4]));
 
-                            float winnings;
-                            if (!float.TryParse(line[5], out winnings))
-                            {
-                                throw new ArgumentException(file + ": winnings must be a decimal number: " + line[5]);
-                            }
-                            // round to a multiple of 5
-                            int w = ((int)((winnings + 2.5f) / 5f)) * 5;
+        //                    float winnings;
+        //                    if (!float.TryParse(line[5], out winnings))
+        //                    {
+        //                        throw new ArgumentException(file + ": winnings must be a decimal number: " + line[5]);
+        //                    }
+        //                    // round to a multiple of 5
+        //                    int w = ((int)((winnings + 2.5f) / 5f)) * 5;
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Winnings]", ResultsPool, index), w.ToString()));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Winnings]", ResultsPool, index), w.ToString()));
 
-                            // field 3 looks like "(1 )  Albitz, Paul , 9079663"
-                            int paren = line[3].IndexOf(')');
-                            if (paren < 0)
-                            {
-                                throw new ArgumentException(file + ": expected team number within parentheses: " + line[3]);
-                            }
-                            string team = line[3].Substring(0, paren);
-                            team = team.Trim('(');
-                            string rest = line[3].Substring(paren + 1);
-                            string[] fields = rest.Split(',');
+        //                    // field 3 looks like "(1 )  Albitz, Paul , 9079663"
+        //                    int paren = line[3].IndexOf(')');
+        //                    if (paren < 0)
+        //                    {
+        //                        throw new ArgumentException(file + ": expected team number within parentheses: " + line[3]);
+        //                    }
+        //                    string team = line[3].Substring(0, paren);
+        //                    team = team.Trim('(');
+        //                    string rest = line[3].Substring(paren + 1);
+        //                    string[] fields = rest.Split(',');
 
-                            if (fields.Length != 3)
-                            {
-                                throw new ArgumentException(file + ": expected 3 fields for last name, first name, GHIN: " + rest);
-                            }
+        //                    if (fields.Length != 3)
+        //                    {
+        //                        throw new ArgumentException(file + ": expected 3 fields for last name, first name, GHIN: " + rest);
+        //                    }
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][TeamNumber]", ResultsPool, index), team.Trim()));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][TeamNumber]", ResultsPool, index), team.Trim()));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Name]", ResultsPool, index), fields[0].Trim() + ", " + fields[1].Trim()));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Name]", ResultsPool, index), fields[0].Trim() + ", " + fields[1].Trim()));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][GHIN]", ResultsPool, index), fields[2].Trim()));
-                        }
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][GHIN]", ResultsPool, index), fields[2].Trim()));
+        //                }
 
-                        else // skins files have 15 fields
-                        {
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                    string.Format("{0}[{1}][Flight]", ResultsPool, index), flight.ToString()));
+        //                else // skins files have 15 fields
+        //                {
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                            string.Format("{0}[{1}][Flight]", ResultsPool, index), flight.ToString()));
 
-                            // with skins, set the Place field to 0
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Place]", ResultsPool, index), "0"));
+        //                    // with skins, set the Place field to 0
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Place]", ResultsPool, index), "0"));
 
-                            DateTime dt;
-                            if (TournamentNameIndex >= 0)
-                            {
-                                dt = TournamentNames[TournamentNameIndex].StartDate.AddDays(day);
-                            }
-                            else if (!DateTime.TryParse(line[1], out dt))
-                            {
-                                throw new ArgumentException(file + ": invalid date: " + lines[1]);
-                            }
+        //                    DateTime dt;
+        //                    if (TournamentNameIndex >= 0)
+        //                    {
+        //                        dt = TournamentNames[TournamentNameIndex].StartDate.AddDays(day);
+        //                    }
+        //                    else if (!DateTime.TryParse(line[1], out dt))
+        //                    {
+        //                        throw new ArgumentException(file + ": invalid date: " + lines[1]);
+        //                    }
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Date]", ResultsPool, index), dt.ToString("yyyy-MM-dd")));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Date]", ResultsPool, index), dt.ToString("yyyy-MM-dd")));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Hole]", ResultsPool, index), line[9]));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Hole]", ResultsPool, index), line[9]));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Score]", ResultsPool, index), line[10]));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Score]", ResultsPool, index), line[10]));
 
-                            float winnings;
-                            if (!float.TryParse(line[11], out winnings))
-                            {
-                                throw new ArgumentException(file + ": winnings must be a decimal number: " + line[11]);
-                            }
-                            // round to a multiple of 5
-                            int w = ((int)((winnings + 2.5f) / 5f)) * 5;
+        //                    float winnings;
+        //                    if (!float.TryParse(line[11], out winnings))
+        //                    {
+        //                        throw new ArgumentException(file + ": winnings must be a decimal number: " + line[11]);
+        //                    }
+        //                    // round to a multiple of 5
+        //                    int w = ((int)((winnings + 2.5f) / 5f)) * 5;
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Winnings]", ResultsPool, index), w.ToString()));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Winnings]", ResultsPool, index), w.ToString()));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][TeamNumber]", ResultsPool, index), "0"));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][TeamNumber]", ResultsPool, index), "0"));
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][Name]", ResultsPool, index), line[8]));
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][Name]", ResultsPool, index), line[8]));
 
-                            GHINEntry gi = GHINEntry.FindName(GHINEntries, line[8]);
-                            int ghinNumber = 0;
+        //                    GHINEntry gi = GHINEntry.FindName(GHINEntries, line[8]);
+        //                    int ghinNumber = 0;
 
-                            if (gi != null)
-                            {
-                                ghinNumber = gi.GHIN;
+        //                    if (gi != null)
+        //                    {
+        //                        ghinNumber = gi.GHIN;
 
-                            }
+        //                    }
 
-                            kvpList.Add(new KeyValuePair<string, string>(
-                                string.Format("{0}[{1}][GHIN]", ResultsPool, index), ghinNumber.ToString()));
-                        }
-                        index++;
-                    }
-                }
-            }
-        }
+        //                    kvpList.Add(new KeyValuePair<string, string>(
+        //                        string.Format("{0}[{1}][GHIN]", ResultsPool, index), ghinNumber.ToString()));
+        //                }
+        //                index++;
+        //            }
+        //        }
+        //    }
+        //}
 
         private void AddChitsEntries(string file, List<KeyValuePair<string, string>> kvpList)
         {
@@ -1158,6 +1170,377 @@ namespace WebAdmin.ViewModel
             return masterList;
         }
 
+        private int findCol(string[] line, string header, string fullPath)
+        {
+            for (int col = 0; col < line.Length; col++)
+            {
+                if (string.Compare(line[col], header, true) == 0)
+                {
+                    return col;
+                }
+            }
+            throw new ApplicationException("Failed to find column header: " + header + " in " + fullPath);
+        }
+
+        private int[] findAllCol(string[] line, string header, string fullPath)
+        {
+            List<int> cols = new List<int>();
+
+            string lowerCaseHeader = header.ToLower();
+            for (int col = 0; col < line.Length; col++)
+            {
+                if (line[col].ToLower().Contains(lowerCaseHeader))
+                {
+                    cols.Add(col);
+                }
+            }
+
+            if (cols.Count == 0)
+            {
+                throw new ApplicationException("Failed to find column header: " + header + " in " + fullPath);
+            }
+
+            return cols.ToArray();
+        }
+
+        private void ReadGgResultsFile(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath))
+            {
+                return;
+            }
+            if (!File.Exists(fullPath))
+            {
+                throw new ApplicationException("File doesn't exist: " + fullPath);
+            }
+
+            _kvpChitsList = new List<KeyValuePair<string, string>>();
+            _kvpScoresList = new List<List<KeyValuePair<string, string>>>();
+
+            List<KeyValuePair<string, string>> kvpList = null;
+
+            List<Score> scoreList = new List<Score>();
+
+            int maxDivisions = 4;
+            bool findHeaders = true;
+            int dateColumn = -1;
+            int lastNameCol = -1;
+            int firstNameCol = -1;
+            int ghinCol = -1;
+            int teamIdCol = -1;
+            int divisionNameCol = -1;
+            int flightNameCol = -1;
+            int flightNumberCol = -1;
+            int[] roundScoreCols = null;
+            int[] cumulativeScoreCols = null;
+            int[] purseCols = null;
+            int[] rankCols = null;
+
+            int lineNumber = 1;
+            int chitsIndex = 0;
+            using (TextReader tr = new StreamReader(fullPath))
+            {
+                string[][] lines = CSVParser.Parse(tr);
+                foreach (var line in lines)
+                {
+                    if (findHeaders)
+                    {
+                        dateColumn = findCol(line, "Round Short Date", fullPath);
+                        lastNameCol = findCol(line, "Last Name", fullPath);
+                        firstNameCol = findCol(line, "First Name", fullPath);
+                        ghinCol = findCol(line, "GHIN", fullPath);
+                        teamIdCol = findCol(line, "Team Id", fullPath);
+                        divisionNameCol = findCol(line, "Division Name", fullPath);
+                        flightNameCol = findCol(line, "Flight Name", fullPath);
+                        flightNumberCol = findCol(line, "Flight Number", fullPath);
+                        
+                        // Find entries with multiple columns
+                        roundScoreCols = findAllCol(line, "Round Score", fullPath);
+                        cumulativeScoreCols = findAllCol(line, "Cumulative Score", fullPath);
+                        purseCols = findAllCol(line, "Purse", fullPath);
+                        rankCols = findAllCol(line, "Rank", fullPath);
+                        findHeaders = false;
+
+                        // TODO: error handling for columns not found
+                    }
+                    else
+                    {
+                        lineNumber++;
+
+                        //if (line.Length > 0)
+                        //{
+                        //    if (line.Length < 23)
+                        //    {
+                        //        throw new ApplicationException(file + ": does not have 23 fields: " + string.Join(", ", line));
+                        //    }
+
+                        //    if (string.IsNullOrEmpty(line[18]) && string.IsNullOrEmpty(line[19]) && string.IsNullOrEmpty(line[13]))
+                        //    {
+                        //        // empty line
+                        //        continue;
+                        //    }
+
+                        Score score = new Score();
+                        // Not all tournaments are 2 day.
+                        score.ScoreRound2 = -1;
+
+                        //    float scoreFloat;
+                        //    if (!float.TryParse(line[18], out scoreFloat))
+                        //    {
+                        //        throw new ArgumentException(file + ": score round 1 must be an integer: " + line[18]);
+                        //    }
+                        //    if (negative) scoreFloat = -scoreFloat;
+                        //    score.ScoreRound1 = (int)scoreFloat;
+
+                        int scoreColIndex = 0;
+                        score.ScoreRound1 = 0;
+                        for (; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
+                        {
+                            if (!string.IsNullOrEmpty(line[roundScoreCols[scoreColIndex]]))
+                            {
+                                int scoreRound1;
+                                if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound1))
+                                {
+                                    score.ScoreRound1 = scoreRound1;
+                                    break;
+                                }
+                            }
+                        }
+
+                        //    if (!string.IsNullOrEmpty(line[19]))
+                        //    {
+                        //        negative = false;
+                        //        if (line[19].StartsWith("("))
+                        //        {
+                        //            negative = true;
+                        //            line[19] = line[19].TrimStart('(');
+                        //        }
+                        //        if (!float.TryParse(line[19], out scoreFloat))
+                        //        {
+                        //            throw new ArgumentException(file + ": score round 2 must be an integer: " + line[19]);
+                        //        }
+                        //        if (negative) scoreFloat = -scoreFloat;
+                        //        score.ScoreRound2 = (int)scoreFloat;
+                        //    }
+
+                        score.ScoreRound2 = 0;
+                        for (scoreColIndex++; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
+                        {
+                            if (!string.IsNullOrEmpty(line[roundScoreCols[scoreColIndex]]))
+                            {
+                                int scoreRound2;
+                                if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound2))
+                                {
+                                    score.ScoreRound2 = scoreRound2;
+                                    break;
+                                }
+                            }
+                        }
+
+                        DateTime dateTime;
+                        if (!DateTime.TryParse(line[dateColumn], out dateTime))
+                        {
+                            throw new ArgumentException(fullPath + ": invalid date: " + lines[dateColumn]);
+                        }
+                        score.Date = dateTime;
+
+                        //    // flight looks like FLT. 1 (0-19), or just "1"
+                        //    int flight = 0;
+                        //    string flightString = line[11];
+                        //    int paren = flightString.IndexOf('(');
+                        //    if (paren > 0)
+                        //    {
+                        //        flightString = flightString.Substring(0, paren).Trim();
+                        //    }
+                        //    for (int i = flightString.Length - 1; i >= 0; i--)
+                        //    {
+                        //        if ((flightString[i] >= '0') && (flightString[i] <= '9'))
+                        //        {
+                        //            flight = flightString[i] - '0';
+                        //            break;
+                        //        }
+                        //    }
+                        //    if (flight == 0)
+                        //    {
+                        //        throw new ArgumentException("Unable to determine flight in: " + line[11]);
+                        //    }
+                        //    score.Flight = flight;
+
+                        int flightNumber = 0;
+                        if (!int.TryParse(line[flightNumberCol], out flightNumber))
+                        {
+                            throw new ArgumentException(fullPath + ": line " + lineNumber + ": unable to determine flight number");
+                        }
+                        score.Flight = flightNumber;
+
+                        //    int teamNumber;
+                        //    if (!int.TryParse(line[12], out teamNumber))
+                        //    {
+                        //        throw new ArgumentException(file + ": team number must be an integer: " + line[12]);
+                        //    }
+                        //    score.TeamNumber = teamNumber;
+
+                        int teamNumber = 0;
+                        if (!int.TryParse(line[teamIdCol], out teamNumber))
+                        {
+                            throw new ArgumentException(fullPath + ": line " + lineNumber + ": unable to determine team number");
+                        }
+                        score.TeamNumber = teamNumber;
+
+                        //    score.Name1 = line[13];
+                        //    score.Name2 = line[14];
+                        //    score.Name3 = line[15];
+                        //    score.Name4 = line[16];
+
+                        if (string.IsNullOrEmpty(line[lastNameCol]) || string.IsNullOrEmpty(line[firstNameCol]))
+                        {
+                            throw new ArgumentException(fullPath + ": line " + lineNumber + ": empty last name or first name");
+                        }
+                        score.Name1 = line[lastNameCol] + ", " + line[firstNameCol];
+
+                        //    negative = false;
+                        //    if (line[22].StartsWith("("))
+                        //    {
+                        //        negative = true;
+                        //        line[22] = line[22].TrimStart('(');
+                        //    }
+                        //    if (!float.TryParse(line[22], out scoreFloat))
+                        //    {
+                        //        throw new ArgumentException(file + ": score total must be an integer: " + line[22]);
+                        //    }
+                        //    if (negative) scoreFloat = -scoreFloat;
+                        //    score.ScoreTotal = (int)scoreFloat;
+
+                        int cumulativeScoreColIndex = 0;
+                        score.ScoreTotal= -1;
+                        int cumulativeScore = 0;
+                        for (; cumulativeScoreColIndex < cumulativeScoreCols.Length; cumulativeScoreColIndex++)
+                        {
+                            if (!string.IsNullOrEmpty(line[cumulativeScoreCols[cumulativeScoreColIndex]]))
+                            {
+                                if (int.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
+                                {
+                                    score.ScoreTotal = cumulativeScore;
+                                    break;
+                                }
+                            }
+                        }
+                        if (score.ScoreTotal == -1)
+                        {
+                            throw new ArgumentException(fullPath + ": line " + lineNumber + ": no cumulative score");
+                        }
+
+                        scoreList.Add(score);
+
+                        float purse;
+                        for (int purseColIndex = 0; purseColIndex < purseCols.Length; purseColIndex++)
+                        {
+                            string purseWithoutDollarSign = line[purseCols[purseColIndex]].Replace("$", "");
+                            if (float.TryParse(purseWithoutDollarSign, out purse))
+                            {
+                                if (purse > 0)
+                                {
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][Winnings]", ResultsChits, chitsIndex), purse.ToString()));
+
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][Date]", ResultsChits, chitsIndex), dateTime.ToString("yyyy-MM-dd")));
+
+                                    int place = 0;
+                                    for (int rankIndex = 0; rankIndex < rankCols.Length; rankIndex++)
+                                    {
+                                        if (int.TryParse(line[rankCols[rankIndex]], out place))
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][Place]", ResultsChits, chitsIndex), place.ToString()));
+
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][Score]", ResultsChits, chitsIndex), cumulativeScore.ToString()));
+
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][Flight]", ResultsChits, chitsIndex), flightNumber.ToString()));
+
+                                    if (!line[flightNameCol].ToLower().Contains("flight"))
+                                    {
+                                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                            string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), "Flight " + flightNumber));
+                                    }
+                                    else
+                                    {
+                                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                            string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), line[flightNameCol]));
+                                    }
+
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][TeamNumber]", ResultsChits, chitsIndex), teamNumber.ToString()));
+
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][Name]", ResultsChits, chitsIndex), score.Name1));
+
+                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                        string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), line[ghinCol]));
+
+                                    chitsIndex++;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            // Check to see if any round 2 is filled in
+            bool isRound1 = true;
+            foreach (var score in scoreList)
+            {
+                if (score.ScoreRound2 > 0)
+                {
+                    isRound1 = false;
+                    break;
+                }
+            }
+
+            int index = 0;
+            foreach (var score in scoreList)
+            {
+                // If both rounds are 0, then don't display it.  
+                // If round 1 is 0 and round 2 was not provided, then it is a 1 day and don't display it.
+                // If all of round 2 is 0, then this is day 1 of a 2 day tournament.
+                // If one round is large (non-stableford) and the other is 0 and the scores are from day 2 of a 2 day tournament, then don't display it. 
+                // If round 1 is 0, round 2 is valid, and not an eclectic, then the player was disqualified from round 1, but played round 2. (could be stableford)
+                // For a stableford, 0 is a valid value.
+                // Also, if the name field is empty, then skip it.
+                if (((score.ScoreRound1 == 0) && (score.ScoreRound2 == 0)) ||
+                    ((score.ScoreRound1 == 0) && (score.ScoreRound2 == -1)) ||
+                    ((score.ScoreRound1 > 55) && (score.ScoreRound2 == 0) && !isRound1) ||
+                    //((score.ScoreRound1 == 0) && (score.ScoreRound2 > 0) && !IsEclectic) ||
+                    string.IsNullOrEmpty(score.Name1.Trim()) || (score.Name1.Trim() == ","))
+                {
+                    continue;
+                }
+
+                if ((index % 40) == 0)
+                {
+                    kvpList = new List<KeyValuePair<string, string>>();
+                    _kvpScoresList.Add(kvpList);
+                    index = 0;
+                }
+
+                if (!isRound1 && IsEclectic)
+                {
+                    // don't use total as that is the sum of round 1 and round 2
+                    score.ScoreTotal = score.ScoreRound2;
+                }
+
+                score.AddToList(kvpList, index);
+
+                index++;
+            }
+        }
+
         private List<List<KeyValuePair<string, string>>> AddScoresEntries(string file)
         {
             if (string.IsNullOrEmpty(file))
@@ -1340,61 +1723,64 @@ namespace WebAdmin.ViewModel
         }
         
 
-        private void MergeResultsPoolKvp(List<KeyValuePair<string, string>> mergedList, List<KeyValuePair<string, string>> list)
-        {
-            int lastIndex = 0;
-            foreach (var kvp in mergedList)
-            {
-                string key = string.Format("{0}[{1}][Flight]", ResultsPool, lastIndex);
-                if (kvp.Key == key)
-                {
-                    lastIndex++;
-                }
-            }
+        //private void MergeResultsPoolKvp(List<KeyValuePair<string, string>> mergedList, List<KeyValuePair<string, string>> list)
+        //{
+        //    int lastIndex = 0;
+        //    foreach (var kvp in mergedList)
+        //    {
+        //        string key = string.Format("{0}[{1}][Flight]", ResultsPool, lastIndex);
+        //        if (kvp.Key == key)
+        //        {
+        //            lastIndex++;
+        //        }
+        //    }
 
-            if(lastIndex == 0)
-            {
-                mergedList.AddRange(list);
-                return;
-            }
+        //    if(lastIndex == 0)
+        //    {
+        //        mergedList.AddRange(list);
+        //        return;
+        //    }
 
-            foreach (var kvp in list)
-            {
-                int startBracket = "ResultsPool[".Length;
-                int endBracket = kvp.Key.IndexOf("][");
-                string s = kvp.Key.Substring(startBracket, endBracket - startBracket);
-                int oldIndex = int.Parse(s);
+        //    foreach (var kvp in list)
+        //    {
+        //        int startBracket = "ResultsPool[".Length;
+        //        int endBracket = kvp.Key.IndexOf("][");
+        //        string s = kvp.Key.Substring(startBracket, endBracket - startBracket);
+        //        int oldIndex = int.Parse(s);
 
-                KeyValuePair<string, string> newKvp;
-                string newKey = kvp.Key.Replace(kvp.Key.Substring(0, endBracket), "ResultsPool[" + (oldIndex + lastIndex));
-                newKvp = new KeyValuePair<string, string>(newKey, kvp.Value);
-                mergedList.Add(newKvp);
-            }
-        }
+        //        KeyValuePair<string, string> newKvp;
+        //        string newKey = kvp.Key.Replace(kvp.Key.Substring(0, endBracket), "ResultsPool[" + (oldIndex + lastIndex));
+        //        newKvp = new KeyValuePair<string, string>(newKey, kvp.Value);
+        //        mergedList.Add(newKvp);
+        //    }
+        //}
 
         private async Task SubmitCsv(object o)
         {
-            List<KeyValuePair<string, string>> kvpPoolList = new List<KeyValuePair<string, string>>();
+            //List<KeyValuePair<string, string>> kvpPoolList = new List<KeyValuePair<string, string>>();
 
-            foreach (var kvp in _csvDay1PoolKvp)
-            {
-                if (kvp != null)
-                {
-                    MergeResultsPoolKvp(kvpPoolList, kvp);
-                }
-            }
+            //foreach (var kvp in _csvDay1PoolKvp)
+            //{
+            //    if (kvp != null)
+            //    {
+            //        MergeResultsPoolKvp(kvpPoolList, kvp);
+            //    }
+            //}
 
-            foreach (var kvp in _csvDay2PoolKvp)
-            {
-                if (kvp != null)
-                {
-                    MergeResultsPoolKvp(kvpPoolList, kvp);
-                }
-            }
+            //foreach (var kvp in _csvDay2PoolKvp)
+            //{
+            //    if (kvp != null)
+            //    {
+            //        MergeResultsPoolKvp(kvpPoolList, kvp);
+            //    }
+            //}
 
-            List<List<KeyValuePair<string, string>>> scoresListList = MatchPlay 
-                ? AddMatchPlayEntries(CsvScoresFileName) 
-                : AddScoresEntries(CsvScoresFileName);
+            // TODO: match play
+            //List<List<KeyValuePair<string, string>>> scoresListList = MatchPlay 
+            //    ? AddMatchPlayEntries(CsvScoresFileName) 
+            //    : ;
+
+            ReadGgResultsFile(GgTournamentResultsCsvFileName);
 
             string submitted = string.Empty;
 
@@ -1404,17 +1790,17 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            if (kvpPoolList.Count > 0)
-            {
-                if (!await SubmitResultsCsv(kvpPoolList, "pool", true))
-                {
-                    MessageBox.Show("Failed to submit pool results.  Did not try to upload chits or scores.");
-                    return;
-                }
+            //if (kvpPoolList.Count > 0)
+            //{
+            //    if (!await SubmitResultsCsv(kvpPoolList, "pool", true))
+            //    {
+            //        MessageBox.Show("Failed to submit pool results.  Did not try to upload chits or scores.");
+            //        return;
+            //    }
 
-                if (!string.IsNullOrEmpty(submitted)) submitted += ", ";
-                submitted += "pool";
-            }
+            //    if (!string.IsNullOrEmpty(submitted)) submitted += ", ";
+            //    submitted += "pool";
+            //}
 
             if (_kvpChitsList.Count > 0)
             {
@@ -1428,11 +1814,11 @@ namespace WebAdmin.ViewModel
                 submitted += "chits";
             }
 
-            if (scoresListList != null)
+            if ((_kvpScoresList != null) && (_kvpScoresList.Count > 0))
             {
-                foreach (var kvpScoresList in scoresListList)
+                foreach (var kvpScoresList in _kvpScoresList)
                 {
-                    if (!await SubmitResultsCsv(kvpScoresList, MatchPlay ? "match play scores" : "scores", kvpScoresList == scoresListList[0]))
+                    if (!await SubmitResultsCsv(kvpScoresList, MatchPlay ? "match play scores" : "scores", kvpScoresList == _kvpScoresList[0]))
                     {
                         MessageBox.Show("Failed to submit scores results.");
                         return;
@@ -1443,7 +1829,7 @@ namespace WebAdmin.ViewModel
                 submitted += "scores";
             }
 
-            MessageBox.Show("Submitted results for " + submitted);
+            MessageBox.Show("Submitted results for " + submitted, "Upload Results");
         }
 
         private async Task ClearCsv(object o)
@@ -1467,11 +1853,11 @@ namespace WebAdmin.ViewModel
                 cleared += "chits";
             }
 
-            if (await ClearResults("pool"))
-            {
-                if (!string.IsNullOrEmpty(cleared)) cleared += ", ";
-                cleared += "pool";
-            }
+            //if (await ClearResults("pool"))
+            //{
+            //    if (!string.IsNullOrEmpty(cleared)) cleared += ", ";
+            //    cleared += "pool";
+            //}
 
             if (!string.IsNullOrEmpty(cleared))
             {
@@ -1483,27 +1869,27 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private void CSVDay1PoolAdjust(object o)
-        {
-            int poolIndex = int.Parse((string)o);
+        //private void CSVDay1PoolAdjust(object o)
+        //{
+        //    int poolIndex = int.Parse((string)o);
 
-            if (UpdateEventWinnings(_csvDay1PoolKvp[poolIndex], ResultsPool))
-            {
-                CsvDay1PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[poolIndex], ResultsPool).ToString("F0") + " Day 1";
-                SaveAdjustments(CsvDay1PoolFileName[poolIndex], _csvDay1PoolKvp[poolIndex]);
-            }
-        }
+        //    if (UpdateEventWinnings(_csvDay1PoolKvp[poolIndex], ResultsPool))
+        //    {
+        //        CsvDay1PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay1PoolKvp[poolIndex], ResultsPool).ToString("F0") + " Day 1";
+        //        SaveAdjustments(CsvDay1PoolFileName[poolIndex], _csvDay1PoolKvp[poolIndex]);
+        //    }
+        //}
 
-        private void CSVDay2PoolAdjust(object o)
-        {
-            int poolIndex = int.Parse((string)o);
+        //private void CSVDay2PoolAdjust(object o)
+        //{
+        //    int poolIndex = int.Parse((string)o);
 
-            if (UpdateEventWinnings(_csvDay2PoolKvp[poolIndex], ResultsPool))
-            {
-                CsvDay2PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[poolIndex], ResultsPool).ToString("F0") + " Day 2";
-                SaveAdjustments(CsvDay2PoolFileName[poolIndex], _csvDay2PoolKvp[poolIndex]);
-            }
-        }
+        //    if (UpdateEventWinnings(_csvDay2PoolKvp[poolIndex], ResultsPool))
+        //    {
+        //        CsvDay2PoolTotal[poolIndex] = "$" + GetWinningsTotal(_csvDay2PoolKvp[poolIndex], ResultsPool).ToString("F0") + " Day 2";
+        //        SaveAdjustments(CsvDay2PoolFileName[poolIndex], _csvDay2PoolKvp[poolIndex]);
+        //    }
+        //}
 
         private void ChitsAdjust(object o)
         {

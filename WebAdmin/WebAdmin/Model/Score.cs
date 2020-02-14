@@ -45,6 +45,14 @@ namespace WebAdmin
                                 string.Format("ResultsScores[{0}][ScoreTotal]", index), ScoreTotal.ToString()));
         }
 
+        public Score()
+        {
+            Name1 = string.Empty;
+            Name2 = string.Empty;
+            Name3 = string.Empty;
+            Name4 = string.Empty;
+        }
+
         private string HandleName(string name)
         {
             name = name.Trim();

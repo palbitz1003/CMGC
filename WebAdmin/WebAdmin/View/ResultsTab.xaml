@@ -65,6 +65,21 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center">GG Tournament Results CSV:</TextBlock>
+                <DockPanel Grid.Row="0" Grid.Column="1" LastChildFill="true"  VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                    <Button Margin="5" VerticalAlignment="Center" x:Name="GgTournamentResultsCsvBrowseButton" DockPanel.Dock="Right" 
+                             IsEnabled="{Binding Path=UpdateTournamentsAllowed}" Click="GgTournamentResultsCsvBrowseButton_Click">Browse ...</Button>
+                    <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="GgTournamentResultsCsvFileNameTextBox" IsReadOnly="true"
+                            Text="{Binding Path=GgTournamentResultsCsvFileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </DockPanel>
+            </Grid>
+            
+            <Grid Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center">CSV File Folder:</TextBlock>
                 <DockPanel Grid.Row="0" Grid.Column="1" LastChildFill="true"  VerticalAlignment="Center" HorizontalAlignment="Stretch">
                     <Button Margin="5" VerticalAlignment="Center" x:Name="CSVBrowseButton" DockPanel.Dock="Right" 
@@ -73,7 +88,7 @@
                             Text="{Binding Path=CSVFolderName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                 </DockPanel>
             </Grid>
-            <Grid>
+            <Grid Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>

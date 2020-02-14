@@ -106,6 +106,34 @@ namespace WebAdmin.View
             Day2Flight4PoolTextBox.Text = string.Empty;
         }
 
+        private void GgTournamentResultsCsvBrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Create OpenFileDialog 
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            if (!string.IsNullOrEmpty(GgTournamentResultsCsvFileNameTextBox.Text))
+            {
+                string dir = System.IO.Path.GetDirectoryName(GgTournamentResultsCsvFileNameTextBox.Text);
+                if (Directory.Exists(dir))
+                {
+                    dlg.InitialDirectory = dir;
+                }
+            }
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".csv";
+            dlg.Filter = "CSV Files (*.csv)|*.csv";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                GgTournamentResultsCsvFileNameTextBox.Text = dlg.FileName;
+            }
+        }
+
         private void BrowseCSVFolderButton_Click(object sender, RoutedEventArgs e)
         {
             ResetTextBoxes();
@@ -287,5 +315,7 @@ namespace WebAdmin.View
             //    HTMLPoolTextBox.Text = dlg.FileName;
             //}
         }
+
+        
     }
 }

@@ -51,7 +51,7 @@
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 
                     Command="{Binding LoadSignupsCommand}" >Load Signups</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimes" Height="22" VerticalAlignment="Bottom" 
-                    Command="{Binding LoadTeetimesCommand}">Load Tee Times</Button>
+                    Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
             <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding OrderBySignupDate}">Order By SignupDate</CheckBox>
             <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
         </DockPanel>
