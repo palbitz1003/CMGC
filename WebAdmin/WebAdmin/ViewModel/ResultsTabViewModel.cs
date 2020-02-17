@@ -1267,31 +1267,13 @@ namespace WebAdmin.ViewModel
                     {
                         lineNumber++;
 
-                        //if (line.Length > 0)
-                        //{
-                        //    if (line.Length < 23)
-                        //    {
-                        //        throw new ApplicationException(file + ": does not have 23 fields: " + string.Join(", ", line));
-                        //    }
-
-                        //    if (string.IsNullOrEmpty(line[18]) && string.IsNullOrEmpty(line[19]) && string.IsNullOrEmpty(line[13]))
-                        //    {
-                        //        // empty line
-                        //        continue;
-                        //    }
-
                         Score score = new Score();
-                        // Not all tournaments are 2 day.
+                        // Not all tournaments are 2 day. If round 2
+                        // is -1, then it wasn't provided.
                         score.ScoreRound2 = -1;
 
-                        //    float scoreFloat;
-                        //    if (!float.TryParse(line[18], out scoreFloat))
-                        //    {
-                        //        throw new ArgumentException(file + ": score round 1 must be an integer: " + line[18]);
-                        //    }
-                        //    if (negative) scoreFloat = -scoreFloat;
-                        //    score.ScoreRound1 = (int)scoreFloat;
-
+                        // Read round 1 score. 
+                        // There are 8 columns of "round score" (2 per division) data and only 2 of them will be filled in
                         int scoreColIndex = 0;
                         score.ScoreRound1 = 0;
                         for (; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
@@ -1307,22 +1289,8 @@ namespace WebAdmin.ViewModel
                             }
                         }
 
-                        //    if (!string.IsNullOrEmpty(line[19]))
-                        //    {
-                        //        negative = false;
-                        //        if (line[19].StartsWith("("))
-                        //        {
-                        //            negative = true;
-                        //            line[19] = line[19].TrimStart('(');
-                        //        }
-                        //        if (!float.TryParse(line[19], out scoreFloat))
-                        //        {
-                        //            throw new ArgumentException(file + ": score round 2 must be an integer: " + line[19]);
-                        //        }
-                        //        if (negative) scoreFloat = -scoreFloat;
-                        //        score.ScoreRound2 = (int)scoreFloat;
-                        //    }
-
+                        // Read round 2 score.
+                        // There are 8 columns of "round score" (2 per division) data and only 2 of them will be filled in
                         score.ScoreRound2 = 0;
                         for (scoreColIndex++; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
                         {
@@ -1337,6 +1305,7 @@ namespace WebAdmin.ViewModel
                             }
                         }
 
+                        // Read tournament date
                         DateTime dateTime;
                         if (!DateTime.TryParse(line[dateColumn], out dateTime))
                         {
@@ -1344,28 +1313,7 @@ namespace WebAdmin.ViewModel
                         }
                         score.Date = dateTime;
 
-                        //    // flight looks like FLT. 1 (0-19), or just "1"
-                        //    int flight = 0;
-                        //    string flightString = line[11];
-                        //    int paren = flightString.IndexOf('(');
-                        //    if (paren > 0)
-                        //    {
-                        //        flightString = flightString.Substring(0, paren).Trim();
-                        //    }
-                        //    for (int i = flightString.Length - 1; i >= 0; i--)
-                        //    {
-                        //        if ((flightString[i] >= '0') && (flightString[i] <= '9'))
-                        //        {
-                        //            flight = flightString[i] - '0';
-                        //            break;
-                        //        }
-                        //    }
-                        //    if (flight == 0)
-                        //    {
-                        //        throw new ArgumentException("Unable to determine flight in: " + line[11]);
-                        //    }
-                        //    score.Flight = flight;
-
+                        // Read flight number
                         int flightNumber = 0;
                         if (!int.TryParse(line[flightNumberCol], out flightNumber))
                         {
@@ -1373,13 +1321,7 @@ namespace WebAdmin.ViewModel
                         }
                         score.Flight = flightNumber;
 
-                        //    int teamNumber;
-                        //    if (!int.TryParse(line[12], out teamNumber))
-                        //    {
-                        //        throw new ArgumentException(file + ": team number must be an integer: " + line[12]);
-                        //    }
-                        //    score.TeamNumber = teamNumber;
-
+                        // Read team number
                         int teamNumber = 0;
                         if (!int.TryParse(line[teamIdCol], out teamNumber))
                         {
@@ -1398,19 +1340,7 @@ namespace WebAdmin.ViewModel
                         }
                         score.Name1 = line[lastNameCol] + ", " + line[firstNameCol];
 
-                        //    negative = false;
-                        //    if (line[22].StartsWith("("))
-                        //    {
-                        //        negative = true;
-                        //        line[22] = line[22].TrimStart('(');
-                        //    }
-                        //    if (!float.TryParse(line[22], out scoreFloat))
-                        //    {
-                        //        throw new ArgumentException(file + ": score total must be an integer: " + line[22]);
-                        //    }
-                        //    if (negative) scoreFloat = -scoreFloat;
-                        //    score.ScoreTotal = (int)scoreFloat;
-
+                        // Read total (cumulative) score
                         int cumulativeScoreColIndex = 0;
                         score.ScoreTotal= -1;
                         int cumulativeScore = 0;
@@ -1425,13 +1355,16 @@ namespace WebAdmin.ViewModel
                                 }
                             }
                         }
-                        if (score.ScoreTotal == -1)
-                        {
-                            throw new ArgumentException(fullPath + ": line " + lineNumber + ": no cumulative score");
-                        }
+                        // There will only be a cumulative score if there is at least a round 1 score.
+                        //if ((score.ScoreTotal == -1) && (score.ScoreRound1 != 0))
+                        //{
+                            // Cumulative score can be DNF or NS. Leave it at -1. Filter out these entries below.
+                            //throw new ArgumentException(fullPath + ": line " + lineNumber + ": no cumulative score");
+                        //}
 
                         scoreList.Add(score);
 
+                        // If the purse is non-zero, there are chits to report
                         float purse;
                         for (int purseColIndex = 0; purseColIndex < purseCols.Length; purseColIndex++)
                         {
@@ -1480,6 +1413,9 @@ namespace WebAdmin.ViewModel
                                     _kvpChitsList.Add(new KeyValuePair<string, string>(
                                         string.Format("{0}[{1}][Name]", ResultsChits, chitsIndex), score.Name1));
 
+                                    // TODO: do I have to merge the team results into a single entry by filling in the
+                                    // names of the other players?
+
                                     _kvpChitsList.Add(new KeyValuePair<string, string>(
                                         string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), line[ghinCol]));
 
@@ -1503,6 +1439,8 @@ namespace WebAdmin.ViewModel
                 }
             }
 
+            // Create the key-value-pairs for the scores data. Filter out
+            // players for which there is no data for rounds.
             int index = 0;
             foreach (var score in scoreList)
             {
@@ -1516,12 +1454,14 @@ namespace WebAdmin.ViewModel
                 if (((score.ScoreRound1 == 0) && (score.ScoreRound2 == 0)) ||
                     ((score.ScoreRound1 == 0) && (score.ScoreRound2 == -1)) ||
                     ((score.ScoreRound1 > 55) && (score.ScoreRound2 == 0) && !isRound1) ||
+                    ((score.ScoreRound1 != 0) && (score.ScoreRound2 == 0) && !isRound1 && (score.ScoreTotal == -1)) ||
                     //((score.ScoreRound1 == 0) && (score.ScoreRound2 > 0) && !IsEclectic) ||
                     string.IsNullOrEmpty(score.Name1.Trim()) || (score.Name1.Trim() == ","))
                 {
                     continue;
                 }
 
+                // Split up the data so it is uploaded in several "chunks"
                 if ((index % 40) == 0)
                 {
                     kvpList = new List<KeyValuePair<string, string>>();
@@ -1531,10 +1471,12 @@ namespace WebAdmin.ViewModel
 
                 if (!isRound1 && IsEclectic)
                 {
+                    // TODO: does GG report eclectic scores correctly?
                     // don't use total as that is the sum of round 1 and round 2
                     score.ScoreTotal = score.ScoreRound2;
                 }
 
+                // Add the score data to the key-value-pair list
                 score.AddToList(kvpList, index);
 
                 index++;
