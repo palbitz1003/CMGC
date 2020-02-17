@@ -42,6 +42,12 @@ namespace WebAdmin
         private bool _matchPlay;
         public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); } }
 
+        private int _teamSize = 1;
+        public int TeamSize { get { return _teamSize; } set { _teamSize = value; OnPropertyChanged(); } }
+
+        private bool _isStableford;
+        public bool IsStableford { get { return _isStableford; } set { _isStableford = value; OnPropertyChanged(); } }
+
         public override string ToString()
         {
             return StartDate.ToShortDateString() + ": " + Name;

@@ -547,8 +547,7 @@ namespace WebAdmin.ViewModel
                 {
                     tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id");
 
-                    int teamId = 1;
-                    int playerNumber = 1;
+                    int teamId = 0;
                     for (int teeTimeNumber = 0; teeTimeNumber < TournamentTeeTimes.Count; teeTimeNumber++)
                     {
                         for (int player = 0; player < 4; player++)
@@ -589,6 +588,22 @@ namespace WebAdmin.ViewModel
                             // Only write out tee time entries if there is a player
                             if (!string.IsNullOrEmpty(playerLastName))
                             {
+                                if ((TournamentNames[TournamentNameIndex].TeamSize == 4) && (player == 0))
+                                {
+                                    // Update team ID on the first player of the group
+                                    teamId++;
+                                }
+                                else if ((TournamentNames[TournamentNameIndex].TeamSize == 2) && (player % 2 == 0))
+                                {
+                                    // Update team ID on the first player and third player of group
+                                    teamId++;
+                                }
+                                else if (TournamentNames[TournamentNameIndex].TeamSize == 1)
+                                {
+                                    // For individual tournaments, update the team number per player
+                                    teamId++;
+                                }
+
                                 // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
                                 //string handle = string.Empty;
                                 //if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
@@ -603,19 +618,7 @@ namespace WebAdmin.ViewModel
                                 //tw.Write(handle + ",");
                                 tw.Write(playerGhin + ",");
                                 tw.Write(teamId);
-                                tw.WriteLine();
-
-                                // TODO: need to update team Id 
-                                // based on number of players per team ...
-                                //if (playerNumber % 2 == 0)
-                                //{
-                                //    teamId++;
-                                //}
-
-                                // TODO: assumes individual play for now ...
-                                teamId++;
-
-                                playerNumber++;
+                                tw.WriteLine();                             
                             }
                         }
 

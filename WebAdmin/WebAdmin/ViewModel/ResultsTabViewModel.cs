@@ -1267,6 +1267,12 @@ namespace WebAdmin.ViewModel
                     {
                         lineNumber++;
 
+                        // skip empty lines
+                        if (string.IsNullOrEmpty(line[dateColumn]) && string.IsNullOrEmpty(line[lastNameCol]))
+                        {
+                            continue;
+                        }
+
                         Score score = new Score();
                         // Not all tournaments are 2 day. If round 2
                         // is -1, then it wasn't provided.
@@ -1309,7 +1315,7 @@ namespace WebAdmin.ViewModel
                         DateTime dateTime;
                         if (!DateTime.TryParse(line[dateColumn], out dateTime))
                         {
-                            throw new ArgumentException(fullPath + ": invalid date: " + lines[dateColumn]);
+                            throw new ArgumentException(fullPath + ": line " + lineNumber + ": invalid date: " + lines[dateColumn]);
                         }
                         score.Date = dateTime;
 
