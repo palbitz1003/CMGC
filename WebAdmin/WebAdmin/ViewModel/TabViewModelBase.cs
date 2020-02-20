@@ -224,89 +224,103 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        protected List<TeeTimeRequest> LoadSignupsFromWebResponse(string webResponse)
+        protected List<TeeTimeRequest> LoadSignupsFromWebResponseJson(string webResponse)
         {
-            List<TeeTimeRequest> teeTimeRequests = new List<TeeTimeRequest>();
+            var jss = new JavaScriptSerializer();
+            List<TeeTimeRequest> teeTimeRequests = jss.Deserialize<List<TeeTimeRequest>>(webResponse);
 
-            string[] responseLines = webResponse.Split('\n');
-
-            string[][] lines = CSVParser.Parse(responseLines);
-            int lineNumber = 0;
-            for (int lineIndex = 0, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
+            foreach (var teeTimeRequest in teeTimeRequests)
             {
-                lineNumber++;
-                string[] fields = lines[lineIndex];
-
-                if (fields.Length == 0) continue;
-
-                TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
-
-                teeTimeRequest.Preference = fields[0];
-
-                float f;
-                if (!float.TryParse(fields[1], out f))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: invalid payment made: {1}", lineNumber, responseLines[lineNumber - 1]));
-                }
-                teeTimeRequest.PaymentMade = f;
-
-                if (!float.TryParse(fields[2], out f))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: invalid payment due: {1}", lineNumber, responseLines[lineNumber - 1]));
-                }
-                teeTimeRequest.PaymentDue = f;
-
-                teeTimeRequest.PaymentDateTime = fields[3];
-                teeTimeRequest.AccessCode = fields[4];
                 teeTimeRequest.Paid = (teeTimeRequest.PaymentMade >= teeTimeRequest.PaymentDue);
                 teeTimeRequest.ModifiedPaid = teeTimeRequest.Paid;  // for payments tab
-
-                int signupKey;
-                if(!int.TryParse(fields[5], out signupKey))
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0}: invalid signup key: {1}", lineNumber, responseLines[lineNumber - 1]));
-                }
-                teeTimeRequest.SignupKey = signupKey;
-
-                teeTimeRequest.PayerName = fields[6];
-                teeTimeRequest.PayerEmail = fields[7];
-
-                // The rest of the fields are Name/GHIN/Extra triples
-                int playerPosition = 1;
-                for (int i = 8; i < fields.Length; i += 3)
-                {
-                    if (string.IsNullOrWhiteSpace(fields[i]))
-                    {
-                        continue;
-                    }
-
-                    Player player = new Player();
-                    player.Position = playerPosition;
-                    playerPosition++;
-                    player.Name = fields[i].Trim();
-                    if (string.IsNullOrWhiteSpace(fields[i + 1]))
-                    {
-                        throw new ArgumentException(
-                            string.Format("Website response: line {0}: missing GHIN number: {1}", lineNumber,
-                                responseLines[lineNumber - 1]));
-                    }
-                    player.GHIN = fields[i + 1].Trim();
-                    player.Extra = fields[i + 2].Trim();
-
-
-                    teeTimeRequest.Players.Add(player);
-                }
-
-                if (teeTimeRequest.Players.Count == 0)
-                {
-                    throw new ArgumentException(string.Format("Website response: line {0} does not have any players: {1}", lineNumber, responseLines[lineNumber - 1]));
-                }
-
-                teeTimeRequests.Add(teeTimeRequest);
             }
 
             return teeTimeRequests;
-
         }
+
+        //protected List<TeeTimeRequest> LoadSignupsFromWebResponse(string webResponse)
+        //{
+        //    List<TeeTimeRequest> teeTimeRequests = new List<TeeTimeRequest>();
+
+        //    string[] responseLines = webResponse.Split('\n');
+
+        //    string[][] lines = CSVParser.Parse(responseLines);
+        //    int lineNumber = 0;
+        //    for (int lineIndex = 0, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
+        //    {
+        //        lineNumber++;
+        //        string[] fields = lines[lineIndex];
+
+        //        if (fields.Length == 0) continue;
+
+        //        TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
+
+        //        teeTimeRequest.Preference = fields[0];
+
+        //        float f;
+        //        if (!float.TryParse(fields[1], out f))
+        //        {
+        //            throw new ArgumentException(string.Format("Website response: line {0}: invalid payment made: {1}", lineNumber, responseLines[lineNumber - 1]));
+        //        }
+        //        teeTimeRequest.PaymentMade = f;
+
+        //        if (!float.TryParse(fields[2], out f))
+        //        {
+        //            throw new ArgumentException(string.Format("Website response: line {0}: invalid payment due: {1}", lineNumber, responseLines[lineNumber - 1]));
+        //        }
+        //        teeTimeRequest.PaymentDue = f;
+
+        //        teeTimeRequest.PaymentDateTime = fields[3];
+        //        teeTimeRequest.AccessCode = fields[4];
+        //        teeTimeRequest.Paid = (teeTimeRequest.PaymentMade >= teeTimeRequest.PaymentDue);
+        //        teeTimeRequest.ModifiedPaid = teeTimeRequest.Paid;  // for payments tab
+
+        //        int signupKey;
+        //        if(!int.TryParse(fields[5], out signupKey))
+        //        {
+        //            throw new ArgumentException(string.Format("Website response: line {0}: invalid signup key: {1}", lineNumber, responseLines[lineNumber - 1]));
+        //        }
+        //        teeTimeRequest.SignupKey = signupKey;
+
+        //        teeTimeRequest.PayerName = fields[6];
+        //        teeTimeRequest.PayerEmail = fields[7];
+
+        //        // The rest of the fields are Name/GHIN/Extra triples
+        //        int playerPosition = 1;
+        //        for (int i = 8; i < fields.Length; i += 3)
+        //        {
+        //            if (string.IsNullOrWhiteSpace(fields[i]))
+        //            {
+        //                continue;
+        //            }
+
+        //            Player player = new Player();
+        //            player.Position = playerPosition;
+        //            playerPosition++;
+        //            player.Name = fields[i].Trim();
+        //            if (string.IsNullOrWhiteSpace(fields[i + 1]))
+        //            {
+        //                throw new ArgumentException(
+        //                    string.Format("Website response: line {0}: missing GHIN number: {1}", lineNumber,
+        //                        responseLines[lineNumber - 1]));
+        //            }
+        //            player.GHIN = fields[i + 1].Trim();
+        //            player.Extra = fields[i + 2].Trim();
+
+
+        //            teeTimeRequest.Players.Add(player);
+        //        }
+
+        //        if (teeTimeRequest.Players.Count == 0)
+        //        {
+        //            throw new ArgumentException(string.Format("Website response: line {0} does not have any players: {1}", lineNumber, responseLines[lineNumber - 1]));
+        //        }
+
+        //        teeTimeRequests.Add(teeTimeRequest);
+        //    }
+
+        //    return teeTimeRequests;
+
+        //}
     }
 }

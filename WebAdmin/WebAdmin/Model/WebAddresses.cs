@@ -22,7 +22,7 @@ namespace WebAdmin
         public const string SubmitSignUps = "/submit_signups.php";
         public const string SubmitDues = "/submit_dues_payment.php";
 
-        public const string GetSignups = "/get_signups.php";
+        public const string GetSignups = "/get_signups_json.php";
         public const string GetTeeTimes = "/get_tee_times.php";
         public const string GetTournamentNames = "/get_tournament_names_json.php";
         public const string GetTournament = "/get_tournament_json.php";

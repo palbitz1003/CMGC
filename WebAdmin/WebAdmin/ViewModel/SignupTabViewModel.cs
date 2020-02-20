@@ -123,8 +123,6 @@ namespace WebAdmin.ViewModel
             set { _tournamentTeeTimes = value; OnPropertyChanged(); }
         }
 
-        private List<TeeTime> _removedTeeTimes;
-
         private string _ggTeeTimeFile;
         public string GgTeeTimeFile
         {
@@ -188,7 +186,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand AddPlayerCommand { get { return new ModelCommand(AddPlayer); } }
 
-        public ICommand PrintCommand { get { return new ModelCommand(Print); } }
+        //public ICommand PrintCommand { get { return new ModelCommand(Print); } }
 
         public ICommand UploadGgCsvCommand { get { return new ModelCommand(UploadGgCsv); } }
 
@@ -202,7 +200,6 @@ namespace WebAdmin.ViewModel
             TeeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
             TeeTimeRequestsAssigned = new TrulyObservableCollection<TeeTimeRequest>();
             TournamentTeeTimes = new TrulyObservableCollection<TeeTime>();
-            _removedTeeTimes = new List<TeeTime>();
             TodoSelection = -1;
             RemoveSelection = -1;
             TeeTimes = new List<string>();
@@ -214,7 +211,6 @@ namespace WebAdmin.ViewModel
 
         public void InitTeeTimes()
         {
-            _removedTeeTimes.Clear();
             ClearPlayers();
             TournamentTeeTimes.Clear();
             if (File.Exists("TeeTimes.txt"))
@@ -224,19 +220,18 @@ namespace WebAdmin.ViewModel
             else
             {
                 // TODO shotgun
-                foreach (var time in _defaultTeeTimes)
+                for(int i = FirstTeeTimeIndex; i < _defaultTeeTimes.Count; i++)
                 {
-                    TournamentTeeTimes.Add(new TeeTime { StartTime = time });
+                    TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
                 }
             }
 
-            // TODO shotgun
+            // Only allow the start time to be shifted by 2hrs (the first 16
+            // tee times)
             for(int i = 0; (i < 16) && (i < TournamentTeeTimes.Count); i++)
             {
                 TeeTimes.Add(TournamentTeeTimes[i].StartTime);
             }
-
-            UpdateTournamentTeeTimes();
         }
 
         public void SortTeeTimeRequests()
@@ -257,34 +252,83 @@ namespace WebAdmin.ViewModel
 
         private void UpdateTournamentTeeTimes()
         {
-            for(int i = _removedTeeTimes.Count - 1; i >= 0; i--)
-            {
-                TournamentTeeTimes.Insert(0, _removedTeeTimes[i]);
-            }
-            _removedTeeTimes.Clear();
+            var oldTournamentTeeTimes = TournamentTeeTimes;
+            TournamentTeeTimes = new TrulyObservableCollection<TeeTime>();
+            InitTeeTimes();
 
-            for(int i = 0; i < TournamentTeeTimes.Count; i++)
+            int i;
+            for(i = 0; (i < oldTournamentTeeTimes.Count) && (i < TournamentTeeTimes.Count); i++)
             {
-                if(TournamentTeeTimes[i].StartTime != TeeTimes[FirstTeeTimeIndex])
+                if (oldTournamentTeeTimes[i].Players.Count > 0)
                 {
-                    _removedTeeTimes.Add(TournamentTeeTimes[i]);
+                    // Copy players to new list
+                    foreach (var player in oldTournamentTeeTimes[i].Players)
+                    {
+                        TournamentTeeTimes[i].AddPlayer(player);
+                    }
+
+                    // Need to update the TeeTime object in the assigned list to the new TeeTime object
+                    for (int assignedIndex = 0; assignedIndex < TeeTimeRequestsAssigned.Count; assignedIndex++)
+                    {
+                        if (TeeTimeRequestsAssigned[assignedIndex].TeeTime == oldTournamentTeeTimes[i])
+                        {
+                            TeeTimeRequestsAssigned[assignedIndex].TeeTime = TournamentTeeTimes[i];
+                            break;
+                        }
+                    }
                 }
-                else
+            }
+
+            // If there were people at the end of the old list that would
+            // lose their tee time, put them back in the unassigned list.
+            for (; i < oldTournamentTeeTimes.Count; i++)
+            {
+                if (oldTournamentTeeTimes[i].Players.Count > 0)
                 {
+                    // Copy the list, since removing a player from the unassigned list
+                    // will alter the player list.
+                    List<Player> players = new List<Player>();
+                    foreach (var player in oldTournamentTeeTimes[i].Players)
+                    {
+                        players.Add(player);
+                    }
+                    foreach (var playerToRemove in players)
+                    {
+                        var removed = false;
+                        // Start at the end of the assigned list to find the player
+                        for (int assignedIndex = TeeTimeRequestsAssigned.Count - 1; !removed && (assignedIndex >= 0); assignedIndex--)
+                        {
+                            // Go through all the players in the tee time request. Copy
+                            // the list first since removing a tee time request from the unassigned
+                            // list will change the list.
+                            List<Player> assignedPlayers = new List<Player>();
+                            foreach (var player in TeeTimeRequestsAssigned[assignedIndex].Players)
+                            {
+                                assignedPlayers.Add(player);
+                            }
+                            for (int assignedPlayerIndex = 0; !removed && (assignedPlayerIndex < assignedPlayers.Count); assignedPlayerIndex++)
+                            {
+                                // If the players match, remove them from both the assigned list and the tee time
+                                if (assignedPlayers[assignedPlayerIndex] == playerToRemove)
+                                {
+                                    RemoveSelectionChanged(assignedIndex);
+                                    removed = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Reset the current tee time selection to be
+            // the first tee time with openings.
+            i = 0;
+            for (; i < TournamentTeeTimes.Count; i++)
+            {
+                if (TournamentTeeTimes[i].Players.Count < 4)
+                {
+                    TeeTimeSelection = i;
                     break;
-                }
-            }
-
-            if (TournamentTeeTimes.Count == _removedTeeTimes.Count)
-            {
-                // Something went wrong.  Don't remove anything.
-                _removedTeeTimes.Clear();
-            }
-            else
-            {
-                foreach (var teeTime in _removedTeeTimes)
-                {
-                    TournamentTeeTimes.Remove(teeTime);
                 }
             }
         }
@@ -354,7 +398,7 @@ namespace WebAdmin.ViewModel
             // Check for room in this tee time
             if (teeTimeRequest.Players.Count > (4 - teeTime.Players.Count))
             {
-                MessageBox.Show("Not enough room for all players at this tee time");
+                MessageBox.Show("Not enough room for all players at " + teeTime.StartTime);
                 TodoSelection = -1;
                 return;
             }
@@ -545,7 +589,7 @@ namespace WebAdmin.ViewModel
 
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
-                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id");
+                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email");
 
                     int teamId = 0;
                     for (int teeTimeNumber = 0; teeTimeNumber < TournamentTeeTimes.Count; teeTimeNumber++)
@@ -556,6 +600,7 @@ namespace WebAdmin.ViewModel
                             string playerLastName = string.Empty;
                             string playerFirstName = string.Empty;
                             string playerGhin = string.Empty;
+                            string playerEmail = string.Empty;
 
                             if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
                             {
@@ -583,6 +628,12 @@ namespace WebAdmin.ViewModel
                                     }
                                 }
                                 playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                                playerEmail = TournamentTeeTimes[teeTimeNumber].Players[player].Email;
+                                // Make sure the email address is valid
+                                if (string.IsNullOrEmpty(playerEmail) || !playerEmail.Contains("@"))
+                                {
+                                    playerEmail = string.Empty;
+                                }
                             }
 
                             // Only write out tee time entries if there is a player
@@ -617,7 +668,8 @@ namespace WebAdmin.ViewModel
                                 tw.Write(playerFirstName + ",");
                                 //tw.Write(handle + ",");
                                 tw.Write(playerGhin + ",");
-                                tw.Write(teamId);
+                                tw.Write(teamId + ",");
+                                tw.Write(playerEmail);
                                 tw.WriteLine();                             
                             }
                         }
@@ -677,7 +729,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequestsUnassigned.Clear();
                     TeeTimeRequestsAssigned.Clear();
 
-                    TeeTimeRequests = LoadSignupsFromWebResponse(responseString);
+                    TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
 
                     if (OrderBySignupDate)
                     {
@@ -738,7 +790,6 @@ namespace WebAdmin.ViewModel
             if (!CheckContinue()) return;
 
             _teeTimesDirty = false;
-            _removedTeeTimes.Clear();
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(WebAddresses.BaseAddress);
@@ -825,7 +876,6 @@ namespace WebAdmin.ViewModel
 
         public void LoadTeeTimesFromFile(string fileName)
         {
-            _removedTeeTimes.Clear();
             TournamentTeeTimes.Clear();
             TeeTimes.Clear();
             using (TextReader tr = new StreamReader(fileName))
@@ -953,7 +1003,7 @@ namespace WebAdmin.ViewModel
 
             AddPlayerWindow apw = new AddPlayerWindow();
             Player player = new Player();
-            player.Position = 1;
+            player.Position = 0;
             apw.DataContext = player;
             apw.Player = player;
             apw.GHINList = ghinList;
@@ -965,11 +1015,6 @@ namespace WebAdmin.ViewModel
                 TeeTimeRequest ttr = new TeeTimeRequest();
                 ttr.Players = new TrulyObservableCollection<Player> { player };
                 ttr.Preference = "None";
-
-                // Only the last name is entered on the web site, so 
-                // only use the last name here.
-                string[] fields = player.Name.Split(',');
-                player.Name = fields[0].Trim();
 
                 foreach (var request in TeeTimeRequestsUnassigned)
                 {
@@ -1023,7 +1068,6 @@ namespace WebAdmin.ViewModel
 
             using (TextReader tr = new StreamReader(GgTeeTimeFile))
             {
-                _removedTeeTimes.Clear();
                 ClearPlayers();
                 TournamentTeeTimes.Clear();
 
@@ -1278,36 +1322,36 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private void Print(object o)
-        {
-            _teeTimesDirty = false;
+        //private void Print(object o)
+        //{
+        //    _teeTimesDirty = false;
 
-            var diag = new PrintDialog();
-            var paragraph = new Paragraph();
-            foreach (var teeTime in TournamentTeeTimes)
-            {
-                if (teeTime.Players.Count > 0)
-                {
-                    paragraph.Inlines.Add(new Run(teeTime + Environment.NewLine));
-                }
-            }
+        //    var diag = new PrintDialog();
+        //    var paragraph = new Paragraph();
+        //    foreach (var teeTime in TournamentTeeTimes)
+        //    {
+        //        if (teeTime.Players.Count > 0)
+        //        {
+        //            paragraph.Inlines.Add(new Run(teeTime + Environment.NewLine));
+        //        }
+        //    }
 
-            if (paragraph.Inlines.Count > 0)
-            {
-                var doc = new FlowDocument(paragraph);
-                doc.PagePadding = new Thickness(100);
+        //    if (paragraph.Inlines.Count > 0)
+        //    {
+        //        var doc = new FlowDocument(paragraph);
+        //        doc.PagePadding = new Thickness(100);
 
-                bool? print = diag.ShowDialog();
-                if (print == true)
-                {
-                    diag.PrintDocument(((IDocumentPaginatorSource) doc).DocumentPaginator, "Tee Times");
-                }
-            }
-            else
-            {
-                MessageBox.Show("There are no tee times with players assigned");
-            }
-        }
+        //        bool? print = diag.ShowDialog();
+        //        if (print == true)
+        //        {
+        //            diag.PrintDocument(((IDocumentPaginatorSource) doc).DocumentPaginator, "Tee Times");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        MessageBox.Show("There are no tee times with players assigned");
+        //    }
+        //}
 
         private void SwitchToGroupMode()
         {

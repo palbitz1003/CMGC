@@ -23,6 +23,7 @@ namespace WebAdmin.View
         public Player Player { get; set; }
 
         private string _ghin;
+        private string _email;
 
         public AddPlayerWindow()
         {
@@ -56,6 +57,7 @@ namespace WebAdmin.View
                     PlayerTextBox.Text = AutoCompleteFeedback.Text;
                     Player.Name = AutoCompleteFeedback.Text;
                     Player.GHIN = _ghin;
+                    Player.Email = _email;
                     AutoCompleteFeedback.Text = string.Empty;
                     e.Handled = true;
                 }
@@ -70,11 +72,13 @@ namespace WebAdmin.View
                 {
                     AutoCompleteFeedback.Text = player.LastNameFirstName;
                     _ghin = player.GHIN.ToString();
+                    _email = player.Email;
                     return;
                 }
             }
             AutoCompleteFeedback.Text = null;
             _ghin = string.Empty;
+            _email = string.Empty;
         }
 
         private void PlayerTextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -84,6 +88,7 @@ namespace WebAdmin.View
                 PlayerTextBox.Text = AutoCompleteFeedback.Text;
                 Player.Name = AutoCompleteFeedback.Text;
                 Player.GHIN = _ghin;
+                Player.Email = _email;
                 AutoCompleteFeedback.Text = string.Empty;
             }
         }

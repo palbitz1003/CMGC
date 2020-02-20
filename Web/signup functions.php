@@ -213,7 +213,7 @@ function GetPlayersForSignUp($connection, $signUpKey){
 	}
 	
 	$signups->bind_result ( $key, $tournament, $position, $GHIN, $LastName, $extra );
-	
+
 	$players = Array();
 	while ( $signups->fetch () ) {
 		$playerSignUp = new PlayerSignUpClass();

@@ -238,7 +238,7 @@ namespace WebAdmin.ViewModel
                     Logging.Log("LoadSignupsFromWeb", responseString);
 
                     TeeTimeRequests.Clear();
-                    List<TeeTimeRequest> ttr = LoadSignupsFromWebResponse(responseString);
+                    List<TeeTimeRequest> ttr = LoadSignupsFromWebResponseJson(responseString);
 
                     PaymentsDue = 0;
                     PaymentsMade = 0;
