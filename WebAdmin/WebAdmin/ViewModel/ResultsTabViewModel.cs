@@ -1236,6 +1236,8 @@ namespace WebAdmin.ViewModel
             int[] purseCols = null;
             int[] rankCols = null;
 
+            bool isMultiDay = TournamentNames[TournamentNameIndex].StartDate != TournamentNames[TournamentNameIndex].EndDate;
+
             int lineNumber = 1;
             int chitsIndex = 0;
             using (TextReader tr = new StreamReader(fullPath))
@@ -1253,10 +1255,21 @@ namespace WebAdmin.ViewModel
                         divisionNameCol = findCol(line, "Division Name", fullPath);
                         flightNameCol = findCol(line, "Flight Name", fullPath);
                         flightNumberCol = findCol(line, "Flight Number", fullPath);
-                        
+
                         // Find entries with multiple columns
-                        roundScoreCols = findAllCol(line, "Round Score", fullPath);
-                        cumulativeScoreCols = findAllCol(line, "Cumulative Score", fullPath);
+                        try
+                        {
+                            roundScoreCols = findAllCol(line, "Round Score", fullPath);
+                        }
+                        catch
+                        {
+                            // For a 1 day, it is only called "Score"
+                            roundScoreCols = findAllCol(line, "Score", fullPath);
+                        }
+                        if (isMultiDay)
+                        {
+                            cumulativeScoreCols = findAllCol(line, "Cumulative Score", fullPath);
+                        }
                         purseCols = findAllCol(line, "Purse", fullPath);
                         rankCols = findAllCol(line, "Rank", fullPath);
                         findHeaders = false;
@@ -1327,6 +1340,8 @@ namespace WebAdmin.ViewModel
                         }
                         score.Flight = flightNumber;
 
+                        string lastNameFirstName = line[lastNameCol] + ", " + line[firstNameCol];
+
                         // Read team number
                         int teamNumber = 0;
                         if (!int.TryParse(line[teamIdCol], out teamNumber))
@@ -1335,106 +1350,94 @@ namespace WebAdmin.ViewModel
                         }
                         score.TeamNumber = teamNumber;
 
-                        //    score.Name1 = line[13];
-                        //    score.Name2 = line[14];
-                        //    score.Name3 = line[15];
-                        //    score.Name4 = line[16];
+                        // The results file contains a single line for each player, even if this is a team event.
+                        // Check to see if there is a score already for someone with the same team number (the teammates)
+                        bool foundTeamMember = false;
+                        for (int scoreIndex = 0; !foundTeamMember && (scoreIndex < scoreList.Count); scoreIndex++)
+                        {
+                            if (scoreList[scoreIndex].TeamNumber == teamNumber)
+                            {
+                                foundTeamMember = true;
+
+                                // Add the chits data if there is a purse for this entry
+                                // The chits results are reported individually, not as a team.
+                                chitsIndex = AddGgChits(chitsIndex, line, purseCols, rankCols, flightNameCol, ghinCol, scoreList[scoreIndex], lastNameFirstName);
+
+                                // For scores, put all the names in a single score object
+                                if (string.IsNullOrEmpty(scoreList[scoreIndex].Name2))
+                                {
+                                    scoreList[scoreIndex].Name2 = lastNameFirstName;
+                                }
+                                else if (string.IsNullOrEmpty(scoreList[scoreIndex].Name3))
+                                {
+                                    scoreList[scoreIndex].Name3 = lastNameFirstName;
+                                }
+                                else if (string.IsNullOrEmpty(scoreList[scoreIndex].Name4))
+                                {
+                                    scoreList[scoreIndex].Name4 = lastNameFirstName;
+                                }
+                                else
+                                {
+                                    throw new ArgumentException(fullPath + ": line " + lineNumber + ": this is the 5th player with team number " + teamNumber);
+                                }
+                            }
+                        }
+
+                        // If we just added a name to an existing scores entry, there is no need
+                        // to create another scores entry. The chits data has already been recorded.
+                        if (foundTeamMember) continue;
 
                         if (string.IsNullOrEmpty(line[lastNameCol]) || string.IsNullOrEmpty(line[firstNameCol]))
                         {
                             throw new ArgumentException(fullPath + ": line " + lineNumber + ": empty last name or first name");
                         }
-                        score.Name1 = line[lastNameCol] + ", " + line[firstNameCol];
+                        score.Name1 = lastNameFirstName;
 
                         // Read total (cumulative) score
-                        int cumulativeScoreColIndex = 0;
-                        score.ScoreTotal= -1;
-                        int cumulativeScore = 0;
-                        for (; cumulativeScoreColIndex < cumulativeScoreCols.Length; cumulativeScoreColIndex++)
+                        if (isMultiDay)
                         {
-                            if (!string.IsNullOrEmpty(line[cumulativeScoreCols[cumulativeScoreColIndex]]))
+                            int cumulativeScoreColIndex = 0;
+                            score.ScoreTotal = -1;
+                            int cumulativeScore = 0;
+                            for (; cumulativeScoreColIndex < cumulativeScoreCols.Length; cumulativeScoreColIndex++)
                             {
-                                if (int.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
+                                if (!string.IsNullOrEmpty(line[cumulativeScoreCols[cumulativeScoreColIndex]]))
                                 {
-                                    score.ScoreTotal = cumulativeScore;
-                                    break;
+                                    if (int.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
+                                    {
+                                        score.ScoreTotal = cumulativeScore;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        // There will only be a cumulative score if there is at least a round 1 score.
-                        //if ((score.ScoreTotal == -1) && (score.ScoreRound1 != 0))
-                        //{
+
+                            // There will only be a cumulative score if there is at least a round 1 score.
+                            //if ((score.ScoreTotal == -1) && (score.ScoreRound1 != 0))
+                            //{
                             // Cumulative score can be DNF or NS. Leave it at -1. Filter out these entries below.
                             //throw new ArgumentException(fullPath + ": line " + lineNumber + ": no cumulative score");
-                        //}
+                            //}
+                        }
+                        else
+                        {
+                            // For a single day tournament, round 1 is the total score
+                            score.ScoreTotal = score.ScoreRound1;
+                        }
 
                         scoreList.Add(score);
 
-                        // If the purse is non-zero, there are chits to report
-                        float purse;
-                        for (int purseColIndex = 0; purseColIndex < purseCols.Length; purseColIndex++)
-                        {
-                            string purseWithoutDollarSign = line[purseCols[purseColIndex]].Replace("$", "");
-                            if (float.TryParse(purseWithoutDollarSign, out purse))
-                            {
-                                if (purse > 0)
-                                {
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][Winnings]", ResultsChits, chitsIndex), purse.ToString()));
-
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][Date]", ResultsChits, chitsIndex), dateTime.ToString("yyyy-MM-dd")));
-
-                                    int place = 0;
-                                    for (int rankIndex = 0; rankIndex < rankCols.Length; rankIndex++)
-                                    {
-                                        if (int.TryParse(line[rankCols[rankIndex]], out place))
-                                        {
-                                            break;
-                                        }
-                                    }
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][Place]", ResultsChits, chitsIndex), place.ToString()));
-
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][Score]", ResultsChits, chitsIndex), cumulativeScore.ToString()));
-
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][Flight]", ResultsChits, chitsIndex), flightNumber.ToString()));
-
-                                    if (!line[flightNameCol].ToLower().Contains("flight"))
-                                    {
-                                        _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                            string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), "Flight " + flightNumber));
-                                    }
-                                    else
-                                    {
-                                        _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                            string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), line[flightNameCol]));
-                                    }
-
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][TeamNumber]", ResultsChits, chitsIndex), teamNumber.ToString()));
-
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][Name]", ResultsChits, chitsIndex), score.Name1));
-
-                                    // TODO: do I have to merge the team results into a single entry by filling in the
-                                    // names of the other players?
-
-                                    _kvpChitsList.Add(new KeyValuePair<string, string>(
-                                        string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), line[ghinCol]));
-
-                                    chitsIndex++;
-                                }
-                            }
-                        }
-
+                        // Add the chits entries if the purse is non-zero
+                        chitsIndex = AddGgChits(chitsIndex, line, purseCols, rankCols, flightNameCol, ghinCol, score, score.Name1);
                     }
                 }
             }
 
-            // Check to see if any round 2 is filled in
+            // Now, filter out the scores for people that were disqualified or
+            // didn't play round 1 or round 2. Those people are omitted from 
+            // the website results.
+
+            // First, check to see if any round 2 is filled in. If
+            // not, then this is just round 1 scores.
             bool isRound1 = true;
             foreach (var score in scoreList)
             {
@@ -1487,6 +1490,78 @@ namespace WebAdmin.ViewModel
 
                 index++;
             }
+        }
+
+        private int AddGgChits(int chitsIndex,
+            string[] line,
+            int[] purseCols,
+            int[] rankCols,
+            int flightNameCol,
+            int ghinCol,
+            Score score,
+            string name)
+        {
+            // If the purse is non-zero, there are chits to report
+            float purse;
+            for (int purseColIndex = 0; purseColIndex < purseCols.Length; purseColIndex++)
+            {
+                string purseWithoutDollarSign = line[purseCols[purseColIndex]].Replace("$", "");
+                if (float.TryParse(purseWithoutDollarSign, out purse))
+                {
+                    if (purse > 0)
+                    {
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][Winnings]", ResultsChits, chitsIndex), purse.ToString()));
+
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][Date]", ResultsChits, chitsIndex), score.Date.ToString("yyyy-MM-dd")));
+
+                        int place = 0;
+                        for (int rankIndex = 0; rankIndex < rankCols.Length; rankIndex++)
+                        {
+                            if (int.TryParse(line[rankCols[rankIndex]], out place))
+                            {
+                                break;
+                            }
+                        }
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][Place]", ResultsChits, chitsIndex), place.ToString()));
+
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][Score]", ResultsChits, chitsIndex), score.ScoreTotal.ToString()));
+
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][Flight]", ResultsChits, chitsIndex), score.Flight.ToString()));
+
+                        if (!line[flightNameCol].ToLower().Contains("flight"))
+                        {
+                            _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), "Flight " + score.Flight));
+                        }
+                        else
+                        {
+                            _kvpChitsList.Add(new KeyValuePair<string, string>(
+                                string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), line[flightNameCol]));
+                        }
+
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][TeamNumber]", ResultsChits, chitsIndex), score.TeamNumber.ToString()));
+
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][Name]", ResultsChits, chitsIndex), name));
+
+                        // TODO: do I have to merge the team results into a single entry by filling in the
+                        // names of the other players?
+
+                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), line[ghinCol]));
+
+                        chitsIndex++;
+                    }
+                }
+            }
+
+            return chitsIndex;
         }
 
         private List<List<KeyValuePair<string, string>>> AddScoresEntries(string file)
