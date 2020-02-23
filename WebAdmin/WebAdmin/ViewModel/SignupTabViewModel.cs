@@ -207,30 +207,24 @@ namespace WebAdmin.ViewModel
             FirstTeeTimeIndex = 0;
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
+
+            // Only allow the start time to be shifted by 2hrs (the first 16
+            // tee times)
+            for (int i = 0; (i < 16) && (i < TournamentTeeTimes.Count); i++)
+            {
+                TeeTimes.Add(TournamentTeeTimes[i].StartTime);
+            }
         }
 
         public void InitTeeTimes()
         {
             ClearPlayers();
             TournamentTeeTimes.Clear();
-            if (File.Exists("TeeTimes.txt"))
-            {
-                LoadTeeTimesFromFile("TeeTimes.txt");
-            }
-            else
-            {
-                // TODO shotgun
-                for(int i = FirstTeeTimeIndex; i < _defaultTeeTimes.Count; i++)
-                {
-                    TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
-                }
-            }
 
-            // Only allow the start time to be shifted by 2hrs (the first 16
-            // tee times)
-            for(int i = 0; (i < 16) && (i < TournamentTeeTimes.Count); i++)
+            // TODO shotgun
+            for(int i = FirstTeeTimeIndex; i < _defaultTeeTimes.Count; i++)
             {
-                TeeTimes.Add(TournamentTeeTimes[i].StartTime);
+                TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
             }
         }
 
@@ -276,6 +270,13 @@ namespace WebAdmin.ViewModel
                             break;
                         }
                     }
+
+                    // Changing the TeeTime object does not trigger a property
+                    // changed event (intentionally), so do something to trigger
+                    // the list to update in the UI.
+                    var save = TeeTimeRequestsAssigned;
+                    TeeTimeRequestsAssigned = null;
+                    TeeTimeRequestsAssigned = save;
                 }
             }
 

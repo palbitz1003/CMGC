@@ -24,6 +24,9 @@ namespace WebAdmin
         public string Preference { get { return _preference; } set { _preference = value; OnPropertyChanged(); } }
 
         public TrulyObservableCollection<Player> Players { get; set;}
+
+        // Do not make TeeTime a property that notifies when it is changed. When you click on an unassigned 
+        // tee time request, the event triggers an extra attempt to put the item on the assigned list.
         public TeeTime TeeTime { get; set; }
 
         public string PlayerList {
