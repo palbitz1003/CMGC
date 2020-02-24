@@ -261,24 +261,24 @@ namespace WebAdmin.ViewModel
                         TournamentTeeTimes[i].AddPlayer(player);
                     }
 
-                    // Need to update the TeeTime object in the assigned list to the new TeeTime object
+                    // Need to update the TeeTime object in the assigned list to the new TeeTime object.
+                    // There can be multiple assigned objects pointing to a single tee time.
                     for (int assignedIndex = 0; assignedIndex < TeeTimeRequestsAssigned.Count; assignedIndex++)
                     {
                         if (TeeTimeRequestsAssigned[assignedIndex].TeeTime == oldTournamentTeeTimes[i])
                         {
                             TeeTimeRequestsAssigned[assignedIndex].TeeTime = TournamentTeeTimes[i];
-                            break;
                         }
                     }
-
-                    // Changing the TeeTime object does not trigger a property
-                    // changed event (intentionally), so do something to trigger
-                    // the list to update in the UI.
-                    var save = TeeTimeRequestsAssigned;
-                    TeeTimeRequestsAssigned = null;
-                    TeeTimeRequestsAssigned = save;
                 }
             }
+
+            // Changing the TeeTime object does not trigger a property
+            // changed event (intentionally), so do something to trigger
+            // the list to update in the UI.
+            var save = TeeTimeRequestsAssigned;
+            TeeTimeRequestsAssigned = null;
+            TeeTimeRequestsAssigned = save;
 
             // If there were people at the end of the old list that would
             // lose their tee time, put them back in the unassigned list.
