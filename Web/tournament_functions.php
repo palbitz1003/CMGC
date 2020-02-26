@@ -144,7 +144,6 @@ function DisplayTournamentDetails($t){
 	echo '<h4>The Usual Details</h4>' . PHP_EOL;
 	echo '<ul>' . PHP_EOL;
 	echo '<li>Entry fee: $' . $t->Cost . ' per person</li>' . PHP_EOL;
-	echo '<li>Optional Players Pool: $' . $t->Pool . ' per person payable at check-in -- cash only</li>';
 	if(isset($t->ChairmanName) && (strlen($t->ChairmanName) > 0)){
 		echo '<li>Tournament Director: <a href="mailto:' . $t->ChairmanEmail . '">' . $t->ChairmanName . '</a>; phone/text: ' . $t->ChairmanPhone . '</li>' . PHP_EOL;
 	}
@@ -487,14 +486,6 @@ function ShowTournamentResultsLinks($connection, $tournament, $style, $skipThisR
 			echo '<td ' . $style . '><a href="' . $script_folder_href . 'results.php?tournament=' . $tournament->TournamentKey . '&amp;result=chits">Chits</a></td>';
 		} else {
 			echo '<td ' . $style . '>Chits</td>';
-		}
-	}
-	
-	if ($skipThisResult != 'Pool') {
-		if ($details->PoolPostedDate != TournamentDetails::EMPTYDATE) {
-			echo '<td ' . $style . '><a href="' . $script_folder_href . 'results.php?tournament=' . $tournament->TournamentKey . '&amp;result=pool">Pool</a></td>';
-		} else {
-			echo '<td ' . $style . '>Pool</td>';
 		}
 	}
 	

@@ -29,7 +29,6 @@ echo '<th>Name</th>';
 echo '<th>Description</th>';
 echo '<th>Scores</th>';
 echo '<th>Chits</th>';
-echo '<th>Pool</th>';
 echo '<th>Closest to Pin</th>';
 echo '</tr></thead>' . PHP_EOL;
 echo '<tbody>' . PHP_EOL;
