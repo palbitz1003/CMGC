@@ -1286,6 +1286,12 @@ namespace WebAdmin.ViewModel
                             continue;
                         }
 
+                        // if players are "removed" there are a number of empty columns.
+                        if (string.IsNullOrEmpty(line[divisionNameCol]))
+                        {
+                            continue;
+                        }
+
                         Score score = new Score();
                         // Not all tournaments are 2 day. If round 2
                         // is -1, then it wasn't provided.
@@ -1510,6 +1516,8 @@ namespace WebAdmin.ViewModel
                 {
                     if (purse > 0)
                     {
+                        purse = purse / TournamentNames[TournamentNameIndex].TeamSize;
+
                         _kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Winnings]", ResultsChits, chitsIndex), purse.ToString()));
 
