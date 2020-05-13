@@ -23,6 +23,7 @@ namespace WebAdmin.ViewModel
         private const string ResultsPool = "ResultsPool";
         private const string ResultsChits = "ResultsChits";
         private const string MatchPlayResultsScores = "MatchPlayResultsScores";
+        private const string GolfGeniusResultsLink = "GolfGeniusResultsLink";
 
         private Visibility _getTournamentsVisible;
         public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
@@ -114,6 +115,17 @@ namespace WebAdmin.ViewModel
             } 
         }
 
+        private string _ggTournamentResultsLink;
+        public string GgTournamentResultsLink
+        {
+            get { return _ggTournamentResultsLink; }
+            set
+            {
+                _ggTournamentResultsLink = value;
+                OnPropertyChanged();
+            }
+        }
+
         //private List<KeyValuePair<string, string>>[] _csvDay1PoolKvp;
 
         //private ObservableCollection<string> _csvDay1PoolFileName;
@@ -171,6 +183,9 @@ namespace WebAdmin.ViewModel
 
         public ICommand SubmitCsvCommand { get { return new ModelCommand(async s => await SubmitCsv(s)); } }
         public ICommand ClearCsvCommand { get { return new ModelCommand(async s => await ClearCsv(s)); } }
+
+        public ICommand SubmitGgResultsLinkCommand { get { return new ModelCommand(async s => await SubmitGgResultsLink(s)); } }
+        public ICommand ClearGgResultsLinkCommand { get { return new ModelCommand(async s => await ClearGgResultsLink(s)); } }
 
         //public ICommand CSVDay1PoolAdjustCommand { get { return new ModelCommand(s => CSVDay1PoolAdjust(s)); } }
         //public ICommand CSVDay2PoolAdjustCommand { get { return new ModelCommand(s => CSVDay2PoolAdjust(s)); } }
@@ -1863,6 +1878,41 @@ namespace WebAdmin.ViewModel
             MessageBox.Show("Submitted results for " + submitted, "Upload Results");
         }
 
+        private async Task SubmitGgResultsLink(object o)
+        {
+            if (string.IsNullOrEmpty(GgTournamentResultsLink))
+            {
+                MessageBox.Show("Fill in the Golf Genius results link");
+                return;
+            }
+
+            if (!GgTournamentResultsLink.ToLower().StartsWith("http"))
+            {
+                MessageBox.Show("Invalid Golf Genius results link: must contain \"http\" or \"https\" at the start of the link");
+                return;
+            }
+
+            // cancelled password input
+            if (string.IsNullOrEmpty(Credentials.LoginPassword))
+            {
+                return;
+            }
+
+            // This doesn't need to be a list since it has only 1 entry, but
+            // make it a list to re-use the same code for submitting results.
+            var kvpGgResultsLinkList = new List<KeyValuePair<string, string>>();
+
+            kvpGgResultsLinkList.Add(new KeyValuePair<string, string>(string.Format("{0}[Link]", GolfGeniusResultsLink), GgTournamentResultsLink));
+
+            if (!await SubmitResultsCsv(kvpGgResultsLinkList, GolfGeniusResultsLink, true))
+            {
+                MessageBox.Show("Failed to submit Golf Genius results link.");
+                return;
+            }
+
+            MessageBox.Show("Submitted Golf Genius results link");
+        }
+
         private async Task ClearCsv(object o)
         {
             string cleared = string.Empty;
@@ -1897,6 +1947,31 @@ namespace WebAdmin.ViewModel
             else
             {
                 MessageBox.Show("None of the results were cleared");
+            }
+        }
+
+        private async Task ClearGgResultsLink(object o)
+        {
+            string cleared = string.Empty;
+
+            // cancelled password input
+            if (string.IsNullOrEmpty(Credentials.LoginPassword))
+            {
+                return;
+            }
+
+            if (await ClearResults(GolfGeniusResultsLink))
+            {
+                cleared = "Golf Genius results link";
+            }
+
+            if (!string.IsNullOrEmpty(cleared))
+            {
+                MessageBox.Show("Cleared Golf Genius results link");
+            }
+            else
+            {
+                MessageBox.Show("Failed to clear Golf Genius results link");
             }
         }
 

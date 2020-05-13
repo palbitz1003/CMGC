@@ -179,6 +179,25 @@
                 <Button  Margin="5" Padding="5"  IsEnabled="{Binding Path=UpdateTournamentsAllowed}"
                     Command="{Binding Path=ClearCsvCommand}">Clear CSV Results</Button>
             </StackPanel>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5" VerticalAlignment="Center">GG Tournament Results Link:</TextBlock>
+                <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="GgTournamentResultsLinkTextBox" 
+                            Text="{Binding Path=GgTournamentResultsLink}" IsEnabled="{Binding Path=UpdateTournamentsAllowed}" Margin="0,10,10,5"></TextBox>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                <Button  Margin="5" Padding="5" IsEnabled="{Binding Path=UpdateTournamentsAllowed}"
+                    Command="{Binding Path=SubmitGgResultsLinkCommand}">Submit GG Results Link</Button>
+                <Button  Margin="5" Padding="5"  IsEnabled="{Binding Path=UpdateTournamentsAllowed}"
+                    Command="{Binding Path=ClearGgResultsLinkCommand}">Clear GG Results Link</Button>
+            </StackPanel>
         </StackPanel>
     </DockPanel>
 </UserControl>
