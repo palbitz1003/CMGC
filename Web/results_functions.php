@@ -207,6 +207,10 @@ function ClearResults($connection, $tournamentKey, $result)
 				UpdateTournamentDetails ( $connection, $tournamentKey, 'PoolFile', '' );
 				UpdateTournamentDetails ( $connection, $tournamentKey, 'PoolPostedDate', $emptyDate );
 				break;
+			case 'GolfGeniusResultsLink':
+				UpdateTournamentDetails ( $connection, $tournamentKey, 'GolfGeniusResultsLink', NULL);
+				return; // no other data to delete
+				break;
 			default :
 				die ( 'Unknown result type: ' . $result );
 		}

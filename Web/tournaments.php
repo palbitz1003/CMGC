@@ -30,6 +30,7 @@ echo '<th>Description</th>';
 echo '<th>Scores</th>';
 echo '<th>Chits</th>';
 echo '<th>Closest to Pin</th>';
+echo '<th>Golf Genius Results</th>';
 echo '</tr></thead>' . PHP_EOL;
 echo '<tbody>' . PHP_EOL;
 

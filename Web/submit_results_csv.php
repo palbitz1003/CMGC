@@ -140,6 +140,8 @@ if ($_POST ['Action'] == 'Submit') {
 		
 		AddMatchPlayScoresResults($connection, $tournamentKey, $ScoresResults);
 		UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresPostedDate', date ( 'Y-m-d' ) );
+	} else if(isset ( $_POST ['GolfGeniusResultsLink'] )) {
+		UpdateTournamentDetails ( $connection, $tournamentKey, 'GolfGeniusResultsLink', $_POST ['GolfGeniusResultsLink']['Link'] );
 	}
 } else if ($_POST ['Action'] == 'Clear') {
 	
@@ -154,8 +156,11 @@ if ($_POST ['Action'] == 'Submit') {
 	else if(strcasecmp($_POST ["Result"], 'pool') == 0){
 		ClearResults($connection, $tournamentKey, 'Pool');
 	}
+	else if(strcasecmp($_POST ["Result"], 'golfgeniusresultslink') == 0){
+		ClearResults($connection, $tournamentKey, 'GolfGeniusResultsLink');
+	}
 	else {
-		die('Expected to clear scores, match play scores, chits, or pool, got: ' . $_POST ["Result"]);
+		die('Expected to clear scores, match play scores, chits, pool, or GolfGeniusResultsLink but got: ' . $_POST ["Result"]);
 	}
 	
 } else {

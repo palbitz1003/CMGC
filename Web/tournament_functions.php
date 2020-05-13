@@ -66,6 +66,7 @@ class TournamentDetails {
 	public $ScoresFile;
 	public $ChitsFile;
 	public $PoolFile;
+	public $GolfGeniusResults;
 	
 	const EMPTYDATE = "1900-01-01";
 	
@@ -76,6 +77,7 @@ class TournamentDetails {
 		$this->PoolPostedDate = self::EMPTYDATE;
 		$this->ClosestToThePinPostedDate = self::EMPTYDATE;
 		$this->ResultsAreUnofficial = false;
+		$this->GolfGeniusResults = NULL;
 	}
 }
 class PayPalDetails {
@@ -302,9 +304,9 @@ function GetTournamentDetails($connection, $tournamentKey){
 	if (! $tournament->execute ()) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
-	
+
 	$tournament->bind_result ( $key, $teeTimesPostedDate, $scoresPostedDate, $chitsPostedDate, $poolPostedDate,
-								$closestToThePinPostedDate, $resultsAreUnofficial, $scoresFile, $chitsFile, $poolFile );
+								$closestToThePinPostedDate, $resultsAreUnofficial, $scoresFile, $chitsFile, $poolFile, $golfGeniusResults );
 	
 	$details = new TournamentDetails();
 	$details->TournamentKey = $tournamentKey;
@@ -318,6 +320,7 @@ function GetTournamentDetails($connection, $tournamentKey){
 		$details->ScoresFile = $scoresFile;
 		$details->ChitsFile = $chitsFile;
 		$details->PoolFile = $poolFile;
+		$details->GolfGeniusResults = $golfGeniusResults;
 	}
 	
 	$tournament->close ();
@@ -337,6 +340,7 @@ function UpdateTournamentDetails($connection, $tournamentKey, $field, $value){
 		case 'PoolFile':
 		case 'PoolPostedDate':
 		case 'ClosestToThePinPostedDate':
+		case 'GolfGeniusResultsLink':
 			$sqlCmd = "UPDATE `TournamentDetails` SET `" . $field . "` = ? WHERE `TournamentKey` = ?";
 			$paramType = 's';
 			break;
@@ -419,6 +423,7 @@ function GetRecentlyCompletedTournaments($connection) {
 				($details->ClosestToThePinPostedDate != TournamentDetails::EMPTYDATE) ||
 				($details->PoolPostedDate != TournamentDetails::EMPTYDATE) ||
 				($details->ScoresPostedDate != TournamentDetails::EMPTYDATE) ||
+				(!empty($details->GolfGeniusResults)) ||
 				($tournaments[$i]->MatchPlay == 1)) {
 				$currentTournaments[] = $tournaments[$i];
 			}
@@ -494,6 +499,15 @@ function ShowTournamentResultsLinks($connection, $tournament, $style, $skipThisR
 			echo '<td ' . $style . '><a href="' . $script_folder_href . 'closest_to_the_pin.php?tournament=' . $tournament->TournamentKey . '">Closest to Pin</a></td>';
 		} else {
 			echo '<td ' . $style . '>Closest to Pin</td>';
+		}
+	}
+
+	if ($skipThisResult != 'GolfGeniusResults') {
+		if (!empty($details->GolfGeniusResults)) {
+			// Open results in a new tab
+			echo '<td ' . $style . '><a href="' . $details->GolfGeniusResults . '" target="_blank">Golf Genius Results</a></td>';
+		} else {
+			echo '<td ' . $style . '>Golf Genius Results</td>';
 		}
 	}
 }
