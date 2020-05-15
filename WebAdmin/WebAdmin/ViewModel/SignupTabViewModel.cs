@@ -20,7 +20,9 @@ namespace WebAdmin.ViewModel
         #region Properties
         public override string Header { get { return "Signup"; } }
 
-        private readonly List<string> _defaultTeeTimes = new List<string>
+        private List<string> _defaultTeeTimes;
+
+        private readonly List<string> _defaultTeeTimes10 = new List<string>
         {
             "6:00 AM", "6:10 AM", "6:20 AM", "6:30 AM", "6:40 AM", "6:50 AM",
             "7:00 AM", "7:10 AM", "7:20 AM", "7:30 AM", "7:40 AM", "7:50 AM",
@@ -29,13 +31,16 @@ namespace WebAdmin.ViewModel
             "10:00 AM", "10:10 AM", "10:20 AM", "10:30 AM", "10:40 AM", "10:50 AM",
             "11:00 AM", "11:10 AM", "11:20 AM", "11:30 AM", "11:40 AM", "11:50 AM",
         };
-        //{ 
-        //    "6:00 AM", "6:07 AM", "6:15 AM", "6:22 AM", "6:30 AM", "6:37 AM", "6:45 AM", "6:52 AM",
-        //    "7:00 AM", "7:07 AM", "7:15 AM", "7:22 AM", "7:30 AM", "7:37 AM", "7:45 AM", "7:52 AM",
-        //    "8:00 AM", "8:07 AM", "8:15 AM", "8:22 AM", "8:30 AM", "8:37 AM", "8:45 AM", "8:52 AM",
-        //    "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
-        //    "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
-        //    "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"};
+
+        private readonly List<string> _defaultTeeTimes78 = new List<string>
+        {
+            "6:00 AM", "6:07 AM", "6:15 AM", "6:22 AM", "6:30 AM", "6:37 AM", "6:45 AM", "6:52 AM",
+            "7:00 AM", "7:07 AM", "7:15 AM", "7:22 AM", "7:30 AM", "7:37 AM", "7:45 AM", "7:52 AM",
+            "8:00 AM", "8:07 AM", "8:15 AM", "8:22 AM", "8:30 AM", "8:37 AM", "8:45 AM", "8:52 AM",
+            "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
+            "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
+            "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"
+        };
 
         private Visibility _getTournamentsVisible;
         public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
@@ -191,6 +196,45 @@ namespace WebAdmin.ViewModel
             } 
         }
 
+        private bool _allowTeeTimeIntervalAdjust;
+        public bool AllowTeeTimeIntervalAdjust
+        {
+            get { return _allowTeeTimeIntervalAdjust; }
+            set { _allowTeeTimeIntervalAdjust = value; OnPropertyChanged(); }
+        }
+
+        private bool _teeTimeInterval78;
+        public bool TeeTimeInterval78
+        {
+            get { return _teeTimeInterval78; }
+            set
+            {
+                _teeTimeInterval78 = value;
+                if (_teeTimeInterval78)
+                {
+                    _defaultTeeTimes = _defaultTeeTimes78;
+                    InitTeeTimes();
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _teeTimeInterval10;
+        public bool TeeTimeInterval10
+        {
+            get { return _teeTimeInterval10; }
+            set
+            {
+                _teeTimeInterval10 = value;
+                if (_teeTimeInterval10)
+                {
+                    _defaultTeeTimes = _defaultTeeTimes10;
+                    InitTeeTimes();
+                }
+                OnPropertyChanged();
+            }
+        }
+
         private bool _teeTimesDirty = false;
 
         private int _currentNumberOfPlayersShowing;
@@ -211,13 +255,15 @@ namespace WebAdmin.ViewModel
 
         //public ICommand PrintCommand { get { return new ModelCommand(Print); } }
 
-        public ICommand UploadGgCsvCommand { get { return new ModelCommand(UploadGgCsv); } }
+        public ICommand LoadGgCsvCommand { get { return new ModelCommand(LoadGgCsv); } }
 
         public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(async s => await UploadWaitingListFile(s)); } }
         #endregion
 
         public SignupTabViewModel()
         {
+            
+
             TournamentNames = new TrulyObservableCollection<TournamentName>();
             TeeTimeRequests = new List<TeeTimeRequest>();
             TeeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
@@ -226,10 +272,11 @@ namespace WebAdmin.ViewModel
             TodoSelection = -1;
             RemoveSelection = -1;
             TeeTimes = new List<string>();
-            InitTeeTimes();
+            TeeTimeInterval10 = true; // initializes list
             FirstTeeTimeIndex = 0;
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
+            AllowTeeTimeIntervalAdjust = true;
 
             // Only allow the start time to be shifted by 2hrs (the first 16
             // tee times)
@@ -430,7 +477,9 @@ namespace WebAdmin.ViewModel
             // Check for room in this tee time
             if (teeTimeRequest.Players.Count > (4 - teeTime.Players.Count))
             {
-                MessageBox.Show("Not enough room for all players at " + teeTime.StartTime);
+                MessageBox.Show((teeTime.Players.Count == 4) 
+                    ? "Tee time is full" 
+                    : "Not enough room for all players at " + teeTime.StartTime);
                 TodoSelection = -1;
                 return;
             }
@@ -442,6 +491,8 @@ namespace WebAdmin.ViewModel
                 teeTime.AddPlayer(player);
             }
             teeTimeRequest.TeeTime = teeTime;
+
+            AllowTeeTimeIntervalAdjust = false;
 
             TeeTimeRequests.Remove(teeTimeRequest);
             TeeTimeRequestsAssigned.Add(teeTimeRequest);
@@ -473,6 +524,11 @@ namespace WebAdmin.ViewModel
             {
                 // Only show the unassigned that fit into this tee time
                 UpdateUnassignedList(4 - teeTime.Players.Count);
+
+                // If the unassigned list is empty, there may be more unassigned
+                // players but they don't fit into this group. Move to the next tee
+                // time, which would allow a group of 4 players, so anyone left on
+                // the unassigned list displays.
                 if ((TeeTimeRequestsUnassigned.Count == 0) && (TeeTimeRequests.Count > 0))
                 {
                     // This also updates the unassigned list
@@ -757,6 +813,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequests.Clear();
                     TeeTimeRequestsUnassigned.Clear();
                     TeeTimeRequestsAssigned.Clear();
+                    AllowTeeTimeIntervalAdjust = true;
 
                     TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
 
@@ -937,6 +994,7 @@ namespace WebAdmin.ViewModel
             TeeTimeRequests.Clear();
             TeeTimeRequestsUnassigned.Clear();
             TeeTimeRequestsAssigned.Clear();
+            AllowTeeTimeIntervalAdjust = false;
 
             foreach (var teeTime in TournamentTeeTimes)
             {
@@ -1081,7 +1139,7 @@ namespace WebAdmin.ViewModel
         // Tee Time,Last Name,First Name,GHIN
         // 7:07 AM,Albitz,Paul,9079663
 
-        private void UploadGgCsv(object o)
+        private void LoadGgCsv(object o)
         {
             if(string.IsNullOrEmpty(GgTeeTimeFile))
             {
@@ -1094,6 +1152,8 @@ namespace WebAdmin.ViewModel
                 MessageBox.Show("File does not exist: " + GgTeeTimeFile);
                 return;
             }
+
+            AllowTeeTimeIntervalAdjust = false;
 
             using (TextReader tr = new StreamReader(GgTeeTimeFile))
             {

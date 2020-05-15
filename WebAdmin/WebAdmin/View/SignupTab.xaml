@@ -19,7 +19,7 @@
         </DockPanel>
         
         <DockPanel Margin="5, 0, 0, 0" Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <Button Margin="5" VerticalAlignment="Center" Command="{Binding UploadGgCsvCommand}" >
+            <Button Margin="5" VerticalAlignment="Center" Command="{Binding LoadGgCsvCommand}" >
                 <TextBlock TextWrapping="Wrap">Load Golf Genius tee sheet csv</TextBlock>
             </Button>
             <DockPanel  LastChildFill="true" Margin="5" VerticalAlignment="Center">
@@ -30,10 +30,16 @@
         </DockPanel>
 
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimes" Height="22" VerticalAlignment="Bottom" 
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <Label VerticalAlignment="Center">Tee Time Interval:</Label>
+                <RadioButton x:Name="TeeTimeInterval78Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval78, Mode=TwoWay}" 
+                             VerticalAlignment="Center" Margin="5" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">7,8</RadioButton>
+                <RadioButton x:Name="TeeTimeInterval10Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval10, Mode=TwoWay}"
+                             VerticalAlignment="Center" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">10</RadioButton>
+            </StackPanel>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimes" Height="22"
                     Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" 
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
                     Command="{Binding AddPlayerCommand}">Add Player</Button>
             <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding OrderBySignupDate}">Order By SignupDate</CheckBox>
             <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
