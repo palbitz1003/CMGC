@@ -21,13 +21,21 @@ namespace WebAdmin.ViewModel
         public override string Header { get { return "Signup"; } }
 
         private readonly List<string> _defaultTeeTimes = new List<string>
-        { 
-            "6:00 AM", "6:07 AM", "6:15 AM", "6:22 AM", "6:30 AM", "6:37 AM", "6:45 AM", "6:52 AM",
-            "7:00 AM", "7:07 AM", "7:15 AM", "7:22 AM", "7:30 AM", "7:37 AM", "7:45 AM", "7:52 AM",
-            "8:00 AM", "8:07 AM", "8:15 AM", "8:22 AM", "8:30 AM", "8:37 AM", "8:45 AM", "8:52 AM",
-            "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
-            "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
-            "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"};
+        {
+            "6:00 AM", "6:10 AM", "6:20 AM", "6:30 AM", "6:40 AM", "6:50 AM",
+            "7:00 AM", "7:10 AM", "7:20 AM", "7:30 AM", "7:40 AM", "7:50 AM",
+            "8:00 AM", "8:10 AM", "8:20 AM", "8:30 AM", "8:40 AM", "8:50 AM",
+            "9:00 AM", "9:10 AM", "9:20 AM", "9:30 AM", "9:40 AM", "9:50 AM",
+            "10:00 AM", "10:10 AM", "10:20 AM", "10:30 AM", "10:40 AM", "10:50 AM",
+            "11:00 AM", "11:10 AM", "11:20 AM", "11:30 AM", "11:40 AM", "11:50 AM",
+        };
+        //{ 
+        //    "6:00 AM", "6:07 AM", "6:15 AM", "6:22 AM", "6:30 AM", "6:37 AM", "6:45 AM", "6:52 AM",
+        //    "7:00 AM", "7:07 AM", "7:15 AM", "7:22 AM", "7:30 AM", "7:37 AM", "7:45 AM", "7:52 AM",
+        //    "8:00 AM", "8:07 AM", "8:15 AM", "8:22 AM", "8:30 AM", "8:37 AM", "8:45 AM", "8:52 AM",
+        //    "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
+        //    "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
+        //    "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"};
 
         private Visibility _getTournamentsVisible;
         public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
@@ -69,9 +77,24 @@ namespace WebAdmin.ViewModel
             } 
         }
 
+        DateTime _lastSelectionTime = DateTime.Now;
+        private int _lastSelection = -1;
+
         private int _todoSelection;
         public int TodoSelection { get { return _todoSelection; } 
-            set { 
+            set {
+                // There is a timing bug. Sometimes, when the unassigned list
+                // is updated during a selection index change event, there is a 2nd event
+                // that comes in right away with the same value.
+                var timeSinceLastEvent = DateTime.Now - _lastSelectionTime;
+                if ((_lastSelection == value) &&  (timeSinceLastEvent.TotalMilliseconds < 150))
+                {
+                    System.Diagnostics.Debug.WriteLine("Duplicate selection event ms: " + timeSinceLastEvent.TotalMilliseconds);
+                    return;
+                }
+                _lastSelectionTime = DateTime.Now;
+                _lastSelection = value;
+
                 if (value != -1) 
                 { 
                     TodoSelectionChanged(value); 
@@ -328,6 +351,7 @@ namespace WebAdmin.ViewModel
             {
                 if (TournamentTeeTimes[i].Players.Count < 4)
                 {
+                    // This also updates the unassigned list
                     TeeTimeSelection = i;
                     break;
                 }
@@ -372,14 +396,18 @@ namespace WebAdmin.ViewModel
         {
             _currentNumberOfPlayersShowing = playerCount;
 
-            TeeTimeRequestsUnassigned.Clear();
-            foreach(var teeTimeRequest in TeeTimeRequests)
+            // Create a new list and assign it as a whole, rather
+            // than modifying the existing list. (fewer change events)
+            TrulyObservableCollection<TeeTimeRequest> teeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
+            foreach (var teeTimeRequest in TeeTimeRequests)
             {
-                if(teeTimeRequest.Players.Count <= playerCount)
+                if (teeTimeRequest.Players.Count <= playerCount)
                 {
-                    TeeTimeRequestsUnassigned.Add(teeTimeRequest);
+                    teeTimeRequestsUnassigned.Add(teeTimeRequest);
                 }
             }
+
+            TeeTimeRequestsUnassigned = teeTimeRequestsUnassigned;
         }
 
         private void TodoSelectionChanged(int selectionIndex)
@@ -390,7 +418,10 @@ namespace WebAdmin.ViewModel
 
             if (TeeTimeSelection < 0)
             {
-                TeeTimeSelection = 0;
+                // By assigning the property, it triggers
+                // rebuilding the unassigned list. So,
+                // assign the variable directly.
+                _teeTimeSelection = 0;
             }
 
             TeeTimeRequest teeTimeRequest = selectedItem;
@@ -426,6 +457,7 @@ namespace WebAdmin.ViewModel
                     if (TournamentTeeTimes[i].Players.Count < 4)
                     {
                         teeTimeFound = true;
+                        // This also updates the unassigned list
                         TeeTimeSelection = i;
                         break;
                     }
@@ -443,6 +475,7 @@ namespace WebAdmin.ViewModel
                 UpdateUnassignedList(4 - teeTime.Players.Count);
                 if ((TeeTimeRequestsUnassigned.Count == 0) && (TeeTimeRequests.Count > 0))
                 {
+                    // This also updates the unassigned list
                     TeeTimeSelection = TeeTimeSelection + 1;
                 }
             }
@@ -468,6 +501,7 @@ namespace WebAdmin.ViewModel
             int teeTimeIndex = TournamentTeeTimes.IndexOf(teeTime);
             if (teeTimeIndex != TeeTimeSelection)
             {
+                // This also updates the unassigned list
                 TeeTimeSelection = teeTimeIndex;
             }
             else
@@ -486,14 +520,8 @@ namespace WebAdmin.ViewModel
                 {
                     //RemoveListBox.ScrollIntoView(teeTime.Players[0].TeeTimeRequest);
                 }
-                if (teeTime.Players.Count < 4)
-                {
-                    UpdateUnassignedList(4 - teeTime.Players.Count);
-                }
-                else
-                {
-                    UpdateUnassignedList(4);
-                }
+
+                UpdateUnassignedList(4 - teeTime.Players.Count);
             }
         }
 
