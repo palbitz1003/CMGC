@@ -48,6 +48,9 @@ namespace WebAdmin
         private bool _isStableford;
         public bool IsStableford { get { return _isStableford; } set { _isStableford = value; OnPropertyChanged(); } }
 
+        private bool _announcementOnly;
+        public bool AnnouncementOnly { get { return _announcementOnly; } set { _announcementOnly = value; OnPropertyChanged(); } }
+
         public override string ToString()
         {
             return StartDate.ToShortDateString() + ": " + Name;

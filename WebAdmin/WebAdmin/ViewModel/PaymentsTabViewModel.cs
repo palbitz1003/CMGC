@@ -112,7 +112,8 @@ namespace WebAdmin.ViewModel
 
             for (int i = 0; i < TournamentNames.Count; i++ )
             {
-                if ((DateTime.Now > TournamentNames[i].SignupStartDate) && (DateTime.Now <= TournamentNames[i].EndDate))
+                if ((DateTime.Now > TournamentNames[i].SignupStartDate) && (DateTime.Now <= TournamentNames[i].EndDate)
+                    && !TournamentNames[i].AnnouncementOnly)
                 {
                     TournamentNameIndex = i;
                     break;
