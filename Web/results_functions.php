@@ -100,22 +100,23 @@ function CreateTournamentDetails($connection, $tournamentKey){
 	
 	// Create the record if it does not exist
 	if(!$found){
-		$sqlCmd = "INSERT INTO `TournamentDetails` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		$sqlCmd = "INSERT INTO `TournamentDetails` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		$insert = $connection->prepare ( $sqlCmd );
 		
 		if (! $insert) {
-			die ( $sqlCmd . " prepare failed: " . $connection->error );
+			die (CreateTournamentDetails . ": " . $sqlCmd . " prepare failed: " . $connection->error );
 		}
 		
 		$emptyDate = TournamentDetails::EMPTYDATE;
 		$unofficial = false;
 		$emptyFile = '';
-		if (! $insert->bind_param ( 'isssssisss', $tournamentKey, $emptyDate, $emptyDate, $emptyDate, $emptyDate, $emptyDate, $unofficial, $emptyFile, $emptyFile, $emptyFile )) {
-			die ( $sqlCmd . " bind_param failed: " . $connection->error );
+		$nullString = null;
+		if (! $insert->bind_param ( 'isssssissss', $tournamentKey, $emptyDate, $emptyDate, $emptyDate, $emptyDate, $emptyDate, $unofficial, $emptyFile, $emptyFile, $emptyFile, $nullString )) {
+			die (CreateTournamentDetails . ": " .  $sqlCmd . " bind_param failed: " . $connection->error );
 		}
 		
 		if (! $insert->execute ()) {
-			die ( $sqlCmd . " execute failed: " . $connection->error );
+			die (CreateTournamentDetails . ": " .  $sqlCmd . " execute failed: " . $connection->error );
 		}
 		
 		$insert->close();

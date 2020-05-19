@@ -345,7 +345,7 @@ function UpdateTournamentDetails($connection, $tournamentKey, $field, $value){
 			$paramType = 's';
 			break;
 		default:
-			die("Did not provide valid field parameter to UpdateTournamentDetails");
+			die("tournament_functions.php: Did not provide valid field parameter to UpdateTournamentDetails: " . $field);
 	}
 	
 	$update = $connection->prepare ( $sqlCmd );
