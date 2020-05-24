@@ -816,15 +816,22 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequestsAssigned.Clear();
                     AllowTeeTimeIntervalAdjust = true;
 
-                    TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
-
-                    if (OrderBySignupDate)
+                    if (string.IsNullOrEmpty(responseString))
                     {
-                        TeeTimeRequests.Sort(new SubmitKeySort());
+                        MessageBox.Show("Website gave empty response for tee time request list");
                     }
                     else
                     {
-                        TeeTimeRequests.Sort(new TeeTimeRequestSort());
+                        TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
+
+                        if (OrderBySignupDate)
+                        {
+                            TeeTimeRequests.Sort(new SubmitKeySort());
+                        }
+                        else
+                        {
+                            TeeTimeRequests.Sort(new TeeTimeRequestSort());
+                        }
                     }
                     
                     UpdateUnassignedList(4);

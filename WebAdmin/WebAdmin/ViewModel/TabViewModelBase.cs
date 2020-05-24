@@ -226,6 +226,16 @@ namespace WebAdmin.ViewModel
 
         protected List<TeeTimeRequest> LoadSignupsFromWebResponseJson(string webResponse)
         {
+            if (string.IsNullOrEmpty(webResponse))
+            {
+                return new List<TeeTimeRequest>();
+            }
+
+            if (webResponse.StartsWith("JSON error:"))
+            {
+                throw new Exception(webResponse);
+            }
+
             var jss = new JavaScriptSerializer();
             List<TeeTimeRequest> teeTimeRequests = jss.Deserialize<List<TeeTimeRequest>>(webResponse);
 
