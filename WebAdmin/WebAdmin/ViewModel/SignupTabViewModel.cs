@@ -675,7 +675,7 @@ namespace WebAdmin.ViewModel
 
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
-                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email");
+                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty");
 
                     int teamId = 0;
                     for (int teeTimeNumber = 0; teeTimeNumber < TournamentTeeTimes.Count; teeTimeNumber++)
@@ -687,6 +687,7 @@ namespace WebAdmin.ViewModel
                             string playerFirstName = string.Empty;
                             string playerGhin = string.Empty;
                             string playerEmail = string.Empty;
+                            string playerExtra = string.Empty;
 
                             if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
                             {
@@ -714,6 +715,7 @@ namespace WebAdmin.ViewModel
                                     }
                                 }
                                 playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                                playerExtra = TournamentTeeTimes[teeTimeNumber].Players[player].Extra;
                                 playerEmail = TournamentTeeTimes[teeTimeNumber].Players[player].Email;
                                 // Make sure the email address is valid
                                 if (string.IsNullOrEmpty(playerEmail) || !playerEmail.Contains("@"))
@@ -755,7 +757,40 @@ namespace WebAdmin.ViewModel
                                 //tw.Write(handle + ",");
                                 tw.Write(playerGhin + ",");
                                 tw.Write(teamId + ",");
-                                tw.Write(playerEmail);
+                                tw.Write(playerEmail + ",");
+
+                                // Write the flight number
+                                if (playerExtra.Contains("CH"))
+                                {
+                                    tw.Write("0,");
+                                }
+                                else if (playerExtra.Contains("F1"))
+                                {
+                                    tw.Write("1,");
+                                }
+                                else if (playerExtra.Contains("F2"))
+                                {
+                                    tw.Write("2,");
+                                }
+                                else if (playerExtra.Contains("F3"))
+                                {
+                                    tw.Write("3,");
+                                }
+                                else if (playerExtra.Contains("F4"))
+                                {
+                                    tw.Write("4,");
+                                }
+                                else if (playerExtra.Contains("F5"))
+                                {
+                                    tw.Write("5,");
+                                }
+                                else
+                                {
+                                    tw.Write(",");
+                                }
+
+                                tw.Write(playerExtra.Contains(">80") ? "true" : "false");
+
                                 tw.WriteLine();                             
                             }
                         }
