@@ -85,7 +85,7 @@ namespace WebAdmin.ViewModel
         DateTime _lastSelectionTime = DateTime.Now;
         private int _lastSelection = -1;
 
-        private int _todoSelection;
+        private int _todoSelection = -1;
         public int TodoSelection { get { return _todoSelection; } 
             set {
                 // There is a timing bug. Sometimes, when the unassigned list
@@ -95,6 +95,13 @@ namespace WebAdmin.ViewModel
                 if ((_lastSelection == value) &&  (timeSinceLastEvent.TotalMilliseconds < 150))
                 {
                     System.Diagnostics.Debug.WriteLine("Duplicate selection event ms: " + timeSinceLastEvent.TotalMilliseconds);
+
+                    // Since the ListBox thinks the same item has been selected, you can't click
+                    // on it again. The steps below are meant to just clear the selected item without
+                    // triggering another selection event.
+                    var savedList = TeeTimeRequestsUnassigned;
+                    TeeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
+                    TeeTimeRequestsUnassigned = savedList;
                     return;
                 }
                 _lastSelectionTime = DateTime.Now;
@@ -269,7 +276,9 @@ namespace WebAdmin.ViewModel
             TeeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
             TeeTimeRequestsAssigned = new TrulyObservableCollection<TeeTimeRequest>();
             TournamentTeeTimes = new TrulyObservableCollection<TeeTime>();
-            TodoSelection = -1;
+            // TodoSelection defaults to -1, Setting it here triggers the
+            // property setter code which is not needed.
+            //TodoSelection = -1;
             RemoveSelection = -1;
             TeeTimes = new List<string>();
             TeeTimeInterval10 = true; // initializes list
