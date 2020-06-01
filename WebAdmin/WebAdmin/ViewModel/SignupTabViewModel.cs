@@ -220,6 +220,7 @@ namespace WebAdmin.ViewModel
                 if (_teeTimeInterval78)
                 {
                     _defaultTeeTimes = _defaultTeeTimes78;
+                    InitFirstTeeTimeList();
                     InitTeeTimes();
                 }
                 OnPropertyChanged();
@@ -236,8 +237,11 @@ namespace WebAdmin.ViewModel
                 if (_teeTimeInterval10)
                 {
                     _defaultTeeTimes = _defaultTeeTimes10;
+                    InitFirstTeeTimeList();
                     InitTeeTimes();
                 }
+
+                Options.TeeTimeInterval10 = _teeTimeInterval10;
                 OnPropertyChanged();
             }
         }
@@ -280,19 +284,11 @@ namespace WebAdmin.ViewModel
             // property setter code which is not needed.
             //TodoSelection = -1;
             RemoveSelection = -1;
-            TeeTimes = new List<string>();
-            TeeTimeInterval10 = true; // initializes list
-            FirstTeeTimeIndex = 0;
+            TeeTimeInterval10 = Options.TeeTimeInterval10; // initializes list
+            TeeTimeInterval78 = !Options.TeeTimeInterval10;
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
             AllowTeeTimeIntervalAdjust = true;
-
-            // Only allow the start time to be shifted by 2hrs (the first 16
-            // tee times)
-            for (int i = 0; (i < 16) && (i < TournamentTeeTimes.Count); i++)
-            {
-                TeeTimes.Add(TournamentTeeTimes[i].StartTime);
-            }
         }
 
         public void InitTeeTimes()
@@ -301,10 +297,25 @@ namespace WebAdmin.ViewModel
             TournamentTeeTimes.Clear();
 
             // TODO shotgun
-            for(int i = FirstTeeTimeIndex; i < _defaultTeeTimes.Count; i++)
+            int firstTime = (FirstTeeTimeIndex < 0) ? 0 : FirstTeeTimeIndex;
+            for (int i = firstTime; i < _defaultTeeTimes.Count; i++)
             {
                 TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
             }
+        }
+
+        public void InitFirstTeeTimeList()
+        {
+            var teeTimes = new List<string>();
+            // Only allow the start time to be shifted by 2hrs (the first 16
+            // tee times)
+            for (int i = 0; (i < 16) && (i < _defaultTeeTimes.Count); i++)
+            {
+                teeTimes.Add(_defaultTeeTimes[i]);
+            }
+
+            TeeTimes = teeTimes;
+            FirstTeeTimeIndex = 0;
         }
 
         public void SortTeeTimeRequests()

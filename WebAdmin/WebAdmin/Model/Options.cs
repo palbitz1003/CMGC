@@ -19,6 +19,7 @@ namespace WebAdmin
         public string GHINFileName { get; set; }
         public string LocalHandicapFileName { get; set; }
         public string LastCSVResultFolder { get; set; }
+        public bool TeeTimeInterval10 { get; set; }
 
         public Options()
         {
