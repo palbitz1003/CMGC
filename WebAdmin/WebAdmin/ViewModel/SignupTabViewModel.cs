@@ -260,7 +260,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand UploadTeetimesCommand { get { return new ModelCommand(async s => await UploadToWeb(s)); } }
 
-        public ICommand SaveAsCsvCommand { get { return new ModelCommand(SaveAsCsv); } }
+        public ICommand SaveAsCsvCommand { get { return new ModelCommand(SaveTeeTimesAsCsv); } }
 
         public ICommand AddPlayerCommand { get { return new ModelCommand(AddPlayer); } }
 
@@ -478,6 +478,27 @@ namespace WebAdmin.ViewModel
             TeeTimeRequestsUnassigned = teeTimeRequestsUnassigned;
         }
 
+        private TrulyObservableCollection<TeeTime> ConvertUnassignedToTeeTimes()
+        {
+            TrulyObservableCollection<TeeTime> teeTimeList = new TrulyObservableCollection<TeeTime>();
+
+            for (int i = 0; i < TeeTimeRequests.Count; i++)
+            {
+                TeeTime teeTime = new TeeTime();
+                // Set the start time to be 12:00, 12:01, 12:02, etc. just to show groups
+                teeTime.StartTime = ((i < 60) ? "12:" : "01:") +  (i % 60).ToString("D2");
+
+                foreach (var player in TeeTimeRequests[i].Players)
+                {
+                    teeTime.AddPlayer(player);
+                }
+
+                teeTimeList.Add(teeTime);
+            }
+
+            return teeTimeList;
+        }
+
         private void TodoSelectionChanged(int selectionIndex)
         {
             if (selectionIndex < 0) return;
@@ -677,11 +698,42 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private void SaveAsCsv(object o)
+        private void SaveTeeTimesAsCsv(object o)
         {
+            int teamId = 0;
+
+            SaveAsCsv("Teetimes - " + TournamentNames[TournamentNameIndex].Name, 
+                TournamentTeeTimes, 
+                TournamentNames[TournamentNameIndex].TeamSize,
+                out bool _teeTimesDirty,
+                out string teeTimesFileName,
+                ref teamId);
+
+            if (TeeTimeRequests.Count > 0)
+            {
+                var unassignedTeeTimes = ConvertUnassignedToTeeTimes();
+
+                SaveAsCsv("WaitList - " + TournamentNames[TournamentNameIndex].Name,
+                    unassignedTeeTimes,
+                    TournamentNames[TournamentNameIndex].TeamSize,
+                    out bool ignore,
+                    out string waitListFileName,
+                    ref teamId);
+
+                WaitingListFile = waitListFileName;
+            }
+        }
+
+        // Make this routine static to make sure it is not using anything that is not passed in
+        private static void SaveAsCsv(string fileName, TrulyObservableCollection<TeeTime> tournamentTeeTimes, int teamSize,
+            out bool teeTimesDirty, out string finalFileName, ref int teamId)
+        {
+            teeTimesDirty = true;
+            finalFileName = fileName;
+
             // Configure save file dialog box
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "Teetimes"; // Default file name
+            dlg.FileName = fileName; 
             dlg.DefaultExt = ".csv"; // Default file extension
             dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
 
@@ -691,14 +743,13 @@ namespace WebAdmin.ViewModel
             // Process save file dialog box results
             if (result == true)
             {
-                _teeTimesDirty = false;
-
+                teeTimesDirty = false;
+                finalFileName = dlg.FileName;
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
                     tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty");
 
-                    int teamId = 0;
-                    for (int teeTimeNumber = 0; teeTimeNumber < TournamentTeeTimes.Count; teeTimeNumber++)
+                    for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
                     {
                         for (int player = 0; player < 4; player++)
                         {
@@ -709,9 +760,9 @@ namespace WebAdmin.ViewModel
                             string playerEmail = string.Empty;
                             string playerExtra = string.Empty;
 
-                            if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
+                            if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
                             {
-                                string[] fields = TournamentTeeTimes[teeTimeNumber].Players[player].Name.Split(',');
+                                string[] fields = tournamentTeeTimes[teeTimeNumber].Players[player].Name.Split(',');
                                 if (fields.Length > 1)
                                 {
                                     playerLastName = fields[0].Trim();
@@ -734,9 +785,9 @@ namespace WebAdmin.ViewModel
                                         playerLastName = playerLastName.Replace(fields[fields.Length - 1], "").Trim();
                                     }
                                 }
-                                playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
-                                playerExtra = TournamentTeeTimes[teeTimeNumber].Players[player].Extra;
-                                playerEmail = TournamentTeeTimes[teeTimeNumber].Players[player].Email;
+                                playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                                playerExtra = tournamentTeeTimes[teeTimeNumber].Players[player].Extra;
+                                playerEmail = tournamentTeeTimes[teeTimeNumber].Players[player].Email;
                                 // Make sure the email address is valid
                                 if (string.IsNullOrEmpty(playerEmail) || !playerEmail.Contains("@"))
                                 {
@@ -747,17 +798,17 @@ namespace WebAdmin.ViewModel
                             // Only write out tee time entries if there is a player
                             if (!string.IsNullOrEmpty(playerLastName))
                             {
-                                if ((TournamentNames[TournamentNameIndex].TeamSize == 4) && (player == 0))
+                                if ((teamSize == 4) && (player == 0))
                                 {
                                     // Update team ID on the first player of the group
                                     teamId++;
                                 }
-                                else if ((TournamentNames[TournamentNameIndex].TeamSize == 2) && (player % 2 == 0))
+                                else if ((teamSize == 2) && (player % 2 == 0))
                                 {
                                     // Update team ID on the first player and third player of group
                                     teamId++;
                                 }
-                                else if (TournamentNames[TournamentNameIndex].TeamSize == 1)
+                                else if (teamSize == 1)
                                 {
                                     // For individual tournaments, update the team number per player
                                     teamId++;
@@ -765,13 +816,13 @@ namespace WebAdmin.ViewModel
 
                                 // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
                                 //string handle = string.Empty;
-                                //if (player < TournamentTeeTimes[teeTimeNumber].Players.Count)
+                                //if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
                                 //{
-                                //    handle = '"' + TournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
-                                //    playerGhin = TournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                                //    handle = '"' + tournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
+                                //    playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
                                 //}
 
-                                tw.Write(TournamentTeeTimes[teeTimeNumber].StartTime + ",");
+                                tw.Write(tournamentTeeTimes[teeTimeNumber].StartTime + ",");
                                 tw.Write(playerLastName + ",");
                                 tw.Write(playerFirstName + ",");
                                 //tw.Write(handle + ",");
@@ -1371,29 +1422,56 @@ namespace WebAdmin.ViewModel
             {
                 string[][] lines = CSVParser.Parse(tr);
 
-                for (int lineIndex = 0, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
+                if (lines.Length > 0)
                 {
-                    string[] line = lines[lineIndex];
-                    if (line.Length > 0)
+                    if ((lines[0][0].ToLower() != "tee time") || (lines[0][1].ToLower() != "last name") || (lines[0][2].ToLower() != "first name"))
                     {
-                        SignUpWaitingListEntry waitingListEntry = new SignUpWaitingListEntry();
+                        MessageBox.Show("Expected 1st 3 columns on line 1 to be: TeeTime,Last Name,First Name", "Format Error");
+                        return;
+                    }
 
-                        waitingListEntry.Position = waitingList.Count;
+                    string time = "";
+                    SignUpWaitingListEntry waitingListEntry = null;
+                    for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
+                    {
+                        string[] line = lines[lineIndex];
+                        if (line.Length > 0)
+                        {
+                            // When the tee time changes, that is now a new group
+                            if (line[0] != time)
+                            {
+                                time = line[0];
+                                waitingListEntry = new SignUpWaitingListEntry();
+                                waitingList.Add(waitingListEntry);
+                            }
 
-                        waitingListEntry.Name1 = line[0].Trim();
-                        if(line.Length > 1)
-                        {
-                            waitingListEntry.Name2 = line[1].Trim();
+                            waitingListEntry.Position = waitingList.Count;
+
+                            // columns are TeeTime,Last Name,First Name 
+                            string name = line[1].Trim() + ", " + line[2].Trim();
+
+                            if (string.IsNullOrEmpty(waitingListEntry.Name1))
+                            {
+                                waitingListEntry.Name1 = name;
+                            }
+                            else if (string.IsNullOrEmpty(waitingListEntry.Name2))
+                            {
+                                waitingListEntry.Name2 = name;
+                            }
+                            else if (string.IsNullOrEmpty(waitingListEntry.Name3))
+                            {
+                                waitingListEntry.Name3 = name;
+                            }
+                            else if (string.IsNullOrEmpty(waitingListEntry.Name4))
+                            {
+                                waitingListEntry.Name4 = name;
+                            }
+                            else
+                            {
+                                MessageBox.Show("There are more than 4 people in the group at time " + time);
+                                return;
+                            }
                         }
-                        if (line.Length > 2)
-                        {
-                            waitingListEntry.Name3 = line[2].Trim();
-                        }
-                        if (line.Length > 3)
-                        {
-                            waitingListEntry.Name4 = line[3].Trim();
-                        }
-                        waitingList.Add(waitingListEntry);
                     }
                 }
             }
