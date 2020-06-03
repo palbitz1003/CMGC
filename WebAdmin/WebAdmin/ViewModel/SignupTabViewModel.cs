@@ -711,6 +711,9 @@ namespace WebAdmin.ViewModel
 
             if (TeeTimeRequests.Count > 0)
             {
+                OrderBySignupDate = true;
+                SortTeeTimeRequests();
+
                 var unassignedTeeTimes = ConvertUnassignedToTeeTimes();
 
                 SaveAsCsv("WaitList - " + TournamentNames[TournamentNameIndex].Name,
@@ -1430,47 +1433,19 @@ namespace WebAdmin.ViewModel
                         return;
                     }
 
-                    string time = "";
-                    SignUpWaitingListEntry waitingListEntry = null;
                     for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
                     {
                         string[] line = lines[lineIndex];
                         if (line.Length > 0)
                         {
-                            // When the tee time changes, that is now a new group
-                            if (line[0] != time)
-                            {
-                                time = line[0];
-                                waitingListEntry = new SignUpWaitingListEntry();
-                                waitingList.Add(waitingListEntry);
-                            }
+                            var waitingListEntry = new SignUpWaitingListEntry();
+                            waitingList.Add(waitingListEntry);
 
                             waitingListEntry.Position = waitingList.Count;
 
                             // columns are TeeTime,Last Name,First Name 
                             string name = line[1].Trim() + ", " + line[2].Trim();
-
-                            if (string.IsNullOrEmpty(waitingListEntry.Name1))
-                            {
-                                waitingListEntry.Name1 = name;
-                            }
-                            else if (string.IsNullOrEmpty(waitingListEntry.Name2))
-                            {
-                                waitingListEntry.Name2 = name;
-                            }
-                            else if (string.IsNullOrEmpty(waitingListEntry.Name3))
-                            {
-                                waitingListEntry.Name3 = name;
-                            }
-                            else if (string.IsNullOrEmpty(waitingListEntry.Name4))
-                            {
-                                waitingListEntry.Name4 = name;
-                            }
-                            else
-                            {
-                                MessageBox.Show("There are more than 4 people in the group at time " + time);
-                                return;
-                            }
+                            waitingListEntry.Name1 = name;
                         }
                     }
                 }
