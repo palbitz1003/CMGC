@@ -42,6 +42,17 @@ namespace WebAdmin.ViewModel
             "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"
         };
 
+        private readonly List<string> _defaultTeeTimes98 = new List<string>
+        {
+            "6:00 AM", "6:09 AM", "6:17 AM", "6:26 AM", "6:34 AM", "6:43 AM", "6:51 AM",
+            "7:00 AM", "7:09 AM", "7:17 AM", "7:26 AM", "7:34 AM", "7:43 AM", "7:51 AM",
+            "8:00 AM", "8:09 AM", "8:17 AM", "8:26 AM", "8:34 AM", "8:43 AM", "8:51 AM",
+            "9:00 AM", "9:09 AM", "9:17 AM", "9:26 AM", "9:34 AM", "9:43 AM", "9:51 AM",
+            "10:00 AM", "10:09 AM", "10:17 AM", "10:26 AM", "10:34 AM", "10:43 AM", "10:51 AM",
+            "11:00 AM", "11:09 AM", "11:17 AM", "11:26 AM", "11:34 AM", "11:43 AM", "11:51 AM"
+
+        };
+
         private Visibility _getTournamentsVisible;
         public Visibility GetTournamentsVisible { get { return _getTournamentsVisible; } set { _getTournamentsVisible = value; OnPropertyChanged(); } }
 
@@ -223,6 +234,7 @@ namespace WebAdmin.ViewModel
                     InitFirstTeeTimeList();
                     InitTeeTimes();
                 }
+                Options.TeeTimeInterval78 = _teeTimeInterval78;
                 OnPropertyChanged();
             }
         }
@@ -242,6 +254,25 @@ namespace WebAdmin.ViewModel
                 }
 
                 Options.TeeTimeInterval10 = _teeTimeInterval10;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _teeTimeInterval98;
+        public bool TeeTimeInterval98
+        {
+            get { return _teeTimeInterval98; }
+            set
+            {
+                _teeTimeInterval98 = value;
+                if (_teeTimeInterval98)
+                {
+                    _defaultTeeTimes = _defaultTeeTimes98;
+                    InitFirstTeeTimeList();
+                    InitTeeTimes();
+                }
+
+                Options.TeeTimeInterval98 = _teeTimeInterval98;
                 OnPropertyChanged();
             }
         }
@@ -285,7 +316,8 @@ namespace WebAdmin.ViewModel
             //TodoSelection = -1;
             RemoveSelection = -1;
             TeeTimeInterval10 = Options.TeeTimeInterval10; // initializes list
-            TeeTimeInterval78 = !Options.TeeTimeInterval10;
+            TeeTimeInterval78 = Options.TeeTimeInterval78;
+            TeeTimeInterval98 = Options.TeeTimeInterval98;
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
             AllowTeeTimeIntervalAdjust = true;
