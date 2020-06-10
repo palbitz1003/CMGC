@@ -1218,7 +1218,11 @@ namespace WebAdmin.ViewModel
             return cols.ToArray();
         }
 
-        private void ReadGgResultsFile(string fullPath)
+        private void ReadGgResultsFile(
+            string fullPath, 
+            List<List<KeyValuePair<string, string>>> kvpScoresList, 
+            List<KeyValuePair<string, string>> kvpChitsList, 
+            ref int chitsIndex)
         {
             if (string.IsNullOrEmpty(fullPath))
             {
@@ -1228,9 +1232,6 @@ namespace WebAdmin.ViewModel
             {
                 throw new ApplicationException("File doesn't exist: " + fullPath);
             }
-
-            _kvpChitsList = new List<KeyValuePair<string, string>>();
-            _kvpScoresList = new List<List<KeyValuePair<string, string>>>();
 
             List<KeyValuePair<string, string>> kvpList = null;
 
@@ -1254,7 +1255,6 @@ namespace WebAdmin.ViewModel
             bool isMultiDay = TournamentNames[TournamentNameIndex].StartDate != TournamentNames[TournamentNameIndex].EndDate;
 
             int lineNumber = 1;
-            int chitsIndex = 0;
             using (TextReader tr = new StreamReader(fullPath))
             {
                 string[][] lines = CSVParser.Parse(tr);
@@ -1316,6 +1316,7 @@ namespace WebAdmin.ViewModel
                         // There are 8 columns of "round score" (2 per division) data and only 2 of them will be filled in
                         int scoreColIndex = 0;
                         score.ScoreRound1 = 0;
+                        bool round1ScoreFound = false;
                         for (; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
                         {
                             if (!string.IsNullOrEmpty(line[roundScoreCols[scoreColIndex]]))
@@ -1323,10 +1324,18 @@ namespace WebAdmin.ViewModel
                                 int scoreRound1;
                                 if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound1))
                                 {
+                                    round1ScoreFound = true;
                                     score.ScoreRound1 = scoreRound1;
                                     break;
                                 }
                             }
+                        }
+
+                        // Multi-division tournaments will have 1 .csv per division. Those players
+                        // not in the division will be empty. Skip over those.
+                        if (!round1ScoreFound)
+                        {
+                            continue;
                         }
 
                         // Read round 2 score.
@@ -1382,7 +1391,7 @@ namespace WebAdmin.ViewModel
 
                                 // Add the chits data if there is a purse for this entry
                                 // The chits results are reported individually, not as a team.
-                                chitsIndex = AddGgChits(chitsIndex, line, purseCols, rankCols, flightNameCol, ghinCol, scoreList[scoreIndex], lastNameFirstName);
+                                chitsIndex = AddGgChits(kvpChitsList, chitsIndex, line, purseCols, rankCols, flightNameCol, ghinCol, scoreList[scoreIndex], lastNameFirstName);
 
                                 // For scores, put all the names in a single score object
                                 if (string.IsNullOrEmpty(scoreList[scoreIndex].Name2))
@@ -1448,7 +1457,7 @@ namespace WebAdmin.ViewModel
                         scoreList.Add(score);
 
                         // Add the chits entries if the purse is non-zero
-                        chitsIndex = AddGgChits(chitsIndex, line, purseCols, rankCols, flightNameCol, ghinCol, score, score.Name1);
+                        chitsIndex = AddGgChits(kvpChitsList, chitsIndex, line, purseCols, rankCols, flightNameCol, ghinCol, score, score.Name1);
                     }
                 }
             }
@@ -1495,7 +1504,7 @@ namespace WebAdmin.ViewModel
                 if ((index % 40) == 0)
                 {
                     kvpList = new List<KeyValuePair<string, string>>();
-                    _kvpScoresList.Add(kvpList);
+                    kvpScoresList.Add(kvpList);
                     index = 0;
                 }
 
@@ -1513,7 +1522,9 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private int AddGgChits(int chitsIndex,
+        private int AddGgChits(
+            List<KeyValuePair<string, string>> kvpChitsList,
+            int chitsIndex,
             string[] line,
             int[] purseCols,
             int[] rankCols,
@@ -1533,10 +1544,10 @@ namespace WebAdmin.ViewModel
                     {
                         purse = purse / TournamentNames[TournamentNameIndex].TeamSize;
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Winnings]", ResultsChits, chitsIndex), purse.ToString()));
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Date]", ResultsChits, chitsIndex), score.Date.ToString("yyyy-MM-dd")));
 
                         int place = 0;
@@ -1547,36 +1558,36 @@ namespace WebAdmin.ViewModel
                                 break;
                             }
                         }
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Place]", ResultsChits, chitsIndex), place.ToString()));
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Score]", ResultsChits, chitsIndex), score.ScoreTotal.ToString()));
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Flight]", ResultsChits, chitsIndex), score.Flight.ToString()));
 
                         if (!line[flightNameCol].ToLower().Contains("flight"))
                         {
-                            _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            kvpChitsList.Add(new KeyValuePair<string, string>(
                                 string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), "Flight " + score.Flight));
                         }
                         else
                         {
-                            _kvpChitsList.Add(new KeyValuePair<string, string>(
+                            kvpChitsList.Add(new KeyValuePair<string, string>(
                                 string.Format("{0}[{1}][FlightName]", ResultsChits, chitsIndex), line[flightNameCol]));
                         }
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][TeamNumber]", ResultsChits, chitsIndex), score.TeamNumber.ToString()));
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][Name]", ResultsChits, chitsIndex), name));
 
                         // TODO: do I have to merge the team results into a single entry by filling in the
                         // names of the other players?
 
-                        _kvpChitsList.Add(new KeyValuePair<string, string>(
+                        kvpChitsList.Add(new KeyValuePair<string, string>(
                             string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), line[ghinCol]));
 
                         chitsIndex++;
@@ -1826,7 +1837,17 @@ namespace WebAdmin.ViewModel
             //    ? AddMatchPlayEntries(CsvScoresFileName) 
             //    : ;
 
-            ReadGgResultsFile(GgTournamentResultsCsvFileName);
+            _kvpChitsList = new List<KeyValuePair<string, string>>();
+            int chitsIndex = 0;
+
+            // The scores are a list of lists, so they can be uploaded in chunks
+            _kvpScoresList = new List<List<KeyValuePair<string, string>>>();
+
+            string[] fileNames = GgTournamentResultsCsvFileName.Split(',');
+            foreach (var name in fileNames)
+            {
+                ReadGgResultsFile(name.Trim(), _kvpScoresList, _kvpChitsList, ref chitsIndex);
+            }
 
             string submitted = string.Empty;
 

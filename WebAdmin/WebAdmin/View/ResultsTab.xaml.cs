@@ -113,7 +113,8 @@ namespace WebAdmin.View
 
             if (!string.IsNullOrEmpty(GgTournamentResultsCsvFileNameTextBox.Text))
             {
-                string dir = System.IO.Path.GetDirectoryName(GgTournamentResultsCsvFileNameTextBox.Text);
+                // Multi-select is turned on. Only check the path on the 1st item in the list
+                string dir = System.IO.Path.GetDirectoryName(GgTournamentResultsCsvFileNameTextBox.Text.Split(',')[0]);
                 if (Directory.Exists(dir))
                 {
                     dlg.InitialDirectory = dir;
@@ -123,6 +124,7 @@ namespace WebAdmin.View
             // Set filter for file extension and default file extension 
             dlg.DefaultExt = ".csv";
             dlg.Filter = "CSV Files (*.csv)|*.csv";
+            dlg.Multiselect = true;
 
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
@@ -130,8 +132,18 @@ namespace WebAdmin.View
             // Get the selected file name and display in a TextBox 
             if (result == true)
             {
-                GgTournamentResultsCsvFileNameTextBox.Text = dlg.FileName;
+                GgTournamentResultsCsvFileNameTextBox.Text = string.Empty;
+                for (int i = 0; i < dlg.FileNames.Length; i++)
+                {
+                    if (i > 0)
+                    {
+                        // Separate with commas. The newline grows the textbox vertically
+                        GgTournamentResultsCsvFileNameTextBox.Text += ",\n";
+                    }
+                    GgTournamentResultsCsvFileNameTextBox.Text += dlg.FileNames[i];
+                }
             }
+
         }
 
         private void BrowseCSVFolderButton_Click(object sender, RoutedEventArgs e)
