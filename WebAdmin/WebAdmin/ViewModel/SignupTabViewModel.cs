@@ -108,11 +108,9 @@ namespace WebAdmin.ViewModel
                     System.Diagnostics.Debug.WriteLine("Duplicate selection event ms: " + timeSinceLastEvent.TotalMilliseconds);
 
                     // Since the ListBox thinks the same item has been selected, you can't click
-                    // on it again. The steps below are meant to just clear the selected item without
+                    // on it again. ClearTodoSelection() clears the selected item without
                     // triggering another selection event.
-                    var savedList = TeeTimeRequestsUnassigned;
-                    TeeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
-                    TeeTimeRequestsUnassigned = savedList;
+                    ClearTodoSelection();
                     return;
                 }
                 _lastSelectionTime = DateTime.Now;
@@ -350,10 +348,25 @@ namespace WebAdmin.ViewModel
             FirstTeeTimeIndex = 0;
         }
 
+        private void ClearTodoSelection()
+        {
+            // Clear the unassigned list selection without triggering
+            // a new event by assigning an empty list and the restoring
+            // the original list.
+            var savedList = TeeTimeRequestsUnassigned;
+            TeeTimeRequestsUnassigned = new TrulyObservableCollection<TeeTimeRequest>();
+            TeeTimeRequestsUnassigned = savedList;
+        }
+
         public void SortTeeTimeRequests()
         {
             if (TeeTimeRequests != null)
             {
+                // First, reset the unassigned list to an empty list to make
+                // sure nothing is "selected". If so, changing the list will
+                // trigger a selected event.
+                ClearTodoSelection();
+
                 if (OrderBySignupDate)
                 {
                     TeeTimeRequests.Sort(new SubmitKeySort());
@@ -554,7 +567,7 @@ namespace WebAdmin.ViewModel
                 MessageBox.Show((teeTime.Players.Count == 4) 
                     ? "Tee time is full" 
                     : "Not enough room for all players at " + teeTime.StartTime);
-                TodoSelection = -1;
+                ClearTodoSelection();
                 return;
             }
 
