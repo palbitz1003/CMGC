@@ -22,6 +22,7 @@ namespace WebAdmin.ViewModel
 
         private const string ResultsPool = "ResultsPool";
         private const string ResultsChits = "ResultsChits";
+        private const string FlightNameTable = "FlightNames";
         private const string MatchPlayResultsScores = "MatchPlayResultsScores";
         private const string GolfGeniusResultsLink = "GolfGeniusResultsLink";
 
@@ -1219,7 +1220,8 @@ namespace WebAdmin.ViewModel
         }
 
         private void ReadGgResultsFile(
-            string fullPath, 
+            string fullPath,
+            string[] flightNames,
             List<List<KeyValuePair<string, string>>> kvpScoresList, 
             List<KeyValuePair<string, string>> kvpChitsList, 
             ref int chitsIndex)
@@ -1369,6 +1371,12 @@ namespace WebAdmin.ViewModel
                             throw new ArgumentException(fullPath + ": line " + lineNumber + ": unable to determine flight number");
                         }
                         score.Flight = flightNumber;
+
+                        // Allow names for flight numbers 0 to 9
+                        if ((flightNumber < flightNames.Length) && string.IsNullOrEmpty(flightNames[flightNumber]))
+                        {
+                            flightNames[flightNumber] = line[flightNameCol];
+                        }
 
                         string lastNameFirstName = line[lastNameCol] + ", " + line[firstNameCol];
 
@@ -1840,13 +1848,26 @@ namespace WebAdmin.ViewModel
             _kvpChitsList = new List<KeyValuePair<string, string>>();
             int chitsIndex = 0;
 
+            // Allow names for flight numbers 0 to 9
+            string[] flightNames = new string[10];
+
             // The scores are a list of lists, so they can be uploaded in chunks
             _kvpScoresList = new List<List<KeyValuePair<string, string>>>();
 
             string[] fileNames = GgTournamentResultsCsvFileName.Split(',');
             foreach (var name in fileNames)
             {
-                ReadGgResultsFile(name.Trim(), _kvpScoresList, _kvpChitsList, ref chitsIndex);
+                ReadGgResultsFile(name.Trim(), flightNames, _kvpScoresList, _kvpChitsList, ref chitsIndex);
+            }
+
+            var kvpFlightNames = new List<KeyValuePair<string, string>>();
+            for (int i = 0; i < flightNames.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(flightNames[i]))
+                {
+                    kvpFlightNames.Add(new KeyValuePair<string, string>(
+                                    string.Format("{0}[{1}]", FlightNameTable, i), flightNames[i]));
+                }
             }
 
             string submitted = string.Empty;
@@ -1896,7 +1917,18 @@ namespace WebAdmin.ViewModel
                 submitted += "scores";
             }
 
-            MessageBox.Show("Submitted results for " + submitted, "Upload Results");
+            if (kvpFlightNames.Count > 0)
+            {
+                if (!await SubmitResultsCsv(kvpFlightNames, "FlightNames", true))
+                {
+                    MessageBox.Show("Failed to submit flight names.");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(submitted))
+            {
+                MessageBox.Show("Submitted results for " + submitted, "Upload Results");
+            }
         }
 
         private async Task SubmitGgResultsLink(object o)

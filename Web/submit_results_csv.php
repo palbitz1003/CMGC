@@ -43,6 +43,9 @@ if ($_POST ['Action'] == 'Submit') {
 	else if(strcasecmp($_POST ["Clear"], 'pool') == 0){
 		ClearResults($connection, $tournamentKey, 'Pool');
 	}
+	else if(strcasecmp($_POST ["Clear"], 'FlightNames') == 0){
+		ClearTableWithTournamentKey ( $connection, 'FlightNames', $tournamentKey );
+	}
 		
 	if (isset ( $_POST ['ResultsPool'] )) {
 		
@@ -79,6 +82,7 @@ if ($_POST ['Action'] == 'Submit') {
 	else if (isset ( $_POST ['ResultsChits'] )) {
 		
 		$chitsResults = Array();
+		
 		for($i = 0; $i < count ( $_POST ['ResultsChits'] ); ++ $i) {
 			$c = new Chits();
 			$c->TournamentKey = $tournamentKey;
@@ -124,7 +128,19 @@ if ($_POST ['Action'] == 'Submit') {
 	
 		AddScoresResults($connection, $tournamentKey, $ScoresResults);
 		UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresPostedDate', date ( 'Y-m-d' ) );
-	} else if(isset ( $_POST ['MatchPlayResultsScores'] )) {
+	} 
+	else if(isset ( $_POST ['FlightNames'] )) {
+		// Create flightNames array with 10 empty slots
+		$flightNames = array_fill(0, 10, "");
+
+		// Grab up to 10 flight names. Allow flight number 0.
+		for($i = 0; $i < 10; ++ $i) {
+			$flightNames[$i] = $_POST ['FlightNames'] [$i]; 
+		}
+
+		UpdateFlightNames($connection, $tournamentKey, $flightNames);
+	} 
+	else if(isset ( $_POST ['MatchPlayResultsScores'] )) {
 	
 		$ScoresResults = Array();
 		for($i = 0; $i < count ( $_POST ['MatchPlayResultsScores'] ); ++ $i) {
@@ -140,7 +156,8 @@ if ($_POST ['Action'] == 'Submit') {
 		
 		AddMatchPlayScoresResults($connection, $tournamentKey, $ScoresResults);
 		UpdateTournamentDetails ( $connection, $tournamentKey, 'ScoresPostedDate', date ( 'Y-m-d' ) );
-	} else if(isset ( $_POST ['GolfGeniusResultsLink'] )) {
+	} else 
+	if(isset ( $_POST ['GolfGeniusResultsLink'] )) {
 		UpdateTournamentDetails ( $connection, $tournamentKey, 'GolfGeniusResultsLink', $_POST ['GolfGeniusResultsLink']['Link'] );
 	}
 } else if ($_POST ['Action'] == 'Clear') {

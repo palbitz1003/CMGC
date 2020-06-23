@@ -60,6 +60,7 @@ class Match {
 	public $Name1;
 	public $Name2;
 }
+
 function ShowResultsHeader($connection, $tournament, $result, $script_folder_href)
 {
 	$year = date ( 'Y', strtotime ( $tournament->StartDate ) );
@@ -545,6 +546,31 @@ function ShowMatchResults($connection, $tournamentKey)
 	$matchString = $matchString . '</svg>' . PHP_EOL;
 	if($dataProvided){
 		echo $matchString;
+	}
+}
+
+function UpdateFlightNames($connection, $tournamentKey, $flightNames)
+{
+	for($i = 0; $i < count ( $flightNames ); ++ $i) {
+		if(!empty($flightNames[$i])){
+			$sqlCmd = "INSERT INTO `FlightNames` VALUES (?, ?, ?)";
+			$insert = $connection->prepare ( $sqlCmd );
+
+			if (! $insert) {
+				die ( $sqlCmd . " prepare failed: " . $connection->error );
+			}
+			if (! $insert->bind_param ( 'iis', $tournamentKey, $i, $flightNames[$i] ))
+			{
+				die ( $sqlCmd . " bind_param failed: " . $connection->error );
+			}
+
+			if (! $insert->execute ()) {
+				die ( $sqlCmd . " execute failed: " . $connection->error );
+			}
+		
+
+			$insert->close ();
+		}
 	}
 }
 
