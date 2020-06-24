@@ -1822,28 +1822,12 @@ namespace WebAdmin.ViewModel
 
         private async Task SubmitCsv(object o)
         {
-            //List<KeyValuePair<string, string>> kvpPoolList = new List<KeyValuePair<string, string>>();
 
-            //foreach (var kvp in _csvDay1PoolKvp)
-            //{
-            //    if (kvp != null)
-            //    {
-            //        MergeResultsPoolKvp(kvpPoolList, kvp);
-            //    }
-            //}
-
-            //foreach (var kvp in _csvDay2PoolKvp)
-            //{
-            //    if (kvp != null)
-            //    {
-            //        MergeResultsPoolKvp(kvpPoolList, kvp);
-            //    }
-            //}
-
-            // TODO: match play
-            //List<List<KeyValuePair<string, string>>> scoresListList = MatchPlay 
-            //    ? AddMatchPlayEntries(CsvScoresFileName) 
-            //    : ;
+            if (string.IsNullOrEmpty(GgTournamentResultsCsvFileName))
+            {
+                MessageBox.Show("Please select file(s) to submit.", "Error");
+                return;
+            }
 
             _kvpChitsList = new List<KeyValuePair<string, string>>();
             int chitsIndex = 0;
