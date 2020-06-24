@@ -574,4 +574,38 @@ function UpdateFlightNames($connection, $tournamentKey, $flightNames)
 	}
 }
 
+// Returns a 10 element array (flight numbers 0-9) with flight names
+function GetFlightNames($connection, $tournamentKey)
+{
+	$sqlCmd = "SELECT * FROM `FlightNames` WHERE `TournamentKey` = ? ORDER BY `Number` ASC";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->bind_param ( 'i', $tournamentKey)) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ( $key, $number, $name);
+
+	// Create flightNames array with 10 empty slots
+	$flightNames = array_fill(0, 10, "");
+
+	while ( $query->fetch () ) {
+		if($number < count($flightNames)){
+			$flightNames[$number] = $name;
+		}
+	}
+
+	$query->close();
+
+	return $flightNames;
+}
+
 ?>

@@ -29,6 +29,7 @@ echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">' . PHP_EOL;
 
 $tournamentKey = $_GET ['tournament'];
+$flightNames = GetFlightNames($connection, $tournamentKey);
 
 if (! isset ( $result )) {
 	die ( "The requested result (scores/chits/pool) was not included in the URL" );
@@ -52,7 +53,7 @@ if ($tournamentKey) {
 						ShowMatchResults($connection, $t->TournamentKey);
 					} else {
 						$scoresResults = GetScoresResults($connection, $tournamentKey, $t->Stableford);
-						ShowScoresResults($scoresResults, $t->Stableford, $t->StartDate !== $t->EndDate);
+						ShowScoresResults($flightNames, $scoresResults, $t->Stableford, $t->StartDate !== $t->EndDate);
 					}
 				}
 				break;
@@ -64,7 +65,7 @@ if ($tournamentKey) {
 					}
 					else {
 						$chitsResults = GetChitsResults($connection, $tournamentKey);
-						ShowChitsResults($chitsResults, $t->MatchPlay);
+						ShowChitsResults($flightNames, $chitsResults, $t->MatchPlay);
 					}
 				break;
 				case 'pool' :
@@ -196,7 +197,7 @@ function ShowPoolResults($poolResults)
 	echo '</tbody></table>' . PHP_EOL;
 }
 
-function ShowChitsResults($chitsResults, $matchPlay)
+function ShowChitsResults($flightNames, $chitsResults, $matchPlay)
 {
 	echo '<table style="border:none;;margin-left:auto;margin-right:auto"><tbody>' . PHP_EOL;
 
@@ -246,12 +247,7 @@ function ShowChitsResults($chitsResults, $matchPlay)
 				echo '</tr><tr>' . PHP_EOL;
 			}
 			
-			if(empty($chitsResults [$i]->FlightName)){
-				$flightName = 'Flight ' . $chitsResults [$i]->Flight;
-			}
-			else {
-				$flightName = $chitsResults [$i]->FlightName;
-			}
+			$flightName = GetFlightName($chitsResults [$i]->Flight, $chitsResults [$i]->FlightName, $flightNames);
 
 			echo '<td style="width:50%;border:none;">' . PHP_EOL;
 			echo '<table>' . PHP_EOL;
@@ -290,7 +286,7 @@ function ShowChitsResults($chitsResults, $matchPlay)
 	echo '</tbody></table>' . PHP_EOL;
 }
 
-function ShowScoresResults($scoresResults, $stableford, $multiDay) {
+function ShowScoresResults($flightNames, $scoresResults, $stableford, $multiDay) {
 	
 	$currentFlight = - 1;
 	if($stableford == 0){
@@ -330,9 +326,11 @@ function ShowScoresResults($scoresResults, $stableford, $multiDay) {
 				echo '</tbody>' . PHP_EOL;
 				echo '</table>' . PHP_EOL;
 			}
+
+			$flightName = GetFlightName($scoresResults [$i]->Flight, "", $flightNames);
 			
 			echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
-			echo '<thead><tr class="header"><th>Flight ' . $scoresResults [$i]->Flight . '</th>' . $header . '</tr></thead>' . PHP_EOL;
+			echo '<thead><tr class="header"><th>' . $flightName . '</th>' . $header . '</tr></thead>' . PHP_EOL;
 			echo '<tbody>' . PHP_EOL;
 			$currentFlight = $scoresResults [$i]->Flight;
 		}
@@ -367,6 +365,22 @@ function ShowScoresResults($scoresResults, $stableford, $multiDay) {
 	// Finish the inner table
 	echo '</tbody>' . PHP_EOL;
 	echo '</table>' . PHP_EOL;
+}
+
+function GetFlightName($flightNumber, $oldName, $flightNames)
+{
+	if(($flightNumber < count($flightNames)) && !empty($flightNames[$flightNumber])){
+		return $flightNames[$flightNumber];
+	}
+
+	// Flight name used to be stored with the chits. Use that if the flight name
+	// array was not filled in for that tournament.
+	if(!empty($oldName)){
+		return $oldName;
+	}
+
+	// Default
+	return 'Flight ' . $flightNumber;
 }
 
 get_footer ();
