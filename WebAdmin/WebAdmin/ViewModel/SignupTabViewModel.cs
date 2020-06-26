@@ -1481,7 +1481,7 @@ namespace WebAdmin.ViewModel
                     for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
                     {
                         string[] line = lines[lineIndex];
-                        if (line.Length > 0)
+                        if ((line.Length > 2) && (!string.IsNullOrWhiteSpace(line[1])))
                         {
                             var waitingListEntry = new SignUpWaitingListEntry();
                             waitingList.Add(waitingListEntry);
