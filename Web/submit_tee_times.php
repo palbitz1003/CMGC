@@ -21,7 +21,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	die ( "Missing tournament key" );
 } else {
 	for($i = 0; $i < count ( $_POST ['TeeTime'] ); ++ $i) {
-		$teeTime = new TeeTime ();
+		$teeTime = new DatabaseTeeTime ();
 		$teeTime->StartTime = $_POST ['TeeTime'] [$i] ['StartTime'];
 		$teeTime->StartHole = $_POST ['TeeTime'] [$i] ['StartHole'];
 		$tournamentKey = $_POST ['TeeTime'] [$i] ['TournamentKey'];

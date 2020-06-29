@@ -16,6 +16,7 @@ class TeeTimeRequest {
     public $Players;
 }
 
+// Player class is duplicated in get_tee_times_json.php
 class Player {
     public $Name;
     public $Position;

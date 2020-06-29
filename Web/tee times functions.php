@@ -1,5 +1,5 @@
 <?php
-class TeeTime {
+class DatabaseTeeTime {
 	public $Key;
 	public $StartTime;
 	public $StartHole;
@@ -7,7 +7,7 @@ class TeeTime {
 	public $GHIN;
 	public $Position;
 }
-class Player {
+class DatabasePlayer {
 	public $GHIN;
 	public $LastName;
 	public $FirstName;
@@ -68,7 +68,7 @@ function GetTeeTimes($connection, $tournamentKey) {
 	$query->bind_result ( $key, $tournament, $startTime, $startHole );
 	
 	while ( $query->fetch () ) {
-		$teeTime = new TeeTime ();
+		$teeTime = new DatabaseTeeTime ();
 		$teeTime->Key = $key;
 		$teeTime->StartTime = $startTime;
 		$teeTime->StartHole = $startHole;
@@ -112,7 +112,7 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 	$playerCount = 0;
 	$playerArray = array ();
 	while ( $query->fetch () ) {
-		$player = new Player ();
+		$player = new DatabasePlayer ();
 		$player->GHIN = $GHIN;
 		$player->LastName = $Name;
 		$playerArray [] = $player;

@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Printing;
 using WebAdmin.View;
+using System.Web.Script.Serialization;
 
 namespace WebAdmin.ViewModel
 {
@@ -1063,12 +1064,30 @@ namespace WebAdmin.ViewModel
 
                     Logging.Log("LoadTeeTimesFromWeb", responseString);
 
-                    LoadTeeTimesFromWebResponse(responseString);
+                    LoadTeeTimesFromWebResponseJson(responseString);
                     LoadSignupsFromTeeTimes();
                 }
             }
 
             GroupMode = false;
+        }
+
+        protected void LoadTeeTimesFromWebResponseJson(string webResponse)
+        {
+            TournamentTeeTimes.Clear();
+
+            if (string.IsNullOrEmpty(webResponse))
+            {
+                return;
+            }
+
+            if (webResponse.StartsWith("JSON error:"))
+            {
+                throw new Exception(webResponse);
+            }
+
+            var jss = new JavaScriptSerializer();
+            TournamentTeeTimes = jss.Deserialize<TrulyObservableCollection<TeeTime>>(webResponse);
         }
 
         public void LoadTeeTimesFromWebResponse(string webResponse)
