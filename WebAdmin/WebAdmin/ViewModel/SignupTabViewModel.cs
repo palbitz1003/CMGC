@@ -885,7 +885,8 @@ namespace WebAdmin.ViewModel
 
                                 if (string.IsNullOrEmpty(playerExtra))
                                 {
-                                    tw.Write(",");
+                                    // OverEighty is false
+                                    tw.Write(",false");
                                 }
                                 else
                                 {

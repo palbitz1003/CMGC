@@ -20,7 +20,7 @@
         
         <DockPanel Margin="5, 0, 0, 0" Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
             <Button Margin="5" VerticalAlignment="Center" Command="{Binding LoadGgCsvCommand}" >
-                <TextBlock TextWrapping="Wrap">Load Golf Genius tee sheet csv</TextBlock>
+                <TextBlock TextWrapping="Wrap">Load Tee Sheet csv</TextBlock>
             </Button>
             <DockPanel  LastChildFill="true" Margin="5" VerticalAlignment="Center">
                 <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseStartTimeButton" DockPanel.Dock="Right" Click="BrowseStartTimeButton_Click" >Browse ...</Button>
