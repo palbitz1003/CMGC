@@ -385,10 +385,10 @@ namespace WebAdmin.ViewModel
         {
             TournamentNameIndex = -1;
 
-            // Grab the last tournament that has completed
+            // Grab the last tournament that has started
             for (int i = TournamentNames.Count - 1; i >= 0; i--)
             {
-                if ((DateTime.Now >= TournamentNames[i].EndDate) && !TournamentNames[i].AnnouncementOnly)
+                if ((DateTime.Now >= TournamentNames[i].StartDate) && !TournamentNames[i].AnnouncementOnly)
                 {
                     TournamentNameIndex = i;
                     break;
