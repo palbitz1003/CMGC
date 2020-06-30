@@ -34,7 +34,7 @@ $teeTimesResponse = array();
 for($i = 0; $i < count($teeTimes); ++$i){
     
     $teeTime = new TeeTime();
-    $teeTime->StartTime = $teeTimes[$i]->StartTime;
+    $teeTime->StartTime = date ( 'g:i A', strtotime ($teeTimes[$i]->StartTime));
     $teeTime->Players = array();
     
 	for($j = 0; $j < count($teeTimes[$i]->Players); ++$j){
