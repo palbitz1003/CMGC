@@ -92,7 +92,7 @@ function ShowPlayersAlphabetically($connection, $tournamentKey, $teeTimeArray) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$query->bind_result ( $key, $tournament, $GHIN, $Name, $Position );
+	$query->bind_result ( $key, $tournament, $GHIN, $Name, $Position, $Extra );
 
 	echo '<table>' . PHP_EOL;
 	echo '<thead><tr class="header"><th colspan="2">Alphabetical</th></tr></thead>' . PHP_EOL;

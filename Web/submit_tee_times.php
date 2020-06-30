@@ -29,6 +29,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		for($player = 0; $player < count ( $_POST ['TeeTime'] [$i] ['Player'] ); ++ $player) {
 			$teeTime->Players [] = FixNameCasing($_POST ['TeeTime'] [$i] ['Player'] [$player]);
 			$teeTime->GHIN [] = $_POST ['TeeTime'] [$i] ['GHIN'] [$player];
+			$teeTime->Extra [] = $_POST ['TeeTime'] [$i] ['Extra'] [$player];
 		}
 		
 		$teeTimes [] = $teeTime;
@@ -46,7 +47,8 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		$teeTimeKey = InsertTeeTime ( $connection, $tournamentKey, $teeTimes [$i]->StartTime, $teeTimes [$i]->StartHole );
 		if ($teeTimes [$i]->Players) {
 			for($player = 0; $player < count ( $teeTimes [$i]->Players ); ++ $player) {
-				InsertTeeTimePlayer ( $connection, $teeTimeKey, $tournamentKey, $teeTimes [$i]->GHIN [$player], $teeTimes [$i]->Players [$player], $player );
+				InsertTeeTimePlayer ( $connection, $teeTimeKey, $tournamentKey, 
+					$teeTimes [$i]->GHIN [$player], $teeTimes [$i]->Players [$player], $teeTimes [$i]->Extra [$player], $player );
 			}
 		}
 	}

@@ -6,12 +6,14 @@ class DatabaseTeeTime {
 	public $Players;
 	public $GHIN;
 	public $Position;
+	public $Extra;
 }
 class DatabasePlayer {
 	public $GHIN;
 	public $LastName;
 	public $FirstName;
 	public $Handicap;
+	public $Extra;
 }
 function InsertTeeTime($connection, $tournamentKey, $teeTime, $startHole) {
 	$sqlCmd = "INSERT INTO `TeeTimes` VALUES (NULL, ?, ?, ?)";
@@ -32,15 +34,19 @@ function InsertTeeTime($connection, $tournamentKey, $teeTime, $startHole) {
 	// echo 'insert: ' . $teeTime . " id: " . $insert->insert_id . "\n";
 	return $insert->insert_id;
 }
-function InsertTeeTimePlayer($connection, $teeTimeKey, $tournamentKey, $GHIN, $name, $playerIndex) {
-	$sqlCmd = "INSERT INTO `TeeTimesPlayers` VALUES (?, ?, ?, ?, ?)";
+function InsertTeeTimePlayer($connection, $teeTimeKey, $tournamentKey, $GHIN, $name, $extra, $playerIndex) {
+	$sqlCmd = "INSERT INTO `TeeTimesPlayers` VALUES (?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 	
-	if (! $insert->bind_param ( 'iiisi', $teeTimeKey, $tournamentKey, $GHIN, $name, $playerIndex )) {
+	// null is not allowed
+	if(empty($extra)){
+		$extra = "";
+	}
+	if (! $insert->bind_param ( 'iiisis', $teeTimeKey, $tournamentKey, $GHIN, $name, $playerIndex, $extra )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	
@@ -103,7 +109,7 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 	
-	$query->bind_result ( $key, $tournament, $GHIN, $Name, $Position );
+	$query->bind_result ( $key, $tournament, $GHIN, $Name, $Position, $extra );
 	
 	// if (! $forWeb) {
 	// echo date ( 'g:i', strtotime ( $teeTime ) );
@@ -115,6 +121,7 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 		$player = new DatabasePlayer ();
 		$player->GHIN = $GHIN;
 		$player->LastName = $Name;
+		$player->Extra = $extra;
 		$playerArray [] = $player;
 	}
 	

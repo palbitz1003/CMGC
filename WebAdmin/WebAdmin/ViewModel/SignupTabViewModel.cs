@@ -706,12 +706,16 @@ namespace WebAdmin.ViewModel
                     for (int player = 0; player < TournamentTeeTimes[i].Players.Count; player++)
                     {
                         values.Add(new KeyValuePair<string, string>(
-                        string.Format("TeeTime[{0}][Player][{1}]", i, player),
-                        TournamentTeeTimes[i].Players[player].Name));
+                            string.Format("TeeTime[{0}][Player][{1}]", i, player),
+                            TournamentTeeTimes[i].Players[player].Name));
 
                         values.Add(new KeyValuePair<string, string>(
-                        string.Format("TeeTime[{0}][GHIN][{1}]", i, player),
-                        TournamentTeeTimes[i].Players[player].GHIN));
+                            string.Format("TeeTime[{0}][GHIN][{1}]", i, player),
+                            TournamentTeeTimes[i].Players[player].GHIN));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("TeeTime[{0}][Extra][{1}]", i, player),
+                            TournamentTeeTimes[i].Players[player].Extra));
                     }
                 }
 
@@ -1225,6 +1229,9 @@ namespace WebAdmin.ViewModel
                 int lastNameColumn = -1;
                 int firstNameColumn = -1;
                 int ghinColumn = -1;
+                int emailColumn = -1;
+                int flightColumn = -1;
+                int overEightyColumn = -1;
 
                 if (lines.Length == 0)
                 {
@@ -1249,6 +1256,18 @@ namespace WebAdmin.ViewModel
                     {
                         ghinColumn = col;
                     }
+                    else if (string.Compare(lines[0][col], "email", true) == 0)
+                    {
+                        emailColumn = col;
+                    }
+                    else if (string.Compare(lines[0][col], "flight", true) == 0)
+                    {
+                        flightColumn = col;
+                    }
+                    else if (string.Compare(lines[0][col], "overeighty", true) == 0)
+                    {
+                        overEightyColumn = col;
+                    }
                 }
 
                 if (teeTimeColumn == -1)
@@ -1267,6 +1286,8 @@ namespace WebAdmin.ViewModel
                 {
                     throw new ApplicationException(GgTeeTimeFile + ": did not find header column: GHIN");
                 }
+
+                // GG file may not have email, flight, or overeighty columns, so don't throw an exception if that one is missing
 
                 for(int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
                 {
@@ -1328,6 +1349,34 @@ namespace WebAdmin.ViewModel
                             player.Name = line[lastNameColumn].Trim();
                         }
                         player.GHIN = line[ghinColumn].Trim();
+
+                        if (emailColumn != -1)
+                        {
+                            player.Email = line[emailColumn].Trim();
+                        }
+                        if (flightColumn != -1)
+                        {
+                            int flight;
+                            if (int.TryParse(line[flightColumn], out flight))
+                            {
+                                // flight 0 is championship flight
+                                if (flight == 0)
+                                {
+                                    player.Extra = "CH";
+                                }
+                                else
+                                {
+                                    player.Extra = "F" + flight;
+                                }
+                            }
+                        }
+                        if (overEightyColumn != -1)
+                        {
+                            if (string.Compare(line[overEightyColumn], "true", true) == 0)
+                            {
+                                player.Extra += " >80";
+                            }
+                        }
 
                         player.TeeTime = tt;
                         tt.AddPlayer(player);

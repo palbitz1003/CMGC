@@ -42,6 +42,7 @@ for($i = 0; $i < count($teeTimes); ++$i){
         $player->Name =  $teeTimes[$i]->Players[$j]->LastName;
         $player->GHIN = $teeTimes[$i]->Players[$j]->GHIN;
         $player->Position = $j + 1;
+        $player->Extra = $teeTimes[$i]->Players[$j]->Extra;
 
         if($player->GHIN !== 0){
 			$rosterEntry = GetRosterEntry ( $connection, $player->GHIN );
