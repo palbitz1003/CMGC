@@ -324,7 +324,7 @@ namespace WebAdmin.ViewModel
 
         public void InitTeeTimes()
         {
-            ClearPlayers();
+            ClearPlayersFromAllTeeTimes();
             TournamentTeeTimes.Clear();
 
             // TODO shotgun
@@ -1065,7 +1065,7 @@ namespace WebAdmin.ViewModel
                     Logging.Log("LoadTeeTimesFromWeb", responseString);
 
                     LoadTeeTimesFromWebResponseJson(responseString);
-                    LoadSignupsFromTeeTimes();
+                    CreateTeeTimeRequestsFromTeeTimes();
                 }
             }
 
@@ -1088,88 +1088,18 @@ namespace WebAdmin.ViewModel
 
             var jss = new JavaScriptSerializer();
             TournamentTeeTimes = jss.Deserialize<TrulyObservableCollection<TeeTime>>(webResponse);
-        }
 
-        public void LoadTeeTimesFromWebResponse(string webResponse)
-        {
-            TournamentTeeTimes.Clear();
-
-            string[] responseLines = webResponse.Split('\n');
-
-            string[][] lines = CSVParser.Parse(responseLines);
-            int lineNumber = 0;
-            for (int lineIndex = 0, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
+            // Need to connect up links
+            foreach (var teeTime in TournamentTeeTimes)
             {
-                lineNumber++;
-                string[] fields = lines[lineIndex];
-
-                if (fields.Length == 0) continue;
-
-                TeeTime teeTime = new TeeTime();
-
-                teeTime.StartTime = fields[0];
-
-                // The rest of the fields are Name/GHIN doubles
-                int playerPosition = 1;
-                for (int i = 1; i < fields.Length; i += 3)
+                foreach (var player in teeTime.Players)
                 {
-                    Player player = new Player();
-
-                    if (string.IsNullOrWhiteSpace(fields[i]))
-                    {
-                        // TODO: this is only needed for partner tournaments
-                        //if (teeTime.Players.Count > 0)
-                        //{
-                        //    teeTime.AddPlayer(player);
-                        //}
-                    }
-                    else
-                    {
-                        player.Position = playerPosition;
-                        playerPosition++;
-                        player.Name = fields[i].Trim();
-                        if (string.IsNullOrWhiteSpace(fields[i + 1]))
-                        {
-                            throw new ArgumentException(string.Format("Website response: line {0}: missing GHIN number: {1}", lineNumber, string.Join(",", fields)));
-                        }
-                        player.GHIN = fields[i + 1].Trim();
-                        if (string.IsNullOrWhiteSpace(fields[i + 1]))
-                        {
-                            throw new ArgumentException(string.Format("Website response: line {0}: missing handicap: {1}", lineNumber, string.Join(",", fields)));
-                        }
-                        player.Handicap = fields[i + 2].Trim();
-
-                        player.TeeTime = teeTime;
-                        teeTime.AddPlayer(player);
-                    }
-                }
-
-                TournamentTeeTimes.Add(teeTime);
-            }
-        }
-
-        public void LoadTeeTimesFromFile(string fileName)
-        {
-            TournamentTeeTimes.Clear();
-            TeeTimes.Clear();
-            using (TextReader tr = new StreamReader(fileName))
-            {
-                string line;
-                while ((line = tr.ReadLine()) != null)
-                {
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        TournamentTeeTimes.Add(new TeeTime { StartTime = line });
-                        if (TeeTimes.Count < 16)
-                        {
-                            TeeTimes.Add(line);
-                        }
-                    }
+                    player.TeeTime = teeTime;
                 }
             }
         }
 
-        public void ClearPlayers()
+        public void ClearPlayersFromAllTeeTimes()
         {
             foreach (var teeTime in TournamentTeeTimes)
             {
@@ -1177,87 +1107,24 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        public void LoadSignupsFromTeeTimes()
+        public void CreateTeeTimeRequestsFromTeeTimes()
         {
             TeeTimeRequests.Clear();
             TeeTimeRequestsUnassigned.Clear();
             TeeTimeRequestsAssigned.Clear();
             AllowTeeTimeIntervalAdjust = false;
 
-            foreach (var teeTime in TournamentTeeTimes)
+            if (TournamentTeeTimes != null)
             {
-                foreach (var player in teeTime.Players)
+                foreach (var teeTime in TournamentTeeTimes)
                 {
-                    TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
-                    teeTimeRequest.Players.Add(player);
-                    teeTimeRequest.TeeTime = player.TeeTime;
-                    //player.TeeTimeRequest = teeTimeRequest;
-                    TeeTimeRequestsAssigned.Add(teeTimeRequest);
-                }
-            }
-
-            UpdateUnassignedList(4);
-        }
-
-        private void LoadSignupsFromFile()
-        {
-            string[] signUpFiles = Directory.GetFiles(".", "*TournamentEntries.csv");
-            switch (signUpFiles.Length)
-            {
-                case 0: MessageBox.Show("No TournamentEntries.csv files found "); return;
-                case 1: LoadFromFile(signUpFiles[0]); break;
-                default: MessageBox.Show("More than 1 TournamentEntries.csv files found"); return;
-            }
-        }
-
-        public void LoadFromFile(string fileName)
-        {
-            TeeTimeRequests.Clear();
-            TeeTimeRequestsUnassigned.Clear();
-            TeeTimeRequestsAssigned.Clear();
-
-            using (TextReader tr = new StreamReader(fileName))
-            {
-                string line;
-                int lineNumber = 0;
-
-                while ((line = tr.ReadLine()) != null)
-                {
-                    lineNumber++;
-                    TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
-
-                    string[] fields = line.Split(',');
-                    teeTimeRequest.Preference = fields[0];
-
-                    // The rest of the fields are Name/GHIN/handicap triples
-                    int playerPosition = 1;
-                    for (int i = 1; i < fields.Length; i += 3)
+                    foreach (var player in teeTime.Players)
                     {
-                        if (string.IsNullOrEmpty(fields[i]))
-                        {
-                            continue;
-                        }
-
-                        Player player = new Player();
-                        player.Position = playerPosition;
-                        playerPosition++;
-                        player.Name = fields[i];
-                        if (string.IsNullOrEmpty(fields[i + 1]))
-                        {
-                            throw new ArgumentException(string.Format("{0}: line {1}: missing GHIN number", fileName, lineNumber));
-                        }
-                        player.GHIN = fields[i + 1];
-
-                        //player.TeeTimeRequest = teeTimeRequest;
+                        TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
                         teeTimeRequest.Players.Add(player);
+                        teeTimeRequest.TeeTime = player.TeeTime;
+                        TeeTimeRequestsAssigned.Add(teeTimeRequest);
                     }
-
-                    if (teeTimeRequest.Players.Count == 0)
-                    {
-                        throw new ArgumentException(string.Format("{0}: line {1} does not have any players", fileName, lineNumber));
-                    }
-
-                    TeeTimeRequests.Add(teeTimeRequest);
                 }
             }
 
@@ -1345,7 +1212,7 @@ namespace WebAdmin.ViewModel
 
             using (TextReader tr = new StreamReader(GgTeeTimeFile))
             {
-                ClearPlayers();
+                ClearPlayersFromAllTeeTimes();
                 TournamentTeeTimes.Clear();
 
                 TeeTimeRequests.Clear();
