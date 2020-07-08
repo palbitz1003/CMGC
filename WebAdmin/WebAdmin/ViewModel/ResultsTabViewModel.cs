@@ -1298,13 +1298,19 @@ namespace WebAdmin.ViewModel
                         lineNumber++;
 
                         // skip empty lines
-                        if (string.IsNullOrEmpty(line[dateColumn]) && string.IsNullOrEmpty(line[lastNameCol]))
+                        if (string.IsNullOrWhiteSpace(line[dateColumn]) && string.IsNullOrWhiteSpace(line[lastNameCol]))
                         {
                             continue;
                         }
 
                         // if players are "removed" there are a number of empty columns.
-                        if (string.IsNullOrEmpty(line[divisionNameCol]))
+                        if (string.IsNullOrWhiteSpace(line[divisionNameCol]))
+                        {
+                            continue;
+                        }
+
+                        // Some rows are used for recording which player's drive is used. There is no GHIN, so skip those
+                        if (IsEclectic && string.IsNullOrWhiteSpace(line[ghinCol]))
                         {
                             continue;
                         }
@@ -1321,7 +1327,7 @@ namespace WebAdmin.ViewModel
                         bool round1ScoreFound = false;
                         for (; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
                         {
-                            if (!string.IsNullOrEmpty(line[roundScoreCols[scoreColIndex]]))
+                            if (!string.IsNullOrWhiteSpace(line[roundScoreCols[scoreColIndex]]))
                             {
                                 int scoreRound1;
                                 if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound1))
@@ -1345,7 +1351,7 @@ namespace WebAdmin.ViewModel
                         score.ScoreRound2 = 0;
                         for (scoreColIndex++; scoreColIndex < roundScoreCols.Length; scoreColIndex++)
                         {
-                            if (!string.IsNullOrEmpty(line[roundScoreCols[scoreColIndex]]))
+                            if (!string.IsNullOrWhiteSpace(line[roundScoreCols[scoreColIndex]]))
                             {
                                 int scoreRound2;
                                 if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound2))
@@ -1366,7 +1372,12 @@ namespace WebAdmin.ViewModel
 
                         // Read flight number
                         int flightNumber = 0;
-                        if (!int.TryParse(line[flightNumberCol], out flightNumber))
+                        if (string.IsNullOrWhiteSpace(line[flightNumberCol]))
+                        {
+                            // For some tournaments, everyone is in the same flight and so there is no number
+                            flightNumber = 1;
+                        }
+                        else if (!int.TryParse(line[flightNumberCol], out flightNumber))
                         {
                             throw new ArgumentException(fullPath + ": line " + lineNumber + ": unable to determine flight number");
                         }
@@ -1443,6 +1454,11 @@ namespace WebAdmin.ViewModel
                                 {
                                     if (int.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
                                     {
+                                        if (IsEclectic)
+                                        {
+                                            // For an eclectic, GG provides score relative to par, even for the "cumulative score"
+                                            cumulativeScore += 72;
+                                        }
                                         score.ScoreTotal = cumulativeScore;
                                         break;
                                     }
@@ -1514,13 +1530,6 @@ namespace WebAdmin.ViewModel
                     kvpList = new List<KeyValuePair<string, string>>();
                     kvpScoresList.Add(kvpList);
                     index = 0;
-                }
-
-                if (!isRound1 && IsEclectic)
-                {
-                    // TODO: does GG report eclectic scores correctly?
-                    // don't use total as that is the sum of round 1 and round 2
-                    score.ScoreTotal = score.ScoreRound2;
                 }
 
                 // Add the score data to the key-value-pair list
