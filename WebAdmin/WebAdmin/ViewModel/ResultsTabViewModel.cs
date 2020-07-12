@@ -1205,7 +1205,7 @@ namespace WebAdmin.ViewModel
             string lowerCaseHeader = header.ToLower();
             for (int col = 0; col < line.Length; col++)
             {
-                if (line[col].ToLower().Contains(lowerCaseHeader))
+                if (line[col].ToLower().StartsWith(lowerCaseHeader))
                 {
                     cols.Add(col);
                 }
@@ -1454,13 +1454,17 @@ namespace WebAdmin.ViewModel
                                 {
                                     if (int.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
                                     {
-                                        if (IsEclectic)
+                                        if (IsEclectic && (cumulativeScore < 30))
                                         {
                                             // For an eclectic, GG provides score relative to par, even for the "cumulative score"
                                             cumulativeScore += 72;
                                         }
                                         score.ScoreTotal = cumulativeScore;
                                         break;
+                                    }
+                                    else if ((string.Compare(line[cumulativeScoreCols[cumulativeScoreColIndex]], "E") == 0) && IsEclectic)
+                                    {
+                                        score.ScoreTotal = 72;
                                     }
                                 }
                             }
