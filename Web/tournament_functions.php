@@ -31,6 +31,7 @@ class Tournament {
 	public $AllowNonMemberSignup;
 	public $AnnouncementOnly;
 	public $MemberGuest;
+	public $MaxSignups;
 	
 	private function IntToBool($value){
 		return (!isset($value) || ($value == 0)) ? "false" : "true";
@@ -172,7 +173,7 @@ function GetTournaments($connection, $year) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, 
 			$TournamentDescriptionKey, $cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup, $announcementOnly, $memberGuest );
+			$allowNonMemberSignup, $announcementOnly, $memberGuest, $maxSignups );
 
 	$tournaments = array();
 	while ( $tournament->fetch () ) {
@@ -205,6 +206,7 @@ function GetTournaments($connection, $year) {
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
 		$t->AnnouncementOnly = $announcementOnly;
 		$t->MemberGuest = $memberGuest;
+		$t->MaxSignups = $maxSignups;
 		
 		if(empty($year)){
 			// return all tournaments
@@ -247,7 +249,7 @@ function GetTournament($connection, $tournamentKey) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, $tournamentDescriptionKey,
 			$cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup, $announcementOnly, $memberGuest ); 
+			$allowNonMemberSignup, $announcementOnly, $memberGuest, $maxSignups ); 
 
 	$t = null;
 	if($tournament->fetch ()){
@@ -279,6 +281,7 @@ function GetTournament($connection, $tournamentKey) {
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
 		$t->AnnouncementOnly = $announcementOnly;
 		$t->MemberGuest = $memberGuest;
+		$t->MaxSignups = $maxSignups;
 	}
 
 	$tournament->close ();

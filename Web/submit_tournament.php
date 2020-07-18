@@ -73,6 +73,11 @@ if ($_POST ['Action'] == 'Delete') {
 	} else {
 		$t->MemberGuest = 0;
 	}
+	if(isset($_POST['MaxSignups'])){
+		$t->MaxSignups = $_POST['MaxSignups'];
+	} else {
+		$t->MaxSignups = 0;
+	}
 	
 	
 	// var_dump($t);

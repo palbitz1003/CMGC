@@ -26,6 +26,24 @@ if ($connection->connect_error)
 	die ( $connection->connect_error );
 
 $t = GetTournament($connection, $tournamentKey);
+
+$count = GetPlayerCountForTournament($connection, $tournamentKey);
+if(($t->MaxSignups != 0) && ($count >= $t->MaxSignups))
+{
+	$overrideTitle = "Sign Up";
+	get_header ();
+
+	get_sidebar ();
+
+	echo "<p>This tournament is full. There are " . $count . " people signed up.</p>";
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	
+	get_footer ();
+	return;
+}
+
 $descr = '';
 if($t->TournamentDescriptionKey > 0){
 	$td = GetTournamentDescription($connection, $t->TournamentDescriptionKey);

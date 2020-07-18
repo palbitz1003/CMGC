@@ -230,6 +230,37 @@ function GetPlayersForSignUp($connection, $signUpKey){
 	
 	return $players;
 }
+
+/*
+ * Get the player count for a tournament
+ */
+function GetPlayerCountForTournament($connection, $tournamentKey){
+	// We're just getting a count, so "SELECT TournamentKey" instead of "SELECT *"
+	$sqlCmd = "SELECT TournamentKey FROM `SignUpsPlayers` WHERE TournamentKey = ?";
+	$signups = $connection->prepare ( $sqlCmd );
+	
+	if (! $signups) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $signups->bind_param ( 'i', $tournamentKey )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $signups->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	// There must be a better way than this, but all my
+	// attempts failed ....
+	$count = 0;
+	while ( $signups->fetch () ) {
+		$count++;
+	}
+	return $count;
+	
+}
+
 /*
  * Get the roster data for a player
  */
@@ -403,6 +434,17 @@ function ShowSignups($connection, $tournamentKey) {
 		echo 'F4 = Flight 4 (70 and older)<br>' . PHP_EOL;
 		echo 'CH = Championship Flight (55 and older)<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
+	}
+
+	$count = GetPlayerCountForTournament($connection, $tournamentKey);
+	if(($count > 0) && ($t->MaxSignups > 0)){
+		echo '<tr><td style="border: none">';
+		if($count >= $t->MaxSignups){
+			echo 'This tournament is full. There are ' . $count . ' players signed up.';
+		} else {
+			echo 'There are ' . $count . ' players signed up. Signups will close at ' . $t->MaxSignups . ' players.';
+		}
+		echo '</td></tr><tr><td style="border: none"></td></tr>' . PHP_EOL;
 	}
 	
 	$signUpArray = GetSignups ( $connection, $tournamentKey, ' AND `Payment` < `PaymentDue` ORDER BY `SubmitKey` DESC' );
