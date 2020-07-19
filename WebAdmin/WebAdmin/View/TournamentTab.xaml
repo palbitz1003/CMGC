@@ -154,6 +154,9 @@
             <StackPanel Grid.Row="14" Grid.Column="1" Orientation="Horizontal">
                 <CheckBox  Margin="5" Name="OnLineSignupCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.OnlineSignUp}">Web Signup</CheckBox>
+                <TextBlock Margin="5" VerticalAlignment="Center">Max Signups:</TextBlock>
+                <TextBox  Name="MaxSignupsTextbox" Margin="5" Width="40" 
+                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.MaxSignups}"></TextBox>
                 </StackPanel>
 
             <ComboBox Grid.Row="15" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"

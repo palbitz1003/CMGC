@@ -116,6 +116,7 @@ if ($_POST ['Action'] == 'Delete') {
 		UpdateTournament($connection, $t->TournamentKey, 'AllowNonMemberSignup', $t->AllowNonMemberSignup, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'AnnouncementOnly', $t->AnnouncementOnly, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'MemberGuest', $t->MemberGuest, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'MaxSignups', $t->MaxSignups, 'i');
 	}
 }
 echo "Success";

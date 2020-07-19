@@ -172,7 +172,10 @@ namespace WebAdmin
         public bool AllowNonMemberSignup { get { return _allowNonMemberSignup; } set { _allowNonMemberSignup = value; OnPropertyChanged(); } }
 
         private bool _memberGuest;
-        public bool MemberGuest { get { return _memberGuest; } set { _memberGuest = value; OnPropertyChanged();} } 
+        public bool MemberGuest { get { return _memberGuest; } set { _memberGuest = value; OnPropertyChanged();} }
+
+        private int _maxSignups;
+        public int MaxSignups { get { return _maxSignups; } set { _maxSignups = value; OnPropertyChanged(); } }
 
         public Tournament()
         {
@@ -242,6 +245,7 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("MatchPlay", MatchPlay ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("AllowNonMemberSignup", AllowNonMemberSignup ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("MemberGuest", MemberGuest ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("MaxSignups", MaxSignups.ToString()));
 
             return values;
         }
