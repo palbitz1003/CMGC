@@ -761,19 +761,28 @@ namespace WebAdmin.ViewModel
 
             if (TeeTimeRequests.Count > 0)
             {
+                var orderBy = OrderBySignupDate;
+                // Save waiting list by signup order
                 OrderBySignupDate = true;
-                SortTeeTimeRequests();
 
                 var unassignedTeeTimes = ConvertUnassignedToTeeTimes();
 
-                SaveAsCsv("WaitList - " + TournamentNames[TournamentNameIndex].Name,
-                    unassignedTeeTimes,
-                    TournamentNames[TournamentNameIndex].TeamSize,
-                    out bool ignore,
-                    out string waitListFileName,
-                    ref teamId);
+                try
+                {
+                    SaveAsCsv("WaitList - " + TournamentNames[TournamentNameIndex].Name,
+                        unassignedTeeTimes,
+                        TournamentNames[TournamentNameIndex].TeamSize,
+                        out bool ignore,
+                        out string waitListFileName,
+                        ref teamId);
 
-                WaitingListFile = waitListFileName;
+                    WaitingListFile = waitListFileName;
+                }
+                finally
+                {
+                    // Restore order-by choice
+                    OrderBySignupDate = orderBy;
+                }
             }
         }
 
