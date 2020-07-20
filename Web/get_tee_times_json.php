@@ -20,7 +20,7 @@ class Player {
 
 $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
 
-$tournamentKey = 141; //$_POST ['tournament'];
+$tournamentKey = $_POST ['tournament'];
 if (! $tournamentKey) {
 	die ( "Which tournament?" );
 }
