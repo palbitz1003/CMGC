@@ -55,10 +55,11 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 			else if($now <= $endSignUp){
 				$maxSignups = "";
 				if($currentTournaments [$i]-> MaxSignups != 0){
-					$maxSignups = ', max signup ' . $currentTournaments [$i]-> MaxSignups;
+					// &nbsp; is a non-breakable space
+					$maxSignups = ', max&nbsp;signup&nbsp;' . $currentTournaments [$i]-> MaxSignups;
 				}
 				
-				echo '<td style="border:none"><a href="' . $script_folder_href . 'signup.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Sign up</a> (<span style="font-size:small;">ends ' . $endSignUpFriendlyDate . $maxSignups . '</span>)</td>'. PHP_EOL;
+				echo '<td style="border:none"><a href="' . $script_folder_href . 'signup.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Sign up</a> (<span style="font-size:small;">ends&nbsp;' . GetUnbreakableHtmlDateString($endSignUpFriendlyDate) . $maxSignups . '</span>)</td>'. PHP_EOL;
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'signups.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">View Signups</a></td>'. PHP_EOL;
 			}
 			else if ($details->TeeTimesPostedDate != TournamentDetails::EMPTYDATE) {

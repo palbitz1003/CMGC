@@ -212,6 +212,7 @@ namespace WebAdmin
             SendEmail = true;
             RequirePayment = true;
             MemberGuest = false;
+            MaxSignups = 0;
         }
 
         public List<KeyValuePair<string, string>> ToKeyValuePairs()
