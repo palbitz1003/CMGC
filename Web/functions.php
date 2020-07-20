@@ -116,6 +116,12 @@ function FixNameCasing($name)
 		// Upper case first letter after apostrophe
 		$lastName = FixCasingWithinName($lastName, "'");
 	}
+	// Fix last names that start with Mc
+	if(0 === strpos($lastName, "Mc")){
+		$lastName = substr($lastName, strlen("Mc"));
+		// Upper case character after Mc and add Mc back in
+		$lastName = "Mc" . ucfirst($lastName);
+	}
 	
 	$firstName = ucfirst(strtolower(trim($nameArray[1])));
 	if(strpos($firstName, ' ') !== FALSE){
