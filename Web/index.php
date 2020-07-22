@@ -44,7 +44,7 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 				echo '<td style="border:none;text-align:center" colspan="4"> ------ ' . $currentTournaments[$i]->Name . ' ------ </td>'. PHP_EOL;
 		}
 		else {
-			echo '<td style="border:none; width:35%">' . GetUnbreakableDash($currentTournaments[$i]->Name) . '</td>'. PHP_EOL;
+			echo '<td style="border:none; width:25%">' . GetUnbreakableDash($currentTournaments[$i]->Name) . '</td>'. PHP_EOL;
 			echo '<td style="border:none"><a href="' . $script_folder_href . 'tournament_description.php?tournament='  . $currentTournaments [$i]-> TournamentKey . '">Description</a></td>'. PHP_EOL;
 			
 			if($now < $startSignUp){
