@@ -353,6 +353,48 @@ function GetChitsResults($connection, $tournamentKey)
 
 	return $chitsArray;
 }
+function GetChitsResultsByName($connection, $name, $name2)
+{
+	$sqlCmd = "SELECT * FROM `Chits` WHERE `Name` = ? or `Name` = ? ORDER BY `Date` ASC";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->bind_param ( 'ss', $name, $name2)) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ( $key, $name, $GHIN, $score, $winnings, $flight, $place, $teamNumber, $date, $flightName);
+
+	$chitsArray = Array();
+	while ( $query->fetch () ) {
+		$chits = new Chits();
+		$chits->TournamentKey = $key;
+		$chits->Name = $name;
+		$chits->GHIN = $GHIN;
+		$chits->Score = $score;
+		$chits->Winnings = $winnings;
+		$chits->Flight = $flight;
+		$chits->Place = $place;
+		$chits->TeamNumber = $teamNumber;
+		$chits->Date = $date;
+		$chits->FlightName = $flightName;
+
+		$chitsArray[] = $chits;
+	}
+
+	$query->close();
+
+	return $chitsArray;
+}
+
+
 function AddScoresResults($connection, $tournamentKey, $scoresResults)
 {
 	for($i = 0; $i < count ( $scoresResults ); ++ $i) {
@@ -439,6 +481,55 @@ function GetScoresResults($connection, $tournamentKey, $stableford)
 
 	return $scoresArray;
 }
+
+function GetScoresResultsByName($connection, $name, $name2)
+{
+
+	$sqlCmd = "SELECT * FROM `Scores` WHERE `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? OR `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? ORDER BY `Date` ASC";
+
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->bind_param ( 'ssssssss', $name, $name, $name, $name, $name2, $name2, $name2, $name2)) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ( $key, $name1, $GHIN1, $name2, $GHIN2 , $name3, $GHIN3, $name4, $GHIN4, $scoreRound1, $scoreRound2, $scoreTotal, $flight, $teamNumber, $date);
+
+	$scoresArray = Array();
+	while ( $query->fetch () ) {
+		$scores = new Scores();
+		$scores->TournamentKey = $key;
+		$scores->Name1 = $name1;
+		$scores->GHIN1 = $GHIN1;
+		$scores->Name2 = $name2;
+		$scores->GHIN2 = $GHIN2;
+		$scores->Name3 = $name3;
+		$scores->GHIN3 = $GHIN3;
+		$scores->Name4 = $name4;
+		$scores->GHIN4 = $GHIN4;
+		$scores->ScoreRound1 = $scoreRound1;
+		$scores->ScoreRound2 = $scoreRound2;
+		$scores->ScoreTotal = $scoreTotal;
+		$scores->Flight = $flight;
+		$scores->TeamNumber = $teamNumber;
+		$scores->Date = $date;
+
+		$scoresArray[] = $scores;
+	}
+
+	$query->close();
+
+	return $scoresArray;
+}
+
 function AddMatchPlayScoresResults($connection, $tournamentKey, $scoresResults)
 {
 	for($i = 0; $i < count ( $scoresResults ); ++ $i) {
