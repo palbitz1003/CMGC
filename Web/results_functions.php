@@ -353,9 +353,9 @@ function GetChitsResults($connection, $tournamentKey)
 
 	return $chitsArray;
 }
-function GetChitsResultsByName($connection, $name, $name2)
+function GetChitsResultsByName($connection, $name, $name2, $badkey1, $badkey2)
 {
-	$sqlCmd = "SELECT * FROM `Chits` WHERE `Name` = ? or `Name` = ? ORDER BY `Date` ASC";
+	$sqlCmd = "SELECT * FROM `Chits` WHERE `Name` = ? or `Name` = ?  ORDER BY `Date` ASC";
 	$query = $connection->prepare ( $sqlCmd );
 
 	if (! $query) {
@@ -374,19 +374,22 @@ function GetChitsResultsByName($connection, $name, $name2)
 
 	$chitsArray = Array();
 	while ( $query->fetch () ) {
-		$chits = new Chits();
-		$chits->TournamentKey = $key;
-		$chits->Name = $name;
-		$chits->GHIN = $GHIN;
-		$chits->Score = $score;
-		$chits->Winnings = $winnings;
-		$chits->Flight = $flight;
-		$chits->Place = $place;
-		$chits->TeamNumber = $teamNumber;
-		$chits->Date = $date;
-		$chits->FlightName = $flightName;
+		// Skip over tournaments with bad data
+		if(($key != $badkey1) && ($key != $badkey2)){
+			$chits = new Chits();
+			$chits->TournamentKey = $key;
+			$chits->Name = $name;
+			$chits->GHIN = $GHIN;
+			$chits->Score = $score;
+			$chits->Winnings = $winnings;
+			$chits->Flight = $flight;
+			$chits->Place = $place;
+			$chits->TeamNumber = $teamNumber;
+			$chits->Date = $date;
+			$chits->FlightName = $flightName;
 
-		$chitsArray[] = $chits;
+			$chitsArray[] = $chits;
+		}
 	}
 
 	$query->close();
@@ -482,7 +485,7 @@ function GetScoresResults($connection, $tournamentKey, $stableford)
 	return $scoresArray;
 }
 
-function GetScoresResultsByName($connection, $name, $name2)
+function GetScoresResultsByName($connection, $name, $name2, $badkey1, $badkey2)
 {
 
 	$sqlCmd = "SELECT * FROM `Scores` WHERE `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? OR `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? ORDER BY `Date` ASC";
@@ -505,24 +508,26 @@ function GetScoresResultsByName($connection, $name, $name2)
 
 	$scoresArray = Array();
 	while ( $query->fetch () ) {
-		$scores = new Scores();
-		$scores->TournamentKey = $key;
-		$scores->Name1 = $name1;
-		$scores->GHIN1 = $GHIN1;
-		$scores->Name2 = $name2;
-		$scores->GHIN2 = $GHIN2;
-		$scores->Name3 = $name3;
-		$scores->GHIN3 = $GHIN3;
-		$scores->Name4 = $name4;
-		$scores->GHIN4 = $GHIN4;
-		$scores->ScoreRound1 = $scoreRound1;
-		$scores->ScoreRound2 = $scoreRound2;
-		$scores->ScoreTotal = $scoreTotal;
-		$scores->Flight = $flight;
-		$scores->TeamNumber = $teamNumber;
-		$scores->Date = $date;
+		if(($key != $badkey1) && ($key != $badkey2)){
+			$scores = new Scores();
+			$scores->TournamentKey = $key;
+			$scores->Name1 = $name1;
+			$scores->GHIN1 = $GHIN1;
+			$scores->Name2 = $name2;
+			$scores->GHIN2 = $GHIN2;
+			$scores->Name3 = $name3;
+			$scores->GHIN3 = $GHIN3;
+			$scores->Name4 = $name4;
+			$scores->GHIN4 = $GHIN4;
+			$scores->ScoreRound1 = $scoreRound1;
+			$scores->ScoreRound2 = $scoreRound2;
+			$scores->ScoreTotal = $scoreTotal;
+			$scores->Flight = $flight;
+			$scores->TeamNumber = $teamNumber;
+			$scores->Date = $date;
 
-		$scoresArray[] = $scores;
+			$scoresArray[] = $scores;
+		}
 	}
 
 	$query->close();

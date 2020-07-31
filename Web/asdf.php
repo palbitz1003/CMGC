@@ -76,9 +76,11 @@ function DisplayWinningsForAll($connection){
         }
     }
 
+    
     // Capture each players winnings
     for($i = 0; $i < count($players); ++$i){
-        $chitsResults = GetChitsResultsByName($connection, $players[$i]->Name1, $players[$i]->Name2);
+        // Tournaments 16 and 17 have bad data, so skip them
+        $chitsResults = GetChitsResultsByName($connection, $players[$i]->Name1, $players[$i]->Name2, 16, 17);
 
         $winnings = 0;
         for($j = 0; $j < count ( $chitsResults ); ++ $j) {
@@ -88,17 +90,21 @@ function DisplayWinningsForAll($connection){
         $players[$i]->TournamentsWithWinnings = count($chitsResults);
     }
 
+    
     // Capture how many tournaments they played in that have scores, skipping
     // those players with no winnings
     for($i = 0; $i < count($players); ++$i){
-        if($players[$i]->Winnings > 0){
-            $scores = GetScoresResultsByName($connection, $players[$i]->Name1, $players[$i]->Name2);
+        //if($players[$i]->Winnings > 0){
+            // Tournaments 16 and 17 have bad data, so skip them
+            $scores = GetScoresResultsByName($connection, $players[$i]->Name1, $players[$i]->Name2, 16, 17);
             $players[$i]->TournamentsPlayed = count($scores);
-        }
+        //}
     }
+    
 
     // Sort by highest winnings first
     usort($players, function($a, $b) {
+        if($a->Winnings === $b->Winnings) return $a->TournamentsPlayed < $b->TournamentsPlayed ? 1 : -1;
         return $a->Winnings < $b->Winnings ? 1 : -1;
     });
     
@@ -110,7 +116,7 @@ function DisplayWinningsForAll($connection){
 
     $displayLineNumber = 0;
     for($i = 0; $i < count($players); ++$i){
-        if($players[$i]->Winnings > 0){
+        if($players[$i]->TournamentsPlayed > 0){
 
             if (($displayLineNumber % 2) == 0) {
                 echo '<tr class="d1">' . PHP_EOL;
@@ -147,7 +153,8 @@ function DisplayIndividualGhin($connection, $ghin){
     
     echo '<h2 style="text-align:center">Winnings for ' . $name . '</h2>' . PHP_EOL;
 
-    $chitsResults = GetChitsResultsByName($connection, $name, $name2);
+    // Tournaments 16 and 17 have bad data, so skip them
+    $chitsResults = GetChitsResultsByName($connection, $name, $name2, 16, 17);
 
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
     echo '<thead><tr class="header"><th>Date</th><th>Tournament</th><th>Winnings</th></tr></thead>' . PHP_EOL;
@@ -209,7 +216,7 @@ function DisplayIndividualGhin($connection, $ghin){
     echo '</tbody></table>' . PHP_EOL;
 
     // show tournaments played
-    $scores = GetScoresResultsByName($connection, $name, $name2);
+    $scores = GetScoresResultsByName($connection, $name, $name2, 16, 17);
 
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
     echo '<thead><tr class="header"><th>Date</th><th>Tournament</th><th>Round 1</th><th>Round 2</th></tr></thead>' . PHP_EOL;
