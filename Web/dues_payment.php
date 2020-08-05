@@ -108,7 +108,7 @@ if (isset ( $_POST ['Player'] )) {
 			if(!empty($changed)){
 				$message = $FullName . " (" . $GHIN . ")" . PHP_EOL;
 				$message = $message . $changed;
-				mail("cmgcoffice@att.net", 'Updated Coronado Player Info', $message, "From: DoNotReply@" . $web_site);
+				mail("Membership@coronadomensgolf.org", 'Update Info for ' . $FullName, $message, "From: DoNotReply@" . $web_site);
 			}
 		}
 	}
