@@ -353,19 +353,35 @@ function GetChitsResults($connection, $tournamentKey)
 
 	return $chitsArray;
 }
-function GetChitsResultsByName($connection, $name, $name2, $badkey1, $badkey2)
+function GetChitsResultsByNameOrGhin($connection, $name, $ghin, $badkey1, $badkey2)
 {
-	$sqlCmd = "SELECT * FROM `Chits` WHERE `Name` = ? or `Name` = ?  ORDER BY `Date` ASC";
-	$query = $connection->prepare ( $sqlCmd );
-
-	if (! $query) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	// If GHIN provided, find all with that number. Ignore the name.
+	if($ghin !== 0){
+		$sqlCmd = "SELECT * FROM `Chits` WHERE `GHIN` = ?  ORDER BY `Date` ASC";
+		$query = $connection->prepare ( $sqlCmd );
+	
+		if (! $query) {
+			die ( $sqlCmd . " prepare failed: " . $connection->error );
+		}
+	
+		if (! $query->bind_param ( 'i', $ghin)) {
+			die ( $sqlCmd . " bind_param failed: " . $connection->error );
+		}
 	}
-
-	if (! $query->bind_param ( 'ss', $name, $name2)) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	else {
+		// If GHIN is not provided, find all with that name and with GHIN 0
+		$sqlCmd = "SELECT * FROM `Chits` WHERE `Name` = ? and `GHIN` = 0  ORDER BY `Date` ASC";
+		$query = $connection->prepare ( $sqlCmd );
+	
+		if (! $query) {
+			die ( $sqlCmd . " prepare failed: " . $connection->error );
+		}
+	
+		if (! $query->bind_param ( 's', $name)) {
+			die ( $sqlCmd . " bind_param failed: " . $connection->error );
+		}
 	}
-
+	
 	if (! $query->execute ()) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
@@ -485,10 +501,10 @@ function GetScoresResults($connection, $tournamentKey, $stableford)
 	return $scoresArray;
 }
 
-function GetScoresResultsByName($connection, $name, $name2, $badkey1, $badkey2)
+function GetScoresResultsByName($connection, $name, $badkey1, $badkey2)
 {
 
-	$sqlCmd = "SELECT * FROM `Scores` WHERE `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? OR `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? ORDER BY `Date` ASC";
+	$sqlCmd = "SELECT * FROM `Scores` WHERE `Name1` = ? OR `Name2` = ? OR `Name3` = ? OR `Name4` = ? ORDER BY `Date` ASC";
 
 	$query = $connection->prepare ( $sqlCmd );
 
@@ -496,7 +512,7 @@ function GetScoresResultsByName($connection, $name, $name2, $badkey1, $badkey2)
 		die ( $sqlCmd . " prepare failed: " . $connection->error );
 	}
 
-	if (! $query->bind_param ( 'ssssssss', $name, $name, $name, $name, $name2, $name2, $name2, $name2)) {
+	if (! $query->bind_param ( 'ssss', $name, $name, $name, $name)) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 

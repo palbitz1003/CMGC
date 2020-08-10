@@ -32,16 +32,26 @@ if($ghin === "all"){
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
 
+class TournamentResults {
+   public $Date;
+   public $PlayerName;
+   public $GHIN;
+   public $TournamentName;
+   public $TournamentWinnings; 
+}
+
 class Player {
     public $LastName;
     public $FirstName;
-    public $Name1;
-    public $Name2;
+    public $Names;
     public $GHIN;
     public $Winnings;
     public $TournamentsPlayed;
     public $TournamentsWithWinnings;
+    public $TournamentResults;
 }
+
+
 
 function DisplayWinningsForAll($connection){
     $sqlCmd = "SELECT GHIN,LastName,FirstName,Active FROM `Roster` ORDER BY `LastName` ASC";
@@ -140,83 +150,129 @@ function DisplayWinningsForAll($connection){
     echo '</tbody></table>' . PHP_EOL;
 }
 
+function GetPlayerData($connection, $player){
+
+    $player->TournamentResults = Array();
+
+    // First look up all entries with the provided GHIN number.
+    // Tournaments 16 and 17 have bad data, so skip them
+    $chitsResults = GetChitsResultsByNameOrGhin($connection, "", $player->GHIN, 16, 17);
+
+    AddPlayerData($connection, $player, $chitsResults);
+
+    // Since we looked up by GHIN, check to see if the roster name
+    // has been different in the past
+    for($i = 0; $i < count ( $chitsResults ); ++ $i) {
+        $found = false;
+        for($j = 0; ($j < count($player->Names)) && !$found; ++$j){
+            if(strcasecmp($player->Names[$j], $chitsResults[$i]->Name) == 0){
+                $found = true;
+            }
+        }
+        if(!$found){
+            $player->Names[] = $chitsResults[$i]->Name;
+        }
+    }
+
+    // Look up all the entries that have GHIN == 0
+    for($i = 0; $i < count($player->Names); ++ $i){
+        $chitsResults = GetChitsResultsByNameOrGhin($connection, $player->Names[$i], 0, 16, 17);
+
+        AddPlayerData($connection, $player, $chitsResults); 
+    }
+}
+
+function AddPlayerData($connection, $player, $chitsResults){
+
+    for($i = 0; $i < count ( $chitsResults ); ++ $i) {
+        $tournament = GetTournament($connection, $chitsResults[$i]->TournamentKey);
+        $results = new TournamentResults();
+        $results->Date = $chitsResults[$i]->Date;
+        $results->PlayerName = $chitsResults[$i]->Name;
+        $results->GHIN = $chitsResults[$i]->GHIN;
+        $results->TournamentName = $tournament->Name;
+        $results->TournamentWinnings = $chitsResults[$i]->Winnings;
+        $player->TournamentResults[] = $results;
+
+        // Sum up all the winnings
+        $player->Winnings = $player->Winnings + $chitsResults[$i]->Winnings;
+        $player->TournamentsWithWinnings++;
+    }
+}
+
 function DisplayIndividualGhin($connection, $ghin){
 
-    $player = GetRosterEntry($connection, $ghin);
-    if(empty($player)){
+    $rosterPlayer = GetRosterEntry($connection, $ghin);
+    if(empty($rosterPlayer)){
         echo $ghin . " is not a member";
         return;
     }
-    $name = $player->LastName . ", " . $player->FirstName;
-    // prior to 2016, the names had 2 spaces after the comma
-    $name2 = $player->LastName . ",  " . $player->FirstName; 
-    
-    echo '<h2 style="text-align:center">Winnings for ' . $name . '</h2>' . PHP_EOL;
 
-    // Tournaments 16 and 17 have bad data, so skip them
-    $chitsResults = GetChitsResultsByName($connection, $name, $name2, 16, 17);
+    $player = new Player();
+    $player->LastName = $rosterPlayer->LastName;
+    $player->FirstName = $rosterPlayer->FirstName;
+    $player->GHIN = $ghin;
+    $player->Winnings = 0;
+    $player->TournamentsPlayed = 0;
+    $player->TournamentsWithWinnings = 0;
+
+    // Default name list ...
+    $player->Names = Array();
+    $player->Names[] = $rosterPlayer->LastName . ', ' . $rosterPlayer->FirstName;
+    // Before 2016, names had 2 spaces after the comma
+    $player->Names[] = $rosterPlayer->LastName . ',  ' . $rosterPlayer->FirstName;
+
+    GetPlayerData($connection, $player);
+
+    // Sort by tournament date
+    usort($player->TournamentResults, function($a, $b) {
+        return strcasecmp($a->Date, $b->Date);
+    });
+ 
+    echo '<h2 style="text-align:center">Winnings for ' . $player->Names[0] . '</h2>' . PHP_EOL;
 
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
     echo '<thead><tr class="header"><th>Date</th><th>Tournament</th><th>Winnings</th></tr></thead>' . PHP_EOL;
     echo '<tbody>' . PHP_EOL;
     
-    $winnings = 0;
-    $totalWinnings = 0;
-    $currentYear = "";
-    $yearArray = array();
-    $winningsArray = array();
-    for($i = 0; $i < count ( $chitsResults ); ++ $i) {
-        $tournament = GetTournament($connection, $chitsResults[$i]->TournamentKey);
+    for($i = 0; $i < count ( $player->TournamentResults ); ++ $i) {
     
         if (($i % 2) == 0) {
             echo '<tr class="d1">' . PHP_EOL;
         } else {
             echo '<tr class="d0">' . PHP_EOL;
         }
-        echo '<td>' . $chitsResults[$i]->Date . '</td>' . PHP_EOL;
-        echo '<td>' . $tournament->Name . '</td>' . PHP_EOL;
-        echo '<td style="text-align:center">$' . $chitsResults[$i]->Winnings . "</td>" . PHP_EOL;
+        echo '<td>' . $player->TournamentResults[$i]->Date . '</td>' . PHP_EOL;
+        echo '<td>' . $player->TournamentResults[$i]->TournamentName . ' (' . $player->TournamentResults[$i]->PlayerName . ' ' . $player->TournamentResults[$i]->GHIN . ')' . '</td>' . PHP_EOL;
+        echo '<td style="text-align:center">$' . $player->TournamentResults[$i]->TournamentWinnings . "</td>" . PHP_EOL;
         echo '</tr>' . PHP_EOL;
-    
-        $winnings = $winnings + $chitsResults[$i]->Winnings;
-    
-        list($year, $month, $day) = explode("-", $chitsResults[$i]->Date);
-        if(empty($currentYear)){
-            $currentYear = $year;
-            
-        } else if($currentYear != $year){
-            $yearArray[] = $currentYear;
-            $winningsArray[] = $winnings;
-            $winnings = 0;
-            $currentYear = $year;
-        }
-    
-        $totalWinnings = $totalWinnings + $chitsResults[$i]->Winnings;
     }
-    
-    if(!empty($currentYear)){
-        $yearArray[] = $currentYear;
-        $winningsArray[] = $winnings;
-    }
-    
-    /*
-    for($i = 0; $i < count($yearArray); ++$i){
-        echo '<tr><td>Total for ' . $yearArray[$i] . '</td><td></td><td style="text-align:center">$' . $winningsArray[$i]. "</td></tr>" . PHP_EOL;
-    }
-    */
     
     if((count ( $chitsResults ) % 2) == 0){
         echo '<tr class="d1">' . PHP_EOL;
     } else {
         echo '<tr class="d0">' . PHP_EOL;
     }
-    echo '<td></td><td>Total for ' . count ( $chitsResults ) . ' tournaments</td><td style="text-align:center">$' . $totalWinnings . "</td>" . PHP_EOL;
+    echo '<td></td><td>Total for ' . $player->TournamentsWithWinnings . ' tournaments</td><td style="text-align:center">$' . $player->Winnings . "</td>" . PHP_EOL;
     echo '</tr>' . PHP_EOL;
     
     echo '</tbody></table>' . PHP_EOL;
 
+    // ----------------------------------------------------------------------------------------------------------------
     // show tournaments played
-    $scores = GetScoresResultsByName($connection, $name, $name2, 16, 17);
+    $scores = Array();
+    for($i = 0; $i < count($player->Names); ++ $i){
+        $newScores = GetScoresResultsByName($connection, $player->Names[$i], 16, 17);
+        //echo $player->Names[$i] . " " . count($newScores) . "<br>";
+        if(count($newScores) > 0){
+            $scores = array_merge($scores, $newScores);
+        }
+    }
+
+    // Sort by tournament date
+    usort($scores, function($a, $b) {
+        return strcasecmp($a->Date, $b->Date);
+    });
 
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
     echo '<thead><tr class="header"><th>Date</th><th>Tournament</th><th>Round 1</th><th>Round 2</th></tr></thead>' . PHP_EOL;
