@@ -75,9 +75,9 @@ function DisplayWinningsForAll($connection){
             $player = new Player();
             $player->LastName = $lastName;
             $player->FirstName = $firstName;
-            $player->Name1 = $lastName . ', ' . $firstName;
+            $player->Names[] = $lastName . ', ' . $firstName;
             // Before 2016, names had 2 spaces after the comma
-            $player->Name2 = $lastName . ',  ' . $firstName;
+            $player->Names[] = $lastName . ',  ' . $firstName;
             $player->GHIN = $ghin;
             $player->Winnings = 0;
             $player->TournamentsPlayed = 0;
@@ -86,38 +86,27 @@ function DisplayWinningsForAll($connection){
         }
     }
 
-    
     // Capture each players winnings
+    for($i = 0; ($i < count($players)); ++$i){
+        GetPlayerData($connection, $players[$i]);
+    }
+    
+    // Capture how many tournaments they played in that have scores
     for($i = 0; $i < count($players); ++$i){
-        // Tournaments 16 and 17 have bad data, so skip them
-        $chitsResults = GetChitsResultsByName($connection, $players[$i]->Name1, $players[$i]->Name2, 16, 17);
 
-        $winnings = 0;
-        for($j = 0; $j < count ( $chitsResults ); ++ $j) {
-            $winnings = $winnings + $chitsResults[$j]->Winnings;
+        $players[$i]->TournamentsPlayed = 0;
+        for($j = 0; $j < count($players[$i]->Names); ++ $j){
+            $newScores = GetScoresResultsByName($connection, $players[$i]->Names[$j], 16, 17);
+            //echo $player->Names[$i] . " " . count($newScores) . "<br>";
+            $players[$i]->TournamentsPlayed = $players[$i]->TournamentsPlayed + count($newScores);
         }
-        $players[$i]->Winnings = $winnings;
-        $players[$i]->TournamentsWithWinnings = count($chitsResults);
-    }
-
-    
-    // Capture how many tournaments they played in that have scores, skipping
-    // those players with no winnings
-    for($i = 0; $i < count($players); ++$i){
-        //if($players[$i]->Winnings > 0){
-            // Tournaments 16 and 17 have bad data, so skip them
-            $scores = GetScoresResultsByName($connection, $players[$i]->Name1, $players[$i]->Name2, 16, 17);
-            $players[$i]->TournamentsPlayed = count($scores);
-        //}
     }
     
-
     // Sort by highest winnings first
     usort($players, function($a, $b) {
         if($a->Winnings === $b->Winnings) return $a->TournamentsPlayed < $b->TournamentsPlayed ? 1 : -1;
         return $a->Winnings < $b->Winnings ? 1 : -1;
     });
-    
 
     echo '<h2 style="text-align:center">Winnings for All Players</h2>' . PHP_EOL;
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
@@ -135,7 +124,7 @@ function DisplayWinningsForAll($connection){
             }
             $displayLineNumber++;
 
-            echo '<td>' . $players[$i]->Name1 . "</td>" . PHP_EOL;
+            echo '<td>' . $players[$i]->Names[0] . "</td>" . PHP_EOL;
             echo '<td style="text-align:center">$' . $players[$i]->Winnings . "</td>" . PHP_EOL;
             echo '<td style="text-align:center">' . $players[$i]->TournamentsPlayed . "</td>" . PHP_EOL;
             echo '<td style="text-align:center">' . $players[$i]->TournamentsWithWinnings . "</td>" . PHP_EOL;
@@ -170,11 +159,23 @@ function GetPlayerData($connection, $player){
             }
         }
         if(!$found){
-            $player->Names[] = $chitsResults[$i]->Name;
+            $elements = explode(",", $chitsResults[$i]->Name, 2);
+            if(count($elements) > 1){
+                // echo "added " . $chitsResults[$i]->Name . " to " . $player->Names[0] . "<br>";
+                //if(strcasecmp($player->LastName, trim($elements[0])) !== 0){
+                //    echo "Last name mismatch! adding " . $chitsResults[$i]->Name . " to " . $player->Names[0] . " for " . $chitsResults[$i]->Date . "<br>";
+                //}
+                $player->Names[] = trim($elements[0]) . ", " . trim($elements[1]);
+                $player->Names[] = trim($elements[0]) . ",  " . trim($elements[1]);  // 2 spaces
+            }
+            else {
+                // no comma (shouldn't happen). just add the name itself.
+                $player->Names[] = $chitsResults[$i]->Name;
+            }
         }
     }
 
-    // Look up all the entries that have GHIN == 0
+    // Look up all the names with GHIN == 0
     for($i = 0; $i < count($player->Names); ++ $i){
         $chitsResults = GetChitsResultsByNameOrGhin($connection, $player->Names[$i], 0, 16, 17);
 
