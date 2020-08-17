@@ -20,13 +20,15 @@ if (! $ghin) {
 
 get_header ();
 
+$indexes = GetIndexes($connection, $indexes);
+
 echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">' . PHP_EOL;
 
 if($ghin === "all"){
-    DisplayWinningsForAll($connection);
+    DisplayWinningsForAll($connection, $indexes);
 } else {
-    DisplayIndividualGhin($connection, $ghin);
+    DisplayIndividualGhin($connection, $ghin, $indexes);
 }
 
 echo '    </div><!-- #content -->';
@@ -51,9 +53,44 @@ class Player {
     public $TournamentResults;
 }
 
+class GhinIndex {
+    public $GHIN;
+    public $Index;
+}
 
+function GetIndexes($connection, $indexes)
+{
+    $sqlCmd = "SELECT * FROM `LocalHandicap`";
+    $query = $connection->prepare ( $sqlCmd );
 
-function DisplayWinningsForAll($connection){
+    if (! $query) {
+        die ( $sqlCmd . " prepare failed: " . $connection->error );
+    }
+
+    if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+    }
+    
+    $query->bind_result ( $GHIN, $scgaIndex, $localIndex, $tournamentHandicap);
+
+    // Fill in associative array
+    $indexes = Array();
+    while ( $query->fetch () ) {
+        $indexes[$GHIN] = $scgaIndex;
+    }
+    return $indexes;
+}
+
+function GetIndex($indexes, $ghin)
+{
+    if(array_key_exists($ghin, $indexes)){
+        return $indexes[$ghin];
+    }
+
+    return 0;
+}
+
+function DisplayWinningsForAll($connection, $indexes){
     $sqlCmd = "SELECT GHIN,LastName,FirstName,Active FROM `Roster` ORDER BY `LastName` ASC";
     
     $query = $connection->prepare ( $sqlCmd );
@@ -110,7 +147,7 @@ function DisplayWinningsForAll($connection){
 
     echo '<h2 style="text-align:center">Winnings for All Players</h2>' . PHP_EOL;
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
-    echo '<thead><tr class="header"><th>Player</th><th>Winnings</th><th>Tournaments Played</th><th>Tournaments With Winnings</th><th>Winning Percentage</th><th>Winnings Per Tournament Entered</th></tr></thead>' . PHP_EOL;
+    echo '<thead><tr class="header"><th>Player</th><th>Index</th><th>Winnings</th><th>Tournaments Played</th><th>Tournaments With Winnings</th><th>Percent Tournaments with Winnings</th><th>Winnings Per Tournament Entered</th></tr></thead>' . PHP_EOL;
     echo '<tbody>' . PHP_EOL;
 
     $displayLineNumber = 0;
@@ -125,11 +162,12 @@ function DisplayWinningsForAll($connection){
             $displayLineNumber++;
 
             echo '<td>' . $players[$i]->Names[0] . "</td>" . PHP_EOL;
+            echo '<td>' . GetIndex($indexes, $players[$i]->GHIN) . "</td>" . PHP_EOL;
             echo '<td style="text-align:center">$' . $players[$i]->Winnings . "</td>" . PHP_EOL;
             echo '<td style="text-align:center">' . $players[$i]->TournamentsPlayed . "</td>" . PHP_EOL;
             echo '<td style="text-align:center">' . $players[$i]->TournamentsWithWinnings . "</td>" . PHP_EOL;
             $percentage = ($players[$i]->TournamentsWithWinnings / $players[$i]->TournamentsPlayed) * 100;
-            echo '<td style="text-align:center">' . number_format($percentage, 1) . "</td>" . PHP_EOL;
+            echo '<td style="text-align:center">' . number_format($percentage, 1) . "%</td>" . PHP_EOL;
             $avgWinnings = $players[$i]->Winnings / $players[$i]->TournamentsPlayed;
             echo '<td style="text-align:center">$' . number_format($avgWinnings, 2) . "</td>" . PHP_EOL;
             echo '</tr>' . PHP_EOL;
@@ -201,7 +239,7 @@ function AddPlayerData($connection, $player, $chitsResults){
     }
 }
 
-function DisplayIndividualGhin($connection, $ghin){
+function DisplayIndividualGhin($connection, $ghin, $indexes){
 
     $rosterPlayer = GetRosterEntry($connection, $ghin);
     if(empty($rosterPlayer)){
@@ -230,7 +268,9 @@ function DisplayIndividualGhin($connection, $ghin){
         return strcasecmp($a->Date, $b->Date);
     });
  
-    echo '<h2 style="text-align:center">Winnings for ' . $player->Names[0] . '</h2>' . PHP_EOL;
+    $index = GetIndex($indexes, $ghin);
+
+    echo '<h2 style="text-align:center">Winnings for ' . $player->Names[0] . " (Index " . $index . ')</h2>' . PHP_EOL;
 
     echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
     echo '<thead><tr class="header"><th>Date</th><th>Tournament</th><th>Winnings</th></tr></thead>' . PHP_EOL;
@@ -244,7 +284,8 @@ function DisplayIndividualGhin($connection, $ghin){
             echo '<tr class="d0">' . PHP_EOL;
         }
         echo '<td>' . $player->TournamentResults[$i]->Date . '</td>' . PHP_EOL;
-        echo '<td>' . $player->TournamentResults[$i]->TournamentName . ' (' . $player->TournamentResults[$i]->PlayerName . ' ' . $player->TournamentResults[$i]->GHIN . ')' . '</td>' . PHP_EOL;
+        //echo '<td>' . $player->TournamentResults[$i]->TournamentName . ' (' . $player->TournamentResults[$i]->PlayerName . ' ' . $player->TournamentResults[$i]->GHIN . ')' . '</td>' . PHP_EOL;
+        echo '<td>' . $player->TournamentResults[$i]->TournamentName  . '</td>' . PHP_EOL;
         echo '<td style="text-align:center">$' . $player->TournamentResults[$i]->TournamentWinnings . "</td>" . PHP_EOL;
         echo '</tr>' . PHP_EOL;
     }

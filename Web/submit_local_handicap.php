@@ -56,9 +56,7 @@ if (! isset ( $_POST ['LocalHandicap'] )) {
 			$lowerHandicap = (float)$LocalHandicapNeg;
 		}
 		// Slope is 117.0, Course rating is 70.2. Par is 72
-		// WHS not in use yet ...
-		//$calculatedHandicap = round(($lowerHandicap * 117.0 / 113.0) + (70.2 - 72)) ;
-		$calculatedHandicap = round(($lowerHandicap * 117.0 / 113.0)) ;
+		$calculatedHandicap = round(($lowerHandicap * 117.0 / 113.0) + (70.2 - 72)) ;
 		$calculatedHandicap = str_replace("-", "+", (string)$calculatedHandicap);
 		
 		if (! $insert->bind_param ( 'isss', $_POST ['LocalHandicap'] [$i] ['GHIN'], $_POST ['LocalHandicap'] [$i] ['SCGAHandicap'], $_POST ['LocalHandicap'] [$i] ['LocalHandicap'], $calculatedHandicap )) {

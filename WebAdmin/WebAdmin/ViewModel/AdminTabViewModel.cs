@@ -337,7 +337,7 @@ namespace WebAdmin.ViewModel
 
         private async Task SubmitLocalHandicap(object s)
         {
-            var localHandicap = LoadLocalHandicap(Options.LocalHandicapFileName);
+            var localHandicap = LoadGgHandicapIndexes(Options.LocalHandicapFileName);
 
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
@@ -417,24 +417,94 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private List<LocalHandicapEntry> LoadLocalHandicap(string localHandicapFileName)
+        //private List<LocalHandicapEntry> LoadLocalHandicap(string localHandicapFileName)
+        //{
+        //    if (!File.Exists(localHandicapFileName))
+        //    {
+        //        throw new FileNotFoundException("File does not exist: " + localHandicapFileName);
+        //    }
+        //    List<LocalHandicapEntry> entries = new List<LocalHandicapEntry>();
+        //    string[][] csvFileEntries;
+        //    using (TextReader tr = new StreamReader(localHandicapFileName))
+        //    {
+        //        csvFileEntries = CSVParser.Parse(tr);
+        //    }
+
+        //    int ghinColumn = 2;
+        //    int scgaHandicapColumn = 4;
+        //    int localHandicapColumn = 5;
+
+        //    for (int row = 1; row < csvFileEntries.Length; row++)
+        //    {
+        //        if (!string.IsNullOrEmpty(csvFileEntries[row][0]))
+        //        {
+        //            LocalHandicapEntry localHandicapEntry = new LocalHandicapEntry();
+
+        //            int ghinNumber;
+        //            if (!int.TryParse(csvFileEntries[row][ghinColumn], out ghinNumber))
+        //            {
+        //                throw new ArgumentException(string.Format("Invalid GHIN number on row {0}: '{1}'", row + 1, csvFileEntries[row][ghinColumn]));
+        //            }
+
+        //            localHandicapEntry.Ghin = ghinNumber;
+        //            localHandicapEntry.ScgaHandicap = csvFileEntries[row][scgaHandicapColumn];
+        //            localHandicapEntry.LocalHandicap = csvFileEntries[row][localHandicapColumn];
+
+        //            entries.Add(localHandicapEntry);
+        //        }
+        //    }
+
+        //    return entries;
+        //}
+
+        private List<LocalHandicapEntry> LoadGgHandicapIndexes(string ggMasterRosterFile)
         {
-            if (!File.Exists(localHandicapFileName))
+            if (!File.Exists(ggMasterRosterFile))
             {
-                throw new FileNotFoundException("File does not exist: " + localHandicapFileName);
+                throw new FileNotFoundException("File does not exist: " + ggMasterRosterFile);
             }
             List<LocalHandicapEntry> entries = new List<LocalHandicapEntry>();
             string[][] csvFileEntries;
-            using (TextReader tr = new StreamReader(localHandicapFileName))
+            using (TextReader tr = new StreamReader(ggMasterRosterFile))
             {
                 csvFileEntries = CSVParser.Parse(tr);
             }
 
-            int ghinColumn = 2;
-            int scgaHandicapColumn = 4;
-            int localHandicapColumn = 5;
+            int ghinColumn = -1;
+            int scgaIndexColumn = -1;
 
-            for (int row = 1; row < csvFileEntries.Length; row++)
+            int headerRow = -1;
+            for (int row = 0; (row < csvFileEntries.Length) && (row < 4); row++)
+            {
+                for (int col = 0; (col < csvFileEntries[row].Length) && (ghinColumn == -1); col++)
+                {
+                    if (csvFileEntries[row][col].Contains("GHIN"))
+                    {
+                        ghinColumn = col;
+                        headerRow = row;
+                    }
+                }
+
+                for (int col = 0; (col < csvFileEntries[row].Length) && (scgaIndexColumn == -1); col++)
+                {
+                    if (csvFileEntries[row][col].Contains("Index"))
+                    {
+                        scgaIndexColumn = col;
+                    }
+                }
+            }
+
+            if (headerRow == -1)
+            {
+                throw new ArgumentException("Failed to find a header row that had 'GHIN' in one of the column headers");
+            }
+
+            if (scgaIndexColumn == -1)
+            {
+                throw new ArgumentException("Failed to find a header row that had 'Index' in one of the column headers");
+            }
+
+            for (int row = headerRow + 1; row < csvFileEntries.Length; row++)
             {
                 if (!string.IsNullOrEmpty(csvFileEntries[row][0]))
                 {
@@ -447,8 +517,16 @@ namespace WebAdmin.ViewModel
                     }
 
                     localHandicapEntry.Ghin = ghinNumber;
-                    localHandicapEntry.ScgaHandicap = csvFileEntries[row][scgaHandicapColumn];
-                    localHandicapEntry.LocalHandicap = csvFileEntries[row][localHandicapColumn];
+                    if (string.IsNullOrEmpty(csvFileEntries[row][scgaIndexColumn]))
+                    {
+                        localHandicapEntry.ScgaHandicap = "0";
+                        localHandicapEntry.LocalHandicap = "0";
+                    }
+                    else
+                    {
+                        localHandicapEntry.ScgaHandicap = csvFileEntries[row][scgaIndexColumn];
+                        localHandicapEntry.LocalHandicap = localHandicapEntry.ScgaHandicap;  // We don't have local handicaps for now
+                    }
 
                     entries.Add(localHandicapEntry);
                 }
