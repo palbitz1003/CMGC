@@ -315,7 +315,7 @@ function AddChitsResults($connection, $tournamentKey, $chitsResults)
 }
 function GetChitsResults($connection, $tournamentKey)
 {
-	$sqlCmd = "SELECT * FROM `Chits` WHERE `TournamentKey` = ? ORDER BY `Flight` ASC, `Date` ASC, `Place` ASC, `TeamNumber` ASC";
+	$sqlCmd = "SELECT * FROM `Chits` WHERE `TournamentKey` = ? ORDER BY `Flight` ASC, `Date` ASC, `Place` ASC, `Winnings` DESC, `TeamNumber` ASC";
 	$query = $connection->prepare ( $sqlCmd );
 
 	if (! $query) {
