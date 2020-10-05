@@ -55,6 +55,7 @@ namespace WebAdmin.ViewModel
                                                     ? Visibility.Visible : Visibility.Collapsed;
                         IsEclectic = TournamentNames[value].IsEclectic;
                         MatchPlay = TournamentNames[value].MatchPlay;
+                        IsStableford = TournamentNames[value].IsStableford;
                         LoadClosestToThePinFromWeb();
                     }
                     else
@@ -172,7 +173,10 @@ namespace WebAdmin.ViewModel
         public ObservableCollection<EventWinnings> EventWinningsList { get { return _eventWinningsList; } set { _eventWinningsList = value; OnPropertyChanged(); } }
 
         private bool _isEclectic;
-        public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); ResetFileNames(); } }
+        public bool IsEclectic { get { return _isEclectic; } set { _isEclectic = value; OnPropertyChanged(); } }
+
+        private bool _isStableford;
+        public bool IsStableford { get { return _isStableford; } set { _isStableford = value; OnPropertyChanged(); } }
 
         private bool _matchPlay;
         public bool MatchPlay { get { return _matchPlay; } set { _matchPlay = value; OnPropertyChanged(); } }
@@ -1447,17 +1451,22 @@ namespace WebAdmin.ViewModel
                         {
                             int cumulativeScoreColIndex = 0;
                             score.ScoreTotal = -1;
-                            int cumulativeScore = 0;
+                            float cumulativeScore = 0;
                             for (; cumulativeScoreColIndex < cumulativeScoreCols.Length; cumulativeScoreColIndex++)
                             {
                                 if (!string.IsNullOrEmpty(line[cumulativeScoreCols[cumulativeScoreColIndex]]))
                                 {
-                                    if (int.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
+                                    if (float.TryParse(line[cumulativeScoreCols[cumulativeScoreColIndex]], out cumulativeScore))
                                     {
                                         if (IsEclectic && (cumulativeScore < 30))
                                         {
                                             // For an eclectic, GG provides score relative to par, even for the "cumulative score"
                                             cumulativeScore += 72;
+                                        }
+                                        else if (IsStableford && (score.ScoreRound2 > 0) && (cumulativeScore < (score.ScoreRound1 + score.ScoreRound2)))
+                                        {
+                                            // GG can put just round 1 in the cumulative column ...
+                                            cumulativeScore = score.ScoreRound1 + score.ScoreRound2;
                                         }
                                         score.ScoreTotal = cumulativeScore;
                                         break;
