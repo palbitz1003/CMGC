@@ -1338,7 +1338,16 @@ namespace WebAdmin.ViewModel
                                 {
                                     round1ScoreFound = true;
                                     score.ScoreRound1 = scoreRound1;
+                                    if (IsEclectic && (score.ScoreRound1 < 30))
+                                    {
+                                        // For an eclectic, GG provides score relative to par
+                                        score.ScoreRound1 += 72;
+                                    }
                                     break;
+                                }
+                                else if ((string.Compare(line[roundScoreCols[scoreColIndex]], "E") == 0) && IsEclectic)
+                                {
+                                    score.ScoreRound1 = 72;
                                 }
                             }
                         }
@@ -1361,7 +1370,16 @@ namespace WebAdmin.ViewModel
                                 if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound2))
                                 {
                                     score.ScoreRound2 = scoreRound2;
+                                    if (IsEclectic && (score.ScoreRound2 < 30))
+                                    {
+                                        // For an eclectic, GG provides score relative to par
+                                        score.ScoreRound2 += 72;
+                                    }
                                     break;
+                                }
+                                else if ((string.Compare(line[roundScoreCols[scoreColIndex]], "E") == 0) && IsEclectic)
+                                {
+                                    score.ScoreRound2 = 72;
                                 }
                             }
                         }
