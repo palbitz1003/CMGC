@@ -376,20 +376,24 @@ function GetCurrentTournaments($connection) {
 	$tournaments = GetTournaments($connection, '');
 		
 	$now = new DateTime ( "now" );
-	$currentTournaments = Array();
+	$currentTournaments = array();
 	
 	for($i = 0; $i < count($tournaments); ++$i){
 		// Get the start date
-		$start = new DateTime ( $tournaments[$i]->SignupStartDate );
+		$signupStartMinus2Weeks = new DateTime ( $tournaments[$i]->SignupStartDate );
 		// Give 2 weeks notice
-		$start->sub(new DateInterval ( 'P14D' ));
+		$signupStartMinus2Weeks->sub(new DateInterval ( 'P14D' ));
 		
 		$end = new DateTime($tournaments[$i]->EndDate);
 		$end->add(new DateInterval ( 'PT23H59M' ));
 		
-		//echo 'start ' . date ( 'M d', $start->getTimestamp() ) . ', end ' . date ( 'M d', $end->getTimestamp() ) . ', now ' . date ( 'M d', $now->getTimestamp() ) . '<br>';
+		//echo 'signup start minus 2 weeks ' . date ( 'M d Y', $signupStartMinus2Weeks->getTimestamp() ) . ', end ' . date ( 'M d Y', $end->getTimestamp() ) . ', now ' . date ( 'M d Y', $now->getTimestamp() ) . '<br>';
 		
-		if(($start <= $now) && ($end >= $now)){
+		if(($end >= $now) && (count($currentTournaments) == 0)){
+			// Always show the next tournament
+			$currentTournaments[] = $tournaments[$i];
+		} elseif(($signupStartMinus2Weeks <= $now) && ($end >= $now)){
+			// Include all others within 2 weeks of signup starting
 			$currentTournaments[] = $tournaments[$i];
 		}
 	}
