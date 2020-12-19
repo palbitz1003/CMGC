@@ -6,7 +6,6 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/signup fun
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
-
 $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
 
 $overrideTitle = "Winnings";
