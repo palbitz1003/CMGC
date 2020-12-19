@@ -1,0 +1,30 @@
+# Disable directory listings
+Options -Indexes
+
+# Allow rewriting
+RewriteEngine On
+RewriteBase /
+
+# Rewrite coronadomensgolf.org/index.html to just coronadomensgolf.org/
+RewriteRule ^index\.html?$ / [NC,R,L]
+
+# convert http to https
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# disallow some bots that do not pay attention to robots.txt
+# The [OR] flag really means "or"
+# The [NC] flag means to ignore case
+# It's unclear if MJ12bot pays attention to robots.txt. Leave this here for now as an
+# example of how to add more bots to the list
+# RewriteCond %{HTTP_USER_AGENT} ^.*MJ12bot [NC,OR]
+
+# last condition must not have OR
+# Baiduspider is a chinese spider that does not pay attention to robots.txt
+RewriteCond %{HTTP_USER_AGENT} ^Baiduspider.* [NC]
+# The [F] flag causes the server to return a 403 Forbidden status code to the client.
+# The [L] flag causes mod_rewrite to stop processing the rule set. 
+#      In most contexts, this means that if the rule matches, no further rules will be processed.
+RewriteRule .*  - [F,L]
+
+
