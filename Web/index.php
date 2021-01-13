@@ -31,8 +31,9 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 		$details = GetTournamentDetails($connection, $currentTournaments[$i]->TournamentKey);
 		
 		$startSignUp = new DateTime ( $currentTournaments[$i]->SignupStartDate);
+		$startSignUp->add(new DateInterval ( $signup_start_time ));
 		$endSignUp = new DateTime($currentTournaments[$i]->SignupEndDate);
-		$endSignUp->add(new DateInterval ( 'PT12H00M' )); // noon
+		$endSignUp->add(new DateInterval ( $signup_end_time )); 
 		$endSignUpFriendlyDate = GetUnbreakableHtmlDateString(date ( 'M d', strtotime ( $currentTournaments[$i]->SignupEndDate )));
 		
 		//echo 'now ' . $now->format('M d G') . '<br>';
@@ -49,15 +50,17 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 			
 			if($now < $startSignUp){
 				echo '<td style="border:none">Sign-up starts ' . 
-							GetUnbreakableHtmlDateString(date ( 'M d', strtotime ( $currentTournaments [$i]->SignupStartDate ) )) . '</td>'. PHP_EOL;
+							GetUnbreakableHtmlDateString(date ( 'M d (ga)', date_timestamp_get($startSignUp) )) . '</td>'. PHP_EOL;
 				echo '<td style="border:none"></td>'. PHP_EOL;
 			}
 			else if($now <= $endSignUp){
 				$maxSignups = "";
+				/*
 				if($currentTournaments [$i]-> MaxSignups != 0){
 					// &nbsp; is a non-breakable space
 					$maxSignups = ', max&nbsp;signup&nbsp;' . $currentTournaments [$i]-> MaxSignups;
 				}
+				*/
 				
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'signup.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Sign up</a> (<span style="font-size:small;">ends&nbsp;' . GetUnbreakableHtmlDateString($endSignUpFriendlyDate) . $maxSignups . '</span>)</td>'. PHP_EOL;
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'signups.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">View Signups</a></td>'. PHP_EOL;

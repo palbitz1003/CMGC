@@ -27,6 +27,25 @@ if ($connection->connect_error)
 
 $t = GetTournament($connection, $tournamentKey);
 
+$now = new DateTime ( "now" );
+$startSignUp = new DateTime ( $t->SignupStartDate);
+$startSignUp->add(new DateInterval ( $signup_start_time ));
+
+if($now < $startSignUp){
+	$overrideTitle = "Sign Up";
+	get_header ();
+
+	get_sidebar ();
+
+	echo "<p>Sign up doesn't start until " . GetUnbreakableHtmlDateString(date ( 'M d (ga)', date_timestamp_get($startSignUp) )) . ".</p>";
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	
+	get_footer ();
+	return;
+}
+
 $count = GetPlayerCountForTournament($connection, $tournamentKey);
 if(($t->MaxSignups != 0) && ($count >= $t->MaxSignups))
 {
@@ -35,7 +54,7 @@ if(($t->MaxSignups != 0) && ($count >= $t->MaxSignups))
 
 	get_sidebar ();
 
-	echo "<p>This tournament is full. There are " . $count . " people signed up.</p>";
+	echo "<p>This tournament is full.</p>";
 	if (isset ( $connection )) {
 		$connection->close ();
 	}
@@ -234,7 +253,14 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	echo '<div id="content" role="main">' . PHP_EOL;
 	echo '<h2 class="entry-title">Sign Up</h2>' . PHP_EOL;
 	echo '<h3>' . $t->Name . '</h3>' . PHP_EOL;
+
+	echo '<p>Note: Signing up does not guarantee that you are in the tournament. ';
+	echo 'We try to match the number of signups with the available tee times. ';
+	echo 'When the tee times are assigned and we are over-subscribed, a random draw decides which players do not get a tee time. ';
+	echo 'Those players are refunded their signup fee.</p>' . PHP_EOL;
+
 	if(!$hasError) {
+		echo '<h4>Tournament Description</h4>' . PHP_EOL;
 		echo $descr; 
 		DisplayTournamentDetails($t); 
 	}
