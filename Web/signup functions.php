@@ -440,9 +440,13 @@ function ShowSignups($connection, $tournamentKey) {
 	if(($count > 0) && ($t->MaxSignups > 0)){
 		echo '<tr><td style="border: none">';
 		if($count >= $t->MaxSignups){
-			echo 'This tournament is full. There are ' . $count . ' players signed up.';
+			echo '<p>This tournament is full.</p>';
+			echo '<p>Note: Signing up does not guarantee that you are in the tournament. ';
+			echo 'We try to match the number of signups with the available tee times. ';
+			echo 'When the tee times are assigned and we are over-subscribed, a random draw decides which players do not get a tee time. ';
+			echo 'Those players are refunded their signup fee.</p>' . PHP_EOL;
 		} else {
-			echo 'There are ' . $count . ' players signed up. Signups will close at ' . $t->MaxSignups . ' players.';
+			//echo 'There are ' . $count . ' players signed up. Signups will close at ' . $t->MaxSignups . ' players.';
 		}
 		echo '</td></tr><tr><td style="border: none"></td></tr>' . PHP_EOL;
 	}
