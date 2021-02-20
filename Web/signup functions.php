@@ -12,6 +12,7 @@ class SignUpClass {
 	public $AccessCode;
 	public $PayerName;
 	public $PayerEmail;
+	public $PaymentEnabled;
 }
 
 class PlayerSignUpClass {
@@ -45,10 +46,11 @@ class RosterEntry {
 	public $BirthDate;
 	public $DateAdded;
 	public $MembershipType;
+	public $SignupPriority;
 }
 
-function InsertSignUp($connection, $tournamentKey, $requestedTime, $entryFees, $accessCode) {
-	$sqlCmd = "INSERT INTO `SignUps` VALUES (NULL, ?, ?, ?, ?, ?, NULL, ?, ?, ?)";
+function InsertSignUp($connection, $tournamentKey, $requestedTime, $entryFees, $accessCode, $paymentEnabled) {
+	$sqlCmd = "INSERT INTO `SignUps` VALUES (NULL, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
@@ -59,7 +61,14 @@ function InsertSignUp($connection, $tournamentKey, $requestedTime, $entryFees, $
 	$payment = 0.0;
 	$payerName = "";
 	$payerEmail = "";
-	if (! $insert->bind_param ( 'issddsss', $tournamentKey, $date, $requestedTime, $payment, $entryFees, $accessCode, $payerName, $payerEmail )) {
+	// Convert boolean to bit value for SQL
+	if($paymentEnabled === true){
+		$paymentEnabled = 1;
+	}
+	if($paymentEnabled === false){
+		$paymentEnabled = 0;
+	}
+	if (! $insert->bind_param ( 'issddsssi', $tournamentKey, $date, $requestedTime, $payment, $entryFees, $accessCode, $payerName, $payerEmail, $paymentEnabled )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	
@@ -262,6 +271,24 @@ function GetPlayerCountForTournament($connection, $tournamentKey){
 }
 
 /*
+ * Decide if payment is enabled given the list of players
+ */
+function DecideIfPaymentEnabled($connection, $tournamentKey, $GHIN)
+{
+	for($i = 0; $i < count ( $GHIN ); ++ $i) {
+		if (isset ( $GHIN [$i] ) && (strlen($GHIN [$i]) > 0) ) {
+			$rosterEntry = GetRosterEntry($connection, $GHIN [$i]);
+			// Signup priority B is board members. They can pay immediately.
+			if(!empty($rosterEntry) && ($rosterEntry->SignupPriority === "B")){
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+/*
  * Get the roster data for a player
  */
 function GetRosterEntry($connection, $playerGHIN) {
@@ -284,7 +311,7 @@ function GetRosterEntry($connection, $playerGHIN) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$player->bind_result ( $GHIN, $lastName, $firstName, $active, $email, $birthDate, $dateAdded, $membershipType );
+	$player->bind_result ( $GHIN, $lastName, $firstName, $active, $email, $birthDate, $dateAdded, $membershipType, $signupPriority );
 
 	if ( $player->fetch () ) {
 		$rosterEntry = new RosterEntry();
@@ -295,7 +322,7 @@ function GetRosterEntry($connection, $playerGHIN) {
 		$rosterEntry->BirthDate = $birthDate;
 		$rosterEntry->DateAdded = $dateAdded;
 		$rosterEntry->MembershipType = $membershipType;
-		
+		$rosterEntry->SignupPriority = $signupPriority;
 		return $rosterEntry;
 	}
 	else {
@@ -322,7 +349,7 @@ function GetSignups($connection, $tournamentKey, $sqlClause) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$signups->bind_result ( $key, $tournament, $date, $requestedTime, $payment, $paymentDue, $paymentDateTime, $accessCode, $payerName, $payerEmail );
+	$signups->bind_result ( $key, $tournament, $date, $requestedTime, $payment, $paymentDue, $paymentDateTime, $accessCode, $payerName, $payerEmail, $paymentEnabled );
 
 	while ( $signups->fetch () ) {
 		$signUpObj = new SignUpClass ();
@@ -336,6 +363,7 @@ function GetSignups($connection, $tournamentKey, $sqlClause) {
 		$signUpObj->AccessCode = $accessCode;
 		$signUpObj->PayerName = $payerName;
 		$signUpObj->PayerEmail = $payerEmail;
+		$signUpObj->PaymentEnabled = boolval($paymentEnabled);  // convert bit value to true/false
 		$signUpArray [] = $signUpObj;
 	}
 
@@ -360,7 +388,7 @@ function GetSignup($connection, $submitKey){
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 	
-	$signups->bind_result ( $key, $tournament, $date, $requestedTime, $payment, $paymentDue, $paymentDateTime, $accessCode, $payerName, $payerEmail );
+	$signups->bind_result ( $key, $tournament, $date, $requestedTime, $payment, $paymentDue, $paymentDateTime, $accessCode, $payerName, $payerEmail, $paymentEnabled );
 	
 	$signUpObj = null;
 	if($signups->fetch ()){
@@ -375,6 +403,7 @@ function GetSignup($connection, $submitKey){
 		$signUpObj->AccessCode = $accessCode;
 		$signUpObj->PayerName = $payerName;
 		$signUpObj->PayerEmail = $payerEmail;
+		$signUpObj->PaymentEnabled = boolval($paymentEnabled);  // convert bit value to true/false
 	}
 
 	$signups->close();
@@ -518,7 +547,7 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			echo '<td>' . $players . '</td>';
 			echo '<td>';
 			$needToPay = $signUpArray [$i]->Payment < $signUpArray [$i]->PaymentDue;
-			if($needToPay) {
+			if($needToPay && $signUpArray [$i]->PaymentEnabled) {
 				echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp';
 			}
 			echo '<a href="' . $script_folder_href . 'signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
@@ -628,6 +657,10 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 	$signup = GetSignup($connection, $submitKey);
 	if(empty($signup)){
 		die("Unable to find signup key " . $submitKey);
+	}
+
+	if(!$signup->PaymentEnabled){
+		die("Payment is not enabled for this signup");
 	}
 	
 	$playersSignedUp = GetPlayersForSignUp($connection, $submitKey);

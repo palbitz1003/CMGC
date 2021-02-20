@@ -51,7 +51,7 @@ if (! isset ( $_POST ['GHIN'] )) {
 			// record exists, update all the fields
 			$query->close ();
 			
-			$sqlCmd = "UPDATE `Roster` SET `LastName`= ?, `FirstName` = ?,`Email`= ?, `BirthDate` = ?, `MembershipType` = ?, `Active` = 1 WHERE `GHIN` = ?";
+			$sqlCmd = "UPDATE `Roster` SET `LastName`= ?, `FirstName` = ?,`Email`= ?, `BirthDate` = ?, `MembershipType` = ?, `SignupPriority` = ?,`Active` = 1 WHERE `GHIN` = ?";
 			$update = $connection->prepare ( $sqlCmd );
 			
 			if (! $update) {
@@ -61,7 +61,13 @@ if (! isset ( $_POST ['GHIN'] )) {
 			$email = $_POST ['GHIN'] [$i] ['Email'];
 			$birthdate = $_POST ['GHIN'] [$i] ['Birthdate'];
 			$membershipType = $_POST ['GHIN'] [$i] ['MembershipType'];
-			if (! $update->bind_param ( 'sssssi', $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $email, $birthdate, $membershipType, $_POST ['GHIN'] [$i] ['GHIN'] )) {
+			$signupPriority = $_POST ['GHIN'] [$i] ['SignupPriority'];
+			// default to G if empty
+			if(strlen($signupPriority) == 0){
+				$signupPriority = "G";
+			}
+			if (! $update->bind_param ( 'ssssssi', $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $email, 
+													$birthdate, $membershipType, $signupPriority, $_POST ['GHIN'] [$i] ['GHIN'] )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
 			}
 			
@@ -73,7 +79,7 @@ if (! isset ( $_POST ['GHIN'] )) {
 			// record does not exist, just insert
 			$query->close ();
 			
-			$sqlCmd = "INSERT INTO `Roster` VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			$sqlCmd = "INSERT INTO `Roster` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$insert = $connection->prepare ( $sqlCmd );
 			
 			if (! $insert) {
@@ -85,7 +91,13 @@ if (! isset ( $_POST ['GHIN'] )) {
 			$email = $_POST ['GHIN'] [$i] ['Email'];
 			$birthdate = $_POST ['GHIN'] [$i] ['Birthdate'];
 			$membershipType = $_POST ['GHIN'] [$i] ['MembershipType'];
-			if (! $insert->bind_param ( 'ississss', $_POST ['GHIN'] [$i] ['GHIN'], $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], $active, $email, $birthdate, $dateAdded, $membershipType )) {
+			$signupPriority = $_POST ['GHIN'] [$i] ['SignupPriority'];
+			// default to G if empty
+			if(strlen($signupPriority) == 0){
+				$signupPriority = "G";
+			}
+			if (! $insert->bind_param ( 'ississsss', $_POST ['GHIN'] [$i] ['GHIN'], $_POST ['GHIN'] [$i] ['LastName'], $_POST ['GHIN'] [$i] ['FirstName'], 
+													$active, $email, $birthdate, $dateAdded, $membershipType, $signupPriority )) {
 				die ( $sqlCmd . " bind_param failed: " . $connection->error );
 			}
 			

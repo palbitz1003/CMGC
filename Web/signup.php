@@ -390,14 +390,17 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		$entryFees = $playerCount * ($paypalDetails->TournamentFee + $paypalDetails->ProcessingFee);
 	}
 
+	// Enable payment for some groups immediately
+	$paymentEnabled = DecideIfPaymentEnabled($connection, $tournamentKey, $GHIN);
+
 	// The signup has no errors. Proceed to sign up the group. First create the signup entry.
-	$insertId = InsertSignUp ( $connection, $tournamentKey, $RequestedTime, $entryFees, $accessCode);
+	$insertId = InsertSignUp ( $connection, $tournamentKey, $RequestedTime, $entryFees, $accessCode, $paymentEnabled);
 	// echo 'insert id is: ' . $insertId . '<br>';
-	
+
 	// Now add the players to the signup entry
 	InsertSignUpPlayers ( $connection, $tournamentKey, $insertId, $GHIN, $FullName, $Extra );
-	
-	if($t->RequirePayment)
+
+	if($t->RequirePayment && $paymentEnabled)
 	{
 		echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 		echo '<div id="content" role="main">' . PHP_EOL;
@@ -416,6 +419,9 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		if(!empty($accessCode)){
 			echo '<p>Your signup data has been saved.  Here is your access code to make changes to your signup. Save this code for later!</p>';
 			echo '<p style="text-align: center;"><b>' . $accessCode . '</b> </p>' . PHP_EOL;
+		}
+		if($t->RequirePayment && !$paymentEnabled){
+			echo '<p>You will be allowed to pay later if you are selected to play in this tournament.</p>';
 		}
 		echo '<p><a href="' . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>' . PHP_EOL;
 
