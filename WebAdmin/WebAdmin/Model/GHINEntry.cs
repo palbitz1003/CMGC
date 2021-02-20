@@ -13,6 +13,7 @@ namespace WebAdmin
         public string Email { get; set; }
         public DateTime Birthday { get; set; }
         public string MembershipType { get; set; }
+        public string SignupPriority { get; set; }
 
         public static List<GHINEntry> LoadGHIN(string ghinFileName)
         {
@@ -32,6 +33,7 @@ namespace WebAdmin
             int emailColumn = -1;
             int birthdayColumn = -1;
             int membershipTypeColumn = -1;
+            int signupPriorityColumn = -1;
 
             for(int col = 0; col < csvFileEntries[0].GetLength(0); col++)
             {
@@ -40,6 +42,7 @@ namespace WebAdmin
                 if (string.Compare(csvFileEntries[0][col], "Email Address", true) == 0) emailColumn = col;
                 if (string.Compare(csvFileEntries[0][col], "DOB", true) == 0) birthdayColumn = col;
                 if (string.Compare(csvFileEntries[0][col], "Type", true) == 0) membershipTypeColumn = col;
+                if (string.Compare(csvFileEntries[0][col], "Signup Priority", true) == 0) signupPriorityColumn = col;
             }
 
             if(nameColumn == -1) throw new ArgumentException("Failed to find column named \"Name\"");
@@ -47,6 +50,7 @@ namespace WebAdmin
             if (emailColumn == -1) throw new ArgumentException("Failed to find column named \"Email Address\"");
             if (birthdayColumn == -1) throw new ArgumentException("Failed to find column named \"DOB\"");
             if (membershipTypeColumn == -1) throw new ArgumentException("Failed to find column named \"Type\"");
+            if (signupPriorityColumn == -1) throw new ArgumentException("Failed to find column named \"Signup Priority\"");
 
             for (int row = 1; row < csvFileEntries.Length; row++)
             {
@@ -76,6 +80,7 @@ namespace WebAdmin
                 ghinEntry.GHIN = ghinNumber;
                 ghinEntry.Email = csvFileEntries[row][emailColumn].Trim();
                 ghinEntry.MembershipType = csvFileEntries[row][membershipTypeColumn].Trim();
+                ghinEntry.SignupPriority = csvFileEntries[row][signupPriorityColumn].Trim();
 
                 DateTime dt = default(DateTime);
                 if (!string.IsNullOrEmpty(csvFileEntries[row][birthdayColumn]))

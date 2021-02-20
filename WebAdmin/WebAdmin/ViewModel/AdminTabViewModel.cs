@@ -264,6 +264,10 @@ namespace WebAdmin.ViewModel
                             string.Format("GHIN[{0}][MembershipType]", chunkIndex),
                              GHINEntries[i].MembershipType));
 
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("GHIN[{0}][SignupPriority]", chunkIndex),
+                             GHINEntries[i].SignupPriority));
+
                         chunkIndex++;
                         // If too much data is sent at once, you get an error 503
                         if (values.Count >= 400)
