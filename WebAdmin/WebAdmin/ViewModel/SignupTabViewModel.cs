@@ -1417,9 +1417,10 @@ namespace WebAdmin.ViewModel
 
                 if (lines.Length > 0)
                 {
-                    if ((lines[0][0].ToLower() != "tee time") || (lines[0][1].ToLower() != "last name") || (lines[0][2].ToLower() != "first name"))
+                    if ((lines[0][0].ToLower() != "tee time") || (lines[0][1].ToLower() != "last name") 
+                        || (lines[0][2].ToLower() != "first name") || (lines[0][3].ToLower() != "ghin"))
                     {
-                        MessageBox.Show("Expected 1st 3 columns on line 1 to be: TeeTime,Last Name,First Name", "Format Error");
+                        MessageBox.Show("Expected 1st 3 columns on line 1 to be: TeeTime,Last Name,First Name,GHIN", "Format Error");
                         return;
                     }
 
@@ -1436,6 +1437,11 @@ namespace WebAdmin.ViewModel
                             // columns are TeeTime,Last Name,First Name 
                             string name = line[1].Trim() + ", " + line[2].Trim();
                             waitingListEntry.Name1 = name;
+                            int ghin = 0;
+                            if (int.TryParse(line[3].Trim(), out ghin))
+                            {
+                                waitingListEntry.GHIN1 = ghin;
+                            }
                         }
                     }
                 }
