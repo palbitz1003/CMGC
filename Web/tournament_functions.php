@@ -600,4 +600,25 @@ function IsPastSignupPeriod($tournament)
 	return false;
 }
 
+function GetPreviousTournamentKey($connection, $tournamentKey){
+
+	// Get tournaments ordered by start date
+	$tournaments = GetTournaments($connection, '');
+
+	$currentIndex = -1;
+	for($i = 0; ($i < count($tournaments)) && ($currentIndex == -1); ++$i){
+		if($tournamentKey == $tournaments[$i]->TournamentKey){
+			$currentIndex = $i;
+		}
+	}
+
+	for($i = $currentIndex - 1; $i >= 0; --$i){
+		if(!$tournaments[$i]->AnnouncementOnly){
+			return $tournaments[$i]->TournamentKey;
+		}
+	}
+
+	return -1;
+}
+
 ?>

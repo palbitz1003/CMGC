@@ -273,7 +273,7 @@ function GetPlayerCountForTournament($connection, $tournamentKey){
 /*
  * Decide if payment is enabled given the list of players
  */
-function DecideIfPaymentEnabled($connection, $tournamentKey, $GHIN)
+function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN)
 {
 	for($i = 0; $i < count ( $GHIN ); ++ $i) {
 		if (isset ( $GHIN [$i] ) && (strlen($GHIN [$i]) > 0) ) {
@@ -281,6 +281,24 @@ function DecideIfPaymentEnabled($connection, $tournamentKey, $GHIN)
 			// Signup priority B is board members. They can pay immediately.
 			if(!empty($rosterEntry) && ($rosterEntry->SignupPriority === "B")){
 				return true;
+			}
+		}
+	}
+
+	$waitingList = GetSignUpWaitingList($connection, $previousTournamentKey);
+
+	for($i = 0; $i < count ( $waitingList ); ++ $i) {
+		for($j = 0; $j < count ($GHIN); ++$j){
+			if (isset ( $GHIN [$j] ) && (strlen($GHIN [$j]) > 0) ) {
+				$GHINint = intval($GHIN[$j]);
+				if($GHINint != 0){
+					if((($waitingList[$i]->GHIN1 != 0) && ($waitingList[$i]->GHIN1 === $GHINint)) ||
+						(($waitingList[$i]->GHIN2 != 0) && ($waitingList[$i]->GHIN2 === $GHINint)) ||
+						(($waitingList[$i]->GHIN3 != 0) && ($waitingList[$i]->GHIN3 === $GHINint)) ||
+						(($waitingList[$i]->GHIN4 != 0) && ($waitingList[$i]->GHIN4 === $GHINint))){
+							return true;
+					}
+				}
 			}
 		}
 	}

@@ -390,8 +390,11 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		$entryFees = $playerCount * ($paypalDetails->TournamentFee + $paypalDetails->ProcessingFee);
 	}
 
+	// Need the previous tournament key to get the waitlist
+	$previousTournamentKey = GetPreviousTournamentKey($connection, $tournamentKey);
+	
 	// Enable payment for some groups immediately
-	$paymentEnabled = DecideIfPaymentEnabled($connection, $tournamentKey, $GHIN);
+	$paymentEnabled = DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN);
 
 	// The signup has no errors. Proceed to sign up the group. First create the signup entry.
 	$insertId = InsertSignUp ( $connection, $tournamentKey, $RequestedTime, $entryFees, $accessCode, $paymentEnabled);
