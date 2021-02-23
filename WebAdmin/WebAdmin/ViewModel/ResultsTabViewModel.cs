@@ -389,10 +389,11 @@ namespace WebAdmin.ViewModel
         {
             TournamentNameIndex = -1;
 
-            // Grab the last tournament that has started
+            // Grab the last tournament that is within 3 days of starting. The GG link is usually
+            // added within a couple days of the tournament starting
             for (int i = TournamentNames.Count - 1; i >= 0; i--)
             {
-                if ((DateTime.Now >= TournamentNames[i].StartDate) && !TournamentNames[i].AnnouncementOnly)
+                if ((DateTime.Now >= TournamentNames[i].StartDate.Subtract(new TimeSpan(3, 0, 0, 0))) && !TournamentNames[i].AnnouncementOnly)
                 {
                     TournamentNameIndex = i;
                     break;
