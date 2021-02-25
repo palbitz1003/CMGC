@@ -22,6 +22,7 @@ namespace WebAdmin
         public bool TeeTimeInterval78 { get; set; }
         public bool TeeTimeInterval98 { get; set; }
         public bool TeeTimeInterval10 { get; set; }
+        public bool Block52TeeTimes { get; set; }
 
         public Options()
         {
@@ -30,6 +31,7 @@ namespace WebAdmin
             TeeTimeInterval78 = true;
             TeeTimeInterval98 = false;
             TeeTimeInterval10 = false;
+            Block52TeeTimes = false;
         }
 
         public static Options Load(string fileName)

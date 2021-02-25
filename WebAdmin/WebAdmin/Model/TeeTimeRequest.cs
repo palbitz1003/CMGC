@@ -33,6 +33,27 @@ namespace WebAdmin
             get { return PlayersToString(); }
         }
 
+        public string RequestedTimeAndPlayerList
+        {
+            get {
+                if (_paid)
+                {
+                    return "paid: " + ToString();
+                }
+                else if (_waitlisted)
+                {
+                    return "wait: " + ToString();
+                }
+                else
+                {
+                    return "        " + ToString();
+                }
+            }
+        }
+
+        private bool _waitlisted = false;
+        public bool Waitlisted { get { return _waitlisted; } set { _waitlisted = value; OnPropertyChanged(); } }
+
         private float _paymentDue;
         public float PaymentDue { get { return _paymentDue; } set { _paymentDue = value; OnPropertyChanged(); } }
 
@@ -59,6 +80,9 @@ namespace WebAdmin
 
         private string _payerEmail;
         public string PayerEmail { get { return _payerEmail; } set { _payerEmail = value; OnPropertyChanged(); } }
+
+        private int _blindDrawValue = 0;
+        public int BlindDrawValue { get { return _blindDrawValue; } set { _blindDrawValue = value; OnPropertyChanged(); } }
 
         public TeeTimeRequest()
         {
@@ -97,7 +121,7 @@ namespace WebAdmin
             }
             else if(!string.IsNullOrEmpty(Preference))
             {
-                s = Preference + " ";
+                s = "(" + Preference + ") ";
             }
 
             s += PlayersToString();

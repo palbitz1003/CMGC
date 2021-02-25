@@ -1244,7 +1244,6 @@ namespace WebAdmin.ViewModel
 
             List<Score> scoreList = new List<Score>();
 
-            int maxDivisions = 4;
             bool findHeaders = true;
             int dateColumn = -1;
             int lastNameCol = -1;

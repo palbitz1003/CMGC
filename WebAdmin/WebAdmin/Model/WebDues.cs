@@ -8,13 +8,13 @@ namespace WebAdmin
 {
     internal class WebDues
     {
-        public string Year;
-        public int GHIN;
-        public string Name;
-        public float Payment;
-        public string PaymentDateTime;
-        public string PayerName;
-        public string PayerEmail;
-        public string RIGS;
+        public string Year = null;
+        public int GHIN = 0;
+        public string Name = null;
+        public float Payment = 0;
+        public string PaymentDateTime = null;
+        public string PayerName = null;
+        public string PayerEmail = null;
+        public string RIGS = null;
     }
 }

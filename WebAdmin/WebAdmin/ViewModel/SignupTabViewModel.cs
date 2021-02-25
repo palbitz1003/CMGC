@@ -91,8 +91,12 @@ namespace WebAdmin.ViewModel
                 _firstTeeTimeIndex = value; 
                 OnPropertyChanged();
                 UpdateTournamentTeeTimes();
+                BlindDrawPlayerCount = TournamentTeeTimes.Count * 4;
             } 
         }
+
+        private int _blindDrawPlayerCount;
+        public int BlindDrawPlayerCount { get { return _blindDrawPlayerCount; } set { _blindDrawPlayerCount = value; OnPropertyChanged(); } }
 
         DateTime _lastSelectionTime = DateTime.Now;
         private int _lastSelection = -1;
@@ -182,11 +186,11 @@ namespace WebAdmin.ViewModel
             set { _waitingListFile = value; OnPropertyChanged(); }
         }
 
-        private bool _orderBySignupDate;
-        public bool OrderBySignupDate { get { return _orderBySignupDate; } 
+        private bool _orderByBlindDraw;
+        public bool OrderByBlindDraw { get { return _orderByBlindDraw; } 
             set 
             { 
-                _orderBySignupDate = value; 
+                _orderByBlindDraw = value; 
                 OnPropertyChanged();
                 SortTeeTimeRequests();
             } 
@@ -218,6 +222,20 @@ namespace WebAdmin.ViewModel
         {
             get { return _allowTeeTimeIntervalAdjust; }
             set { _allowTeeTimeIntervalAdjust = value; OnPropertyChanged(); }
+        }
+
+        private bool _block52TeeTimes;
+        public bool Block52TeeTimes
+        {
+            get { return _block52TeeTimes; }
+            set
+            {
+                _block52TeeTimes = value;
+                InitTeeTimes();
+                BlindDrawPlayerCount = TournamentTeeTimes.Count * 4;
+                Options.Block52TeeTimes = _block52TeeTimes;
+                OnPropertyChanged();
+            }
         }
 
         private bool _teeTimeInterval78;
@@ -279,6 +297,8 @@ namespace WebAdmin.ViewModel
         private bool _teeTimesDirty = false;
 
         private int _currentNumberOfPlayersShowing;
+
+        private Random _randomNumberGenerator;
         #endregion
 
         #region Commands
@@ -317,9 +337,11 @@ namespace WebAdmin.ViewModel
             TeeTimeInterval10 = Options.TeeTimeInterval10; // initializes list
             TeeTimeInterval78 = Options.TeeTimeInterval78;
             TeeTimeInterval98 = Options.TeeTimeInterval98;
+            Block52TeeTimes = Options.Block52TeeTimes;
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
             AllowTeeTimeIntervalAdjust = true;
+            _randomNumberGenerator = new Random();
         }
 
         public void InitTeeTimes()
@@ -331,7 +353,14 @@ namespace WebAdmin.ViewModel
             int firstTime = (FirstTeeTimeIndex < 0) ? 0 : FirstTeeTimeIndex;
             for (int i = firstTime; i < _defaultTeeTimes.Count; i++)
             {
-                TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
+                if (Block52TeeTimes && _defaultTeeTimes[i].Contains(":52"))
+                {
+                    // skip
+                }
+                else
+                {
+                    TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
+                }
             }
         }
 
@@ -368,9 +397,9 @@ namespace WebAdmin.ViewModel
                 // trigger a selected event.
                 ClearTodoSelection();
 
-                if (OrderBySignupDate)
+                if (OrderByBlindDraw)
                 {
-                    TeeTimeRequests.Sort(new SubmitKeySort());
+                    TeeTimeRequests.Sort(new BlindDrawKeySort());
                 }
                 else
                 {
@@ -761,9 +790,9 @@ namespace WebAdmin.ViewModel
 
             if (TeeTimeRequests.Count > 0)
             {
-                var orderBy = OrderBySignupDate;
-                // Save waiting list by signup order
-                OrderBySignupDate = true;
+                var orderBy = OrderByBlindDraw;
+                // Save waiting list by blind draw order
+                OrderByBlindDraw = true;
 
                 var unassignedTeeTimes = ConvertUnassignedToTeeTimes();
 
@@ -781,7 +810,7 @@ namespace WebAdmin.ViewModel
                 finally
                 {
                     // Restore order-by choice
-                    OrderBySignupDate = orderBy;
+                    OrderByBlindDraw = orderBy;
                 }
             }
         }
@@ -1000,9 +1029,11 @@ namespace WebAdmin.ViewModel
                     {
                         TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
 
-                        if (OrderBySignupDate)
+                        BlindDraw();
+
+                        if (OrderByBlindDraw)
                         {
-                            TeeTimeRequests.Sort(new SubmitKeySort());
+                            TeeTimeRequests.Sort(new BlindDrawKeySort());
                         }
                         else
                         {
@@ -1019,20 +1050,52 @@ namespace WebAdmin.ViewModel
             GroupMode = true;
         }
 
+        private void BlindDraw()
+        {
+            foreach (var request in TeeTimeRequests)
+            {
+                if (request.Paid)
+                {
+                    // Selecting lower numbers ensures those that have paid will
+                    // be higher in blind draw list
+                    request.BlindDrawValue = _randomNumberGenerator.Next(1000, 2999);
+                }
+                else
+                {
+                    request.BlindDrawValue = _randomNumberGenerator.Next(3000, 9999);
+                }
+            }
+
+            TeeTimeRequests.Sort(new BlindDrawKeySort());
+
+            int playerCount = 0;
+            for (int i = 0; i < TeeTimeRequests.Count; i++)
+            {
+                TeeTimeRequests[i].Waitlisted = playerCount >= BlindDrawPlayerCount;
+                playerCount += TeeTimeRequests[i].Players.Count;
+            }
+        }
+
         private class TeeTimeRequestSort : IComparer<TeeTimeRequest>
         {
             public int Compare(TeeTimeRequest a, TeeTimeRequest b)
             {
+                // Put all the waitlisted groups at the end
+                if (a.Waitlisted && !b.Waitlisted) return 1;
+                if (!a.Waitlisted && b.Waitlisted) return -1;
+                // Sort the waitlisted groups by the blind draw value
+                if(a.Waitlisted && b.Waitlisted) return a.BlindDrawValue - b.BlindDrawValue;
 
+                // Sort the non-waitlisted groups by requested time
                 return a.GetHour() - b.GetHour();
             }
         }
 
-        private class SubmitKeySort : IComparer<TeeTimeRequest>
+        private class BlindDrawKeySort : IComparer<TeeTimeRequest>
         {
             public int Compare(TeeTimeRequest a, TeeTimeRequest b)
             {
-                return a.SignupKey - b.SignupKey;
+                return a.BlindDrawValue - b.BlindDrawValue;
             }
         }
 
