@@ -16,6 +16,7 @@ class Player {
     public $GHIN;
     public $Extra;
     public $Email;
+    public $SignupKey;
 }
 
 $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
@@ -43,6 +44,7 @@ for($i = 0; $i < count($teeTimes); ++$i){
         $player->GHIN = $teeTimes[$i]->Players[$j]->GHIN;
         $player->Position = $j + 1;
         $player->Extra = $teeTimes[$i]->Players[$j]->Extra;
+        $player->SignupKey = $teeTimes[$i]->Players[$j]->SignupKey;
 
         if($player->GHIN !== 0){
 			$rosterEntry = GetRosterEntry ( $connection, $player->GHIN );

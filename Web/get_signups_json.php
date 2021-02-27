@@ -23,6 +23,7 @@ class Player {
     public $GHIN;
     public $Extra;
     public $Email;
+    public $SignupKey;
 }
 
 $tournamentKey = $_POST ['tournament'];
@@ -79,6 +80,7 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
         $player->GHIN = $playersSignedUp [$p]->GHIN;
         $player->Extra = $extra . $over80;
         $player->Email = $email;
+        $player->SignupKey = $playersSignedUp [$p]->SignUpKey;
 
         $playersArray[] = $player;
     }

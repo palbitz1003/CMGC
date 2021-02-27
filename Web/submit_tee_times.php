@@ -30,6 +30,12 @@ if (! isset ( $_POST ['TeeTime'] )) {
 			$teeTime->Players [] = FixNameCasing($_POST ['TeeTime'] [$i] ['Player'] [$player]);
 			$teeTime->GHIN [] = $_POST ['TeeTime'] [$i] ['GHIN'] [$player];
 			$teeTime->Extra [] = $_POST ['TeeTime'] [$i] ['Extra'] [$player];
+
+			// We could look up the signup key, instead of having it passed in here, but that 
+			// requires that the GHIN number is always non-zero.  If GHIN number 0 is allowed, then
+			// searching for the GHIN among the players signed up for this tournament would result in multiple matches
+			// and we would not be able to pair up the player to the signup to see if they have paid.
+			$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
 		}
 		
 		$teeTimes [] = $teeTime;
@@ -48,7 +54,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		if ($teeTimes [$i]->Players) {
 			for($player = 0; $player < count ( $teeTimes [$i]->Players ); ++ $player) {
 				InsertTeeTimePlayer ( $connection, $teeTimeKey, $tournamentKey, 
-					$teeTimes [$i]->GHIN [$player], $teeTimes [$i]->Players [$player], $teeTimes [$i]->Extra [$player], $player );
+					$teeTimes [$i]->GHIN [$player], $teeTimes [$i]->Players [$player], $teeTimes [$i]->Extra [$player], $player, $teeTimes [$i]->SignupKey [$player] );
 			}
 		}
 	}

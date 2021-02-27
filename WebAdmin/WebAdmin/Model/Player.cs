@@ -35,6 +35,7 @@ namespace WebAdmin
         public TeeTime TeeTime { get; set; }
         public int Position { get; set; }
         public string Email { get; set; }
+        public int SignupKey { get; set; }
 
         public override string ToString()
         {

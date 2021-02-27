@@ -745,6 +745,10 @@ namespace WebAdmin.ViewModel
                         values.Add(new KeyValuePair<string, string>(
                             string.Format("TeeTime[{0}][Extra][{1}]", i, player),
                             TournamentTeeTimes[i].Players[player].Extra));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("TeeTime[{0}][SignupKey][{1}]", i, player),
+                            TournamentTeeTimes[i].Players[player].SignupKey.ToString()));
                     }
                 }
 
@@ -838,7 +842,7 @@ namespace WebAdmin.ViewModel
                 finalFileName = dlg.FileName;
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
-                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty");
+                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty,Signup Key,Waitlisted");
 
                     for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
                     {
@@ -850,6 +854,7 @@ namespace WebAdmin.ViewModel
                             string playerGhin = string.Empty;
                             string playerEmail = string.Empty;
                             string playerExtra = string.Empty;
+                            int signupKey = 0;
 
                             if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
                             {
@@ -884,6 +889,8 @@ namespace WebAdmin.ViewModel
                                 {
                                     playerEmail = string.Empty;
                                 }
+                                signupKey = tournamentTeeTimes[teeTimeNumber].Players[player].SignupKey;
+
                             }
 
                             // Only write out tee time entries if there is a player
@@ -924,7 +931,7 @@ namespace WebAdmin.ViewModel
                                 if (string.IsNullOrEmpty(playerExtra))
                                 {
                                     // OverEighty is false
-                                    tw.Write(",false");
+                                    tw.Write(",false,");
                                 }
                                 else
                                 {
@@ -958,8 +965,13 @@ namespace WebAdmin.ViewModel
                                         tw.Write(",");
                                     }
 
-                                    tw.Write(playerExtra.Contains(">80") ? "true" : "false");
+                                    tw.Write(playerExtra.Contains(">80") ? "true," : "false,");
                                 }
+
+                                tw.Write(signupKey + ",");
+
+                                // Waitlisted is false
+                                tw.Write("false");
 
                                 tw.WriteLine();                             
                             }
@@ -1305,6 +1317,7 @@ namespace WebAdmin.ViewModel
                 int emailColumn = -1;
                 int flightColumn = -1;
                 int overEightyColumn = -1;
+                int signupKeyColumn = -1;
 
                 if (lines.Length == 0)
                 {
@@ -1341,6 +1354,10 @@ namespace WebAdmin.ViewModel
                     {
                         overEightyColumn = col;
                     }
+                    else if (string.Compare(lines[0][col], "signup key", true) == 0)
+                    {
+                        signupKeyColumn = col;
+                    }
                 }
 
                 if (teeTimeColumn == -1)
@@ -1359,10 +1376,14 @@ namespace WebAdmin.ViewModel
                 {
                     throw new ApplicationException(GgTeeTimeFile + ": did not find header column: GHIN");
                 }
+                if (signupKeyColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Signup Key");
+                }
 
                 // GG file may not have email, flight, or overeighty columns, so don't throw an exception if that one is missing
 
-                for(int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
+                for (int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
                 {
                     string[] line = lines[lineIndex];
                     if (line.Length > 0)
@@ -1448,6 +1469,14 @@ namespace WebAdmin.ViewModel
                             if (string.Compare(line[overEightyColumn], "true", true) == 0)
                             {
                                 player.Extra += " >80";
+                            }
+                        }
+                        if (signupKeyColumn != -1)
+                        {
+                            int signupKey;
+                            if (int.TryParse(line[signupKeyColumn], out signupKey))
+                            {
+                                player.SignupKey = signupKey;
                             }
                         }
 

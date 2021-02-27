@@ -7,6 +7,7 @@ class DatabaseTeeTime {
 	public $GHIN;
 	public $Position;
 	public $Extra;
+	public $SignupKey;
 }
 class DatabasePlayer {
 	public $GHIN;
@@ -14,6 +15,7 @@ class DatabasePlayer {
 	public $FirstName;
 	public $Handicap;
 	public $Extra;
+	public $SignupKey;
 }
 function InsertTeeTime($connection, $tournamentKey, $teeTime, $startHole) {
 	$sqlCmd = "INSERT INTO `TeeTimes` VALUES (NULL, ?, ?, ?)";
@@ -34,8 +36,8 @@ function InsertTeeTime($connection, $tournamentKey, $teeTime, $startHole) {
 	// echo 'insert: ' . $teeTime . " id: " . $insert->insert_id . "\n";
 	return $insert->insert_id;
 }
-function InsertTeeTimePlayer($connection, $teeTimeKey, $tournamentKey, $GHIN, $name, $extra, $playerIndex) {
-	$sqlCmd = "INSERT INTO `TeeTimesPlayers` VALUES (?, ?, ?, ?, ?, ?)";
+function InsertTeeTimePlayer($connection, $teeTimeKey, $tournamentKey, $GHIN, $name, $extra, $playerIndex, $signupKey) {
+	$sqlCmd = "INSERT INTO `TeeTimesPlayers` VALUES (?, ?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
@@ -46,7 +48,7 @@ function InsertTeeTimePlayer($connection, $teeTimeKey, $tournamentKey, $GHIN, $n
 	if(empty($extra)){
 		$extra = "";
 	}
-	if (! $insert->bind_param ( 'iiisis', $teeTimeKey, $tournamentKey, $GHIN, $name, $playerIndex, $extra )) {
+	if (! $insert->bind_param ( 'iiisisi', $teeTimeKey, $tournamentKey, $GHIN, $name, $playerIndex, $extra, $signupKey )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	
@@ -109,7 +111,7 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 	
-	$query->bind_result ( $key, $tournament, $GHIN, $Name, $Position, $extra );
+	$query->bind_result ( $key, $tournament, $GHIN, $Name, $Position, $extra, $signupKey );
 	
 	// if (! $forWeb) {
 	// echo date ( 'g:i', strtotime ( $teeTime ) );
@@ -122,6 +124,7 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 		$player->GHIN = $GHIN;
 		$player->LastName = $Name;
 		$player->Extra = $extra;
+		$player->SignupKey = $signupKey;
 		$playerArray [] = $player;
 	}
 	
