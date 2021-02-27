@@ -27,6 +27,20 @@ if (! $tournamentKey) {
 	$details = GetTournamentDetails($connection, $tournamentKey);
 	$friendlyDate = date ( 'M d', strtotime ( $details->TeeTimesPostedDate ));
 
+	if($tournament->RequirePayment){
+		$unpaidSignupArray = GetSignups ( $connection, $tournamentKey, ' AND `Payment` = 0' );
+	}
+	else {
+		$unpaidSignupArray = array();
+	}
+
+	/*
+	echo "not paid:<br>";
+	for($i = 0; $i < count($unpaidSignupArray); ++ $i){
+		echo $unpaidSignupArray[$i]->SignUpKey . "<br>";
+	}
+	*/
+
 	if ($teeTimeArray && (count ( $teeTimeArray ) > 0)) {
 		echo '<h2 style="text-align:center">' . $tournament->Name . ' Tee Times' . '</h2>' . PHP_EOL;
 		echo '<h4 style="text-align:center">' . "Posted " . $friendlyDate . '</h4>' . PHP_EOL;
@@ -36,7 +50,7 @@ if (! $tournamentKey) {
 		echo '<tr>' . PHP_EOL;
 		
 		echo '<td style="width:50%;border:none;">' . PHP_EOL;
-		ShowTeeTimes ($teeTimeArray);
+		ShowTeeTimes ($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray);
 		echo '</td>' . PHP_EOL;
 		
 		echo '<td style="width:50%;border:none;">' . PHP_EOL;
@@ -52,18 +66,37 @@ if (! $tournamentKey) {
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
 
-function ShowTeeTimes($teeTimeArray) {
+function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray) {
 	echo '<table>' . PHP_EOL;
-	echo '<thead><tr class="header"><th colspan="2">By Time</th></tr></thead>' . PHP_EOL;
+	echo '<thead><tr class="header"><th colspan="3">By Time</th></tr></thead>' . PHP_EOL;
 	echo '<tbody>' . PHP_EOL;
 
 	for($i = 0; $i < count ( $teeTimeArray ); ++ $i) {
 		for($j = 0; $j < count($teeTimeArray[$i]->Players); ++$j){
 			if ((($i + 1) % 2) == 0) {
-				echo '<tr class="d0"><td>';
+				echo '<tr class="d0">';
 			} else {
-				echo '<tr class="d1"><td>';
+				echo '<tr class="d1">';
 			}
+			if(count($unpaidSignupArray) > 0){
+				$unpaid = false;
+				for($k = 0; ($k < count($unpaidSignupArray)) && !$unpaid; ++ $k){
+					if($unpaidSignupArray[$k]->SignUpKey === $teeTimeArray[$i]->Players[$j]->SignupKey){
+						$unpaid = true;
+
+						// Enable payment if not already enabled
+						if(!$unpaidSignupArray[$k]->PaymentEnabled){
+							UpdateSignup($connection, $teeTimeArray[$i]->Players[$j]->SignupKey, 'PaymentEnabled', 1, 'i');
+						}
+					}
+				}
+				echo '<td>';
+				if($unpaid){
+					echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $teeTimeArray[$i]->Players[$j]->SignupKey . '">Pay</a>';
+				}
+				echo '</td>';
+			}
+			echo '<td>';
 			echo date ( 'g:i', strtotime ( $teeTimeArray [$i]->StartTime ) );
 			echo '</td><td>';
 			echo ' ' . $teeTimeArray[$i]->Players[$j]->LastName;

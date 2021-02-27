@@ -688,7 +688,10 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 	for($i = 0; $i < count ( $playersSignedUp ); ++ $i) {
 		if (! empty ( $playersSignedUp [$i] )) {
 			++$playerCount;
-			$players = $players . $playersSignedUp[$i]->LastName . " (" . $playersSignedUp[$i]->GHIN . ") ";
+			if(!empty($players)){
+				$players = $players . ", ";
+			}
+			$players = $players . $playersSignedUp[$i]->LastName;
 		}
 	}
 	if(empty($players)){
@@ -734,6 +737,7 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 		echo '<p style="text-align: center;"><b>' . $accessCode . '</b> </p>' . PHP_EOL;
 	}
 	echo '<p>You must pay the tournament fees to complete your signup.  You are not signed up until your payment is complete!</p>' . PHP_EOL;
+	echo '<p>You are paying for these players: ' . $players . '</p>' . PHP_EOL;
 	echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>" . PHP_EOL;
 	echo '<p style="text-align: center;"><b>Entry Fees: $' . number_format( $signup->PaymentDue, 2) . '</b></p>' . PHP_EOL;
 	
