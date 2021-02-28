@@ -92,7 +92,7 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 				}
 				echo '<td>';
 				if($unpaid){
-					echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $teeTimeArray[$i]->Players[$j]->SignupKey . '">Pay</a>';
+					echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $teeTimeArray[$i]->Players[$j]->SignupKey . '">Pay for Signup Group</a>';
 				}
 				echo '</td>';
 			}
