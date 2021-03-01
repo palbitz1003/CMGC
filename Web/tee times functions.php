@@ -9,7 +9,7 @@ class DatabaseTeeTime {
 	public $Extra;
 	public $SignupKey;
 }
-class DatabasePlayer {
+class DatabaseTeeTimePlayer {
 	public $GHIN;
 	public $LastName;
 	public $FirstName;
@@ -120,7 +120,7 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 	$playerCount = 0;
 	$playerArray = array ();
 	while ( $query->fetch () ) {
-		$player = new DatabasePlayer ();
+		$player = new DatabaseTeeTimePlayer ();
 		$player->GHIN = $GHIN;
 		$player->LastName = $Name;
 		$player->Extra = $extra;
