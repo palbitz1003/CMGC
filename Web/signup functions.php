@@ -146,6 +146,8 @@ function GetPlayerSignUp($connection, $tournamentKey, $playerGHIN) {
 	
 	$player->bind_result ( $key, $tournament, $position, $GHIN, $LastName, $extra );
 	
+	$playerSignUp = null;
+
 	$count = 1;
 	 while($player->fetch()) {
 	 	if($count > 1){
