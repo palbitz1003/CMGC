@@ -22,6 +22,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	die ( "Missing tournament key" );
 } else {
 	$signups = array();
+	$errors = false;
 	for($i = 0; $i < count ( $_POST ['TeeTime'] ); ++ $i) {
 		$teeTime = new DatabaseTeeTime ();
 		$teeTime->StartTime = $_POST ['TeeTime'] [$i] ['StartTime'];
@@ -38,20 +39,98 @@ if (! isset ( $_POST ['TeeTime'] )) {
 			// requires that the GHIN number is always non-zero.  If GHIN number 0 is allowed, then
 			// searching for the GHIN among the players signed up for this tournament would result in multiple matches
 			// and we would not be able to pair up the player to the signup to see if they have paid.
-			$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
+			//$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
 
-			// Save the player in a 2 dimensional array indexed by the signup key for matching up to
-			// the signups below
-			$signup = new PlayerSignUpClass();
-			$signup->SignUpKey = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
-			$signup->LastName = $playerName;
-			$signup->GHIN = intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]);  // convert to int for comparison later
-			$signups[$signup->SignUpKey][] = $signup;
+			if(intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]) === 0 ){
+				echo "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
+				$errors = true;
+			}
+			
+			$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+
+			if(!empty($signup)){
+				//if($signup->SignUpKey !== intval($_POST ['TeeTime'] [$i] ['SignupKey'] [$player])){
+				//	echo "GHIN mismatch: signup key (from GHIN) " . $signup->SignUpKey . " does not match uploaded signup key " . $_POST ['TeeTime'] [$i] ['SignupKey'] [$player] . "<br>";
+				//}
+
+				$teeTime->SignupKey [] = $signup->SignUpKey;
+
+				// Save the player in a 2 dimensional array indexed by the signup key for matching up to
+				// the signups below
+				$signups[$signup->SignUpKey][] = $signup;
+			}
+			else{
+				echo "Failed to find signup for " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
+				$errors = true; // for now ...
+
+				// Fill in signup key after creating a signup record 
+				$teeTime->SignupKey [] = 0;
+				$signups[$signup->SignUpKey][] = null;
+			}
 		}
 		
 		$teeTimes [] = $teeTime;
 	}
+
+	if($errors){
+		echo "Failed to load tee times";
+		return;
+	}
 	// echo "tournament key is: " . $tournamentKey;
+
+	// Test that the tee times and signup counts match up
+	foreach($signups as $signupKey => $signupPlayers) {
+		//echo $signupKey . " => ";
+		$dbSignups = GetPlayersForSignUp($connection, $signupKey);
+		if(empty($dbSignups)){
+			echo "error: signup key " . $signupKey . " not found<br>";
+		}
+		else {
+			// If the counts do not match at this point, that means that the signup has more players than have a tee time.
+			// I.e.: 4 players signed up, but only 3 of them have been given tee times.
+			if(count($signupPlayers) < count($dbSignups)){
+				//echo "Some players have been removed from signup " . $signupKey . "<br>";
+				$dbSignup = GetSignup($connection, $signupKey);
+
+				// If they have already paid, there is no need to break up the signup.
+				if($dbSignups->Payment == 0){
+					$singleEntryFees = $dbSignup->PaymentDue / count($dbSignups);
+
+					for($dbi = 0; $dbi < count($dbSignups); ++ $dbi){
+						// Create an individual signup per player
+						$insertId = InsertSignUp ( $connection, $dbSignup->TournamentKey, $dbSignup->RequestedTime, $singleEntryFees, $dbSignup->AccessCode, $dbSignup->PaymentEnabled);
+						$ghin = array($dbSignups[$dbi]->GHIN);
+						$fullName = array($dbSignups[$dbi]->LastName);
+						$extra = array($dbSignups[$dbi]->Extra);
+
+						// Remove the player from the original signup before adding them for the new signup. Otherwise
+						// the player is removed from both signups, since this method is not keying on the signup key
+						RemoveSignedUpPlayer($connection, $dbSignup->TournamentKey, $dbSignups[$dbi]->GHIN, $dbSignups[$dbi]->LastName);
+
+						InsertSignUpPlayers ( $connection, $dbSignup->TournamentKey, $insertId, $ghin, $fullName, $extra );
+						//echo "created individual signup for " . $dbSignups[$dbi]->LastName . "<br>";
+
+						// Fix up the saved signup key for this player in the tee time list
+						$fixedKey = false;
+						for($i = 0; ($i < count ( $teeTimes )) && !$fixedKey; ++ $i) {
+							if ($teeTimes [$i]->Players) {
+								for($player = 0; ($player < count ( $teeTimes [$i]->Players )) && !$fixedKey; ++ $player) {
+									if(intval($teeTimes [$i]->GHIN [$player]) === intval($dbSignups[$dbi]->GHIN)){
+										//echo "changed signup key from " . $teeTimes [$i]->SignupKey [$player] . " to " . $insertId . " for " . $teeTimes [$i]->Players [$player];
+										$teeTimes [$i]->SignupKey [$player] = $insertId;
+										$fixedKey = true;
+									}
+								}
+							}
+						}
+
+						
+					}
+					DeleteSignup($connection, $signupKey);
+				}
+			}
+		}
+	}
 	
 	ClearTableWithTournamentKey ( $connection, 'TeeTimes', $tournamentKey );
 	ClearTableWithTournamentKey ( $connection, 'TeeTimesPlayers', $tournamentKey );
@@ -72,38 +151,16 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 	//var_dump($signups);
 
-	// Test that the tee times and signup data match up
-	foreach($signups as $signupKey => $signupPlayers) {
-		//echo $signupKey . " => ";
-		$dbSignups = GetPlayersForSignUp($connection, $signupKey);
-		if(empty($dbSignups)){
-			echo "error: signup key " . $signupKey . " not found<br>";
-		}
-		else {
-			for($i = 0; $i < count ($signupPlayers); ++$i){
-				//echo $signupPlayers[$i]->LastName . "    ";
-				$playerFound = false;
-				for($dbi = 0; ($dbi < count($dbSignups) && !$playerFound); ++ $dbi){
-					//echo "comparing " . $signupPlayers[$i]->GHIN . " (" . gettype($signupPlayers[$i]->GHIN) . ") to " . $dbSignups[$dbi]->GHIN . " (" . gettype($dbSignups[$dbi]->GHIN) . ")<br>";
-					$playerFound = $signupPlayers[$i]->GHIN === $dbSignups[$dbi]->GHIN;
-				}
-				if(!$playerFound){
-					echo "Failed to find " . $signupPlayers[$i]->GHIN . " in player list for signup " . $signupKey . "<br>";
-				}
-			}
-
-			if(count($signupPlayers) != count($dbSignups))
-			{
-				echo "Some players have been removed from signup " . $signupKey . "<br>";
-			}
-		}
-		//echo "<br>";
-	}
 	
 	$date = date ( 'Y-m-d' );
 	UpdateTournamentResultsField ( $connection, $tournamentKey, 'TeeTimesPostedDate', $date, 's' );
 }
 
 $connection->close ();
-echo 'Success';
+if($errors){
+	echo "Loaded tee times, but there were errors";
+}
+else {
+	echo 'Success';
+}
 ?>
