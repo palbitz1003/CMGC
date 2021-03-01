@@ -71,6 +71,7 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 	echo '<thead><tr class="header"><th colspan="3">By Time</th></tr></thead>' . PHP_EOL;
 	echo '<tbody>' . PHP_EOL;
 
+	$paymentSignupKeyShown = array();
 	for($i = 0; $i < count ( $teeTimeArray ); ++ $i) {
 		for($j = 0; $j < count($teeTimeArray[$i]->Players); ++$j){
 			if ((($i + 1) % 2) == 0) {
@@ -80,19 +81,33 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 			}
 			if(count($unpaidSignupArray) > 0){
 				$unpaid = false;
+				$signupKey = $teeTimeArray[$i]->Players[$j]->SignupKey;
+
 				for($k = 0; ($k < count($unpaidSignupArray)) && !$unpaid; ++ $k){
-					if($unpaidSignupArray[$k]->SignUpKey === $teeTimeArray[$i]->Players[$j]->SignupKey){
+					if($unpaidSignupArray[$k]->SignUpKey === $signupKey){
 						$unpaid = true;
 
 						// Enable payment if not already enabled
 						if(!$unpaidSignupArray[$k]->PaymentEnabled){
-							UpdateSignup($connection, $teeTimeArray[$i]->Players[$j]->SignupKey, 'PaymentEnabled', 1, 'i');
+							UpdateSignup($connection, $signupKey, 'PaymentEnabled', 1, 'i');
 						}
 					}
 				}
 				echo '<td>';
 				if($unpaid){
-					echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $teeTimeArray[$i]->Players[$j]->SignupKey . '">Pay for Signup Group</a>';
+					// Only show the payment link once for each signup key
+					if(array_search($signupKey, $paymentSignupKeyShown, true) === false){
+						$dbSignups = GetPlayersForSignUp($connection, $signupKey);
+						$link = "Pay for Signup Group";
+						if(!empty($dbSignups) && count ($dbSignups) == 1)
+						{
+							$link = "Pay for Yourself";
+						}
+
+						echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signupKey . '">' . $link . '</a>';
+						// Add to list of signup keys shown for payment
+						$paymentSignupKeyShown[] = $signupKey;
+					}
 				}
 				echo '</td>';
 			}
