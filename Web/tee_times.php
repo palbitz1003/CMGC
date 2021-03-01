@@ -101,7 +101,7 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 						$link = "Pay for Signup Group";
 						if(!empty($dbSignups) && count ($dbSignups) == 1)
 						{
-							$link = "Pay for Yourself";
+							$link = "Pay for Single";
 						}
 
 						echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signupKey . '">' . $link . '</a>';
