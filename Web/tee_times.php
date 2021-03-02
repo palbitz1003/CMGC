@@ -178,44 +178,36 @@ function ShowWaitingList($connection, $tournament){
 	$waitingList = GetSignUpWaitingList($connection, $tournament);
 	
 	if(count($waitingList) != 0){
-		echo '<p>' . PHP_EOL;
-		
-		echo '<table style="border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
-		echo '<tr>' . PHP_EOL;
-		
-		echo '<td style="border:none;width=auto">' . PHP_EOL;
-		echo '<table>' . PHP_EOL;
-		echo '<thead><tr class="header"><th>Wait Listed</th></tr></thead>' . PHP_EOL;
+		// Sigh. I couldn't get a paragraph to center properly without putting it in a table
+		echo '<table style="width:400px;border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
 		echo '<tbody>' . PHP_EOL;
-		
-		for($i = 0; $i < count ( $waitingList ); ++ $i) {
-			if ((($i + 1) % 2) == 0) {
-				echo '<tr class="d0"><td>';
-			} else {
-				echo '<tr class="d1"><td>';
-			}
-			echo $waitingList[$i]->Name1;
-			if(!empty($waitingList[$i]->Name2)){
-				echo ', ' . $waitingList[$i]->Name2;
-				if(!empty($waitingList[$i]->Name3)){
-					echo ', ' . $waitingList[$i]->Name3;
-					if(!empty($waitingList[$i]->Name4)){
-						echo ', ' . $waitingList[$i]->Name4;
-					}
-				}
-			}
-			echo '</td></tr>';
-			echo PHP_EOL;
-		}
-		
+		echo '<tr><td style="border:none">' . PHP_EOL;
+		echo 'This tournament is oversubscribed; These players will be placed in the spot of any cancellations in the order listed. ' . PHP_EOL;
+		echo 'Players not getting an assigned time in this tournament will be given priority in the next tournament entered.' . PHP_EOL;
+		echo '</td></tr>' . PHP_EOL;
 		echo '</tbody>' . PHP_EOL;
 		echo '</table>' . PHP_EOL;
-		echo '</td>' . PHP_EOL;
+
+		echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
+		echo '<thead><tr class="header"><th  colspan="4">Wait Listed</th></tr></thead>' . PHP_EOL;
+		echo '<tbody>' . PHP_EOL;
 		
-		echo '<td style="border: none;width:300px;">' . PHP_EOL;
-		echo 'This tournament is oversubscribed; These players will be placed in the spot of any cancellations in the order listed. Players not getting an assigned time in this tournament will be given priority in the next tournament entered.';
-		echo '</td>' . PHP_EOL;
-		echo '</tr></table>' . PHP_EOL;
+		for($i = 0; $i < count ( $waitingList );) {
+			echo '<tr>' . PHP_EOL;
+			for($cols = 0; ($cols < 4) && ($i < count($waitingList)); ++$cols, ++$i){
+				if($cols == 0){
+					echo '<td>' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+				}
+				else {
+					// would be better for a style to provide the border ...
+					echo '<td style="border-left: 1px solid #ccc;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+				}
+			}
+			echo '</tr>' . PHP_EOL;
+		}
+		echo '</tbody>' . PHP_EOL;
+		echo '</table>' . PHP_EOL;
+
 	}
 }
 
