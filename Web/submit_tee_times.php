@@ -46,12 +46,11 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				$errors = true;
 			}
 			
+			// Get the signup data for the player. This just gets the data for the individual player, not all
+			// the players in the signup group.
 			$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
 
 			if(!empty($signup)){
-				//if($signup->SignUpKey !== intval($_POST ['TeeTime'] [$i] ['SignupKey'] [$player])){
-				//	echo "GHIN mismatch: signup key (from GHIN) " . $signup->SignUpKey . " does not match uploaded signup key " . $_POST ['TeeTime'] [$i] ['SignupKey'] [$player] . "<br>";
-				//}
 
 				$teeTime->SignupKey [] = $signup->SignUpKey;
 
@@ -60,12 +59,26 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				$signups[$signup->SignUpKey][] = $signup;
 			}
 			else{
-				echo "Failed to find signup for " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
-				$errors = true; // for now ...
+				// This case can only happen if a player is added without first signing up. One
+				// could argue this shouldn't happen, but handle it if it does.
+				echo "Added player to signup list: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
 
-				// Fill in signup key after creating a signup record 
-				$teeTime->SignupKey [] = 0;
-				$signups[$signup->SignUpKey][] = null;
+				$accessCode = rand(1000, 9999);
+				$t = GetTournament($connection, $tournamentKey);
+
+				// Create an individual signup so this player can pay
+				$insertId = InsertSignUp ( $connection, $tournamentKey, "None", $t->Cost, $accessCode, true);
+				$ghin = array($_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+				$fullName = array($playerName);
+				$extra = array($_POST ['TeeTime'] [$i] ['Extra'] [$player]);
+				InsertSignUpPlayers ( $connection, $tournamentKey, $insertId, $ghin, $fullName, $extra);
+
+				// Fill in signup key after creating the signup record 
+				$teeTime->SignupKey [] = $insertId;
+
+				// Save the player in a 2 dimensional array indexed by the signup key for matching up to
+				// the signups below
+				$signups[$insertId][] = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
 			}
 		}
 		
@@ -83,11 +96,14 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		//echo $signupKey . " => ";
 		$dbSignups = GetPlayersForSignUp($connection, $signupKey);
 		if(empty($dbSignups)){
-			echo "error: signup key " . $signupKey . " not found<br>";
+			echo "error: while checking that tee time players match signup list groups, signup key (" . $signupKey . ") was not found<br>";
 		}
 		else {
 			// If the counts do not match at this point, that means that the signup has more players than have a tee time.
 			// I.e.: 4 players signed up, but only 3 of them have been given tee times.
+			// Instead of just reducing the signup count to match the tee time assignments, split the signup group into
+			// singles. But, the only reason to split the group up is for payments. So, if they've already paid, just ignore
+			// the dropped players.
 			if(count($signupPlayers) < count($dbSignups)){
 				//echo "Some players have been removed from signup " . $signupKey . "<br>";
 				$dbSignup = GetSignup($connection, $signupKey);
@@ -97,7 +113,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 					$singleEntryFees = $dbSignup->PaymentDue / count($dbSignups);
 
 					for($dbi = 0; $dbi < count($dbSignups); ++ $dbi){
-						// Create an individual signup per player
+						// Create an individual signup per player using the other data from the original signup
 						$insertId = InsertSignUp ( $connection, $dbSignup->TournamentKey, $dbSignup->RequestedTime, $singleEntryFees, $dbSignup->AccessCode, $dbSignup->PaymentEnabled);
 						$ghin = array($dbSignups[$dbi]->GHIN);
 						$fullName = array($dbSignups[$dbi]->LastName);
@@ -110,7 +126,8 @@ if (! isset ( $_POST ['TeeTime'] )) {
 						InsertSignUpPlayers ( $connection, $dbSignup->TournamentKey, $insertId, $ghin, $fullName, $extra );
 						//echo "created individual signup for " . $dbSignups[$dbi]->LastName . "<br>";
 
-						// Fix up the saved signup key for this player in the tee time list
+						// Fix up the saved signup key for this player in the tee time list. It's tedious, but you have to
+						// go through the complete tee time list to find the player.  
 						$fixedKey = false;
 						for($i = 0; ($i < count ( $teeTimes )) && !$fixedKey; ++ $i) {
 							if ($teeTimes [$i]->Players) {
