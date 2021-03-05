@@ -189,7 +189,7 @@ function ShowWaitingList($connection, $tournament){
 		echo '</table>' . PHP_EOL;
 
 		echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
-		echo '<thead><tr class="header"><th  colspan="4">Wait Listed</th></tr></thead>' . PHP_EOL;
+		echo '<thead><tr class="header"><th  colspan="4">Waitlist</th></tr></thead>' . PHP_EOL;
 		echo '<tbody>' . PHP_EOL;
 		
 		for($i = 0; $i < count ( $waitingList );) {

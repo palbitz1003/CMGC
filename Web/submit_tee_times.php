@@ -168,6 +168,25 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 	//var_dump($signups);
 
+	// Now handle the waitlist
+	ClearTableWithTournamentKey ( $connection, 'SignUpsWaitingList', $_POST ['TeeTime'] [0] ['TournamentKey'] );
+	for($i = 0; $i < count ( $_POST ['SignUpsWaitingList'] ); ++ $i) {
+		$signUpWaitingList = new SignUpWaitingListClass();
+		$signUpWaitingList->TournamentKey = $tournamentKey;
+		$signUpWaitingList->Position = $_POST ['SignUpsWaitingList'] [$i] ['Position'];
+		$signUpWaitingList->GHIN1 = $_POST ['SignUpsWaitingList'] [$i] ['GHIN1'];
+		$signUpWaitingList->Name1 = $_POST ['SignUpsWaitingList'] [$i] ['Name1'];
+
+		$signUpWaitingList->GHIN2 = "";
+		$signUpWaitingList->Name2 = "";
+		$signUpWaitingList->GHIN3 = "";
+		$signUpWaitingList->Name3 = "";
+		$signUpWaitingList->GHIN4 = "";
+		$signUpWaitingList->Name4 = "";
+
+		InsertSignUpWaitingListEntry($connection, $signUpWaitingList);
+	}
+
 	
 	$date = date ( 'Y-m-d' );
 	UpdateTournamentResultsField ( $connection, $tournamentKey, 'TeeTimesPostedDate', $date, 's' );
