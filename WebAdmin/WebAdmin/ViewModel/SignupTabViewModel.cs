@@ -899,7 +899,7 @@ namespace WebAdmin.ViewModel
             {
                 if (!appendToFile)
                 {
-                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty,Waitlisted");
+                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,Waitlisted");
                 }
 
                 for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
@@ -986,8 +986,8 @@ namespace WebAdmin.ViewModel
 
                             if (string.IsNullOrEmpty(playerExtra))
                             {
-                                // OverEighty is false
-                                tw.Write(",false,");
+                                // Empty flight number
+                                tw.Write(",");
                             }
                             else
                             {
@@ -1020,8 +1020,6 @@ namespace WebAdmin.ViewModel
                                 {
                                     tw.Write(",");
                                 }
-
-                                tw.Write(playerExtra.Contains(">80") ? "true," : "false,");
                             }
 
                             // Waitlisted is false
@@ -1401,7 +1399,6 @@ namespace WebAdmin.ViewModel
                 int ghinColumn = -1;
                 int emailColumn = -1;
                 int flightColumn = -1;
-                int overEightyColumn = -1;
                 int WaitlistColumn = -1;
 
                 if (lines.Length == 0)
@@ -1435,10 +1432,6 @@ namespace WebAdmin.ViewModel
                     {
                         flightColumn = col;
                     }
-                    else if (string.Compare(lines[0][col], "overeighty", true) == 0)
-                    {
-                        overEightyColumn = col;
-                    }
                     else if (string.Compare(lines[0][col], "waitlisted", true) == 0)
                     {
                         WaitlistColumn = col;
@@ -1468,10 +1461,6 @@ namespace WebAdmin.ViewModel
                 if (flightColumn == -1)
                 {
                     throw new ApplicationException(TeeTimeFile + ": did not find header column: Flight");
-                }
-                if (overEightyColumn == -1)
-                {
-                    throw new ApplicationException(TeeTimeFile + ": did not find header column: OverEighty");
                 }
                 if (WaitlistColumn == -1)
                 {
@@ -1521,13 +1510,6 @@ namespace WebAdmin.ViewModel
                                 {
                                     player.Extra = "F" + flight;
                                 }
-                            }
-                        }
-                        if (overEightyColumn != -1)
-                        {
-                            if (string.Compare(line[overEightyColumn], "true", true) == 0)
-                            {
-                                player.Extra += " >80";
                             }
                         }
 
