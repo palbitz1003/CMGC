@@ -21,13 +21,21 @@ if (! isset ( $_POST ['TeeTime'] )) {
 } else if (! isset ( $_POST ['TeeTime'] [0] ['TournamentKey'] )) {
 	die ( "Missing tournament key" );
 } else {
+
+	$tournamentKey = $_POST ['TeeTime'] [0] ['TournamentKey'];
+
+	if (!file_exists($default_log_folder)) {
+		mkdir($default_log_folder, 0755, true);
+	}
+	$logFile = $default_log_folder . "/TeeTimes." . $tournamentKey . ".log";
+
 	$signups = array();
 	$errors = false;
 	for($i = 0; $i < count ( $_POST ['TeeTime'] ); ++ $i) {
 		$teeTime = new DatabaseTeeTime ();
 		$teeTime->StartTime = $_POST ['TeeTime'] [$i] ['StartTime'];
 		$teeTime->StartHole = $_POST ['TeeTime'] [$i] ['StartHole'];
-		$tournamentKey = $_POST ['TeeTime'] [$i] ['TournamentKey'];
+		
 		
 		for($player = 0; $player < count ( $_POST ['TeeTime'] [$i] ['Player'] ); ++ $player) {
 			$playerName = FixNameCasing($_POST ['TeeTime'] [$i] ['Player'] [$player]);
@@ -62,6 +70,10 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				// This case can only happen if a player is added without first signing up. One
 				// could argue this shouldn't happen, but handle it if it does.
 				echo "Added player to signup list: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
+
+				if(!empty($logFile)){
+					error_log(date ( '[Y-m-d H:i e] ' ) . "Player added to signups: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")" . PHP_EOL, 3, $logFile);
+				}
 
 				$accessCode = rand(1000, 9999);
 				$t = GetTournament($connection, $tournamentKey);
@@ -110,6 +122,11 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 				// If they have already paid, there is no need to break up the signup.
 				if($dbSignups->Payment == 0){
+
+					if(!empty($logFile)){
+						error_log(date ( '[Y-m-d H:i e] ' ) . "Splitting up group signup (signup key " . $signupKey . ") into individual signups" . PHP_EOL, 3, $logFile);
+					}
+
 					$singleEntryFees = $dbSignup->PaymentDue / count($dbSignups);
 
 					for($dbi = 0; $dbi < count($dbSignups); ++ $dbi){
@@ -125,6 +142,10 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 						InsertSignUpPlayers ( $connection, $dbSignup->TournamentKey, $insertId, $ghin, $fullName, $extra );
 						//echo "created individual signup for " . $dbSignups[$dbi]->LastName . "<br>";
+
+						if(!empty($logFile)){
+							error_log(date ( '[Y-m-d H:i e] ' ) . "Created individual signup for " . $dbSignups[$dbi]->LastName . "(" . $dbSignups[$dbi]->GHIN . ")" . PHP_EOL, 3, $logFile);
+						}
 
 						// Fix up the saved signup key for this player in the tee time list. It's tedious, but you have to
 						// go through the complete tee time list to find the player.  
