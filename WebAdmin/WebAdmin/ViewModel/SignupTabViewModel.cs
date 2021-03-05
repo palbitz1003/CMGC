@@ -752,6 +752,45 @@ namespace WebAdmin.ViewModel
                     }
                 }
 
+                // Upload the waiting list
+                if (TeeTimeRequests.Count > 0)
+                {
+                    // save setting
+                    var orderBy = OrderByBlindDraw;
+
+                    // order by blind draw to upload to web
+                    OrderByBlindDraw = true;
+
+                    try
+                    {
+                        int position = 0;
+                        for (int i = 0; i < TeeTimeRequests.Count; i++)
+                        {
+                            foreach (var player in TeeTimeRequests[i].Players)
+                            {
+                                values.Add(new KeyValuePair<string, string>(
+                                    string.Format("SignUpsWaitingList[{0}][Position]", i),
+                                    position.ToString(CultureInfo.InvariantCulture)));
+
+                                values.Add(new KeyValuePair<string, string>(
+                                    string.Format("SignUpsWaitingList[{0}][GHIN1]", i),
+                                    player.GHIN.ToString(CultureInfo.InvariantCulture)));
+
+                                values.Add(new KeyValuePair<string, string>(
+                                    string.Format("SignUpsWaitingList[{0}][Name1]", i),
+                                    player.Name));
+
+                                position++;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        // Restore order-by choice
+                        OrderByBlindDraw = orderBy;
+                    }
+                }
+
                 var content = new FormUrlEncodedContent(values);
 
                 //Logging.Log("Signup Tee Time UploadToWeb", values.ToString());
@@ -784,32 +823,42 @@ namespace WebAdmin.ViewModel
         private void SaveTeeTimesAsCsv(object o)
         {
             int teamId = 0;
+            string teeTimesFileName = "Teetimes - " + TournamentNames[TournamentNameIndex].Name;
 
-            SaveAsCsv("Teetimes - " + TournamentNames[TournamentNameIndex].Name, 
+            bool savedFile = SaveAsCsv(
                 TournamentTeeTimes, 
                 TournamentNames[TournamentNameIndex].TeamSize,
                 out bool _teeTimesDirty,
-                out string teeTimesFileName,
-                ref teamId);
+                ref teeTimesFileName,
+                ref teamId,
+                false,
+                false);
 
-            if (TeeTimeRequests.Count > 0)
+            // If the tee times were saved and there are still 
+            // tee time requests, save the remaining requests
+            // as waitlisted players.
+            if (savedFile && (TeeTimeRequests.Count > 0))
             {
+                // save setting
                 var orderBy = OrderByBlindDraw;
-                // Save waiting list by blind draw order
+
+                // order by blind draw to save in file
                 OrderByBlindDraw = true;
 
                 var unassignedTeeTimes = ConvertUnassignedToTeeTimes();
 
                 try
                 {
-                    SaveAsCsv("WaitList - " + TournamentNames[TournamentNameIndex].Name,
+                    SaveAsCsv(
                         unassignedTeeTimes,
                         TournamentNames[TournamentNameIndex].TeamSize,
                         out bool ignore,
-                        out string waitListFileName,
-                        ref teamId);
+                        ref teeTimesFileName,
+                        ref teamId,
+                        true,
+                        true);
 
-                    WaitingListFile = waitListFileName;
+                    GgTeeTimeFile = teeTimesFileName;
                 }
                 finally
                 {
@@ -820,167 +869,171 @@ namespace WebAdmin.ViewModel
         }
 
         // Make this routine static to make sure it is not using anything that is not passed in
-        private static void SaveAsCsv(string fileName, TrulyObservableCollection<TeeTime> tournamentTeeTimes, int teamSize,
-            out bool teeTimesDirty, out string finalFileName, ref int teamId)
+        private static bool SaveAsCsv(TrulyObservableCollection<TeeTime> tournamentTeeTimes, int teamSize,
+            out bool teeTimesDirty, ref string finalFileName, ref int teamId, bool appendToFile, bool waitlisted)
         {
             teeTimesDirty = true;
-            finalFileName = fileName;
 
-            // Configure save file dialog box
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = fileName; 
-            dlg.DefaultExt = ".csv"; // Default file extension
-            dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
-
-            // Show save file dialog box
-            bool? result = dlg.ShowDialog();
-
-            // Process save file dialog box results
-            if (result == true)
+            if (!appendToFile)
             {
-                teeTimesDirty = false;
-                finalFileName = dlg.FileName;
-                using (TextWriter tw = new StreamWriter(dlg.FileName))
+                // Configure save file dialog box
+                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                dlg.FileName = finalFileName;
+                dlg.DefaultExt = ".csv"; // Default file extension
+                dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
+
+                // Show save file dialog box
+                bool? result = dlg.ShowDialog();
+
+                if (result != true)
                 {
-                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty,Signup Key,Waitlisted");
+                    return false;
+                }
 
-                    for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
+                finalFileName = dlg.FileName;
+            }
+
+            teeTimesDirty = false;
+                
+            using (TextWriter tw = new StreamWriter(finalFileName, appendToFile))
+            {
+                if (!appendToFile)
+                {
+                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,OverEighty,Waitlisted");
+                }
+
+                for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
+                {
+                    for (int player = 0; player < 4; player++)
                     {
-                        for (int player = 0; player < 4; player++)
+                        // TODO: handle shotgun
+                        string playerLastName = string.Empty;
+                        string playerFirstName = string.Empty;
+                        string playerGhin = string.Empty;
+                        string playerEmail = string.Empty;
+                        string playerExtra = string.Empty;
+
+                        if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
                         {
-                            // TODO: handle shotgun
-                            string playerLastName = string.Empty;
-                            string playerFirstName = string.Empty;
-                            string playerGhin = string.Empty;
-                            string playerEmail = string.Empty;
-                            string playerExtra = string.Empty;
-                            int signupKey = 0;
-
-                            if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
+                            string[] fields = tournamentTeeTimes[teeTimeNumber].Players[player].Name.Split(',');
+                            if (fields.Length > 1)
                             {
-                                string[] fields = tournamentTeeTimes[teeTimeNumber].Players[player].Name.Split(',');
-                                if (fields.Length > 1)
-                                {
-                                    playerLastName = fields[0].Trim();
-                                    playerFirstName = fields[1].Trim();
-                                }
-                                else
-                                {
-                                    playerLastName = fields[0];
-                                }
-
-                                // Check for Jr or Jr. in the last name and move to first name
-                                fields = playerLastName.Split(' ');
-                                if (fields.Length > 1)
-                                {
-                                    if (fields[fields.Length - 1].ToLower().StartsWith("jr"))
-                                    {
-                                        // Move the Jr. to the first name
-                                        playerFirstName += " " + fields[fields.Length - 1];
-                                        // Remove the Jr. from the last name
-                                        playerLastName = playerLastName.Replace(fields[fields.Length - 1], "").Trim();
-                                    }
-                                }
-                                playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
-                                playerExtra = tournamentTeeTimes[teeTimeNumber].Players[player].Extra;
-                                playerEmail = tournamentTeeTimes[teeTimeNumber].Players[player].Email;
-                                // Make sure the email address is valid
-                                if (string.IsNullOrEmpty(playerEmail) || !playerEmail.Contains("@"))
-                                {
-                                    playerEmail = string.Empty;
-                                }
-                                signupKey = tournamentTeeTimes[teeTimeNumber].Players[player].SignupKey;
-
+                                playerLastName = fields[0].Trim();
+                                playerFirstName = fields[1].Trim();
+                            }
+                            else
+                            {
+                                playerLastName = fields[0];
                             }
 
-                            // Only write out tee time entries if there is a player
-                            if (!string.IsNullOrEmpty(playerLastName))
+                            // Check for Jr or Jr. in the last name and move to first name
+                            fields = playerLastName.Split(' ');
+                            if (fields.Length > 1)
                             {
-                                if ((teamSize == 4) && (player == 0))
+                                if (fields[fields.Length - 1].ToLower().StartsWith("jr"))
                                 {
-                                    // Update team ID on the first player of the group
-                                    teamId++;
+                                    // Move the Jr. to the first name
+                                    playerFirstName += " " + fields[fields.Length - 1];
+                                    // Remove the Jr. from the last name
+                                    playerLastName = playerLastName.Replace(fields[fields.Length - 1], "").Trim();
                                 }
-                                else if ((teamSize == 2) && (player % 2 == 0))
-                                {
-                                    // Update team ID on the first player and third player of group
-                                    teamId++;
-                                }
-                                else if (teamSize == 1)
-                                {
-                                    // For individual tournaments, update the team number per player
-                                    teamId++;
-                                }
-
-                                // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
-                                //string handle = string.Empty;
-                                //if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
-                                //{
-                                //    handle = '"' + tournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
-                                //    playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
-                                //}
-
-                                tw.Write(tournamentTeeTimes[teeTimeNumber].StartTime + ",");
-                                tw.Write(playerLastName + ",");
-                                tw.Write(playerFirstName + ",");
-                                //tw.Write(handle + ",");
-                                tw.Write(playerGhin + ",");
-                                tw.Write(teamId + ",");
-                                tw.Write(playerEmail + ",");
-
-                                if (string.IsNullOrEmpty(playerExtra))
-                                {
-                                    // OverEighty is false
-                                    tw.Write(",false,");
-                                }
-                                else
-                                {
-                                    // Write the flight number
-                                    if (playerExtra.Contains("CH"))
-                                    {
-                                        tw.Write("0,");
-                                    }
-                                    else if (playerExtra.Contains("F1"))
-                                    {
-                                        tw.Write("1,");
-                                    }
-                                    else if (playerExtra.Contains("F2"))
-                                    {
-                                        tw.Write("2,");
-                                    }
-                                    else if (playerExtra.Contains("F3"))
-                                    {
-                                        tw.Write("3,");
-                                    }
-                                    else if (playerExtra.Contains("F4"))
-                                    {
-                                        tw.Write("4,");
-                                    }
-                                    else if (playerExtra.Contains("F5"))
-                                    {
-                                        tw.Write("5,");
-                                    }
-                                    else
-                                    {
-                                        tw.Write(",");
-                                    }
-
-                                    tw.Write(playerExtra.Contains(">80") ? "true," : "false,");
-                                }
-
-                                tw.Write(signupKey + ",");
-
-                                // Waitlisted is false
-                                tw.Write("false");
-
-                                tw.WriteLine();                             
                             }
+                            playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                            playerExtra = tournamentTeeTimes[teeTimeNumber].Players[player].Extra;
+                            playerEmail = tournamentTeeTimes[teeTimeNumber].Players[player].Email;
+                            // Make sure the email address is valid
+                            if (string.IsNullOrEmpty(playerEmail) || !playerEmail.Contains("@"))
+                            {
+                                playerEmail = string.Empty;
+                            }
+
                         }
 
-                        
+                        // Only write out tee time entries if there is a player
+                        if (!string.IsNullOrEmpty(playerLastName))
+                        {
+                            if ((teamSize == 4) && (player == 0))
+                            {
+                                // Update team ID on the first player of the group
+                                teamId++;
+                            }
+                            else if ((teamSize == 2) && (player % 2 == 0))
+                            {
+                                // Update team ID on the first player and third player of group
+                                teamId++;
+                            }
+                            else if (teamSize == 1)
+                            {
+                                // For individual tournaments, update the team number per player
+                                teamId++;
+                            }
+
+                            // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
+                            //string handle = string.Empty;
+                            //if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
+                            //{
+                            //    handle = '"' + tournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
+                            //    playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
+                            //}
+
+                            tw.Write(tournamentTeeTimes[teeTimeNumber].StartTime + ",");
+                            tw.Write(playerLastName + ",");
+                            tw.Write(playerFirstName + ",");
+                            //tw.Write(handle + ",");
+                            tw.Write(playerGhin + ",");
+                            tw.Write(teamId + ",");
+                            tw.Write(playerEmail + ",");
+
+                            if (string.IsNullOrEmpty(playerExtra))
+                            {
+                                // OverEighty is false
+                                tw.Write(",false,");
+                            }
+                            else
+                            {
+                                // Write the flight number
+                                if (playerExtra.Contains("CH"))
+                                {
+                                    tw.Write("0,");
+                                }
+                                else if (playerExtra.Contains("F1"))
+                                {
+                                    tw.Write("1,");
+                                }
+                                else if (playerExtra.Contains("F2"))
+                                {
+                                    tw.Write("2,");
+                                }
+                                else if (playerExtra.Contains("F3"))
+                                {
+                                    tw.Write("3,");
+                                }
+                                else if (playerExtra.Contains("F4"))
+                                {
+                                    tw.Write("4,");
+                                }
+                                else if (playerExtra.Contains("F5"))
+                                {
+                                    tw.Write("5,");
+                                }
+                                else
+                                {
+                                    tw.Write(",");
+                                }
+
+                                tw.Write(playerExtra.Contains(">80") ? "true," : "false,");
+                            }
+
+                            // Waitlisted is false
+                            tw.Write(waitlisted.ToString());
+
+                            tw.WriteLine();                             
+                        }
                     }
                 }
             }
+
+            return true;
         }
 
         private bool CheckContinue()
@@ -1148,13 +1201,30 @@ namespace WebAdmin.ViewModel
 
                     var content = new FormUrlEncodedContent(values);
 
-                    var response = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetTeeTimes, content);
-                    var responseString = await response.Content.ReadAsStringAsync();
+                    var teeTimesResponse = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetTeeTimes, content);
+                    var responseString = await teeTimesResponse.Content.ReadAsStringAsync();
 
                     Logging.Log("LoadTeeTimesFromWeb", responseString);
 
+                    // Have to create a new content variable, or you get a cannot dispose exception
+                    var content2 = new FormUrlEncodedContent(values);
+
+                    var signupsWaitlingListResponse = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetSignUpsWaitingList, content2);
+                    var responseString2 = await signupsWaitlingListResponse.Content.ReadAsStringAsync();
+                    Logging.Log("LoadSignupWaitlistFromWeb", responseString);
+
+                    TeeTimeRequests.Clear();
+                    TeeTimeRequestsUnassigned.Clear();
+                    TeeTimeRequestsAssigned.Clear();
+                    TournamentTeeTimes.Clear();
+
+                    AllowTeeTimeIntervalAdjust = false;
+
                     LoadTeeTimesFromWebResponseJson(responseString);
-                    CreateTeeTimeRequestsFromTeeTimes();
+
+                    LoadWaitingListFromWebResponseJson(responseString2);
+                    
+                    SelectOpenTeeTime();
                 }
             }
 
@@ -1163,8 +1233,6 @@ namespace WebAdmin.ViewModel
 
         protected void LoadTeeTimesFromWebResponseJson(string webResponse)
         {
-            TournamentTeeTimes.Clear();
-
             if (string.IsNullOrEmpty(webResponse))
             {
                 return;
@@ -1186,22 +1254,6 @@ namespace WebAdmin.ViewModel
                     player.TeeTime = teeTime;
                 }
             }
-        }
-
-        public void ClearPlayersFromAllTeeTimes()
-        {
-            foreach (var teeTime in TournamentTeeTimes)
-            {
-                teeTime.ClearPlayers();
-            }
-        }
-
-        public void CreateTeeTimeRequestsFromTeeTimes()
-        {
-            TeeTimeRequests.Clear();
-            TeeTimeRequestsUnassigned.Clear();
-            TeeTimeRequestsAssigned.Clear();
-            AllowTeeTimeIntervalAdjust = false;
 
             if (TournamentTeeTimes != null)
             {
@@ -1216,8 +1268,40 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
+        }
 
-            UpdateUnassignedList(4);
+        protected void LoadWaitingListFromWebResponseJson(string webResponse)
+        {
+            if (string.IsNullOrEmpty(webResponse))
+            {
+                return;
+            }
+
+            if (webResponse.StartsWith("JSON error:"))
+            {
+                throw new Exception(webResponse);
+            }
+
+            var jss = new JavaScriptSerializer();
+            var players = jss.Deserialize<TrulyObservableCollection<Player>>(webResponse);
+
+            foreach (var player in players)
+            {
+                var teeTimeRequest = new TeeTimeRequest();
+                teeTimeRequest.Players.Add(player);
+                teeTimeRequest.Waitlisted = true;
+                teeTimeRequest.Preference = "None";
+                teeTimeRequest.BlindDrawValue = player.Position;  // the order in the file is the blind draw order
+                TeeTimeRequests.Add(teeTimeRequest);
+            }
+        }
+
+        public void ClearPlayersFromAllTeeTimes()
+        {
+            foreach (var teeTime in TournamentTeeTimes)
+            {
+                teeTime.ClearPlayers();
+            }
         }
 
         private void AddPlayer(object o)
@@ -1280,8 +1364,9 @@ namespace WebAdmin.ViewModel
         //
         // Expected format of tee sheet file: header followed by individual lines.
         // 
-        // Tee Time,Last Name,First Name,GHIN
-        // 7:07 AM,Albitz,Paul,9079663
+        // Tee Time	Last Name	First Name	GHIN	Team Id	Email	Flight	OverEighty	Waitlisted
+        // 6:15 AM,	Albitz,Paul,9079663,1,palbitz@san.rr.com,FALSE,FALSE
+
 
         private void LoadGgCsv(object o)
         {
@@ -1302,7 +1387,7 @@ namespace WebAdmin.ViewModel
             using (TextReader tr = new StreamReader(GgTeeTimeFile))
             {
                 ClearPlayersFromAllTeeTimes();
-                TournamentTeeTimes.Clear();
+                //TournamentTeeTimes.Clear();
 
                 TeeTimeRequests.Clear();
                 TeeTimeRequestsUnassigned.Clear();
@@ -1317,7 +1402,7 @@ namespace WebAdmin.ViewModel
                 int emailColumn = -1;
                 int flightColumn = -1;
                 int overEightyColumn = -1;
-                int signupKeyColumn = -1;
+                int WaitlistColumn = -1;
 
                 if (lines.Length == 0)
                 {
@@ -1354,9 +1439,9 @@ namespace WebAdmin.ViewModel
                     {
                         overEightyColumn = col;
                     }
-                    else if (string.Compare(lines[0][col], "signup key", true) == 0)
+                    else if (string.Compare(lines[0][col], "waitlisted", true) == 0)
                     {
-                        signupKeyColumn = col;
+                        WaitlistColumn = col;
                     }
                 }
 
@@ -1376,12 +1461,22 @@ namespace WebAdmin.ViewModel
                 {
                     throw new ApplicationException(GgTeeTimeFile + ": did not find header column: GHIN");
                 }
-                if (signupKeyColumn == -1)
+                if (emailColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Signup Key");
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Email");
                 }
-
-                // GG file may not have email, flight, or overeighty columns, so don't throw an exception if that one is missing
+                if (flightColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Flight");
+                }
+                if (overEightyColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: OverEighty");
+                }
+                if (WaitlistColumn == -1)
+                {
+                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Waitlist");
+                }
 
                 for (int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
                 {
@@ -1396,44 +1491,8 @@ namespace WebAdmin.ViewModel
                         {
                             throw new ApplicationException(GgTeeTimeFile + " (line " + lineIndex + "): Last Name is empty");
                         }
-                        // Since the GHIN is not actually used, don't require it
-                        // First name is optional too
-
-                        TeeTime tt = null;
-                        foreach(var teeTime in TournamentTeeTimes)
-                        {
-                            if(String.CompareOrdinal(teeTime.StartTime, line[teeTimeColumn]) == 0)
-                            {
-                                tt = teeTime;
-                                break;
-                            }
-                        }
-
-                        if(tt == null)
-                        {
-                            tt = new TeeTime();
-                            tt.StartTime = line[teeTimeColumn];
-
-                            bool added = false;
-                            for (int timeIndex = 0; (timeIndex < TournamentTeeTimes.Count) && !added; timeIndex++)
-                            {
-                                var existingTime = DateTime.Parse(TournamentTeeTimes[timeIndex].StartTime);
-                                var newTime = DateTime.Parse(tt.StartTime);
-                                if (newTime < existingTime)
-                                {
-                                    TournamentTeeTimes.Insert(timeIndex, tt);
-                                    added = true;
-                                }
-                            }
-                            if (!added)
-                            {
-                                TournamentTeeTimes.Add(tt);
-                            }
-                            
-                        }
 
                         Player player = new Player();
-                        player.Position = tt.Players.Count + 1;
                         if (!string.IsNullOrEmpty(line[firstNameColumn]))
                         {
                             player.Name = line[lastNameColumn].Trim() + ", " + line[firstNameColumn].Trim();
@@ -1471,19 +1530,66 @@ namespace WebAdmin.ViewModel
                                 player.Extra += " >80";
                             }
                         }
-                        if (signupKeyColumn != -1)
-                        {
-                            int signupKey;
-                            if (int.TryParse(line[signupKeyColumn], out signupKey))
-                            {
-                                player.SignupKey = signupKey;
-                            }
-                        }
 
-                        player.TeeTime = tt;
-                        tt.AddPlayer(player);
+                        bool waitlisted = false;
+                        bool.TryParse(line[WaitlistColumn], out waitlisted);
+
+                        if (!waitlisted)
+                        {
+                            TeeTime tt = null;
+                            foreach (var teeTime in TournamentTeeTimes)
+                            {
+                                if (String.CompareOrdinal(teeTime.StartTime, line[teeTimeColumn]) == 0)
+                                {
+                                    tt = teeTime;
+                                    break;
+                                }
+                            }
+
+                            if (tt == null)
+                            {
+                                throw new ApplicationException("Unable to find tee time " + line[teeTimeColumn] + " in the tee time list. Please select the correct set of tee times before loading this file");
+                            }
+
+                            player.Position = tt.Players.Count + 1;
+                            player.TeeTime = tt;
+                            tt.AddPlayer(player);
+                        }
+                        else
+                        {
+                            var teeTimeRequest = new TeeTimeRequest();
+                            teeTimeRequest.Players.Add(player);
+                            teeTimeRequest.Waitlisted = true;
+                            teeTimeRequest.Preference = "None";
+                            teeTimeRequest.BlindDrawValue = lineIndex;  // the order in the file is the blind draw order
+                            TeeTimeRequests.Add(teeTimeRequest);
+                        }
                     }
                 }
+
+                SelectOpenTeeTime();
+            }
+        }
+
+        private void SelectOpenTeeTime()
+        {
+            // Reset the current tee time selection to be
+            // the first tee time with openings.
+            bool openTeeTimeFound = false;
+            for (int i = 0; i < TournamentTeeTimes.Count; i++)
+            {
+                if (TournamentTeeTimes[i].Players.Count < 4)
+                {
+                    // This also updates the unassigned list
+                    TeeTimeSelection = i;
+                    openTeeTimeFound = true;
+                    break;
+                }
+            }
+            if (!openTeeTimeFound)
+            {
+                // Show the complete unassigned list
+                UpdateUnassignedList(4);
             }
         }
 
