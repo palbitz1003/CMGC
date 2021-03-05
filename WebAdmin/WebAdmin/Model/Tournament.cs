@@ -11,6 +11,9 @@ namespace WebAdmin
 {
     public class Tournament : INotifyPropertyChanged
     {
+        private const int TwoDayCost = 30;
+        private const int OneDayCost = 15;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -51,7 +54,16 @@ namespace WebAdmin
             get { return _endDate; } 
             set { 
                 _endDate = value;
-                Cost = (_endDate == _startDate) ? 10 : 25;
+                // If switching the end date between 1 and 2 days, 
+                // switch the cost to match
+                if ((_endDate == _startDate) && (Cost == TwoDayCost))
+                {
+                    Cost = OneDayCost;
+                }
+                else if ((_endDate != _startDate) && (Cost == OneDayCost))
+                {
+                    Cost = TwoDayCost;
+                }
                 OnPropertyChanged(); 
             } 
         }
@@ -199,7 +211,7 @@ namespace WebAdmin
             LocalHandicap = false;
             ScgaTournament = false;
             TournamentDescriptionKey = -1;
-            Cost = 25;
+            Cost = TwoDayCost;
             Pool = 10;
             ChairmanName = String.Empty;
             ChairmanEmail = String.Empty;
