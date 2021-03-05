@@ -899,7 +899,7 @@ namespace WebAdmin.ViewModel
             {
                 if (!appendToFile)
                 {
-                    tw.WriteLine("Tee Time,Last Name,First Name,GHIN,Team Id,Email,Flight,Waitlisted");
+                    tw.WriteLine("Tee Time,Waitlisted,Team Id,Last Name,First Name,GHIN,Email,Flight");
                 }
 
                 for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
@@ -915,6 +915,7 @@ namespace WebAdmin.ViewModel
 
                         if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
                         {
+                            // GG requires last name and first name separately
                             string[] fields = tournamentTeeTimes[teeTimeNumber].Players[player].Name.Split(',');
                             if (fields.Length > 1)
                             {
@@ -968,62 +969,42 @@ namespace WebAdmin.ViewModel
                                 teamId++;
                             }
 
-                            // Note: Golf Genius requires Last Name, so it is not enough to provide just the handle
-                            //string handle = string.Empty;
-                            //if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
-                            //{
-                            //    handle = '"' + tournamentTeeTimes[teeTimeNumber].Players[player].Name + '"';
-                            //    playerGhin = tournamentTeeTimes[teeTimeNumber].Players[player].GHIN;
-                            //}
-
                             tw.Write(tournamentTeeTimes[teeTimeNumber].StartTime + ",");
+                            tw.Write(waitlisted.ToString() + ",");
+                            tw.Write(teamId + ",");
                             tw.Write(playerLastName + ",");
                             tw.Write(playerFirstName + ",");
-                            //tw.Write(handle + ",");
                             tw.Write(playerGhin + ",");
-                            tw.Write(teamId + ",");
                             tw.Write(playerEmail + ",");
 
-                            if (string.IsNullOrEmpty(playerExtra))
-                            {
-                                // Empty flight number
-                                tw.Write(",");
-                            }
-                            else
+                            if (!string.IsNullOrEmpty(playerExtra))
                             {
                                 // Write the flight number
                                 if (playerExtra.Contains("CH"))
                                 {
-                                    tw.Write("0,");
+                                    tw.Write("0");
                                 }
                                 else if (playerExtra.Contains("F1"))
                                 {
-                                    tw.Write("1,");
+                                    tw.Write("1");
                                 }
                                 else if (playerExtra.Contains("F2"))
                                 {
-                                    tw.Write("2,");
+                                    tw.Write("2");
                                 }
                                 else if (playerExtra.Contains("F3"))
                                 {
-                                    tw.Write("3,");
+                                    tw.Write("3");
                                 }
                                 else if (playerExtra.Contains("F4"))
                                 {
-                                    tw.Write("4,");
+                                    tw.Write("4");
                                 }
                                 else if (playerExtra.Contains("F5"))
                                 {
-                                    tw.Write("5,");
-                                }
-                                else
-                                {
-                                    tw.Write(",");
+                                    tw.Write("5");
                                 }
                             }
-
-                            // Waitlisted is false
-                            tw.Write(waitlisted.ToString());
 
                             tw.WriteLine();                             
                         }
@@ -1472,12 +1453,20 @@ namespace WebAdmin.ViewModel
                     string[] line = lines[lineIndex];
                     if (line.Length > 0)
                     {
+                        bool waitlisted = false;
+                        bool.TryParse(line[WaitlistColumn], out waitlisted);
+
                         if (string.IsNullOrEmpty(line[teeTimeColumn]))
                         {
                             throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): Tee Time is empty");
                         }
                         if (string.IsNullOrEmpty(line[lastNameColumn]))
                         {
+                            // Skip over any waitlisted lines that might have been cut and pasted into the tee time list
+                            if (waitlisted)
+                            {
+                                continue;
+                            }
                             throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): Last Name is empty");
                         }
 
@@ -1512,9 +1501,6 @@ namespace WebAdmin.ViewModel
                                 }
                             }
                         }
-
-                        bool waitlisted = false;
-                        bool.TryParse(line[WaitlistColumn], out waitlisted);
 
                         if (!waitlisted)
                         {
