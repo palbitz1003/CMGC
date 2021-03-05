@@ -11,6 +11,12 @@ get_header ();
 
 get_sidebar ();
 
+echo "The replace feature is no longer available.";
+get_footer ();
+return;
+
+
+
 $tournamentKey = $_GET ['tournament'];
 if (! $tournamentKey) {
 	die ( "Which tournament?" );
