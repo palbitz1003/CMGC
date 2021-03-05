@@ -172,11 +172,11 @@ namespace WebAdmin.ViewModel
             set { _tournamentTeeTimes = value; OnPropertyChanged(); }
         }
 
-        private string _ggTeeTimeFile;
-        public string GgTeeTimeFile
+        private string _teeTimeFile;
+        public string TeeTimeFile
         {
-            get { return _ggTeeTimeFile; }
-            set { _ggTeeTimeFile = value; OnPropertyChanged(); }
+            get { return _teeTimeFile; }
+            set { _teeTimeFile = value; OnPropertyChanged(); }
         }
 
         private string _waitingListFile;
@@ -316,7 +316,7 @@ namespace WebAdmin.ViewModel
 
         //public ICommand PrintCommand { get { return new ModelCommand(Print); } }
 
-        public ICommand LoadGgCsvCommand { get { return new ModelCommand(LoadGgCsv); } }
+        public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
         public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(async s => await UploadWaitingListFile(s)); } }
         #endregion
@@ -858,7 +858,7 @@ namespace WebAdmin.ViewModel
                         true,
                         true);
 
-                    GgTeeTimeFile = teeTimesFileName;
+                    TeeTimeFile = teeTimesFileName;
                 }
                 finally
                 {
@@ -1368,23 +1368,23 @@ namespace WebAdmin.ViewModel
         // 6:15 AM,	Albitz,Paul,9079663,1,palbitz@san.rr.com,FALSE,FALSE
 
 
-        private void LoadGgCsv(object o)
+        private void LoadTeeTimesAndWaitlistCsv(object o)
         {
-            if(string.IsNullOrEmpty(GgTeeTimeFile))
+            if(string.IsNullOrEmpty(TeeTimeFile))
             {
                 MessageBox.Show("Please fill in the tee sheet file");
                 return;
             }
 
-            if (!File.Exists(GgTeeTimeFile))
+            if (!File.Exists(TeeTimeFile))
             {
-                MessageBox.Show("File does not exist: " + GgTeeTimeFile);
+                MessageBox.Show("File does not exist: " + TeeTimeFile);
                 return;
             }
 
             AllowTeeTimeIntervalAdjust = false;
 
-            using (TextReader tr = new StreamReader(GgTeeTimeFile))
+            using (TextReader tr = new StreamReader(TeeTimeFile))
             {
                 ClearPlayersFromAllTeeTimes();
                 //TournamentTeeTimes.Clear();
@@ -1406,7 +1406,7 @@ namespace WebAdmin.ViewModel
 
                 if (lines.Length == 0)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": has 0 lines");
+                    throw new ApplicationException(TeeTimeFile + ": has 0 lines");
                 }
 
                 for (int col = 0; col < lines[0].Length; col++)
@@ -1447,35 +1447,35 @@ namespace WebAdmin.ViewModel
 
                 if (teeTimeColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Tee Time");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Tee Time");
                 }
                 if (lastNameColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Last Name");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Last Name");
                 }
                 if (firstNameColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: First Name");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: First Name");
                 }
                 if (ghinColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: GHIN");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: GHIN");
                 }
                 if (emailColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Email");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Email");
                 }
                 if (flightColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Flight");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Flight");
                 }
                 if (overEightyColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: OverEighty");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: OverEighty");
                 }
                 if (WaitlistColumn == -1)
                 {
-                    throw new ApplicationException(GgTeeTimeFile + ": did not find header column: Waitlist");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Waitlist");
                 }
 
                 for (int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
@@ -1485,11 +1485,11 @@ namespace WebAdmin.ViewModel
                     {
                         if (string.IsNullOrEmpty(line[teeTimeColumn]))
                         {
-                            throw new ApplicationException(GgTeeTimeFile + " (line " + lineIndex + "): Tee Time is empty");
+                            throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): Tee Time is empty");
                         }
                         if (string.IsNullOrEmpty(line[lastNameColumn]))
                         {
-                            throw new ApplicationException(GgTeeTimeFile + " (line " + lineIndex + "): Last Name is empty");
+                            throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): Last Name is empty");
                         }
 
                         Player player = new Player();

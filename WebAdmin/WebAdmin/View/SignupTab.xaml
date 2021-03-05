@@ -19,13 +19,13 @@
         </DockPanel>
         
         <DockPanel Margin="5, 0, 0, 0" Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <Button Margin="5" VerticalAlignment="Center" Command="{Binding LoadGgCsvCommand}" >
+            <Button Margin="5" VerticalAlignment="Center" Command="{Binding LoadTeeTimesAndWaitlistCsvCommand}" >
                 <TextBlock TextWrapping="Wrap">Load Tee Sheet csv</TextBlock>
             </Button>
             <DockPanel  LastChildFill="true" Margin="5" VerticalAlignment="Center">
                 <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseStartTimeButton" DockPanel.Dock="Right" Click="BrowseStartTimeButton_Click" >Browse ...</Button>
                 <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="StartTimeTextBox" IsReadOnly="true" 
-                         Text="{Binding Path=GgTeeTimeFile, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                         Text="{Binding Path=TeeTimeFile, UpdateSourceTrigger=PropertyChanged}"></TextBox>
             </DockPanel>
         </DockPanel>
 
