@@ -15,6 +15,11 @@ if (! $tournamentKey) {
 	die ( "Which tournament?" );
 }
 
+if (!file_exists($default_log_folder)) {
+	mkdir($default_log_folder, 0755, true);
+}
+$logFile = $default_log_folder . "/signup." . $tournamentKey . ".log";
+
 $testMode = false;
 if($_GET ['mode'] == "test"){
 	$testMode = true;
@@ -358,13 +363,17 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 
 } else {
 
-	// make a single string of player names & GHIN number for the PayPal email
-	//$players = "";
 	$playerCount = 0;
+	$playersNameOnly = "";
 	for($i = 0; $i < count ( $GHIN ); ++ $i) {
 		if (! empty ( $GHIN [$i] )) {
 			++$playerCount;
-			//$players = $players . $FullName[$i] . " (" . $GHIN[$i] . ") ";
+
+			// Save names for log message
+			if(!empty($playersNameOnly)){
+				$playersNameOnly = $playersNameOnly . " --- ";
+			}
+			$playersNameOnly = $playersNameOnly . $FullName[$i];
 		}
 	}
 	
@@ -394,7 +403,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	$previousTournamentKey = GetPreviousTournamentKey($connection, $tournamentKey);
 	
 	// Enable payment for some groups immediately
-	$paymentEnabled = DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN);
+	$paymentEnabled = DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $logFile);
 
 	// The signup has no errors. Proceed to sign up the group. First create the signup entry.
 	$insertId = InsertSignUp ( $connection, $tournamentKey, $RequestedTime, $entryFees, $accessCode, $paymentEnabled);
@@ -402,6 +411,10 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 
 	// Now add the players to the signup entry
 	InsertSignUpPlayers ( $connection, $tournamentKey, $insertId, $GHIN, $FullName, $Extra );
+
+	if(!empty($logFile)){
+		error_log(date ( '[Y-m-d H:i e] ' ) . "Players signed up: ". $playersNameOnly . ". Payment enabled: " . ($paymentEnabled ? "true" : "false") . PHP_EOL, 3, $logFile);
+	}
 
 	if($t->RequirePayment && $paymentEnabled)
 	{

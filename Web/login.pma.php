@@ -15,4 +15,6 @@ $ipn_dues_file = 'paypal_dues_ipn.php';
 $signup_start_time = 'PT05H00M';
 // noon, P is for "period" and T is for "time", 12H is 12 hours, 00M is 0 minutes
 $signup_end_time = 'PT12H00M';
+// This is the PHP superglobalfor the root directory
+$default_log_folder = $_SERVER['DOCUMENT_ROOT'] . "/logs";
 ?>

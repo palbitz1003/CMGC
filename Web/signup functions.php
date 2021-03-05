@@ -275,13 +275,16 @@ function GetPlayerCountForTournament($connection, $tournamentKey){
 /*
  * Decide if payment is enabled given the list of players
  */
-function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN)
+function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $logFile)
 {
 	for($i = 0; $i < count ( $GHIN ); ++ $i) {
 		if (isset ( $GHIN [$i] ) && (strlen($GHIN [$i]) > 0) ) {
 			$rosterEntry = GetRosterEntry($connection, $GHIN [$i]);
 			// Signup priority B is board members. They can pay immediately.
 			if(!empty($rosterEntry) && ($rosterEntry->SignupPriority === "B")){
+				if(!empty($logFile)){
+					error_log(date ( '[Y-m-d H:i e] ' ) . "Board member signed up: ". $rosterEntry->LastName . PHP_EOL, 3, $logFile);
+				}
 				return true;
 			}
 		}
@@ -298,6 +301,10 @@ function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN)
 						(($waitingList[$i]->GHIN2 != 0) && ($waitingList[$i]->GHIN2 === $GHINint)) ||
 						(($waitingList[$i]->GHIN3 != 0) && ($waitingList[$i]->GHIN3 === $GHINint)) ||
 						(($waitingList[$i]->GHIN4 != 0) && ($waitingList[$i]->GHIN4 === $GHINint))){
+							if(!empty($logFile)){
+								// While the waiting list supports 4 players in each entry, in reality, only the 1st is used
+								error_log(date ( '[Y-m-d H:i e] ' ) . "Waiting list member signed up: ". $waitingList[$i]->Name1 . PHP_EOL, 3, $logFile);
+							}
 							return true;
 					}
 				}
