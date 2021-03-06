@@ -769,15 +769,15 @@ namespace WebAdmin.ViewModel
                             foreach (var player in TeeTimeRequests[i].Players)
                             {
                                 values.Add(new KeyValuePair<string, string>(
-                                    string.Format("SignUpsWaitingList[{0}][Position]", i),
+                                    string.Format("SignUpsWaitingList[{0}][Position]", position),
                                     position.ToString(CultureInfo.InvariantCulture)));
 
                                 values.Add(new KeyValuePair<string, string>(
-                                    string.Format("SignUpsWaitingList[{0}][GHIN1]", i),
+                                    string.Format("SignUpsWaitingList[{0}][GHIN1]", position),
                                     player.GHIN.ToString(CultureInfo.InvariantCulture)));
 
                                 values.Add(new KeyValuePair<string, string>(
-                                    string.Format("SignUpsWaitingList[{0}][Name1]", i),
+                                    string.Format("SignUpsWaitingList[{0}][Name1]", position),
                                     player.Name));
 
                                 position++;
