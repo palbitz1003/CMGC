@@ -1223,7 +1223,39 @@ namespace WebAdmin.ViewModel
             }
 
             var jss = new JavaScriptSerializer();
-            TournamentTeeTimes = jss.Deserialize<TrulyObservableCollection<TeeTime>>(webResponse);
+            var tournamentTeeTimes = jss.Deserialize<TrulyObservableCollection<TeeTime>>(webResponse);
+
+            // Initialize the first tee time combo box and the block :52 checkbox based
+            // on the values in the tee time list.
+            int lowestTeeTimeIndex = -1;
+            for (int teeTimeIndex = 0; teeTimeIndex < tournamentTeeTimes.Count; teeTimeIndex++)
+            {
+
+                // If the tee time list contains :52, then make sure that
+                // time is available
+                if (Block52TeeTimes && tournamentTeeTimes[teeTimeIndex].StartTime.Contains(":52"))
+                {
+                    Block52TeeTimes = false;
+                }
+                for (int i = 0; i < _defaultTeeTimes.Count; i++)
+                {
+                    if (String.CompareOrdinal(_defaultTeeTimes[i], tournamentTeeTimes[teeTimeIndex].StartTime) == 0)
+                    {
+                        if ((lowestTeeTimeIndex == -1) || (i < lowestTeeTimeIndex))
+                        {
+                            lowestTeeTimeIndex = i;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (lowestTeeTimeIndex != -1)
+            {
+                FirstTeeTimeIndex = lowestTeeTimeIndex;
+            }
+
+            TournamentTeeTimes = tournamentTeeTimes;
 
             // Need to connect up links
             foreach (var teeTime in TournamentTeeTimes)
@@ -1446,6 +1478,42 @@ namespace WebAdmin.ViewModel
                 if (WaitlistColumn == -1)
                 {
                     throw new ApplicationException(TeeTimeFile + ": did not find header column: Waitlist");
+                }
+
+                // Initialize the first tee time combo box and the block :52 checkbox based
+                // on the values in the tee time list.
+                int lowestTeeTimeIndex = -1;
+                for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
+                {
+                    string[] line = lines[lineIndex];
+                    if (line.Length > 0)
+                    {
+                        if (!string.IsNullOrEmpty(line[teeTimeColumn]))
+                        {
+                            // If the tee time list contains :52, then make sure that
+                            // time is available
+                            if (Block52TeeTimes && line[teeTimeColumn].Contains(":52"))
+                            {
+                                Block52TeeTimes = false;
+                            }
+                                for (int i = 0; i < _defaultTeeTimes.Count; i++)
+                            {
+                                if (String.CompareOrdinal(_defaultTeeTimes[i], line[teeTimeColumn]) == 0)
+                                {
+                                    if ((lowestTeeTimeIndex == -1) || (i < lowestTeeTimeIndex))
+                                    {
+                                        lowestTeeTimeIndex = i;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (lowestTeeTimeIndex != -1)
+                {
+                    FirstTeeTimeIndex = lowestTeeTimeIndex;
                 }
 
                 for (int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
