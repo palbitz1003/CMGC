@@ -1169,6 +1169,12 @@ namespace WebAdmin.ViewModel
         {
             if (!CheckContinue()) return;
 
+            // cancelled password input
+            if (string.IsNullOrEmpty(Credentials.LoginPassword))
+            {
+                return;
+            }
+
             _teeTimesDirty = false;
             using (var client = new HttpClient())
             {
@@ -1178,6 +1184,9 @@ namespace WebAdmin.ViewModel
                 {
                     var values = new List<KeyValuePair<string, string>>();
 
+                    values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
+                    values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
+
                     values.Add(new KeyValuePair<string, string>("tournament",
                         TournamentNames[TournamentNameIndex].TournamentKey.ToString(CultureInfo.InvariantCulture)));
 
@@ -1186,14 +1195,38 @@ namespace WebAdmin.ViewModel
                     var teeTimesResponse = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetTeeTimes, content);
                     var responseString = await teeTimesResponse.Content.ReadAsStringAsync();
 
-                    Logging.Log("LoadTeeTimesFromWeb", responseString);
+                    Logging.Log(WebAddresses.ScriptFolder + WebAddresses.GetTeeTimes, responseString);
+
+                    // Is there a better check for valid JSON vs an error message???
+                    if (!responseString.StartsWith("[", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Credentials.CheckForInvalidPassword(responseString);
+                        
+                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                        displayWindow.WebBrowser.NavigateToString(responseString);
+                        displayWindow.Owner = Application.Current.MainWindow;
+                        displayWindow.ShowDialog();
+                        return;
+                    }
 
                     // Have to create a new content variable, or you get a cannot dispose exception
                     var content2 = new FormUrlEncodedContent(values);
 
                     var signupsWaitlingListResponse = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetSignUpsWaitingList, content2);
                     var responseString2 = await signupsWaitlingListResponse.Content.ReadAsStringAsync();
-                    Logging.Log("LoadSignupWaitlistFromWeb", responseString);
+                    Logging.Log(WebAddresses.ScriptFolder + WebAddresses.GetSignUpsWaitingList, responseString2);
+
+                    // Is there a better check for valid JSON vs an error message???
+                    if (!responseString2.StartsWith("[", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Credentials.CheckForInvalidPassword(responseString2);
+
+                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                        displayWindow.WebBrowser.NavigateToString(responseString2);
+                        displayWindow.Owner = Application.Current.MainWindow;
+                        displayWindow.ShowDialog();
+                        return;
+                    }
 
                     TeeTimeRequests.Clear();
                     TeeTimeRequestsUnassigned.Clear();

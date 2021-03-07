@@ -1,7 +1,9 @@
 <?php
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/functions.php';
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $script_folder . '/signup functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tee times functions.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 class TeeTime {
@@ -18,6 +20,9 @@ class Player {
     public $Email;
     public $SignupKey;
 }
+
+// login() requires headers functions.php and wp-blog-header.php
+login($_POST ['Login'], $_POST ['Password']);
 
 $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
 
