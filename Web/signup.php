@@ -51,6 +51,7 @@ if($now < $startSignUp){
 	return;
 }
 
+/*
 $count = GetPlayerCountForTournament($connection, $tournamentKey);
 if(($t->MaxSignups != 0) && ($count >= $t->MaxSignups))
 {
@@ -67,6 +68,7 @@ if(($t->MaxSignups != 0) && ($count >= $t->MaxSignups))
 	get_footer ();
 	return;
 }
+*/
 
 $descr = '';
 if($t->TournamentDescriptionKey > 0){

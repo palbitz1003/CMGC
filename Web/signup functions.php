@@ -493,6 +493,7 @@ function ShowSignups($connection, $tournamentKey) {
 	}
 
 	$count = GetPlayerCountForTournament($connection, $tournamentKey);
+	/*
 	if(($count > 0) && ($t->MaxSignups > 0)){
 		echo '<tr><td style="border: none">';
 		if($count >= $t->MaxSignups){
@@ -502,21 +503,24 @@ function ShowSignups($connection, $tournamentKey) {
 			echo 'When the tee times are assigned and we are over-subscribed, a random draw decides which players do not get a tee time. ';
 			echo 'Those players are refunded their signup fee.</p>' . PHP_EOL;
 		} else {
+			
 			//echo 'There are ' . $count . ' players signed up. Signups will close at ' . $t->MaxSignups . ' players.';
 		}
 		echo '</td></tr><tr><td style="border: none"></td></tr>' . PHP_EOL;
 	}
+	*/
+	echo '<tr><td style="border: none">There are ' . $count . ' players signed up.</td></tr><tr><td style="border: none"></td></tr>';
 	
 	$signUpArray = GetSignups ( $connection, $tournamentKey, ' AND `Payment` < `PaymentDue` ORDER BY `SubmitKey` DESC' );
 	
 	if(!empty($signUpArray)){
 		echo '<tr><td style="border: none">';
-		echo 'These players have not paid their tournament fee. You are not in the tournament until your fee has been paid. ';
+		echo 'These players are part of the blind draw to decide who plays.';
 		echo '</td></tr>' . PHP_EOL;
-		echo '<tr><td style="border: none">';
-		echo 'If you have completed payment, but it is not yet recorded, be patient as PayPal may not have notified us yet. ';
-		echo 'Notify the tournament director if payment is not recorded after 24 hours.';
-		echo '</td></tr>' . PHP_EOL;
+		//echo '<tr><td style="border: none">';
+		//echo 'If you have completed payment, but it is not yet recorded, be patient as PayPal may not have notified us yet. ';
+		//echo 'Notify the tournament director if payment is not recorded after 24 hours.';
+		//echo '</td></tr>' . PHP_EOL;
 		echo '<tr><td style="border: none">' . PHP_EOL;
 		ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t);
 		echo '</td></tr>' . PHP_EOL;
