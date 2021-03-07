@@ -18,6 +18,8 @@ namespace WebAdmin.ViewModel
     public class SignupTabViewModel : TabViewModelBase
     {
 
+        private enum TeeTimeStatus { TeeTime, Waitlisted, Cancelled };
+
         #region Properties
         public override string Header { get { return "Signup"; } }
 
@@ -832,7 +834,7 @@ namespace WebAdmin.ViewModel
                 ref teeTimesFileName,
                 ref teamId,
                 false,
-                false);
+                TeeTimeStatus.TeeTime);
 
             // If the tee times were saved and there are still 
             // tee time requests, save the remaining requests
@@ -856,7 +858,7 @@ namespace WebAdmin.ViewModel
                         ref teeTimesFileName,
                         ref teamId,
                         true,
-                        true);
+                        TeeTimeStatus.Waitlisted);
 
                     TeeTimeFile = teeTimesFileName;
                 }
@@ -870,7 +872,7 @@ namespace WebAdmin.ViewModel
 
         // Make this routine static to make sure it is not using anything that is not passed in
         private static bool SaveAsCsv(TrulyObservableCollection<TeeTime> tournamentTeeTimes, int teamSize,
-            out bool teeTimesDirty, ref string finalFileName, ref int teamId, bool appendToFile, bool waitlisted)
+            out bool teeTimesDirty, ref string finalFileName, ref int teamId, bool appendToFile, TeeTimeStatus teeTimeStatus)
         {
             teeTimesDirty = true;
 
@@ -899,7 +901,7 @@ namespace WebAdmin.ViewModel
             {
                 if (!appendToFile)
                 {
-                    tw.WriteLine("Tee Time,Waitlisted,Team Id,Last Name,First Name,GHIN,Email,Flight");
+                    tw.WriteLine("Tee Time,Status,Team Id,Last Name,First Name,GHIN,Flight,Email");
                 }
 
                 for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
@@ -970,12 +972,11 @@ namespace WebAdmin.ViewModel
                             }
 
                             tw.Write(tournamentTeeTimes[teeTimeNumber].StartTime + ",");
-                            tw.Write(waitlisted.ToString() + ",");
+                            tw.Write(teeTimeStatus.ToString() + ",");
                             tw.Write(teamId + ",");
                             tw.Write(playerLastName + ",");
                             tw.Write(playerFirstName + ",");
                             tw.Write(playerGhin + ",");
-                            tw.Write(playerEmail + ",");
 
                             if (!string.IsNullOrEmpty(playerExtra))
                             {
@@ -1005,6 +1006,8 @@ namespace WebAdmin.ViewModel
                                     tw.Write("5");
                                 }
                             }
+
+                            tw.Write("," + playerEmail + ",");
 
                             tw.WriteLine();                             
                         }
@@ -1412,7 +1415,7 @@ namespace WebAdmin.ViewModel
                 int ghinColumn = -1;
                 int emailColumn = -1;
                 int flightColumn = -1;
-                int WaitlistColumn = -1;
+                int statusColumn = -1;
 
                 if (lines.Length == 0)
                 {
@@ -1445,9 +1448,9 @@ namespace WebAdmin.ViewModel
                     {
                         flightColumn = col;
                     }
-                    else if (string.Compare(lines[0][col], "waitlisted", true) == 0)
+                    else if (string.Compare(lines[0][col], "status", true) == 0)
                     {
-                        WaitlistColumn = col;
+                        statusColumn = col;
                     }
                 }
 
@@ -1475,9 +1478,9 @@ namespace WebAdmin.ViewModel
                 {
                     throw new ApplicationException(TeeTimeFile + ": did not find header column: Flight");
                 }
-                if (WaitlistColumn == -1)
+                if (statusColumn == -1)
                 {
-                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Waitlist");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Status");
                 }
 
                 // Initialize the first tee time combo box and the block :52 checkbox based
@@ -1518,11 +1521,22 @@ namespace WebAdmin.ViewModel
 
                 for (int lineIndex = 1, playerIndex = 0; lineIndex < lines.Length; lineIndex++, playerIndex++)
                 {
+                    TeeTimeStatus teeTimeStatus = TeeTimeStatus.TeeTime;
                     string[] line = lines[lineIndex];
                     if (line.Length > 0)
                     {
-                        bool waitlisted = false;
-                        bool.TryParse(line[WaitlistColumn], out waitlisted);
+                        if (line[statusColumn].ToLower().Contains("wait"))
+                        {
+                            teeTimeStatus = TeeTimeStatus.Waitlisted;
+                        }
+                        else if (line[statusColumn].ToLower().Contains("cancel"))
+                        {
+                            teeTimeStatus = TeeTimeStatus.Cancelled;
+                        }
+                        else if (!line[statusColumn].ToLower().Contains("teetime"))
+                        {
+                            throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): Status must be: TeeTime, Waitlisted, or Cancelled ");
+                        }
 
                         if (string.IsNullOrEmpty(line[teeTimeColumn]))
                         {
@@ -1531,7 +1545,7 @@ namespace WebAdmin.ViewModel
                         if (string.IsNullOrEmpty(line[lastNameColumn]))
                         {
                             // Skip over any waitlisted lines that might have been cut and pasted into the tee time list
-                            if (waitlisted)
+                            if (teeTimeStatus == TeeTimeStatus.Waitlisted)
                             {
                                 continue;
                             }
@@ -1570,7 +1584,7 @@ namespace WebAdmin.ViewModel
                             }
                         }
 
-                        if (!waitlisted)
+                        if (teeTimeStatus == TeeTimeStatus.TeeTime)
                         {
                             TeeTime tt = null;
                             foreach (var teeTime in TournamentTeeTimes)
@@ -1591,7 +1605,7 @@ namespace WebAdmin.ViewModel
                             player.TeeTime = tt;
                             tt.AddPlayer(player);
                         }
-                        else
+                        else if (teeTimeStatus == TeeTimeStatus.Waitlisted)
                         {
                             var teeTimeRequest = new TeeTimeRequest();
                             teeTimeRequest.Players.Add(player);

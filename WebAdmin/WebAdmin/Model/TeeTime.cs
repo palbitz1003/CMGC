@@ -36,6 +36,7 @@ namespace WebAdmin
         public void ClearPlayers()
         {
             Players.Clear();
+            OnPropertyChanged("Players");
         }
 
         public override string ToString()
