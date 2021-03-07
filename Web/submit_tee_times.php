@@ -206,6 +206,12 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		$signUpWaitingList->Name4 = "";
 
 		InsertSignUpWaitingListEntry($connection, $signUpWaitingList);
+
+		// Turn off payment enabled for anyone on the waitlist
+		$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['SignUpsWaitingList'] [$i] ['GHIN1']);
+		if(!empty($signup)){
+			UpdateSignup($connection, $signup->SignUpKey, 'PaymentEnabled', 0, 'i');
+		}
 	}
 
 	
