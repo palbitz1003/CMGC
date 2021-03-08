@@ -64,18 +64,11 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 		{
 			$extra = $playersSignedUp [$p]->GHIN;
 		}
-        $over80 = "";
         $email = "";
 		if($playersSignedUp [$p]->GHIN !== 0){
 			$rosterEntry = GetRosterEntry ( $connection, $playersSignedUp [$p]->GHIN );
 			if($rosterEntry){
                 $email = $rosterEntry-> Email;
-				if($rosterEntry->BirthDate !== "0001-01-01"){
-					$birthday = new DateTime($rosterEntry->BirthDate);
-					if($birthday <= $eightyYearsAgo){
-						$over80 = " >80";
-					}
-				}
 			}
         }
 
@@ -83,7 +76,7 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
         $player->Name = $playersSignedUp [$p]->LastName;  // is actually full name
         $player->Position = $playersSignedUp [$p]->Position;
         $player->GHIN = $playersSignedUp [$p]->GHIN;
-        $player->Extra = $extra . $over80;
+        $player->Extra = $extra;
         $player->Email = $email;
         $player->SignupKey = $playersSignedUp [$p]->SignUpKey;
 
