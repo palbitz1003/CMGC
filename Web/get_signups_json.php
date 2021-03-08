@@ -1,7 +1,9 @@
 <?php
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . '/login.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/functions.php';
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $script_folder . '/signup functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_functions.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 class TeeTimeRequest {
@@ -25,6 +27,9 @@ class Player {
     public $Email;
     public $SignupKey;
 }
+
+// login() requires headers functions.php and wp-blog-header.php
+login($_POST ['Login'], $_POST ['Password']);
 
 $tournamentKey = $_POST ['tournament'];
 if (! $tournamentKey) {
