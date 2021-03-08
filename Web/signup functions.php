@@ -717,6 +717,11 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 	if(empty($players)){
 		die("No players found for submit key " . $submitKey);
 	}
+
+	if($signup->Payment > 0){
+		echo "Payment of $" . $signup->Payment . " has been received for: " . $playersNameOnly;
+		return;
+	}
 	
 	$cost = $tournament->Cost;
 	if($testMode){
