@@ -439,7 +439,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 			echo '<p style="text-align: center;"><b>' . $accessCode . '</b> </p>' . PHP_EOL;
 		}
 		if($t->RequirePayment && !$paymentEnabled){
-			echo '<p>You will be allowed to pay later if you are selected to play in this tournament.</p>';
+			echo '<p>You will pay later if you are selected to play in this tournament.</p>';
 		}
 		echo '<p><a href="' . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>' . PHP_EOL;
 
