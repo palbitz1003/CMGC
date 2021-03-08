@@ -220,6 +220,13 @@ namespace WebAdmin.ViewModel
                 MessageBox.Show("You must select a touranment first");
                 return;
             }
+
+            // cancelled password input
+            if (string.IsNullOrEmpty(Credentials.LoginPassword))
+            {
+                return;
+            }
+
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(WebAddresses.BaseAddress);
@@ -227,6 +234,9 @@ namespace WebAdmin.ViewModel
                 using (new WaitCursor())
                 {
                     var values = new List<KeyValuePair<string, string>>();
+
+                    values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
+                    values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
 
                     values.Add(new KeyValuePair<string, string>("tournament",
                         TournamentNames[TournamentNameIndex].TournamentKey.ToString(CultureInfo.InvariantCulture)));
@@ -237,6 +247,17 @@ namespace WebAdmin.ViewModel
                     var responseString = await response.Content.ReadAsStringAsync();
 
                     Logging.Log("LoadSignupsFromWeb", responseString);
+
+                    if (!IsValidJson(responseString))
+                    {
+                        Credentials.CheckForInvalidPassword(responseString);
+
+                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                        displayWindow.WebBrowser.NavigateToString(responseString);
+                        displayWindow.Owner = Application.Current.MainWindow;
+                        displayWindow.ShowDialog();
+                        return;
+                    }
 
                     TeeTimeRequests.Clear();
                     List<TeeTimeRequest> ttr = LoadSignupsFromWebResponseJson(responseString);
@@ -268,6 +289,40 @@ namespace WebAdmin.ViewModel
             }
 
             EnableUploadToWebButton = false;
+        }
+
+        private static bool IsValidJson(string strInput)
+        {
+            if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                return true;
+                /*
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    Console.WriteLine(jex.Message);
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    Console.WriteLine(ex.ToString());
+                    return false;
+                }
+                */
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
