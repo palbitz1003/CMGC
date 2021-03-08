@@ -312,6 +312,8 @@ namespace WebAdmin.ViewModel
 
         public ICommand AddPlayerCommand { get { return new ModelCommand(AddPlayer); } }
 
+        public ICommand RemovePlayerCommand { get { return new ModelCommand(RemovePlayer); } }
+
         //public ICommand PrintCommand { get { return new ModelCommand(Print); } }
 
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
@@ -604,6 +606,7 @@ namespace WebAdmin.ViewModel
             foreach (var player in teeTimeRequest.Players)
             {
                 teeTime.AddPlayer(player);
+                player.TeeTime = teeTime;
             }
             teeTimeRequest.TeeTime = teeTime;
 
@@ -1419,6 +1422,112 @@ namespace WebAdmin.ViewModel
                 }
 
                 TeeTimeRequestsUnassigned.Insert(0, ttr);
+            }
+        }
+
+        private void RemovePlayer(object o)
+        {
+            List<Player> playerList = new List<Player>();
+            foreach (var request in TeeTimeRequests)
+            {
+                foreach (var p in request.Players)
+                {
+                    playerList.Add(p);
+                }
+            }
+            foreach (var teeTime in TournamentTeeTimes)
+            {
+                foreach (var p in teeTime.Players)
+                {
+                    playerList.Add(p);
+                }
+            }
+
+            RemovePlayerWindow rpw = new RemovePlayerWindow();
+            //rpw.DataContext = player;
+            rpw.PlayerList = playerList;
+            rpw.Owner = Application.Current.MainWindow;
+
+            rpw.ShowDialog();
+            if (rpw.DialogResult.HasValue && rpw.DialogResult.Value)
+            {
+                if (rpw.Player != null)
+                {
+                    MessageBoxResult result = MessageBox.Show("Are you sure you want to remove " + rpw.Player.Name + "?",
+                                          "Confirmation",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question);
+                    if (result != MessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+
+                    TeeTimeRequest ttr = null;
+                    foreach (var request in TeeTimeRequests)
+                    {
+                        foreach (var p in request.Players)
+                        {
+                            if (rpw.Player == p)
+                            {
+                                ttr = request;
+                            }
+                        }
+                    }
+
+                    if (ttr != null)
+                    {
+                        ttr.Players.Remove(rpw.Player);
+                        if (ttr.Players.Count == 0)
+                        {
+                            TeeTimeRequests.Remove(ttr);
+                        }
+                        UpdateUnassignedList(_currentNumberOfPlayersShowing);
+                        return;
+                    }
+
+                    int teeTimeIndex = -1;
+                    for(int i = 0; (i < TournamentTeeTimes.Count) && (teeTimeIndex == -1); i++)
+                    {
+                        foreach (var p in TournamentTeeTimes[i].Players)
+                        {
+                            if (rpw.Player == p)
+                            {
+                                teeTimeIndex = i;
+                            }
+                        }
+                    }
+
+                    if (teeTimeIndex != -1)
+                    {
+                        // Remove the player from the tee time itself
+                        TournamentTeeTimes[teeTimeIndex].RemovePlayer(rpw.Player);
+                        TeeTimeSelection = teeTimeIndex;
+
+                        // Tee time requests are move to the assigned list when 
+                        // the request has been given a tee time. Remove the player
+                        // from the request on that list.
+                        ttr = null;
+                        foreach (var request in TeeTimeRequestsAssigned)
+                        {
+                            foreach (var p in request.Players)
+                            {
+                                if (rpw.Player == p)
+                                {
+                                    ttr = request;
+                                }
+                            }
+                        }
+
+                        if (ttr != null)
+                        {
+                            ttr.Players.Remove(rpw.Player);
+                            if (ttr.Players.Count == 0)
+                            {
+                                TeeTimeRequests.Remove(ttr);
+                            }
+                        }
+                    }
+                }
             }
         }
 

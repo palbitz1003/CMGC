@@ -45,6 +45,8 @@
                     Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
                     Command="{Binding AddPlayerCommand}">Add Player</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
+                    Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
             <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding OrderByBlindDraw, Mode=TwoWay}">Order By Blind Draw</CheckBox>
             <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
         </DockPanel>
