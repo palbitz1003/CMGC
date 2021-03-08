@@ -1523,7 +1523,7 @@ namespace WebAdmin.ViewModel
                             ttr.Players.Remove(rpw.Player);
                             if (ttr.Players.Count == 0)
                             {
-                                TeeTimeRequests.Remove(ttr);
+                                TeeTimeRequestsAssigned.Remove(ttr);
                             }
                         }
                     }
