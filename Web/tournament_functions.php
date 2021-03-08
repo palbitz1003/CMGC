@@ -148,7 +148,7 @@ function DisplayTournamentDetails($t){
 	echo '<ul>' . PHP_EOL;
 	echo '<li>Entry fee: $' . $t->Cost . ' per person</li>' . PHP_EOL;
 	if(isset($t->ChairmanName) && (strlen($t->ChairmanName) > 0)){
-		echo '<li>Tournament Director: <a href="mailto:' . $t->ChairmanEmail . '">' . $t->ChairmanName . '</a>; phone/text: ' . $t->ChairmanPhone . '</li>' . PHP_EOL;
+		echo '<li><a href="mailto:' . $t->ChairmanEmail . '">Contact tournament director</a></li>' . PHP_EOL;
 	}
 	echo '</ul>' . PHP_EOL;
 }
