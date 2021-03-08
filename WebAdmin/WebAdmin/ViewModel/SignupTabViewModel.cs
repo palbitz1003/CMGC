@@ -1405,14 +1405,14 @@ namespace WebAdmin.ViewModel
                     }
                 }
 
-                foreach (var request in TeeTimeRequestsAssigned)
+                foreach (var teeTime in TournamentTeeTimes)
                 {
-                    foreach (var p in request.Players)
+                    foreach (var p in teeTime.Players)
                     {
                         if (!string.IsNullOrEmpty(player.GHIN) && (String.CompareOrdinal(player.GHIN, p.GHIN) == 0))
                         {
                             MessageBox.Show(Application.Current.MainWindow,
-                                player.Name + " is already in the signup list at tee time preference " + request.Preference);
+                                player.Name + " is already in the signup list at tee time preference " + teeTime.StartTime);
                             return;
                         }
                     }
