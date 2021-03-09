@@ -682,6 +682,7 @@ namespace WebAdmin.ViewModel
             foreach (var player in teeTimeRequest.Players)
             {
                 teeTime.RemovePlayer(player);
+                player.TeeTime = null;
             }
             teeTimeRequest.TeeTime = null;
 
@@ -1269,6 +1270,7 @@ namespace WebAdmin.ViewModel
                     AllowTeeTimeIntervalAdjust = false;
 
                     LoadTeeTimesFromWebResponseJson(responseString);
+                    FillInAssignedListFromTournamentTeeTimes();
 
                     LoadWaitingListFromWebResponseJson(responseString2);
                     
@@ -1326,26 +1328,12 @@ namespace WebAdmin.ViewModel
 
             TournamentTeeTimes = tournamentTeeTimes;
 
-            // Need to connect up links
+            // Need to tie player to the tee time
             foreach (var teeTime in TournamentTeeTimes)
             {
                 foreach (var player in teeTime.Players)
                 {
                     player.TeeTime = teeTime;
-                }
-            }
-
-            if (TournamentTeeTimes != null)
-            {
-                foreach (var teeTime in TournamentTeeTimes)
-                {
-                    foreach (var player in teeTime.Players)
-                    {
-                        TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
-                        teeTimeRequest.Players.Add(player);
-                        teeTimeRequest.TeeTime = player.TeeTime;
-                        TeeTimeRequestsAssigned.Add(teeTimeRequest);
-                    }
                 }
             }
         }
@@ -1788,8 +1776,28 @@ namespace WebAdmin.ViewModel
                         }
                     }
                 }
+            }
+            SelectOpenTeeTime();
+            FillInAssignedListFromTournamentTeeTimes();
+        }
 
-                SelectOpenTeeTime();
+        private void FillInAssignedListFromTournamentTeeTimes()
+        {
+            TeeTimeRequestsAssigned.Clear();
+
+            if (TournamentTeeTimes != null)
+            {
+                foreach (var teeTime in TournamentTeeTimes)
+                {
+                    foreach (var player in teeTime.Players)
+                    {
+                        TeeTimeRequest teeTimeRequest = new TeeTimeRequest();
+                        teeTimeRequest.Preference = "None";
+                        teeTimeRequest.Players.Add(player);
+                        teeTimeRequest.TeeTime = player.TeeTime;
+                        TeeTimeRequestsAssigned.Add(teeTimeRequest);
+                    }
+                }
             }
         }
 
