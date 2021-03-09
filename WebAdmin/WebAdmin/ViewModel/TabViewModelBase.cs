@@ -241,7 +241,7 @@ namespace WebAdmin.ViewModel
 
             foreach (var teeTimeRequest in teeTimeRequests)
             {
-                teeTimeRequest.Paid = (teeTimeRequest.PaymentMade >= teeTimeRequest.PaymentDue);
+                teeTimeRequest.Paid = (teeTimeRequest.PaymentMade > 0);
                 teeTimeRequest.ModifiedPaid = teeTimeRequest.Paid;  // for payments tab
             }
 
