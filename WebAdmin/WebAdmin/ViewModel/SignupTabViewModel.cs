@@ -1779,6 +1779,7 @@ namespace WebAdmin.ViewModel
             }
             SelectOpenTeeTime();
             FillInAssignedListFromTournamentTeeTimes();
+            GroupMode = false;
         }
 
         private void FillInAssignedListFromTournamentTeeTimes()
