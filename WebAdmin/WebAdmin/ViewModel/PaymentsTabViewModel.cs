@@ -110,17 +110,33 @@ namespace WebAdmin.ViewModel
                 TournamentNameIndex = -1;
             }
 
+            bool found = false;
             for (int i = 0; i < TournamentNames.Count; i++ )
             {
                 if ((DateTime.Now > TournamentNames[i].SignupStartDate) && (DateTime.Now <= TournamentNames[i].EndDate)
                     && !TournamentNames[i].AnnouncementOnly)
                 {
+                    found = true;
                     TournamentNameIndex = i;
                     break;
                 }
             }
 
-            if(TournamentNames.Count > 0)
+            // If nothing found between signup start and tournament end, then find
+            // the last tournament that finished.
+            if (!found)
+            {
+                for (int i = TournamentNames.Count - 1; i >= 0; i--)
+                {
+                    if ((DateTime.Now >= TournamentNames[i].EndDate) && !TournamentNames[i].AnnouncementOnly)
+                    {
+                        TournamentNameIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (TournamentNames.Count > 0)
             {
                 GetTournamentsVisible = Visibility.Collapsed;
                 GotTournamentsVisible = Visibility.Visible;
