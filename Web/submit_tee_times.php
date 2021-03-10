@@ -78,8 +78,14 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				$accessCode = rand(1000, 9999);
 				$t = GetTournament($connection, $tournamentKey);
 
+				$paymentRequired = $t->RequirePayment;
+				$cost = $t->Cost;
+				if(!$paymentRequired){
+					$cost = 0;
+				}
+
 				// Create an individual signup so this player can pay
-				$insertId = InsertSignUp ( $connection, $tournamentKey, "None", $t->Cost, $accessCode, true);
+				$insertId = InsertSignUp ( $connection, $tournamentKey, "None", $cost, $accessCode, $paymentRequired);
 				$ghin = array($_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
 				$fullName = array($playerName);
 				$extra = array($_POST ['TeeTime'] [$i] ['Extra'] [$player]);
