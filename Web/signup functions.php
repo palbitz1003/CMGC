@@ -290,22 +290,25 @@ function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $log
 		}
 	}
 
-	$waitingList = GetSignUpWaitingList($connection, $previousTournamentKey);
+	if($previousTournamentKey != -1){
 
-	for($i = 0; $i < count ( $waitingList ); ++ $i) {
-		for($j = 0; $j < count ($GHIN); ++$j){
-			if (isset ( $GHIN [$j] ) && (strlen($GHIN [$j]) > 0) ) {
-				$GHINint = intval($GHIN[$j]);
-				if($GHINint != 0){
-					if((($waitingList[$i]->GHIN1 != 0) && ($waitingList[$i]->GHIN1 === $GHINint)) ||
-						(($waitingList[$i]->GHIN2 != 0) && ($waitingList[$i]->GHIN2 === $GHINint)) ||
-						(($waitingList[$i]->GHIN3 != 0) && ($waitingList[$i]->GHIN3 === $GHINint)) ||
-						(($waitingList[$i]->GHIN4 != 0) && ($waitingList[$i]->GHIN4 === $GHINint))){
-							if(!empty($logFile)){
-								// While the waiting list supports 4 players in each entry, in reality, only the 1st is used
-								error_log(date ( '[Y-m-d H:i e] ' ) . "Waiting list member signed up: ". $waitingList[$i]->Name1 . PHP_EOL, 3, $logFile);
-							}
-							return true;
+		$waitingList = GetSignUpWaitingList($connection, $previousTournamentKey);
+
+		for($i = 0; $i < count ( $waitingList ); ++ $i) {
+			for($j = 0; $j < count ($GHIN); ++$j){
+				if (isset ( $GHIN [$j] ) && (strlen($GHIN [$j]) > 0) ) {
+					$GHINint = intval($GHIN[$j]);
+					if($GHINint != 0){
+						if((($waitingList[$i]->GHIN1 != 0) && ($waitingList[$i]->GHIN1 === $GHINint)) ||
+							(($waitingList[$i]->GHIN2 != 0) && ($waitingList[$i]->GHIN2 === $GHINint)) ||
+							(($waitingList[$i]->GHIN3 != 0) && ($waitingList[$i]->GHIN3 === $GHINint)) ||
+							(($waitingList[$i]->GHIN4 != 0) && ($waitingList[$i]->GHIN4 === $GHINint))){
+								if(!empty($logFile)){
+									// While the waiting list supports 4 players in each entry, in reality, only the 1st is used
+									error_log(date ( '[Y-m-d H:i e] ' ) . "Waiting list member signed up: ". $waitingList[$i]->Name1 . PHP_EOL, 3, $logFile);
+								}
+								return true;
+						}
 					}
 				}
 			}
