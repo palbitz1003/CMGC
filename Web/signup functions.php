@@ -476,7 +476,7 @@ function UpdateSignupPlayer($connection, $submitKey, $ghin, $field, $value, $par
 	}
 	$update->close ();
 }
-function ShowSignups($connection, $tournamentKey) {
+function ShowSignups($connection, $tournamentKey, $allowModifications) {
 
 	$t = GetTournament ( $connection, $tournamentKey );
 	
@@ -525,7 +525,7 @@ function ShowSignups($connection, $tournamentKey) {
 		//echo 'Notify the tournament director if payment is not recorded after 24 hours.';
 		//echo '</td></tr>' . PHP_EOL;
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t);
+		ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t, $allowModifications);
 		echo '</td></tr>' . PHP_EOL;
 	}
 	
@@ -539,13 +539,13 @@ function ShowSignups($connection, $tournamentKey) {
 			echo '<tr><td style="border: none">These players have signed up.</td></tr>';
 		}
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t);
+		ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t, $allowModifications);
 		echo '</td></tr>' . PHP_EOL;
 	}
 	echo '</tbody></table>' . PHP_EOL;
 }
 
-function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
+function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t, $allowModifications)
 {
 	echo '<table style="border: none; width: 100%">' . PHP_EOL;
 	echo '<thead><tr class="header"><th style="width:10%">Requested Time</th><th style="width:70%">Players</th><th style="width:20%;text-align:center">Actions</th></tr></thead>' . PHP_EOL;
@@ -584,13 +584,17 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			if($needToPay && $signUpArray [$i]->PaymentEnabled) {
 				echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp';
 			}
-			echo '<a href="' . $script_folder_href . 'signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
-			// Since some players can sign up their group if they are on the waiting list, disable replace, because that would allow someone
-			// to sign up off the waiting list and the replace the waiting list player.
-			//echo '<a href="' . $script_folder_href . 'signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
-			echo '<a href="' . $script_folder_href . 'signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
-			if(!$needToPay){
-				echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
+
+			// Don't allow modifications outside of the signup period
+			if($allowModifications){
+				echo '<a href="' . $script_folder_href . 'signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
+				// Since some players can sign up their group if they are on the waiting list, disable replace, because that would allow someone
+				// to sign up off the waiting list and the replace the waiting list player.
+				//echo '<a href="' . $script_folder_href . 'signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
+				echo '<a href="' . $script_folder_href . 'signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
+				if(!$needToPay){
+					echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
+				}
 			}
 			echo '</td></tr>' . PHP_EOL;
 		}
