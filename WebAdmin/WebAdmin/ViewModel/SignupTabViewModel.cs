@@ -314,8 +314,6 @@ namespace WebAdmin.ViewModel
 
         public ICommand RemovePlayerCommand { get { return new ModelCommand(RemovePlayer); } }
 
-        //public ICommand PrintCommand { get { return new ModelCommand(Print); } }
-
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
         public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(async s => await UploadWaitingListFile(s)); } }
@@ -687,6 +685,7 @@ namespace WebAdmin.ViewModel
             teeTimeRequest.TeeTime = null;
 
             TeeTimeRequests.Insert(0, teeTimeRequest);
+            SortTeeTimeRequests();
             TeeTimeRequestsAssigned.Remove(teeTimeRequest);
 
             int teeTimeIndex = TournamentTeeTimes.IndexOf(teeTime);
@@ -1958,37 +1957,6 @@ namespace WebAdmin.ViewModel
                 }
             }
         }
-
-        //private void Print(object o)
-        //{
-        //    _teeTimesDirty = false;
-
-        //    var diag = new PrintDialog();
-        //    var paragraph = new Paragraph();
-        //    foreach (var teeTime in TournamentTeeTimes)
-        //    {
-        //        if (teeTime.Players.Count > 0)
-        //        {
-        //            paragraph.Inlines.Add(new Run(teeTime + Environment.NewLine));
-        //        }
-        //    }
-
-        //    if (paragraph.Inlines.Count > 0)
-        //    {
-        //        var doc = new FlowDocument(paragraph);
-        //        doc.PagePadding = new Thickness(100);
-
-        //        bool? print = diag.ShowDialog();
-        //        if (print == true)
-        //        {
-        //            diag.PrintDocument(((IDocumentPaginatorSource) doc).DocumentPaginator, "Tee Times");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        MessageBox.Show("There are no tee times with players assigned");
-        //    }
-        //}
 
         private void SwitchToGroupMode()
         {
