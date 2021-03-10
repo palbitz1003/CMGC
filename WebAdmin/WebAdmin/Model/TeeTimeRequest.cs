@@ -38,15 +38,15 @@ namespace WebAdmin
             get {
                 if (_paid)
                 {
-                    return "paid: " + ToString();
+                    return "paid: " + _blindDrawValue + " " + ToString();
                 }
                 else if (_waitlisted)
                 {
-                    return "wait: " + ToString();
+                    return "wait: " + _blindDrawValue + " " + ToString();
                 }
                 else
                 {
-                    return "        " + ToString();
+                    return "         " + _blindDrawValue + " " + ToString();
                 }
             }
         }
