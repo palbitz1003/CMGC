@@ -113,6 +113,9 @@
     <Compile Include="View\AdjustWinningsWindow.xaml.cs">
       <DependentUpon>AdjustWinningsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\RemovePlayerWindow.xaml.cs">
+      <DependentUpon>RemovePlayerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ResultsTab.xaml.cs">
       <DependentUpon>ResultsTab.xaml</DependentUpon>
     </Compile>
@@ -163,6 +166,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\AdjustWinningsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\RemovePlayerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
