@@ -35,24 +35,32 @@ for($i = 0; $i < count($entries); ++$i){
     
     $playerSignUp = GetPlayerSignUp($connection, $tournamentKey, $entries[$i]->GHIN1);
 
+    $player = new Player();
     if($playerSignUp){
-        $player = new Player();
+        
         $player->Name = $playerSignUp->LastName;  // is actually full name
         $player->Position = $entries[$i]->Position; // waitlist position
         $player->GHIN = $playerSignUp->GHIN;
         $player->Extra = $playerSignUp->Extra;
         $player->SignupKey = $playerSignUp->SignUpKey;
-
-        $rosterEntry = GetRosterEntry ( $connection, $entries[$i]->GHIN1 );
-        if($rosterEntry){
-            $player->Email = $rosterEntry-> Email;
-        }
-
-        $waitlistPlayers[] = $player;
     }
     else {
-        echo "Lookup of waitlist player " . $entries[$i]->Name1 . " (" . $entries[$i]->GHIN1 . ") failed";
+        // Take what info we have. If this player makes it into the
+        // tournament, the tee time submission will create a signup.
+        $player = new Player();
+        $player->Name = $entries[$i]->Name1;
+        $player->Position = $entries[$i]->Position; // waitlist position
+        $player->GHIN = $entries[$i]->GHIN1;
+        $player->Extra = "";
+        $player->SignupKey = 0;
     }
+
+    $rosterEntry = GetRosterEntry ( $connection, $entries[$i]->GHIN1 );
+    if($rosterEntry){
+        $player->Email = $rosterEntry-> Email;
+    }
+
+    $waitlistPlayers[] = $player;
 }
 
 try
