@@ -808,7 +808,7 @@ function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey,
 		$message .= "\n    " . $players[$i]->LastName;
 	}
 	$message .= "\n\nRequested time: " . $signup->RequestedTime;
-	$message .= "\n\nDo not reply to this email.  Contact the tournament director (" . $tournament->ChairmanName . ") if you have any questions.\n";
+	$message .= "\n\nDo not reply to this email.  Contact the tournament director if you have any questions.\n";
 	
 	$player0Message = $message . "\nTo make changes to your signup, use this access code: " . $signup->AccessCode . "\n";
 	
