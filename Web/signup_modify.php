@@ -14,12 +14,12 @@ get_header ();
 get_sidebar ();
 
 $tournamentKey = $_GET ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
 }
 
 $signupKey = $_GET['signup'];
-if(! $signupKey) {
+if(! $signupKey || !is_numeric($signupKey)) {
 	die ( "Which signup?" );
 }
 
@@ -42,6 +42,10 @@ if(count($players) == 0){
 $t = GetTournament($connection, $tournamentKey);
 if(empty($t)){
 	die("There is no tournament numbered " . $tournamentKey);
+}
+
+if($players[0]->TournamentKey != $tournamentKey){
+	die("The players for signup key  " . $signupKey . " are part of tournament " . $players[0]->TournamentKey . " not tournament " . $tournamentKey);
 }
 
 if(IsPastSignupPeriod($t)) {

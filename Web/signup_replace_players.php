@@ -15,14 +15,12 @@ echo "The replace feature is no longer available.";
 get_footer ();
 return;
 
-
-
 $tournamentKey = $_GET ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
 }
 $signupKey = $_GET['signup'];
-if(! $signupKey) {
+if(! $signupKey || !is_numeric($signupKey)) {
 	die ( "Which signup?" );
 }
 
@@ -60,6 +58,10 @@ $players = GetPlayersForSignUp($connection, $signupKey);
 
 if(count($players) == 0){
 	die ("There are no players for signup code " . $_GET ['signup']);
+}
+
+if($players[0]->TournamentKey != $tournamentKey){
+	die("The players for signup key  " . $signupKey . " are part of tournament " . $players[0]->TournamentKey . " not tournament " . $tournamentKey);
 }
 
 $errorList = array ();
