@@ -8,7 +8,7 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 $tournamentKey = $_GET ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	get_header ();
 	
 	get_sidebar ();
@@ -32,10 +32,19 @@ if ($connection->connect_error)
 
 $t = GetTournament($connection, $tournamentKey);
 
+if(empty($t)){
+	get_header ();
+	
+	get_sidebar ();
+	die("Tournament " . $tournamentKey . " does not exist.");
+}
+
 $now = new DateTime ( "now" );
 $startSignUp = new DateTime ( $t->SignupStartDate);
 $startSignUp->add(new DateInterval ( $signup_start_time ));
 
+// Only check for someone trying to sign up before the signup period starts.
+// If they want to sign up after the signup period ends, that is fine.
 if($now < $startSignUp){
 	$overrideTitle = "Sign Up";
 	get_header ();
