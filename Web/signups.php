@@ -6,7 +6,7 @@ require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $wp_folder . '/wp-blog-he
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 $tournamentKey = $_GET ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
 }
 
@@ -20,23 +20,10 @@ $connection = new mysqli ( 'p:' . $db_hostname, $db_username, $db_password, $db_
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
-$t = GetTournament ( $connection, $tournamentKey );
-
-$now = new DateTime ( "now" );
-$startSignUp = new DateTime($t->SignupStartDate);
-$startSignUp->add(new DateInterval ( $signup_start_time ));
-$endSignUp = new DateTime($t->SignupEndDate);
-$endSignUp->add(new DateInterval ( $signup_end_time ));
-
-$allowModifications = false;
-if(($now >= $startSignUp) && ($now <= $endSignUp)){
-	$allowModifications = true;
-}
-
 echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
-ShowSignups($connection, $tournamentKey, $allowModifications);
+ShowSignups($connection, $tournamentKey);
 
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
