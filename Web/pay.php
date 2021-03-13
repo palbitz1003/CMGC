@@ -5,11 +5,11 @@ require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $wp_folder . '/wp-blog-he
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 $tournamentKey = $_GET ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
 }
 $submitKey = $_GET ['signup'];
-if(empty($submitKey)){
+if(empty($submitKey) || !is_numeric($submitKey)){
 	die ("Which signup?");
 }
 
