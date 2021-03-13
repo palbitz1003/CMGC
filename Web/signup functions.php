@@ -479,6 +479,10 @@ function UpdateSignupPlayer($connection, $submitKey, $ghin, $field, $value, $par
 function ShowSignups($connection, $tournamentKey) {
 
 	$t = GetTournament ( $connection, $tournamentKey );
+
+	if(empty($t)){
+		die("Tournament " . $tournamentKey . " does not exist");
+	}
 	
 	echo '<h2 style="text-align:center">' . $t->Name . ' Signups</h2>' . PHP_EOL;
 	
