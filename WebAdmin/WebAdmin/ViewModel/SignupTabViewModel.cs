@@ -170,6 +170,8 @@ namespace WebAdmin.ViewModel
             set { _tournamentTeeTimes = value; OnPropertyChanged(); }
         }
 
+        public TrulyObservableCollection<Player> CancelledPlayers { get; set; }
+
         private string _teeTimeFile;
         public string TeeTimeFile
         {
@@ -340,6 +342,7 @@ namespace WebAdmin.ViewModel
             GotTournamentsVisible = Visibility.Collapsed;
             AllowTeeTimeIntervalAdjust = true;
             _randomNumberGenerator = new Random();
+            CancelledPlayers = new TrulyObservableCollection<Player>();
         }
 
         public void InitTeeTimes()
@@ -574,13 +577,34 @@ namespace WebAdmin.ViewModel
             for (int i = 0; i < TeeTimeRequests.Count; i++)
             {
                 TeeTime teeTime = new TeeTime();
-                // Set the start time to be 12:00, 12:01, 12:02, etc. just to show groups
-                teeTime.StartTime = ((i < 60) ? "12:" : "01:") +  (i % 60).ToString("D2");
+                // Set the start time to be 12:00, 12:01, 12:02, etc. just to show groups.
+                // The actual time doesn't matter.
+                teeTime.StartTime = ((i < 60) ? "12:" : "01:") +  (i % 60).ToString("D2") + " PM";
 
                 foreach (var player in TeeTimeRequests[i].Players)
                 {
                     teeTime.AddPlayer(player);
                 }
+
+                teeTimeList.Add(teeTime);
+            }
+
+            return teeTimeList;
+        }
+
+        private TrulyObservableCollection<TeeTime> ConvertCancelledPlayersToTeeTimes()
+        {
+            TrulyObservableCollection<TeeTime> teeTimeList = new TrulyObservableCollection<TeeTime>();
+
+            for (int i = 0; i < CancelledPlayers.Count; i++)
+            {
+                TeeTime teeTime = new TeeTime();
+                // Actual tee times are 06:00 to 11:52. Waitlist are 12:00 to 01:52.
+                // Put all the cancelled at 03:00 and 04:00.
+                // The actual time doesn't matter.
+                teeTime.StartTime = ((i < 60) ? "03:" : "04:") + (i % 60).ToString("D2") + " PM";
+
+                teeTime.AddPlayer(CancelledPlayers[i]);
 
                 teeTimeList.Add(teeTime);
             }
@@ -851,6 +875,11 @@ namespace WebAdmin.ViewModel
                 false,
                 TeeTimeStatus.TeeTime);
 
+            if (savedFile)
+            {
+                TeeTimeFile = teeTimesFileName;
+            }
+
             // If the tee times were saved and there are still 
             // tee time requests, save the remaining requests
             // as waitlisted players.
@@ -874,14 +903,26 @@ namespace WebAdmin.ViewModel
                         ref teamId,
                         true,
                         TeeTimeStatus.Waitlisted);
-
-                    TeeTimeFile = teeTimesFileName;
                 }
                 finally
                 {
                     // Restore order-by choice
                     OrderByBlindDraw = orderBy;
                 }
+            }
+
+            if (savedFile && (CancelledPlayers.Count > 0))
+            {
+                var cancelledPlayers = ConvertCancelledPlayersToTeeTimes();
+
+                SaveAsCsv(
+                        cancelledPlayers,
+                        TournamentNames[TournamentNameIndex].TeamSize,
+                        out bool ignore,
+                        ref teeTimesFileName,
+                        ref teamId,
+                        true,
+                        TeeTimeStatus.Cancelled);
             }
         }
 
@@ -1101,6 +1142,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequests.Clear();
                     TeeTimeRequestsUnassigned.Clear();
                     TeeTimeRequestsAssigned.Clear();
+                    CancelledPlayers.Clear();
                     AllowTeeTimeIntervalAdjust = true;
 
                     if (string.IsNullOrEmpty(responseString))
@@ -1265,6 +1307,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequestsUnassigned.Clear();
                     TeeTimeRequestsAssigned.Clear();
                     TournamentTeeTimes.Clear();
+                    CancelledPlayers.Clear();
 
                     AllowTeeTimeIntervalAdjust = false;
 
@@ -1485,6 +1528,7 @@ namespace WebAdmin.ViewModel
                             TeeTimeRequests.Remove(ttr);
                         }
                         UpdateUnassignedList(_currentNumberOfPlayersShowing);
+                        CancelledPlayers.Add(rpw.Player);
                         return;
                     }
 
@@ -1528,6 +1572,7 @@ namespace WebAdmin.ViewModel
                             {
                                 TeeTimeRequestsAssigned.Remove(ttr);
                             }
+                            CancelledPlayers.Add(rpw.Player);
                         }
                     }
                 }
@@ -1565,6 +1610,7 @@ namespace WebAdmin.ViewModel
                 TeeTimeRequests.Clear();
                 TeeTimeRequestsUnassigned.Clear();
                 TeeTimeRequestsAssigned.Clear();
+                CancelledPlayers.Clear();
 
                 string[][] lines = CSVParser.Parse(tr);
 
@@ -1772,6 +1818,10 @@ namespace WebAdmin.ViewModel
                             teeTimeRequest.Preference = "None";
                             teeTimeRequest.BlindDrawValue = lineIndex;  // the order in the file is the blind draw order
                             TeeTimeRequests.Add(teeTimeRequest);
+                        }
+                        else if (teeTimeStatus == TeeTimeStatus.Cancelled)
+                        {
+                            CancelledPlayers.Add(player);
                         }
                     }
                 }
