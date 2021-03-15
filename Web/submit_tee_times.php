@@ -23,6 +23,9 @@ if (! isset ( $_POST ['TeeTime'] )) {
 } else {
 
 	$tournamentKey = $_POST ['TeeTime'] [0] ['TournamentKey'];
+	if (! $tournamentKey || !is_numeric($tournamentKey)) {
+		die ( "Missing tournament key" );
+	}
 
 	if (!file_exists($default_log_folder)) {
 		mkdir($default_log_folder, 0755, true);
@@ -36,67 +39,69 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		$teeTime->StartTime = $_POST ['TeeTime'] [$i] ['StartTime'];
 		$teeTime->StartHole = $_POST ['TeeTime'] [$i] ['StartHole'];
 		
-		
-		for($player = 0; $player < count ( $_POST ['TeeTime'] [$i] ['Player'] ); ++ $player) {
-			$playerName = FixNameCasing($_POST ['TeeTime'] [$i] ['Player'] [$player]);
-			$teeTime->Players [] = $playerName;
-			$teeTime->GHIN [] = $_POST ['TeeTime'] [$i] ['GHIN'] [$player];
-			$teeTime->Extra [] = $_POST ['TeeTime'] [$i] ['Extra'] [$player];
+		// All the tee times are submitted. Some may be empty
+		if(!empty($_POST ['TeeTime'] [$i] ['Player'])){
+			for($player = 0; $player < count ( $_POST ['TeeTime'] [$i] ['Player'] ); ++ $player) {
+				$playerName = FixNameCasing($_POST ['TeeTime'] [$i] ['Player'] [$player]);
+				$teeTime->Players [] = $playerName;
+				$teeTime->GHIN [] = $_POST ['TeeTime'] [$i] ['GHIN'] [$player];
+				$teeTime->Extra [] = $_POST ['TeeTime'] [$i] ['Extra'] [$player];
 
-			// We could look up the signup key, instead of having it passed in here, but that 
-			// requires that the GHIN number is always non-zero.  If GHIN number 0 is allowed, then
-			// searching for the GHIN among the players signed up for this tournament would result in multiple matches
-			// and we would not be able to pair up the player to the signup to see if they have paid.
-			//$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
+				// We could look up the signup key, instead of having it passed in here, but that 
+				// requires that the GHIN number is always non-zero.  If GHIN number 0 is allowed, then
+				// searching for the GHIN among the players signed up for this tournament would result in multiple matches
+				// and we would not be able to pair up the player to the signup to see if they have paid.
+				//$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
 
-			if(intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]) === 0 ){
-				echo "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
-				$errors = true;
-			}
-			
-			// Get the signup data for the player. This just gets the data for the individual player, not all
-			// the players in the signup group.
-			$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
-
-			if(!empty($signup)){
-
-				$teeTime->SignupKey [] = $signup->SignUpKey;
-
-				// Save the player in a 2 dimensional array indexed by the signup key for matching up to
-				// the signups below
-				$signups[$signup->SignUpKey][] = $signup;
-			}
-			else{
-				// This case can only happen if a player is added without first signing up. One
-				// could argue this shouldn't happen, but handle it if it does.
-				echo "Added player to signup list: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
-
-				if(!empty($logFile)){
-					error_log(date ( '[Y-m-d H:i e] ' ) . "Player added to signups: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")" . PHP_EOL, 3, $logFile);
+				if(intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]) === 0 ){
+					echo "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
+					$errors = true;
 				}
+				
+				// Get the signup data for the player. This just gets the data for the individual player, not all
+				// the players in the signup group.
+				$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
 
-				$accessCode = rand(1000, 9999);
-				$t = GetTournament($connection, $tournamentKey);
+				if(!empty($signup)){
 
-				$paymentRequired = $t->RequirePayment;
-				$cost = $t->Cost;
-				if(!$paymentRequired){
-					$cost = 0;
+					$teeTime->SignupKey [] = $signup->SignUpKey;
+
+					// Save the player in a 2 dimensional array indexed by the signup key for matching up to
+					// the signups below
+					$signups[$signup->SignUpKey][] = $signup;
 				}
+				else{
+					// This case can only happen if a player is added without first signing up. One
+					// could argue this shouldn't happen, but handle it if it does.
+					echo "Added player to signup list: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
 
-				// Create an individual signup so this player can pay
-				$insertId = InsertSignUp ( $connection, $tournamentKey, "None", $cost, $accessCode, $paymentRequired);
-				$ghin = array($_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
-				$fullName = array($playerName);
-				$extra = array($_POST ['TeeTime'] [$i] ['Extra'] [$player]);
-				InsertSignUpPlayers ( $connection, $tournamentKey, $insertId, $ghin, $fullName, $extra);
+					if(!empty($logFile)){
+						error_log(date ( '[Y-m-d H:i e] ' ) . "Player added to signups: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")" . PHP_EOL, 3, $logFile);
+					}
 
-				// Fill in signup key after creating the signup record 
-				$teeTime->SignupKey [] = $insertId;
+					$accessCode = rand(1000, 9999);
+					$t = GetTournament($connection, $tournamentKey);
 
-				// Save the player in a 2 dimensional array indexed by the signup key for matching up to
-				// the signups below
-				$signups[$insertId][] = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+					$paymentRequired = $t->RequirePayment;
+					$cost = $t->Cost;
+					if(!$paymentRequired){
+						$cost = 0;
+					}
+
+					// Create an individual signup so this player can pay
+					$insertId = InsertSignUp ( $connection, $tournamentKey, "None", $cost, $accessCode, $paymentRequired);
+					$ghin = array($_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+					$fullName = array($playerName);
+					$extra = array($_POST ['TeeTime'] [$i] ['Extra'] [$player]);
+					InsertSignUpPlayers ( $connection, $tournamentKey, $insertId, $ghin, $fullName, $extra);
+
+					// Fill in signup key after creating the signup record 
+					$teeTime->SignupKey [] = $insertId;
+
+					// Save the player in a 2 dimensional array indexed by the signup key for matching up to
+					// the signups below
+					$signups[$insertId][] = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+				}
 			}
 		}
 		
