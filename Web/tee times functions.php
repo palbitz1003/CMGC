@@ -17,6 +17,14 @@ class DatabaseTeeTimePlayer {
 	public $Extra;
 	public $SignupKey;
 }
+
+class TeeTimeCancelledPlayer {
+	public $TournamentKey;
+	public $Position;
+	public $GHIN;
+	public $Name;
+}
+
 function InsertTeeTime($connection, $tournamentKey, $teeTime, $startHole) {
 	$sqlCmd = "INSERT INTO `TeeTimes` VALUES (NULL, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
@@ -171,6 +179,53 @@ function GetPlayerHandicap($connection, $GHIN) {
 	return 0;
 }
 
+function InsertTeeTimeCancelledPlayer($connection, $teeTimeCancelledPlayer){
+	$sqlCmd = "INSERT INTO `TeeTimesCancelled` VALUES (?, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+	
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $insert->bind_param ( 'iiis', $teeTimeCancelledPlayer->TournamentKey, $teeTimeCancelledPlayer->Position, $teeTimeCancelledPlayer->GHIN, $teeTimeCancelledPlayer->Name)) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+}
 
-
+function GetTeeTimesCancelledList($connection, $tournamentKey){
+	$sqlCmd = "SELECT * FROM `TeeTimesCancelled` WHERE TournamentKey = ? ORDER BY `Position` ASC";
+	$entries = $connection->prepare ( $sqlCmd );
+	
+	if (! $entries) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $entries->bind_param ( 'i', $tournamentKey )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $entries->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$entries->bind_result ( $key, $position, $ghin, $name );
+	
+	$teeTimesCancelledList = array();
+	while ( $entries->fetch () ) {
+		$entry = new TeeTimeCancelledPlayer();
+		$entry->TournamentKey = $tournamentKey;
+		$entry->Position = $position;
+		$entry->GHIN = $ghin;
+		$entry->Name = $name;
+		$teeTimesCancelledList[] = $entry;
+	}
+	
+	$entries->close ();
+	
+	return $teeTimesCancelledList;
+}
 ?>

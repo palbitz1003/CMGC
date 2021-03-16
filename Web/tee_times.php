@@ -19,7 +19,7 @@ echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
 $tournamentKey = $_GET ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
 } else {
 	$tournament = GetTournament($connection, $tournamentKey);
@@ -63,6 +63,8 @@ if (! $tournamentKey) {
 		echo '</tr></table>' . PHP_EOL;
 		
 		ShowWaitingList($connection, $tournamentKey);
+
+		ShowTeeTimesCancelledList($connection, $tournamentKey);
 	}
 }
 
@@ -182,7 +184,7 @@ function ShowWaitingList($connection, $tournament){
 	
 	if(count($waitingList) != 0){
 		// Sigh. I couldn't get a paragraph to center properly without putting it in a table
-		echo '<table style="width:400px;border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
+		echo '<table style="width:500px;border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
 		echo '<tbody>' . PHP_EOL;
 		echo '<tr><td style="border:none">' . PHP_EOL;
 		echo 'This tournament is oversubscribed; These players will be placed in the spot of any cancellations in the order listed. ' . PHP_EOL;
@@ -191,7 +193,7 @@ function ShowWaitingList($connection, $tournament){
 		echo '</tbody>' . PHP_EOL;
 		echo '</table>' . PHP_EOL;
 
-		echo '<table style="margin-left:auto;margin-right:auto">' . PHP_EOL;
+		echo '<table style="min-width:500px;margin-left:auto;margin-right:auto">' . PHP_EOL;
 		echo '<thead><tr class="header"><th  colspan="4">Waitlist</th></tr></thead>' . PHP_EOL;
 		echo '<tbody>' . PHP_EOL;
 		
@@ -205,6 +207,40 @@ function ShowWaitingList($connection, $tournament){
 				else {
 					// would be better for a style to provide the border ...
 					echo '<td style="border-left: 1px solid #ccc;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+				}
+			}
+			// Finish the column data to add in all the border lines
+			for(;$cols < 4; ++$cols){
+				echo '<td style="border-left: 1px solid #ccc;"></td>' . PHP_EOL;
+			}
+			echo '</tr>' . PHP_EOL;
+		}
+		echo '</tbody>' . PHP_EOL;
+		echo '</table>' . PHP_EOL;
+
+	}
+}
+
+function ShowTeeTimesCancelledList($connection, $tournament){
+	
+	$teeTimesCancelledList = GetTeeTimesCancelledList($connection, $tournament);
+	
+	if(count($teeTimesCancelledList) != 0){
+
+		echo '<table style="min-width:500px;margin-left:auto;margin-right:auto">' . PHP_EOL;
+		echo '<thead><tr class="header"><th  colspan="4">Cancellations</th></tr></thead>' . PHP_EOL;
+		echo '<tbody>' . PHP_EOL;
+		
+		for($i = 0; $i < count ( $teeTimesCancelledList );) {
+			echo '<tr>' . PHP_EOL;
+			$cols = 0;
+			for(; ($cols < 4) && ($i < count($teeTimesCancelledList)); ++$cols, ++$i){
+				if($cols == 0){
+					echo '<td>' . $teeTimesCancelledList[$i]->Name . '</td>' . PHP_EOL;
+				}
+				else {
+					// would be better for a style to provide the border ...
+					echo '<td style="border-left: 1px solid #ccc;">' . $teeTimesCancelledList[$i]->Name . '</td>' . PHP_EOL;
 				}
 			}
 			// Finish the column data to add in all the border lines

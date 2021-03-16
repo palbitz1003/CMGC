@@ -832,6 +832,24 @@ namespace WebAdmin.ViewModel
                     }
                 }
 
+                if (CancelledPlayers.Count > 0)
+                {
+                    for (int i = 0; i < CancelledPlayers.Count; i++)
+                    {
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("CancelledPlayer[{0}][Position]", i),
+                            i.ToString(CultureInfo.InvariantCulture)));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("CancelledPlayer[{0}][GHIN]", i),
+                            CancelledPlayers[i].GHIN.ToString(CultureInfo.InvariantCulture)));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("CancelledPlayer[{0}][Name]", i),
+                            CancelledPlayers[i].Name));
+                    }
+                }
+
                 var content = new FormUrlEncodedContent(values);
 
                 //Logging.Log("Signup Tee Time UploadToWeb", values.ToString());
@@ -1285,24 +1303,6 @@ namespace WebAdmin.ViewModel
                         return;
                     }
 
-                    // Have to create a new content variable, or you get a cannot dispose exception
-                    var content2 = new FormUrlEncodedContent(values);
-
-                    var signupsWaitlingListResponse = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetSignUpsWaitingList, content2);
-                    var responseString2 = await signupsWaitlingListResponse.Content.ReadAsStringAsync();
-                    Logging.Log(WebAddresses.ScriptFolder + WebAddresses.GetSignUpsWaitingList, responseString2);
-
-                    if (!IsValidJson(responseString2))
-                    {
-                        Credentials.CheckForInvalidPassword(responseString2);
-
-                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
-                        displayWindow.WebBrowser.NavigateToString(responseString2);
-                        displayWindow.Owner = Application.Current.MainWindow;
-                        displayWindow.ShowDialog();
-                        return;
-                    }
-
                     TeeTimeRequests.Clear();
                     TeeTimeRequestsUnassigned.Clear();
                     TeeTimeRequestsAssigned.Clear();
@@ -1311,10 +1311,17 @@ namespace WebAdmin.ViewModel
 
                     AllowTeeTimeIntervalAdjust = false;
 
-                    LoadTeeTimesFromWebResponseJson(responseString);
+                    var teeTimeComposite = LoadTeeTimeCompositeFromWebResponseJson(responseString);
+
+                    LoadTeeTimesFromWebResponse(teeTimeComposite.TeeTimes);
                     FillInAssignedListFromTournamentTeeTimes();
 
-                    LoadWaitingListFromWebResponseJson(responseString2);
+                    LoadWaitingListFromWebResponse(teeTimeComposite.WaitListPlayers);
+
+                    if (teeTimeComposite.CancelledPlayers != null)
+                    {
+                        CancelledPlayers = teeTimeComposite.CancelledPlayers;
+                    }
                     
                     SelectOpenTeeTime();
                 }
@@ -1323,11 +1330,11 @@ namespace WebAdmin.ViewModel
             GroupMode = false;
         }
 
-        protected void LoadTeeTimesFromWebResponseJson(string webResponse)
+        protected TeeTimeComposite LoadTeeTimeCompositeFromWebResponseJson(string webResponse)
         {
             if (string.IsNullOrEmpty(webResponse))
             {
-                return;
+                return new TeeTimeComposite();
             }
 
             if (webResponse.StartsWith("JSON error:"))
@@ -1336,7 +1343,22 @@ namespace WebAdmin.ViewModel
             }
 
             var jss = new JavaScriptSerializer();
-            var tournamentTeeTimes = jss.Deserialize<TrulyObservableCollection<TeeTime>>(webResponse);
+            var teeTimeComposite = jss.Deserialize<TeeTimeComposite>(webResponse);
+
+            if (teeTimeComposite == null)
+            {
+                return new TeeTimeComposite();
+            }
+
+            return teeTimeComposite;
+        }
+
+        protected void LoadTeeTimesFromWebResponse(TrulyObservableCollection<TeeTime> tournamentTeeTimes)
+        {
+            if (tournamentTeeTimes == null)
+            {
+                return;
+            }
 
             // Initialize the first tee time combo box and the block :52 checkbox based
             // on the values in the tee time list.
@@ -1380,20 +1402,14 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        protected void LoadWaitingListFromWebResponseJson(string webResponse)
+        
+
+        protected void LoadWaitingListFromWebResponse(TrulyObservableCollection<Player> players)
         {
-            if (string.IsNullOrEmpty(webResponse))
+            if (players == null)
             {
                 return;
             }
-
-            if (webResponse.StartsWith("JSON error:"))
-            {
-                throw new Exception(webResponse);
-            }
-
-            var jss = new JavaScriptSerializer();
-            var players = jss.Deserialize<TrulyObservableCollection<Player>>(webResponse);
 
             foreach (var player in players)
             {
@@ -1401,7 +1417,7 @@ namespace WebAdmin.ViewModel
                 teeTimeRequest.Players.Add(player);
                 teeTimeRequest.Waitlisted = true;
                 teeTimeRequest.Preference = "None";
-                teeTimeRequest.BlindDrawValue = player.Position;  // the order in the file is the blind draw order
+                teeTimeRequest.BlindDrawValue = player.Position; 
                 TeeTimeRequests.Add(teeTimeRequest);
             }
         }

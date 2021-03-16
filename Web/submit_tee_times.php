@@ -200,28 +200,44 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 	//var_dump($signups);
 
-	// Now handle the waitlist
-	ClearTableWithTournamentKey ( $connection, 'SignUpsWaitingList', $_POST ['TeeTime'] [0] ['TournamentKey'] );
-	for($i = 0; $i < count ( $_POST ['SignUpsWaitingList'] ); ++ $i) {
-		$signUpWaitingList = new SignUpWaitingListClass();
-		$signUpWaitingList->TournamentKey = $tournamentKey;
-		$signUpWaitingList->Position = $_POST ['SignUpsWaitingList'] [$i] ['Position'];
-		$signUpWaitingList->GHIN1 = $_POST ['SignUpsWaitingList'] [$i] ['GHIN1'];
-		$signUpWaitingList->Name1 = $_POST ['SignUpsWaitingList'] [$i] ['Name1'];
+	// Handle the waitlist
+	ClearTableWithTournamentKey ( $connection, 'SignUpsWaitingList', $tournamentKey);
+	if(!empty($_POST ['SignUpsWaitingList'])){
+		for($i = 0; $i < count ( $_POST ['SignUpsWaitingList'] ); ++ $i) {
+			$signUpWaitingList = new SignUpWaitingListClass();
+			$signUpWaitingList->TournamentKey = $tournamentKey;
+			$signUpWaitingList->Position = $_POST ['SignUpsWaitingList'] [$i] ['Position'];
+			$signUpWaitingList->GHIN1 = $_POST ['SignUpsWaitingList'] [$i] ['GHIN1'];
+			$signUpWaitingList->Name1 = $_POST ['SignUpsWaitingList'] [$i] ['Name1'];
 
-		$signUpWaitingList->GHIN2 = "";
-		$signUpWaitingList->Name2 = "";
-		$signUpWaitingList->GHIN3 = "";
-		$signUpWaitingList->Name3 = "";
-		$signUpWaitingList->GHIN4 = "";
-		$signUpWaitingList->Name4 = "";
+			$signUpWaitingList->GHIN2 = "";
+			$signUpWaitingList->Name2 = "";
+			$signUpWaitingList->GHIN3 = "";
+			$signUpWaitingList->Name3 = "";
+			$signUpWaitingList->GHIN4 = "";
+			$signUpWaitingList->Name4 = "";
 
-		InsertSignUpWaitingListEntry($connection, $signUpWaitingList);
+			InsertSignUpWaitingListEntry($connection, $signUpWaitingList);
 
-		// Turn off payment enabled for anyone on the waitlist
-		$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['SignUpsWaitingList'] [$i] ['GHIN1']);
-		if(!empty($signup)){
-			UpdateSignup($connection, $signup->SignUpKey, 'PaymentEnabled', 0, 'i');
+			// Turn off payment enabled for anyone on the waitlist
+			$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['SignUpsWaitingList'] [$i] ['GHIN1']);
+			if(!empty($signup)){
+				UpdateSignup($connection, $signup->SignUpKey, 'PaymentEnabled', 0, 'i');
+			}
+		}
+	}
+
+	// Handle the cancellations
+	ClearTableWithTournamentKey ( $connection, 'TeeTimesCancelled', $tournamentKey );
+	if(!empty($_POST ['CancelledPlayer'])){
+		for($i = 0; $i < count ( $_POST ['CancelledPlayer'] ); ++ $i) {
+			$teeTimeCancelledPlayer = new TeeTimeCancelledPlayer();
+			$teeTimeCancelledPlayer->TournamentKey = $tournamentKey;
+			$teeTimeCancelledPlayer->Position = $_POST ['CancelledPlayer'] [$i] ['Position'];
+			$teeTimeCancelledPlayer->GHIN = $_POST ['CancelledPlayer'] [$i] ['GHIN'];
+			$teeTimeCancelledPlayer->Name = $_POST ['CancelledPlayer'] [$i] ['Name'];
+
+			InsertTeeTimeCancelledPlayer($connection, $teeTimeCancelledPlayer);
 		}
 	}
 
