@@ -427,6 +427,14 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		error_log(date ( '[Y-m-d H:i e] ' ) . "Players signed up: ". $playersNameOnly . ". Payment enabled: " . ($paymentEnabled ? "true" : "false") . PHP_EOL, 3, $logFile);
 	}
 
+	if($t->SendEmail ){
+		$tournamentDates = GetFriendlyNonHtmlTournamentDates($t);
+		$errorMsg = SendSignupEmail($connection, $t, $tournamentDates, $insertId, $web_site);
+		if(!empty($errorMsg)){
+			echo '<p>' . $errorMsg . '</p>' . PHP_EOL;
+		}
+	}
+
 	if($t->RequirePayment && $paymentEnabled)
 	{
 		echo '<div id="content-container" class="entry-content">' . PHP_EOL;
@@ -451,14 +459,6 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 			echo '<p>You will pay later if you are selected to play in this tournament.</p>';
 		}
 		echo '<p><a href="' . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>' . PHP_EOL;
-
-		if($t->SendEmail ){
-			$tournamentDates = GetFriendlyNonHtmlTournamentDates($t);
-			$errorMsg = SendSignupEmail($connection, $t, $tournamentDates, $insertId, $web_site);
-			if(!empty($errorMsg)){
-				echo '<p>' . $errorMsg . '</p>' . PHP_EOL;
-			}
-		}
 		
 		echo '</div><!-- #content -->' . PHP_EOL;
 		echo '</div><!-- #content-container -->' . PHP_EOL;

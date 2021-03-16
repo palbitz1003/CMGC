@@ -136,12 +136,13 @@ if (strcmp ( $res, "VERIFIED" ) == 0) {
 		$connection = new mysqli ( $db_hostname, $db_username, $db_password, $db_database );
 		UpdateDatabase($connection, $tournamentKey, $submitKey, $payment_amount, $payerName, $payerEmail, $logMessage);
 		
-		$tournament = GetTournament($connection, $tournamentKey);
+		// email is always sent on signup now, so no need to send the email on payment
+		//$tournament = GetTournament($connection, $tournamentKey);
 		// Send email if enabled and the payment amount is positive (not a refund)
-		if(!empty($tournament) && $tournament->SendEmail && ($payment_amount > 0)){
-			$tournamentDates = GetFriendlyNonHtmlTournamentDates($tournament);
-			SendSignupEmail($connection, $tournament, $tournamentDates, $submitKey, $web_site);
-		}
+		//if(!empty($tournament) && $tournament->SendEmail && ($payment_amount > 0)){
+		//	$tournamentDates = GetFriendlyNonHtmlTournamentDates($tournament);
+		//	SendSignupEmail($connection, $tournament, $tournamentDates, $submitKey, $web_site);
+		//}
 		
 		$connection->close();
 	}

@@ -798,7 +798,7 @@ function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey,
 	$players = GetPlayersForSignUp($connection, $signupKey);
 	
 	if(count($players) == 0){
-		return "There are no players for signup code " . $_GET ['signup'];
+		return "There are no players for signup code " . $signupKey;
 	}
 	
 	// compose message
@@ -810,7 +810,7 @@ function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey,
 	$message .= "\n\nRequested time: " . $signup->RequestedTime;
 	$message .= "\n\nDo not reply to this email.  Contact the tournament director if you have any questions.\n";
 	
-	$player0Message = $message . "\nTo make changes to your signup, use this access code: " . $signup->AccessCode . "\n";
+	$message .= "\nTo make changes to your signup or to cancel your tee time, use this access code: " . $signup->AccessCode . "\n";
 	
 	// make sure each line doesn't exceed 70 characters
 	//$message = wordwrap($message, 70);
@@ -820,12 +820,7 @@ function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey,
 	
 		if(!empty($rosterEntry) && !empty($rosterEntry->Email)){
 			// send email
-			if($i == 0){
-				mail($rosterEntry->Email, 'Coronado Mens Golf Tournament Signup', $player0Message, "From: DoNotReply@" . $web_site);
-			}
-			else {
-				mail($rosterEntry->Email, 'Coronado Mens Golf Tournament Signup', $message, "From: DoNotReply@" . $web_site);
-			}
+			mail($rosterEntry->Email, 'Coronado Mens Golf Tournament Signup', $message, "From: DoNotReply@" . $web_site);
 		}
 	}
 	
