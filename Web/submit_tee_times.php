@@ -132,7 +132,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				$dbSignup = GetSignup($connection, $signupKey);
 
 				// If they have already paid, there is no need to break up the signup.
-				if($dbSignups->Payment == 0){
+				if($dbSignup->Payment == 0){
 
 					if(!empty($logFile)){
 						error_log(date ( '[Y-m-d H:i e] ' ) . "Splitting up group signup (signup key " . $signupKey . ") into individual signups" . PHP_EOL, 3, $logFile);
