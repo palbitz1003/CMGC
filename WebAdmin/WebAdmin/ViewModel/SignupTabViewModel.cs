@@ -1081,7 +1081,7 @@ namespace WebAdmin.ViewModel
                                 }
                             }
 
-                            tw.Write("," + playerEmail + ",");
+                            tw.Write("," + playerEmail);
 
                             tw.WriteLine();                             
                         }
