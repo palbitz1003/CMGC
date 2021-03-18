@@ -202,16 +202,16 @@ function ShowWaitingList($connection, $tournament){
 			$cols = 0;
 			for(; ($cols < 4) && ($i < count($waitingList)); ++$cols, ++$i){
 				if($cols == 0){
-					echo '<td>' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+					echo '<td style="width:25%;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
 				}
 				else {
 					// would be better for a style to provide the border ...
-					echo '<td style="border-left: 1px solid #ccc;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+					echo '<td style="border-left: 1px solid #ccc;width:25%;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
 				}
 			}
 			// Finish the column data to add in all the border lines
 			for(;$cols < 4; ++$cols){
-				echo '<td style="border-left: 1px solid #ccc;"></td>' . PHP_EOL;
+				echo '<td style="border-left: 1px solid #ccc;width:25%;"></td>' . PHP_EOL;
 			}
 			echo '</tr>' . PHP_EOL;
 		}
@@ -236,16 +236,16 @@ function ShowTeeTimesCancelledList($connection, $tournament){
 			$cols = 0;
 			for(; ($cols < 4) && ($i < count($teeTimesCancelledList)); ++$cols, ++$i){
 				if($cols == 0){
-					echo '<td>' . $teeTimesCancelledList[$i]->Name . '</td>' . PHP_EOL;
+					echo '<td style="width:25%;">' . $teeTimesCancelledList[$i]->Name . '</td>' . PHP_EOL;
 				}
 				else {
 					// would be better for a style to provide the border ...
-					echo '<td style="border-left: 1px solid #ccc;">' . $teeTimesCancelledList[$i]->Name . '</td>' . PHP_EOL;
+					echo '<td style="border-left: 1px solid #ccc;width:25%;">' . $teeTimesCancelledList[$i]->Name . '</td>' . PHP_EOL;
 				}
 			}
 			// Finish the column data to add in all the border lines
 			for(;$cols < 4; ++$cols){
-				echo '<td style="border-left: 1px solid #ccc;"></td>' . PHP_EOL;
+				echo '<td style="border-left: 1px solid #ccc;width:25%;"></td>' . PHP_EOL;
 			}
 			echo '</tr>' . PHP_EOL;
 		}
