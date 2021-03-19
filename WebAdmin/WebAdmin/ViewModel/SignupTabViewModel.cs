@@ -1765,12 +1765,30 @@ namespace WebAdmin.ViewModel
                         }
                         if (string.IsNullOrEmpty(line[lastNameColumn]))
                         {
-                            // Skip over any waitlisted lines that might have been cut and pasted into the tee time list
-                            if (teeTimeStatus == TeeTimeStatus.Waitlisted)
+                            // Skip over any waitlisted/cancelled lines that might have been cut and pasted into the tee time list
+                            if (teeTimeStatus != TeeTimeStatus.TeeTime)
                             {
                                 continue;
                             }
                             throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): Last Name is empty");
+                        }
+                        if (string.IsNullOrEmpty(line[firstNameColumn]))
+                        {
+                            // Skip over any waitlisted/cancelled lines that might have been cut and pasted into the tee time list
+                            if (teeTimeStatus != TeeTimeStatus.TeeTime)
+                            {
+                                continue;
+                            }
+                            throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): First Name is empty");
+                        }
+                        if (string.IsNullOrEmpty(line[ghinColumn]))
+                        {
+                            // Skip over any waitlisted/cancelled lines that might have been cut and pasted into the tee time list
+                            if (teeTimeStatus != TeeTimeStatus.TeeTime)
+                            {
+                                continue;
+                            }
+                            throw new ApplicationException(TeeTimeFile + " (line " + lineIndex + "): GHIN is empty");
                         }
 
                         Player player = new Player();
