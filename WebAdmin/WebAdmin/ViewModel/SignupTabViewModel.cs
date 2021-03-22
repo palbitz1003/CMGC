@@ -28,7 +28,7 @@ namespace WebAdmin.ViewModel
             "8:00 AM", "8:10 AM", "8:20 AM", "8:30 AM", "8:40 AM", "8:50 AM",
             "9:00 AM", "9:10 AM", "9:20 AM", "9:30 AM", "9:40 AM", "9:50 AM",
             "10:00 AM", "10:10 AM", "10:20 AM", "10:30 AM", "10:40 AM", "10:50 AM",
-            "11:00 AM", "11:10 AM", "11:20 AM", "11:30 AM", "11:40 AM", "11:50 AM",
+            "11:00 AM", "11:10 AM", "11:20 AM", "11:30 AM", "11:40 AM", "11:50 AM", "12:00 PM"
         };
 
         private readonly List<string> _defaultTeeTimes78 = new List<string>
@@ -38,7 +38,7 @@ namespace WebAdmin.ViewModel
             "8:00 AM", "8:07 AM", "8:15 AM", "8:22 AM", "8:30 AM", "8:37 AM", "8:45 AM", "8:52 AM",
             "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
             "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
-            "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM"
+            "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM", "12:00 PM"
         };
 
         private readonly List<string> _defaultTeeTimes98 = new List<string>
@@ -48,7 +48,7 @@ namespace WebAdmin.ViewModel
             "8:00 AM", "8:09 AM", "8:17 AM", "8:26 AM", "8:34 AM", "8:43 AM", "8:51 AM",
             "9:00 AM", "9:09 AM", "9:17 AM", "9:26 AM", "9:34 AM", "9:43 AM", "9:51 AM",
             "10:00 AM", "10:09 AM", "10:17 AM", "10:26 AM", "10:34 AM", "10:43 AM", "10:51 AM",
-            "11:00 AM", "11:09 AM", "11:17 AM", "11:26 AM", "11:34 AM", "11:43 AM", "11:51 AM"
+            "11:00 AM", "11:09 AM", "11:17 AM", "11:26 AM", "11:34 AM", "11:43 AM", "11:51 AM", "12:00 PM"
 
         };
 
@@ -579,7 +579,7 @@ namespace WebAdmin.ViewModel
                 TeeTime teeTime = new TeeTime();
                 // Set the start time to be 12:00, 12:01, 12:02, etc. just to show groups.
                 // The actual time doesn't matter.
-                teeTime.StartTime = ((i < 60) ? "12:" : "01:") +  (i % 60).ToString("D2") + " PM";
+                teeTime.StartTime = ((i < 60) ? "01:" : "02:") +  (i % 60).ToString("D2") + " PM";
 
                 foreach (var player in TeeTimeRequests[i].Players)
                 {
