@@ -34,6 +34,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 	$signups = array();
 	$errors = false;
+	$errorMessages = "";
 	for($i = 0; $i < count ( $_POST ['TeeTime'] ); ++ $i) {
 		$teeTime = new DatabaseTeeTime ();
 		$teeTime->StartTime = $_POST ['TeeTime'] [$i] ['StartTime'];
@@ -54,7 +55,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				//$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
 
 				if(intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]) === 0 ){
-					echo "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
+					$errorMessages .= "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
 					$errors = true;
 				}
 				
@@ -109,6 +110,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	}
 
 	if($errors){
+		echo $errorMessages;
 		echo "Failed to load tee times";
 		return;
 	}
@@ -248,7 +250,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 $connection->close ();
 if($errors){
-	echo "Loaded tee times, but there were errors";
+	echo "Loaded tee times, but there were errors: " . $errorMessages;
 }
 else {
 	echo 'Success';
