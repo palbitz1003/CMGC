@@ -600,7 +600,7 @@ function IsPastSignupPeriod($tournament)
 	return false;
 }
 
-function GetPreviousTournamentKey($connection, $tournamentKey){
+function GetPrevious2DayTournamentKey($connection, $tournamentKey){
 
 	// Get tournaments ordered by start date
 	$tournaments = GetTournaments($connection, '');
@@ -612,9 +612,25 @@ function GetPreviousTournamentKey($connection, $tournamentKey){
 		}
 	}
 
+	if($currentIndex == -1){
+		return -1;
+	}
+
+	// Only find previous tournament if this is a 2 day tournament
+	if($tournaments[$currentIndex]->StartDate == $tournaments[$currentIndex]->EndDate){
+		//echo "This is a 1 day tournament<br>";
+		return -1;
+	}
+
 	for($i = $currentIndex - 1; $i >= 0; --$i){
+		// Skip announcements
 		if(!$tournaments[$i]->AnnouncementOnly){
-			return $tournaments[$i]->TournamentKey;
+			// Find previous 2 day tournament
+			if($tournaments[$i]->StartDate != $tournaments[$i]->EndDate){
+				//echo "found previous 2 day tournament: " . $tournaments[$i]->Name . "<br>";
+				return $tournaments[$i]->TournamentKey;
+			}
+			//echo "previous is a 1 day tournament: " . $tournaments[$i]->Name . "<br>";
 		}
 	}
 

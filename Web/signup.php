@@ -410,8 +410,8 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		$entryFees = $playerCount * ($paypalDetails->TournamentFee + $paypalDetails->ProcessingFee);
 	}
 
-	// Need the previous tournament key to get the waitlist
-	$previousTournamentKey = GetPreviousTournamentKey($connection, $tournamentKey);
+	// Need the previous 2 day tournament key to get the waitlist
+	$previousTournamentKey = GetPrevious2DayTournamentKey($connection, $tournamentKey);
 	
 	// Enable payment for some groups immediately
 	$paymentEnabled = DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $logFile);
