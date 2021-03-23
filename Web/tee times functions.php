@@ -228,4 +228,36 @@ function GetTeeTimesCancelledList($connection, $tournamentKey){
 	
 	return $teeTimesCancelledList;
 }
+
+function ShowWaitingListTable($waitingList){
+
+	if(empty($waitingList) || (count($waitingList) == 0)){
+		return;
+	}
+
+	echo '<table style="min-width:500px;margin-left:auto;margin-right:auto">' . PHP_EOL;
+	echo '<thead><tr class="header"><th  colspan="4">Waitlist</th></tr></thead>' . PHP_EOL;
+	echo '<tbody>' . PHP_EOL;
+	
+	for($i = 0; $i < count ( $waitingList );) {
+		echo '<tr>' . PHP_EOL;
+		$cols = 0;
+		for(; ($cols < 4) && ($i < count($waitingList)); ++$cols, ++$i){
+			if($cols == 0){
+				echo '<td style="width:25%;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+			}
+			else {
+				// would be better for a style to provide the border ...
+				echo '<td style="border-left: 1px solid #ccc;width:25%;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+			}
+		}
+		// Finish the column data to add in all the border lines
+		for(;$cols < 4; ++$cols){
+			echo '<td style="border-left: 1px solid #ccc;width:25%;"></td>' . PHP_EOL;
+		}
+		echo '</tr>' . PHP_EOL;
+	}
+	echo '</tbody>' . PHP_EOL;
+	echo '</table>' . PHP_EOL;
+}
 ?>
