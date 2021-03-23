@@ -1347,7 +1347,9 @@ namespace WebAdmin.ViewModel
                                 }
                                 else if ((string.Compare(line[roundScoreCols[scoreColIndex]], "E") == 0) && IsEclectic)
                                 {
+                                    round1ScoreFound = true;
                                     score.ScoreRound1 = 72;
+                                    break;
                                 }
                             }
                         }
@@ -1380,6 +1382,7 @@ namespace WebAdmin.ViewModel
                                 else if ((string.Compare(line[roundScoreCols[scoreColIndex]], "E") == 0) && IsEclectic)
                                 {
                                     score.ScoreRound2 = 72;
+                                    break;
                                 }
                             }
                         }
