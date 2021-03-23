@@ -84,7 +84,7 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 			} else {
 				echo '<tr class="d1">';
 			}
-			if(count($unpaidSignupArray) > 0){
+			if(!empty($unpaidSignupArray) && (count($unpaidSignupArray) > 0)){
 				$unpaid = false;
 				$signupKey = $teeTimeArray[$i]->Players[$j]->SignupKey;
 
