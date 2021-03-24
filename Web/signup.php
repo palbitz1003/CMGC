@@ -270,11 +270,6 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	echo '<h2 class="entry-title">Sign Up</h2>' . PHP_EOL;
 	echo '<h3>' . $t->Name . '</h3>' . PHP_EOL;
 
-	echo '<p>Note: Signing up does not guarantee that you are in the tournament. ';
-	echo 'We try to match the number of signups with the available tee times. ';
-	echo 'When the tee times are assigned and we are over-subscribed, a random draw decides which players do not get a tee time. ';
-	echo 'Those players are refunded their signup fee.</p>' . PHP_EOL;
-
 	if(!$hasError) {
 		echo '<h4>Tournament Description</h4>' . PHP_EOL;
 		echo $descr; 
