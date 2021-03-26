@@ -179,13 +179,6 @@ namespace WebAdmin.ViewModel
             set { _teeTimeFile = value; OnPropertyChanged(); }
         }
 
-        private string _waitingListFile;
-        public string WaitingListFile
-        {
-            get { return _waitingListFile; }
-            set { _waitingListFile = value; OnPropertyChanged(); }
-        }
-
         private bool _orderByBlindDraw;
         public bool OrderByBlindDraw { get { return _orderByBlindDraw; } 
             set 
@@ -317,8 +310,6 @@ namespace WebAdmin.ViewModel
         public ICommand RemovePlayerCommand { get { return new ModelCommand(RemovePlayer); } }
 
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
-
-        public ICommand UploadWaitingListFileCommand { get { return new ModelCommand(async s => await UploadWaitingListFile(s)); } }
         #endregion
 
         public SignupTabViewModel()
@@ -1604,7 +1595,27 @@ namespace WebAdmin.ViewModel
 
         private void LoadTeeTimesAndWaitlistCsv(object o)
         {
-            if(string.IsNullOrEmpty(TeeTimeFile))
+            // Create OpenFileDialog 
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".csv";
+            dlg.Filter = "CSV Files (*.csv)|*.csv";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result != true)
+            {
+                return;
+            }
+
+            // TeeTimeFile could be made local to this file, since it
+            // is not shown on the UI anymore.
+            TeeTimeFile = dlg.FileName;
+
+            if (string.IsNullOrEmpty(TeeTimeFile))
             {
                 MessageBox.Show("Please fill in the tee sheet file");
                 return;
@@ -1904,141 +1915,6 @@ namespace WebAdmin.ViewModel
             {
                 // Show the complete unassigned list
                 UpdateUnassignedList(4);
-            }
-        }
-
-        private async Task UploadWaitingListFile(object o)
-        {
-            if (string.IsNullOrEmpty(WaitingListFile))
-            {
-                MessageBox.Show("Please fill in the waiting list file");
-                return;
-            }
-
-            if (!File.Exists(WaitingListFile))
-            {
-                MessageBox.Show("File does not exist: " + WaitingListFile);
-                return;
-            }
-
-            List<SignUpWaitingListEntry> waitingList = new List<SignUpWaitingListEntry>();
-
-            using (TextReader tr = new StreamReader(WaitingListFile))
-            {
-                string[][] lines = CSVParser.Parse(tr);
-
-                if (lines.Length > 0)
-                {
-                    if ((lines[0][0].ToLower() != "tee time") || (lines[0][1].ToLower() != "last name") 
-                        || (lines[0][2].ToLower() != "first name") || (lines[0][3].ToLower() != "ghin"))
-                    {
-                        MessageBox.Show("Expected 1st 3 columns on line 1 to be: TeeTime,Last Name,First Name,GHIN", "Format Error");
-                        return;
-                    }
-
-                    for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
-                    {
-                        string[] line = lines[lineIndex];
-                        if ((line.Length > 2) && (!string.IsNullOrWhiteSpace(line[1])))
-                        {
-                            var waitingListEntry = new SignUpWaitingListEntry();
-                            waitingList.Add(waitingListEntry);
-
-                            waitingListEntry.Position = waitingList.Count;
-
-                            // columns are TeeTime,Last Name,First Name 
-                            string name = line[1].Trim() + ", " + line[2].Trim();
-                            waitingListEntry.Name1 = name;
-                            int ghin = 0;
-                            if (int.TryParse(line[3].Trim(), out ghin))
-                            {
-                                waitingListEntry.GHIN1 = ghin;
-                            }
-                        }
-                    }
-                }
-            }
-
-            using (var client = new HttpClient())
-            {
-                // cancelled password input
-                if (string.IsNullOrEmpty(Credentials.LoginPassword))
-                {
-                    return;
-                }
-
-                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
-
-                var values = new List<KeyValuePair<string, string>>();
-
-                values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
-                values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
-
-                values.Add(new KeyValuePair<string, string>("Tournament",
-                        TournamentNames[TournamentNameIndex].TournamentKey.ToString(CultureInfo.InvariantCulture)));
-
-                for (int i = 0; i < waitingList.Count; i++)
-                {
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][Position]", i),
-                        waitingList[i].Position.ToString(CultureInfo.InvariantCulture)));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][GHIN1]", i),
-                        waitingList[i].GHIN1.ToString(CultureInfo.InvariantCulture)));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][Name1]", i),
-                        waitingList[i].Name1));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][GHIN2]", i),
-                        waitingList[i].GHIN2.ToString(CultureInfo.InvariantCulture)));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][Name2]", i),
-                        waitingList[i].Name2));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][GHIN3]", i),
-                        waitingList[i].GHIN3.ToString(CultureInfo.InvariantCulture)));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][Name3]", i),
-                        waitingList[i].Name3));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][GHIN4]", i),
-                        waitingList[i].GHIN4.ToString(CultureInfo.InvariantCulture)));
-
-                    values.Add(new KeyValuePair<string, string>(
-                        string.Format("SignUpsWaitingList[{0}][Name4]", i),
-                        waitingList[i].Name4));
-
-                }
-
-                var content = new FormUrlEncodedContent(values);
-
-                using (new WaitCursor())
-                {
-                    var response = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.SubmitSignUpsWaitingList, content);
-                    var responseString = await response.Content.ReadAsStringAsync();
-
-                    if (responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        MessageBox.Show("Waiting list uploaded");
-                    }
-                    else
-                    {
-                        Credentials.CheckForInvalidPassword(responseString);
-                        Logging.Log(WebAddresses.ScriptFolder + WebAddresses.SubmitWaitingList, responseString);
-
-                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
-                        displayWindow.WebBrowser.NavigateToString(responseString);
-                        displayWindow.Owner = Application.Current.MainWindow;
-                        displayWindow.ShowDialog();
-                    }
-                }
             }
         }
 

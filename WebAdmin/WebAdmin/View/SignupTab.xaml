@@ -7,28 +7,6 @@
              d:DesignHeight="670" d:DesignWidth="1200">
     <DockPanel LastChildFill="true">
 
-        <DockPanel Margin="5, 0, 0, 0" Dock="Bottom" Visibility="Collapsed">
-            <Button Margin="5" VerticalAlignment="Center" Command="{Binding UploadWaitingListFileCommand}" >
-                <TextBlock TextWrapping="Wrap">Upload Waiting List File to Web</TextBlock>
-            </Button>
-            <DockPanel  LastChildFill="true" Margin="5" VerticalAlignment="Center">
-                <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseWaitingListFileButton" DockPanel.Dock="Right" Click="BrowseWaitingListButton_Click" >Browse ...</Button>
-                <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WaitingListFileTextBox" IsReadOnly="true" 
-                         Text="{Binding Path=WaitingListFile, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </DockPanel>
-        </DockPanel>
-        
-        <DockPanel Margin="5, 0, 0, 0" Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <Button Margin="5" VerticalAlignment="Center" Command="{Binding LoadTeeTimesAndWaitlistCsvCommand}" >
-                <TextBlock TextWrapping="Wrap">Load Tee Sheet csv</TextBlock>
-            </Button>
-            <DockPanel  LastChildFill="true" Margin="5" VerticalAlignment="Center">
-                <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseStartTimeButton" DockPanel.Dock="Right" Click="BrowseStartTimeButton_Click" >Browse ...</Button>
-                <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="StartTimeTextBox" IsReadOnly="true" 
-                         Text="{Binding Path=TeeTimeFile, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </DockPanel>
-        </DockPanel>
-
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
             <CheckBox Margin="5,0,0,0" VerticalAlignment="Center" IsChecked="{Binding Block52TeeTimes, Mode=TwoWay}"
                       IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">Block :52 tee times</CheckBox>
@@ -41,7 +19,9 @@
                 <RadioButton x:Name="TeeTimeInterval10Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval10, Mode=TwoWay}"
                              VerticalAlignment="Center" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">10</RadioButton>
             </StackPanel>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimes" Height="22"
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromCsvButton" Height="22"
+                    Command="{Binding LoadTeeTimesAndWaitlistCsvCommand}">Load Tee Times from CSV</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromWebButton" Height="22"
                     Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
                     Command="{Binding AddPlayerCommand}">Add Player</Button>
