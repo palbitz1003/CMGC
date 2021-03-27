@@ -32,7 +32,7 @@ class Player {
 login($_POST ['Login'], $_POST ['Password']);
 
 $tournamentKey = $_POST ['tournament'];
-if (! $tournamentKey) {
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
 }
 

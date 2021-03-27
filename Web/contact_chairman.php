@@ -16,7 +16,7 @@ echo '    <div id="content" role="main">' . PHP_EOL;
 echo '<h2 style="text-align:center">Contact Tournament Director</h2><br>';
 
 $tournamentKey = $_GET ['tournament'];
-if (empty($tournamentKey)) {
+if (empty($tournamentKey) || !is_numeric($tournamentKey)) {
 	echo "Which tournament?";
 }
 else {
