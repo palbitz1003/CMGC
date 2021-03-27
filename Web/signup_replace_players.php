@@ -11,7 +11,9 @@ get_header ();
 
 get_sidebar ();
 
-echo "The replace feature is no longer available.";
+echo '<div style = "position:relative; top:80px;text-align: center;">';
+echo "The replace feature is no longer available." . PHP_EOL;
+echo '</div>' . PHP_EOL;
 get_footer ();
 return;
 
@@ -43,9 +45,9 @@ if(empty($t)){
 }
 
 if(IsPastSignupPeriod($t)) {
-	echo '<p>' . PHP_EOL;
-	echo "The signup period has ended for this tournament.";
-	echo '</p>' . PHP_EOL;
+	echo '<div style = "position:relative; top:80px;text-align: center;">';
+	echo "The signup period has ended for this tournament." . PHP_EOL;
+    echo '</div>' . PHP_EOL;
 	
 	if (isset ( $connection )) {
 		$connection->close ();

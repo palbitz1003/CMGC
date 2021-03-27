@@ -54,9 +54,9 @@ if($players[0]->TournamentKey != $tournamentKey){
 }
 
 if(IsPastSignupPeriod($tournament)) {
-	echo '<p>' . PHP_EOL;
-	echo "The signup period has ended for this tournament.";
-	echo '</p>' . PHP_EOL;
+	echo '<div style = "position:relative; top:80px;text-align: center;">';
+	echo "The signup period has ended for this tournament." . PHP_EOL;
+    echo '</div>' . PHP_EOL;
 	
 	if (isset ( $connection )) {
 		$connection->close ();
