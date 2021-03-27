@@ -29,6 +29,9 @@ echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">' . PHP_EOL;
 
 $tournamentKey = $_GET ['tournament'];
+if (empty($tournamentKey) || !is_numeric($tournamentKey)) {
+	die("Which tournament?");
+}
 $flightNames = GetFlightNames($connection, $tournamentKey);
 
 if (! isset ( $result )) {
