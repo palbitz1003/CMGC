@@ -8,8 +8,13 @@
     <DockPanel LastChildFill="true">
 
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <CheckBox Margin="5,0,0,0" VerticalAlignment="Center" IsChecked="{Binding Block52TeeTimes, Mode=TwoWay}"
-                      IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">Block :52 tee times</CheckBox>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
+                    Command="{Binding AddPlayerCommand}">Add Player</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
+                    Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
+        </DockPanel>
+        
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
             <StackPanel Margin="20,0,0,0" Orientation="Horizontal" Visibility="Collapsed">
                 <Label VerticalAlignment="Center">Tee Time Interval:</Label>
                 <RadioButton x:Name="TeeTimeInterval78Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval78, Mode=TwoWay}" 
@@ -19,34 +24,32 @@
                 <RadioButton x:Name="TeeTimeInterval10Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval10, Mode=TwoWay}"
                              VerticalAlignment="Center" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">10</RadioButton>
             </StackPanel>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 
+                    Command="{Binding LoadSignupsCommand}" >Load Signups and Blind Draw</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromCsvButton" Height="22"
                     Command="{Binding LoadTeeTimesAndWaitlistCsvCommand}">Load Tee Times from CSV</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveAsCsvButton" 
+                    Command="{Binding SaveAsCsvCommand}">Save as CSV</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromWebButton" Height="22"
                     Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
-                    Command="{Binding AddPlayerCommand}">Add Player</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
-                    Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
-            <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding OrderByBlindDraw, Mode=TwoWay}">Order By Blind Draw</CheckBox>
-            <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="UploadToWebButton" 
+                    Command="{Binding UploadTeetimesCommand}">Upload to Web</Button>
         </DockPanel>
         
-        <DockPanel Margin="5" HorizontalAlignment="Left"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
             <TextBlock VerticalAlignment="Center" Margin="5, 0, 0, 0">Tournament:</TextBlock>
             <ComboBox Margin="5,0,0,0" ItemsSource="{Binding Path=TournamentNames}" VerticalAlignment="Center"
-                      SelectedIndex="{Binding Path=TournamentNameIndex, Mode=TwoWay}" Width="200"/>
+                      SelectedIndex="{Binding Path=TournamentNameIndex, Mode=TwoWay}" Width="250"/>
             <TextBlock VerticalAlignment="Center" Margin="20,0,0,0" 
                        Visibility="{Binding Path=GotTournamentsVisible}">First Time:</TextBlock>
             <ComboBox Margin="5,0,0,0" ItemsSource="{Binding Path=TeeTimes}" VerticalAlignment="Center" 
                       SelectedIndex="{Binding Path=FirstTeeTimeIndex, Mode=TwoWay}"/>
+            <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding Block52TeeTimes, Mode=TwoWay}"
+                      IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">Block :52 tee times</CheckBox>
             <TextBlock VerticalAlignment="Center" Margin="20, 0, 0, 0">Blind Draw Player Count:</TextBlock>
             <TextBox VerticalAlignment="Center" Margin="5, 0, 0, 0" Name="BlindDrawPlayerCountTextBox" Text="{Binding Path=BlindDrawPlayerCount}" Width="40"/>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 
-                    Command="{Binding LoadSignupsCommand}" >Load Signups and Blind Draw</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveAsCsvButton" 
-                    Command="{Binding SaveAsCsvCommand}">Save as CSV</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="UploadToWebButton" 
-                    Command="{Binding UploadTeetimesCommand}">Upload to Web</Button>
+            <CheckBox Margin="70,0,0,0" VerticalAlignment="Center" IsChecked="{Binding OrderByBlindDraw, Mode=TwoWay}">Order By Blind Draw</CheckBox>
+            <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
         </DockPanel>
 
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
