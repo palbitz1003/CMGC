@@ -99,6 +99,17 @@ namespace WebAdmin.ViewModel
         private int _blindDrawPlayerCount;
         public int BlindDrawPlayerCount { get { return _blindDrawPlayerCount; } set { _blindDrawPlayerCount = value; OnPropertyChanged(); } }
 
+        private int _monthsOfTeeTimeDataToLoad;
+        public int MonthsOfTeeTimeDataToLoad
+        {
+            get { return _monthsOfTeeTimeDataToLoad; }
+            set {
+                _monthsOfTeeTimeDataToLoad = value;
+                Options.MonthsOfTeeTimeDataToLoad = value;
+                OnPropertyChanged();
+            }
+        }
+
         DateTime _lastSelectionTime = DateTime.Now;
         private int _lastSelection = -1;
 
@@ -313,6 +324,8 @@ namespace WebAdmin.ViewModel
         public ICommand RemovePlayerCommand { get { return new ModelCommand(RemovePlayer); } }
 
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
+
+        public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(LoadHistoricalTeeTimesData); } }
         #endregion
 
         public SignupTabViewModel()
@@ -338,6 +351,7 @@ namespace WebAdmin.ViewModel
             _randomNumberGenerator = new Random();
             CancelledPlayers = new TrulyObservableCollection<Player>();
             TeeTimeSource = "";
+            MonthsOfTeeTimeDataToLoad = Options.MonthsOfTeeTimeDataToLoad;
         }
 
         public void InitTeeTimes()
@@ -1924,6 +1938,10 @@ namespace WebAdmin.ViewModel
                 // Show the complete unassigned list
                 UpdateUnassignedList(4);
             }
+        }
+
+        private void LoadHistoricalTeeTimesData(object o)
+        {
         }
 
         private void SwitchToGroupMode()
