@@ -48,7 +48,11 @@
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="UploadToWebButton" 
                     Command="{Binding UploadTeetimesCommand}">Upload to Web</Button>
         </DockPanel>
-        
+
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
+            <TextBlock Text="{Binding Path=TeeTimeSource}"/>
+        </DockPanel>
+
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GetTournamentsVisible}">
             <Button Name="GetTournamentsButton" 
                 VerticalAlignment="Center" HorizontalAlignment="Center" 

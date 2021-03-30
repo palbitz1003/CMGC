@@ -79,6 +79,9 @@ namespace WebAdmin.ViewModel
             set { _tournamentNames = value; OnPropertyChanged(); }
         }
 
+        private string _teeTimeSource;
+        public string TeeTimeSource { get { return _teeTimeSource; } set { _teeTimeSource = value; OnPropertyChanged(); } }
+
         private List<string> _teeTimes;
         public List<string> TeeTimes { get { return _teeTimes; } set { _teeTimes = value; OnPropertyChanged(); } }
 
@@ -334,6 +337,7 @@ namespace WebAdmin.ViewModel
             AllowTeeTimeIntervalAdjust = true;
             _randomNumberGenerator = new Random();
             CancelledPlayers = new TrulyObservableCollection<Player>();
+            TeeTimeSource = "";
         }
 
         public void InitTeeTimes()
@@ -1180,6 +1184,8 @@ namespace WebAdmin.ViewModel
                 }
             }
 
+            TeeTimeSource = "Tee times were loaded from the website signups";
+
             GroupMode = true;
         }
 
@@ -1319,6 +1325,7 @@ namespace WebAdmin.ViewModel
             }
 
             GroupMode = false;
+            TeeTimeSource = "Tee times were loaded from the website";
         }
 
         protected TeeTimeComposite LoadTeeTimeCompositeFromWebResponseJson(string webResponse)
@@ -1874,6 +1881,7 @@ namespace WebAdmin.ViewModel
             SelectOpenTeeTime();
             FillInAssignedListFromTournamentTeeTimes();
             GroupMode = false;
+            TeeTimeSource = "Tee times were loaded from file: " + Path.GetFileName(TeeTimeFile);
         }
 
         private void FillInAssignedListFromTournamentTeeTimes()
