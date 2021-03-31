@@ -145,7 +145,7 @@ namespace WebAdmin.ViewModel
         public ICommand AddTournamentsCommand { get { return new ModelCommand(async s => await AddTournament(s)); } }
         public ICommand UpdateTournamentsCommand { get { return new ModelCommand(async s => await UpdateTournament(s)); } }
         public ICommand DeleteTournamentsCommand { get { return new ModelCommand(async s => await DeleteTournament(s)); } }
-        public ICommand GetTournamentDescriptionCommand { get { return new ModelCommand(s => GetTournamentDescriptions(s)); } }
+        public ICommand GetTournamentDescriptionCommand { get { return new ModelCommand(async s => await GetTournamentDescriptionsAsync(s)); } }
 
         #endregion
 
@@ -305,7 +305,7 @@ namespace WebAdmin.ViewModel
 
             if (success)
             {
-                GetTournaments(null);
+                await GetTournaments(null);
                 Tournament.Reset();
             }
         }
@@ -422,7 +422,7 @@ namespace WebAdmin.ViewModel
                 MessageBox.Show("Deleted tournament");
 
                 // Update the list of tournament descriptions
-                GetTournaments(null);
+                await GetTournaments(null);
 
                 TournamentDescriptionNameIndex = -1;
             }
@@ -478,7 +478,7 @@ namespace WebAdmin.ViewModel
 
             if (TournamentDescriptionNames.Count == 0)
             {
-                GetTournamentDescriptions(false);
+                await GetTournamentDescriptions(false);
             }
 
             SelectCurrentDescription();
@@ -510,9 +510,9 @@ namespace WebAdmin.ViewModel
             Tournament = jss.Deserialize<Tournament>(webResponse);
         }
 
-        private void GetTournamentDescriptions(object o)
+        private async Task GetTournamentDescriptionsAsync(object o)
         {
-            GetTournamentDescriptions(true);
+            await GetTournamentDescriptions(true);
         }
 
         private async Task GetTournamentDescriptions(bool defaultIndex)

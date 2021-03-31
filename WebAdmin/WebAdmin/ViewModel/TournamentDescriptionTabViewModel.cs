@@ -45,8 +45,8 @@ namespace WebAdmin.ViewModel
 
         #region Commands
         public ICommand GetTournamentDescriptionCommand { get { return new ModelCommand(async s => await GetTournamentDescriptions(s)); } }
-        public ICommand AddTournamentDescriptionCommand { get { return new ModelCommand(s => AddTournamentDescription(s)); } }
-        public ICommand UpdateTournamentDescriptionCommand { get { return new ModelCommand(s => UpdateTournamentDescription(s)); } }
+        public ICommand AddTournamentDescriptionCommand { get { return new ModelCommand(async s => await AddTournamentDescriptionAsync(s)); } }
+        public ICommand UpdateTournamentDescriptionCommand { get { return new ModelCommand(async s => await UpdateTournamentDescriptionAsync(s)); } }
         public ICommand DeleteTournamentDescriptionCommand { get { return new ModelCommand(async s => await DeleteTournamentDescription(s)); } }
         #endregion
 
@@ -77,7 +77,7 @@ namespace WebAdmin.ViewModel
             LoadTournamentDescriptionsFromWebResponse(responseString, TournamentDescriptionNames);
         }
 
-        private void AddTournamentDescription(object o)
+        private async Task AddTournamentDescriptionAsync(object o)
         {
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
@@ -85,7 +85,7 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            AddTournamentDescription(true);
+            await AddTournamentDescription(true);
 
             // TODO: pass in a delegate to execute below only if succeeded
             System.Windows.MessageBox.Show("Added tournament description");
@@ -94,7 +94,7 @@ namespace WebAdmin.ViewModel
             SelectDescription(TournamentDescription.Name);
         }
 
-        private void UpdateTournamentDescription(object o)
+        private async Task UpdateTournamentDescriptionAsync(object o)
         {
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
@@ -102,7 +102,7 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            AddTournamentDescription(false);
+            await AddTournamentDescription(false);
 
             // TODO: pass in a delegate to execute below only if succeeded
             System.Windows.MessageBox.Show("Updated tournament description");
@@ -190,7 +190,7 @@ namespace WebAdmin.ViewModel
                 }
 
                 // Update the list of tournament descriptions
-                GetTournamentDescriptions(null);
+                await GetTournamentDescriptions(null);
             }
         }
 
@@ -240,7 +240,7 @@ namespace WebAdmin.ViewModel
                 System.Windows.MessageBox.Show("Deleted tournament description");
 
                 // Update the list of tournament descriptions
-                GetTournamentDescriptions(null);
+                await GetTournamentDescriptions(null);
 
                 TournamentDescriptionNameIndex = -1;
             }
