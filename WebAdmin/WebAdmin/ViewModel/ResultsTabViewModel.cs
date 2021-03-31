@@ -454,22 +454,19 @@ namespace WebAdmin.ViewModel
                     throw new ArgumentException(string.Format("Website response: line {0}: contains fewer than 7 fields: {1}", lineNumber, lines[lineNumber - 1]));
                 }
 
-                int hole;
-                if (!int.TryParse(fields[0], out hole))
+                if (!int.TryParse(fields[0], out int hole))
                 {
                     throw new ArgumentException(string.Format("Website response: line {0}: bad hole number: {1}", lineNumber, lines[lineNumber - 1]));
                 }
                 ctp.Hole = hole;
 
-                DateTime dt;
-                if (!DateTime.TryParse(fields[1], out dt))
+                if (!DateTime.TryParse(fields[1], out DateTime dt))
                 {
                     throw new ArgumentException(string.Format("Website response: line {0}: bad date: {1}", lineNumber, lines[lineNumber - 1]));
                 }
                 ctp.Date = dt;
 
-                int ghin;
-                if (!int.TryParse(fields[2], out ghin))
+                if (!int.TryParse(fields[2], out int ghin))
                 {
                     throw new ArgumentException(string.Format("Website response: line {0}: bad ghin number: {1}", lineNumber, lines[lineNumber - 1]));
                 }
@@ -834,8 +831,7 @@ namespace WebAdmin.ViewModel
             {
                 if (fields[i].ToLower() == "flight")
                 {
-                    int flight;
-                    if (((i + 1) < fields.Length) && int.TryParse(fields[i + 1], out flight))
+                    if (((i + 1) < fields.Length) && int.TryParse(fields[i + 1], out int flight))
                     {
                         return flight;
                     }
@@ -1040,8 +1036,7 @@ namespace WebAdmin.ViewModel
                             continue;
                         }
 
-                        float winnings;
-                        if (!float.TryParse(line[6], out winnings))
+                        if (!float.TryParse(line[6], out float winnings))
                         {
                             throw new ArgumentException(file + ": winnings must be a decimal number: " + line[6]);
                         }
@@ -1051,8 +1046,7 @@ namespace WebAdmin.ViewModel
                         // skip over players with winnings 0
                         if (w == 0) continue;
 
-                        DateTime dt;
-                        if (!DateTime.TryParse(line[0], out dt))
+                        if (!DateTime.TryParse(line[0], out DateTime dt))
                         {
                             throw new ArgumentException(file + ": invalid date: " + line[0]);
                         }
@@ -1191,7 +1185,7 @@ namespace WebAdmin.ViewModel
             return masterList;
         }
 
-        private int findCol(string[] line, string header, string fullPath)
+        private int FindCol(string[] line, string header, string fullPath)
         {
             for (int col = 0; col < line.Length; col++)
             {
@@ -1203,7 +1197,7 @@ namespace WebAdmin.ViewModel
             throw new ApplicationException("Failed to find column header: " + header + " in " + fullPath);
         }
 
-        private int[] findAllCol(string[] line, string header, string fullPath)
+        private int[] FindAllCol(string[] line, string header, string fullPath)
         {
             List<int> cols = new List<int>();
 
@@ -1268,31 +1262,31 @@ namespace WebAdmin.ViewModel
                 {
                     if (findHeaders)
                     {
-                        dateColumn = findCol(line, "Round Short Date", fullPath);
-                        lastNameCol = findCol(line, "Last Name", fullPath);
-                        firstNameCol = findCol(line, "First Name", fullPath);
-                        ghinCol = findCol(line, "GHIN", fullPath);
-                        teamIdCol = findCol(line, "Team Id", fullPath);
-                        divisionNameCol = findCol(line, "Division Name", fullPath);
-                        flightNameCol = findCol(line, "Flight Name", fullPath);
-                        flightNumberCol = findCol(line, "Flight Number", fullPath);
+                        dateColumn = FindCol(line, "Round Short Date", fullPath);
+                        lastNameCol = FindCol(line, "Last Name", fullPath);
+                        firstNameCol = FindCol(line, "First Name", fullPath);
+                        ghinCol = FindCol(line, "GHIN", fullPath);
+                        teamIdCol = FindCol(line, "Team Id", fullPath);
+                        divisionNameCol = FindCol(line, "Division Name", fullPath);
+                        flightNameCol = FindCol(line, "Flight Name", fullPath);
+                        flightNumberCol = FindCol(line, "Flight Number", fullPath);
 
                         // Find entries with multiple columns
                         try
                         {
-                            roundScoreCols = findAllCol(line, "Round Score", fullPath);
+                            roundScoreCols = FindAllCol(line, "Round Score", fullPath);
                         }
                         catch
                         {
                             // For a 1 day, it is only called "Score"
-                            roundScoreCols = findAllCol(line, "Score", fullPath);
+                            roundScoreCols = FindAllCol(line, "Score", fullPath);
                         }
                         if (isMultiDay)
                         {
-                            cumulativeScoreCols = findAllCol(line, "Cumulative Score", fullPath);
+                            cumulativeScoreCols = FindAllCol(line, "Cumulative Score", fullPath);
                         }
-                        purseCols = findAllCol(line, "Purse", fullPath);
-                        rankCols = findAllCol(line, "Rank", fullPath);
+                        purseCols = FindAllCol(line, "Purse", fullPath);
+                        rankCols = FindAllCol(line, "Rank", fullPath);
                         findHeaders = false;
 
                         // TODO: error handling for columns not found
@@ -1333,8 +1327,7 @@ namespace WebAdmin.ViewModel
                         {
                             if (!string.IsNullOrWhiteSpace(line[roundScoreCols[scoreColIndex]]))
                             {
-                                int scoreRound1;
-                                if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound1))
+                                if (int.TryParse(line[roundScoreCols[scoreColIndex]], out int scoreRound1))
                                 {
                                     round1ScoreFound = true;
                                     score.ScoreRound1 = scoreRound1;
@@ -1368,8 +1361,7 @@ namespace WebAdmin.ViewModel
                         {
                             if (!string.IsNullOrWhiteSpace(line[roundScoreCols[scoreColIndex]]))
                             {
-                                int scoreRound2;
-                                if (int.TryParse(line[roundScoreCols[scoreColIndex]], out scoreRound2))
+                                if (int.TryParse(line[roundScoreCols[scoreColIndex]], out int scoreRound2))
                                 {
                                     score.ScoreRound2 = scoreRound2;
                                     if (IsEclectic && (score.ScoreRound2 < 30))
@@ -1388,8 +1380,7 @@ namespace WebAdmin.ViewModel
                         }
 
                         // Read tournament date
-                        DateTime dateTime;
-                        if (!DateTime.TryParse(line[dateColumn], out dateTime))
+                        if (!DateTime.TryParse(line[dateColumn], out DateTime dateTime))
                         {
                             throw new ArgumentException(fullPath + ": line " + lineNumber + ": invalid date: " + lines[dateColumn]);
                         }
@@ -1417,8 +1408,7 @@ namespace WebAdmin.ViewModel
                         string lastNameFirstName = line[lastNameCol] + ", " + line[firstNameCol];
 
                         // Read team number
-                        int teamNumber = 0;
-                        if (!int.TryParse(line[teamIdCol], out teamNumber))
+                        if (!int.TryParse(line[teamIdCol], out int teamNumber))
                         {
                             throw new ArgumentException(fullPath + ": line " + lineNumber + ": unable to determine team number");
                         }
@@ -1585,11 +1575,10 @@ namespace WebAdmin.ViewModel
             string name)
         {
             // If the purse is non-zero, there are chits to report
-            float purse;
             for (int purseColIndex = 0; purseColIndex < purseCols.Length; purseColIndex++)
             {
                 string purseWithoutDollarSign = line[purseCols[purseColIndex]].Replace("$", "");
-                if (float.TryParse(purseWithoutDollarSign, out purse))
+                if (float.TryParse(purseWithoutDollarSign, out float purse))
                 {
                     if (purse > 0)
                     {
@@ -1694,8 +1683,7 @@ namespace WebAdmin.ViewModel
                             line[18] = line[18].TrimStart('(');
                         }
 
-                        float scoreFloat;
-                        if (!float.TryParse(line[18], out scoreFloat))
+                        if (!float.TryParse(line[18], out float scoreFloat))
                         {
                             throw new ArgumentException(file + ": score round 1 must be an integer: " + line[18]);
                         }
@@ -1720,8 +1708,7 @@ namespace WebAdmin.ViewModel
                             score.ScoreRound2 = (int)scoreFloat;
                         }
 
-                        DateTime dt;
-                        if (!DateTime.TryParse(line[2], out dt))
+                        if (!DateTime.TryParse(line[2], out DateTime dt))
                         {
                             throw new ArgumentException(file + ": invalid date: " + lines[2]);
                         }
@@ -1749,8 +1736,7 @@ namespace WebAdmin.ViewModel
                         }
                         score.Flight = flight;
 
-                        int teamNumber;
-                        if (!int.TryParse(line[12], out teamNumber))
+                        if (!int.TryParse(line[12], out int teamNumber))
                         {
                             throw new ArgumentException(file + ": team number must be an integer: " + line[12]);
                         }
@@ -2138,8 +2124,7 @@ namespace WebAdmin.ViewModel
             {
                 foreach(var pw in EventWinningsList)
                 {
-                    int winnings;
-                    if(!int.TryParse(pw.Winnings.Trim(), out winnings))
+                    if (!int.TryParse(pw.Winnings.Trim(), out int winnings))
                     {
                         MessageBox.Show("Invalid winnings for " + pw.Name + ": not an integer: '" + pw.Winnings + "'. Nothing was saved.");
                         return false;
