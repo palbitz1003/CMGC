@@ -326,6 +326,8 @@ namespace WebAdmin.ViewModel
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
         public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(LoadHistoricalTeeTimesData); } }
+
+        public ICommand SaveTeeTimeHistoryAsCsvCommand { get { return new ModelCommand(SaveTeeTimeHistoryAsCsv); } }
         #endregion
 
         public SignupTabViewModel()
@@ -1944,7 +1946,11 @@ namespace WebAdmin.ViewModel
         {
         }
 
-        private void SwitchToGroupMode()
+        private void SaveTeeTimeHistoryAsCsv(object o)
+        {
+        }
+
+            private void SwitchToGroupMode()
         {
             Dictionary<int, TeeTimeRequest> ttrMap = new Dictionary<int, TeeTimeRequest>();
 

@@ -8,20 +8,6 @@
     <DockPanel LastChildFill="true">
 
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadHistoricalTeeTimeDataButton" Height="22"
-                    Command="{Binding LoadHistoricalTeeTimesDataCommand}">Load Historical Tee Time Data</Button>
-            <TextBlock VerticalAlignment="Center" Margin="20, 0, 0, 0">Months of Data to Load:</TextBlock>
-            <TextBox VerticalAlignment="Center" Margin="5, 0, 0, 0" Name="MonthsOfDataToLoadTextBox" Text="{Binding Path=MonthsOfTeeTimeDataToLoad, Mode=TwoWay}" Width="30"/>
-        </DockPanel>
-        
-        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
-                    Command="{Binding AddPlayerCommand}">Add Player</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
-                    Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
-        </DockPanel>
-        
-        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
             <StackPanel Margin="20,0,0,0" Orientation="Horizontal" Visibility="Collapsed">
                 <Label VerticalAlignment="Center">Tee Time Interval:</Label>
                 <RadioButton x:Name="TeeTimeInterval78Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval78, Mode=TwoWay}" 
@@ -42,6 +28,24 @@
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="UploadToWebButton" 
                     Command="{Binding UploadTeetimesCommand}">Upload Tee Times to Web</Button>
         </DockPanel>
+        
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadHistoricalTeeTimeDataButton" Height="22"
+                    Command="{Binding LoadHistoricalTeeTimesDataCommand}">Load Historical Tee Time Data</Button>
+            <TextBlock VerticalAlignment="Center" Margin="20, 0, 0, 0">Months of Data to Load:</TextBlock>
+            <TextBox VerticalAlignment="Center" Margin="5, 0, 0, 0" Name="MonthsOfDataToLoadTextBox" Text="{Binding Path=MonthsOfTeeTimeDataToLoad, Mode=TwoWay}" Width="30"/>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveTeeTimeHistoryAsCsvButton" 
+                    Command="{Binding SaveTeeTimeHistoryAsCsvCommand}">Save Tee Time History as CSV</Button>
+        </DockPanel>
+        
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
+                    Command="{Binding AddPlayerCommand}">Add Player</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
+                    Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
+        </DockPanel>
+        
+        
         
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
             <TextBlock VerticalAlignment="Center" Margin="5, 0, 0, 0">Tournament:</TextBlock>

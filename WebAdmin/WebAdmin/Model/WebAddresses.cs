@@ -29,5 +29,6 @@ namespace WebAdmin
         public const string GetTournamentDescriptions = "/get_tournament_descriptions.php";
         public const string GetDues = "/get_dues_paid_json.php";
         public const string GetMembershipTypes = "/get_membership_types.php";
+        public const string GetHistoricalTeeTimeData = "/get_historical_tee_time_data_json.php";
     }
 }
