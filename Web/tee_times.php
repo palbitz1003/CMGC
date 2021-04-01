@@ -123,6 +123,26 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 			echo '</td></tr>';
 			echo PHP_EOL;
 		}
+		// Show empty slots if tee time is not full
+		// Skip over completely empty tee times
+		if(count($teeTimeArray[$i]->Players) != 0){
+			for($j = count($teeTimeArray[$i]->Players); $j < 4; ++$j){
+				if ((($i + 1) % 2) == 0) {
+					echo '<tr class="d0">';
+				} else {
+					echo '<tr class="d1">';
+				}
+				if(!empty($unpaidSignupArray) && (count($unpaidSignupArray) > 0)){
+					echo '<td></td>';
+				}
+				echo '<td>';
+				echo date ( 'g:i', strtotime ( $teeTimeArray [$i]->StartTime ) );
+				echo '</td><td>';
+				// No name to display
+				echo '</td></tr>';
+				echo PHP_EOL;
+			}
+		}
 	}
 
 	echo '</tbody>' . PHP_EOL;
