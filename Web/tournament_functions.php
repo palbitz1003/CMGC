@@ -377,7 +377,8 @@ function GetCurrentTournaments($connection) {
 		
 	$now = new DateTime ( "now" );
 	$currentTournaments = array();
-	
+	$nonAnnouncementTournaments = 0;
+
 	for($i = 0; $i < count($tournaments); ++$i){
 		// Get the start date
 		$signupStartMinus2Weeks = new DateTime ( $tournaments[$i]->SignupStartDate );
@@ -388,13 +389,15 @@ function GetCurrentTournaments($connection) {
 		$end->add(new DateInterval ( 'PT23H59M' ));
 		
 		//echo 'signup start minus 2 weeks ' . date ( 'M d Y', $signupStartMinus2Weeks->getTimestamp() ) . ', end ' . date ( 'M d Y', $end->getTimestamp() ) . ', now ' . date ( 'M d Y', $now->getTimestamp() ) . '<br>';
-		
-		if(($end >= $now) && (count($currentTournaments) == 0)){
-			// Always show the next tournament
+
+		// Include tournaments within 2 weeks of signup starting
+		// Always show the next (non announcement) tournament
+		if((($signupStartMinus2Weeks <= $now) || ($nonAnnouncementTournaments == 0)) && ($end >= $now)){
+			
 			$currentTournaments[] = $tournaments[$i];
-		} elseif(($signupStartMinus2Weeks <= $now) && ($end >= $now)){
-			// Include all others within 2 weeks of signup starting
-			$currentTournaments[] = $tournaments[$i];
+			if(!$tournaments[$i]->AnnouncementOnly){
+				$nonAnnouncementTournaments++;
+			}
 		}
 	}
 	
