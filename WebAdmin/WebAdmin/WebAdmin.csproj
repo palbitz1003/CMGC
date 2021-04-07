@@ -63,6 +63,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ModelCommand.cs" />
+    <Compile Include="Model\PlayerTeeTimeHistory.cs" />
     <Compile Include="Model\TeeTimeComposite.cs" />
     <Compile Include="Model\ClosestToThePin.cs" />
     <Compile Include="Model\Credentials.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Model\StatusMsg.cs" />
     <Compile Include="Model\TeeTimeRequest.cs" />
     <Compile Include="Model\TeeTime.cs" />
+    <Compile Include="Model\TournamentAndTeeTimes.cs" />
     <Compile Include="Model\TournamentChairman.cs" />
     <Compile Include="Model\TournamentDescription.cs" />
     <Compile Include="Model\TournamentName.cs" />

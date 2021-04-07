@@ -27,6 +27,8 @@ namespace WebAdmin
 
         private string _name;
         public string Name { get { return _name; } set { _name = value; OnPropertyChanged(); } }
+        // When coming in json data from the website, the name may be under LastName
+        public string LastName { get { return _name; } set { _name = value; OnPropertyChanged(); } }
 
         private string _extra = string.Empty;
         public string Extra { get { return _extra; } set { _extra = value; OnPropertyChanged(); } }

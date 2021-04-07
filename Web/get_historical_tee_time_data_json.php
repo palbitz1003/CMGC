@@ -14,14 +14,14 @@ class TournamentAndTeeTimes
 }
 
 // login() requires headers functions.php and wp-blog-header.php
-//login($_POST ['Login'], $_POST ['Password']);
+login($_POST ['Login'], $_POST ['Password']);
 
 $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
 
-$tournamentKey = 139;
-$monthsOfData = 12;
+// For testing 
+// $tournamentKey = 139;
+// $monthsOfData = 12;
 
-/*
 $tournamentKey = $_POST ['tournament'];
 if (! $tournamentKey || !is_numeric($tournamentKey)) {
 	die ( "Which tournament?" );
@@ -31,7 +31,6 @@ $monthsOfData = $_POST ['months'];
 if (! $monthsOfData || !is_numeric($monthsOfData)) {
 	die ( "How many months of data?" );
 }
-*/
 
 if ($connection->connect_error){
 	die ( $connection->connect_error );
@@ -59,7 +58,7 @@ if($currentIndex >= 0){
             $tournamentAndTeeTimes = new TournamentAndTeeTimes();
             $tournaments[$i]->ConvertToBool();  // convert ints to bools for json encoding
             $tournamentAndTeeTimes->Tournament = $tournaments[$i];
-            $tournamentAndTeeTimes->TeeTimes = GetTeeTimes($connection, $tournamentKey);
+            $tournamentAndTeeTimes->TeeTimes = GetTeeTimes($connection, $tournaments[$i]->TournamentKey);
 
             $tournamentAndTeeTimesArray[] = $tournamentAndTeeTimes;
         }

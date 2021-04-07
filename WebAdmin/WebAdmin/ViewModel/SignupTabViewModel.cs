@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Windows.Input;
 using WebAdmin.View;
 using System.Web.Script.Serialization;
+using System.Collections;
 
 namespace WebAdmin.ViewModel
 {
@@ -325,7 +326,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
-        public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(LoadHistoricalTeeTimesData); } }
+        public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(async s => await LoadHistoricalTeeTimesData(s)); } }
 
         public ICommand SaveTeeTimeHistoryAsCsvCommand { get { return new ModelCommand(SaveTeeTimeHistoryAsCsv); } }
         #endregion
@@ -1942,8 +1943,130 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private void LoadHistoricalTeeTimesData(object o)
+        private async Task LoadHistoricalTeeTimesData(object o)
         {
+            // cancelled password input
+            if (string.IsNullOrEmpty(Credentials.LoginPassword))
+            {
+                return;
+            }
+
+            _teeTimesDirty = false;
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(WebAddresses.BaseAddress);
+
+                using (new WaitCursor())
+                {
+                    var values = new List<KeyValuePair<string, string>>();
+
+                    values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
+                    values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
+
+                    values.Add(new KeyValuePair<string, string>("tournament",
+                        TournamentNames[TournamentNameIndex].TournamentKey.ToString(CultureInfo.InvariantCulture)));
+                    values.Add(new KeyValuePair<string, string>("months",
+                        MonthsOfTeeTimeDataToLoad.ToString(CultureInfo.InvariantCulture)));
+
+                    var content = new FormUrlEncodedContent(values);
+
+                    var teeTimesResponse = await client.PostAsync(WebAddresses.ScriptFolder + WebAddresses.GetHistoricalTeeTimeData, content);
+                    var responseString = await teeTimesResponse.Content.ReadAsStringAsync();
+
+                    Logging.Log(WebAddresses.ScriptFolder + WebAddresses.GetTeeTimes, responseString);
+
+                    if (!IsValidJson(responseString))
+                    {
+                        Credentials.CheckForInvalidPassword(responseString);
+
+                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                        displayWindow.WebBrowser.NavigateToString(responseString);
+                        displayWindow.Owner = Application.Current.MainWindow;
+                        displayWindow.ShowDialog();
+                        return;
+                    }
+
+                    LoadHistoricalTeeTimeDataFromWebResponseJson(responseString);
+                }
+            }
+        }
+
+        private TournamentAndTeeTimes[] UnprocessedHistoricalTeeTimeData = null;
+        private List<PlayerTeeTimeHistory> PlayerTeeTimeHistoryByName = null;
+        private Hashtable PlayerTeeTimeHistoryHashTable = null;
+
+
+        protected void LoadHistoricalTeeTimeDataFromWebResponseJson(string webResponse)
+        {
+            PlayerTeeTimeHistoryByName = new List<PlayerTeeTimeHistory>();
+            PlayerTeeTimeHistoryHashTable = new Hashtable();
+            UnprocessedHistoricalTeeTimeData = null;
+
+            if (string.IsNullOrEmpty(webResponse))
+            {
+                return;
+            }
+
+            if (webResponse.StartsWith("JSON error:"))
+            {
+                throw new Exception(webResponse);
+            }
+
+            var jss = new JavaScriptSerializer();
+            UnprocessedHistoricalTeeTimeData = jss.Deserialize<TournamentAndTeeTimes[]>(webResponse);
+
+            if (UnprocessedHistoricalTeeTimeData == null)
+            {
+                return;
+            }
+
+            // Extract the tee time data and store it in a way to access by GHIN or name.
+            for (int tournamentIndex = 0; tournamentIndex < UnprocessedHistoricalTeeTimeData.Length; tournamentIndex++)
+            {
+                for (int teeTimeIndex = 0; teeTimeIndex < UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes.Length; teeTimeIndex++)
+                {
+                    for (int playerIndex = 0; playerIndex < UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players.Count; playerIndex++)
+                    {
+                        var ghin = UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].GHIN;
+                        int ghinInt = 0;
+                        // skip over any ghin numbers that are 0 or non-numeric
+                        if (int.TryParse(ghin, out ghinInt) && (ghinInt != 0))
+                        {
+                            PlayerTeeTimeHistory ptth = null;
+                            if (!PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
+                            {
+                                ptth = new PlayerTeeTimeHistory();
+                                ptth.Name = UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name;
+                                ptth.GHIN = ghin;
+
+                                // Create a nullable DateTime for each tournament
+                                ptth.TeeTimes = new DateTime?[UnprocessedHistoricalTeeTimeData.Length];
+
+                                // Add player to hash table
+                                PlayerTeeTimeHistoryHashTable.Add(ghin, ptth);
+
+                                // Add to the list by name
+                                PlayerTeeTimeHistoryByName.Add(ptth);
+                            }
+                            else
+                            {
+                                ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTable[ghin];
+                            }
+
+                            DateTime startTime = DateTime.ParseExact(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].StartTime,
+                                "HH:mm:ss", CultureInfo.InvariantCulture);
+
+                            ptth.TeeTimes[tournamentIndex] = UnprocessedHistoricalTeeTimeData[tournamentIndex].Tournament.StartDate + new TimeSpan(startTime.Hour, startTime.Minute, 0);
+
+                        }
+                        else
+                        {
+                            throw new ApplicationException(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name + " has invalid GHIN: " + ghin);
+                        }
+                    }
+                }
+            }
+            PlayerTeeTimeHistoryByName.Sort();
         }
 
         private void SaveTeeTimeHistoryAsCsv(object o)
