@@ -10,6 +10,9 @@ namespace WebAdmin
     {
         public string Name;
         public string GHIN;
+        public double AverageStartTimeInSeconds;
+        public double StandardDeviationInSeconds;
+        public int TeeTimeCount;
         public DateTime?[] TeeTimes;
 
         // Default sort is by name;

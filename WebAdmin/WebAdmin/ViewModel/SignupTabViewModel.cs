@@ -2028,9 +2028,8 @@ namespace WebAdmin.ViewModel
                     for (int playerIndex = 0; playerIndex < UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players.Count; playerIndex++)
                     {
                         var ghin = UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].GHIN;
-                        int ghinInt = 0;
                         // skip over any ghin numbers that are 0 or non-numeric
-                        if (int.TryParse(ghin, out ghinInt) && (ghinInt != 0))
+                        if (int.TryParse(ghin, out int ghinInt) && (ghinInt != 0))
                         {
                             PlayerTeeTimeHistory ptth = null;
                             if (!PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
@@ -2061,19 +2060,98 @@ namespace WebAdmin.ViewModel
                         }
                         else
                         {
-                            throw new ApplicationException(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name + " has invalid GHIN: " + ghin);
+                            //There are some older tee times with name "open" and GHIN 0 ...
+                            //throw new ApplicationException(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name + " has invalid GHIN: " + ghin);
                         }
                     }
                 }
             }
             PlayerTeeTimeHistoryByName.Sort();
+
+            foreach (var ptth in PlayerTeeTimeHistoryByName)
+            {
+                double totalSeconds = 0;
+                for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                {
+                    if (ptth.TeeTimes[teeTimeIndex] != null)
+                    {
+                        ptth.TeeTimeCount++;
+                        TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
+                        totalSeconds += ts.TotalSeconds;
+                    }
+                }
+                if (ptth.TeeTimeCount > 0)
+                {
+                    ptth.AverageStartTimeInSeconds = totalSeconds / ptth.TeeTimeCount;
+
+                    double sumOfSquares = 0;
+                    for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                    {
+                        if (ptth.TeeTimes[teeTimeIndex] != null)
+                        {
+                            TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
+                            double totalSecondsMinusMean = ts.TotalSeconds - ptth.AverageStartTimeInSeconds;
+                            sumOfSquares += totalSecondsMinusMean * totalSecondsMinusMean;
+                        }
+                    }
+
+                    ptth.StandardDeviationInSeconds = Math.Sqrt(sumOfSquares / ptth.TeeTimeCount);
+                }
+            }
         }
 
         private void SaveTeeTimeHistoryAsCsv(object o)
         {
+            // Configure save file dialog box
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = "Tee Time History";
+            dlg.DefaultExt = ".csv"; // Default file extension
+            dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
+
+            // Show save file dialog box
+            bool? result = dlg.ShowDialog();
+
+            if (result != true)
+            {
+                return;
+            }
+
+            using (TextWriter tw = new StreamWriter(dlg.FileName))
+            {
+                tw.Write("Name,GHIN,Avg Start Time,Stdev,Tee Time Count");
+                for (int tournamentIndex = 0; tournamentIndex < UnprocessedHistoricalTeeTimeData.Length; tournamentIndex++)
+                {
+                    tw.Write("," + UnprocessedHistoricalTeeTimeData[tournamentIndex].Tournament.StartDate.ToShortDateString());
+                }
+                tw.WriteLine();
+
+                foreach (var ptth in PlayerTeeTimeHistoryByName)
+                {
+                    tw.Write("\"" + ptth.Name + "\"," + ptth.GHIN);
+
+                    TimeSpan time = TimeSpan.FromSeconds(ptth.AverageStartTimeInSeconds);
+                    tw.Write("," + time.ToString(@"hh\:mm"));
+                    time = TimeSpan.FromSeconds(ptth.StandardDeviationInSeconds);
+                    tw.Write("," + time.ToString(@"hh\:mm"));
+                    tw.Write("," + ptth.TeeTimeCount);
+
+                    for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                    {
+                        if (ptth.TeeTimes[teeTimeIndex] == null)
+                        {
+                            tw.Write(",");
+                        }
+                        else
+                        {
+                            tw.Write("," + ptth.TeeTimes[teeTimeIndex].Value.ToShortTimeString());
+                        }
+                    }
+                    tw.WriteLine();
+                }
+            }
         }
 
-            private void SwitchToGroupMode()
+        private void SwitchToGroupMode()
         {
             Dictionary<int, TeeTimeRequest> ttrMap = new Dictionary<int, TeeTimeRequest>();
 
