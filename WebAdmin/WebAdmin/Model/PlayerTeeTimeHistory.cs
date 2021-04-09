@@ -10,8 +10,8 @@ namespace WebAdmin
     {
         public string Name;
         public string GHIN;
-        public double AverageStartTimeInSeconds;
-        public double StandardDeviationInSeconds;
+        public double StartTimeAverageInSeconds;
+        public double StartTimeStandardDeviationInSeconds;
         public int TeeTimeCount;
         public DateTime?[] TeeTimes;
 

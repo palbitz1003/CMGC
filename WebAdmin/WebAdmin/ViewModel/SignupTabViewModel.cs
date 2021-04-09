@@ -1198,6 +1198,8 @@ namespace WebAdmin.ViewModel
                     UpdateUnassignedList(4);
 
                     InitTeeTimes();
+
+                    CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
                 }
             }
 
@@ -2070,33 +2072,96 @@ namespace WebAdmin.ViewModel
 
             foreach (var ptth in PlayerTeeTimeHistoryByName)
             {
-                double totalSeconds = 0;
-                for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
-                {
-                    if (ptth.TeeTimes[teeTimeIndex] != null)
-                    {
-                        ptth.TeeTimeCount++;
-                        TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
-                        totalSeconds += ts.TotalSeconds;
-                    }
-                }
-                if (ptth.TeeTimeCount > 0)
-                {
-                    ptth.AverageStartTimeInSeconds = totalSeconds / ptth.TeeTimeCount;
+                double mean;
+                double stdev;
+                int count;
 
-                    double sumOfSquares = 0;
+                List<string> ghinNumbers = new List<string>();
+                ghinNumbers.Add(ptth.GHIN);
+                CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count);
+                ptth.StartTimeAverageInSeconds = mean;
+                ptth.StartTimeStandardDeviationInSeconds = stdev;
+                ptth.TeeTimeCount = count;
+            }
+
+            CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
+        }
+
+        private void CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests()
+        {
+            if (TeeTimeRequests != null)
+            {
+                foreach (var ttr in TeeTimeRequests)
+                {
+                    double mean;
+                    double stdev;
+                    int count;
+
+                    List<string> ghinNumbers = new List<string>();
+                    foreach (var player in ttr.Players)
+                    {
+                        ghinNumbers.Add(player.GHIN);
+                    }
+                    CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count);
+                    ttr.StartTimeAverageInSeconds = mean;
+                    ttr.StartTimeStandardDeviationInSeconds = stdev;
+                    ttr.TeeTimeCount = count;
+                }
+            }
+        }
+
+        private void CalculateHistoricalTeeTimeMeanAndStdev(List<string> ghinNumbers, out double mean, out double stdev, out int teeTimeCount)
+        {
+            mean = 0;
+            stdev = 0;
+            teeTimeCount = 0;
+
+            if (PlayerTeeTimeHistoryHashTable == null) return;
+
+            double totalSeconds = 0;
+
+            foreach (var ghin in ghinNumbers)
+            {
+                if (PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
+                {
+                    var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTable[ghin];
+
                     for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
                     {
                         if (ptth.TeeTimes[teeTimeIndex] != null)
                         {
+                            teeTimeCount++;
                             TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
-                            double totalSecondsMinusMean = ts.TotalSeconds - ptth.AverageStartTimeInSeconds;
-                            sumOfSquares += totalSecondsMinusMean * totalSecondsMinusMean;
+                            totalSeconds += ts.TotalSeconds;
                         }
                     }
-
-                    ptth.StandardDeviationInSeconds = Math.Sqrt(sumOfSquares / ptth.TeeTimeCount);
                 }
+            }
+
+            if (teeTimeCount > 0)
+            {
+                mean = totalSeconds / teeTimeCount;
+
+                double sumOfSquares = 0;
+                foreach (var ghin in ghinNumbers)
+                {
+                    if (PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
+                    {
+                        var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTable[ghin];
+
+                        for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                        {
+                            if (ptth.TeeTimes[teeTimeIndex] != null)
+                            {
+                                TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
+                                double totalSecondsMinusMean = ts.TotalSeconds - ptth.StartTimeAverageInSeconds;
+                                sumOfSquares += totalSecondsMinusMean * totalSecondsMinusMean;
+                            }
+                        }
+                    }
+                }
+
+                stdev = Math.Sqrt(sumOfSquares / teeTimeCount);
             }
         }
 
@@ -2129,9 +2194,9 @@ namespace WebAdmin.ViewModel
                 {
                     tw.Write("\"" + ptth.Name + "\"," + ptth.GHIN);
 
-                    TimeSpan time = TimeSpan.FromSeconds(ptth.AverageStartTimeInSeconds);
+                    TimeSpan time = TimeSpan.FromSeconds(ptth.StartTimeAverageInSeconds);
                     tw.Write("," + time.ToString(@"hh\:mm"));
-                    time = TimeSpan.FromSeconds(ptth.StandardDeviationInSeconds);
+                    time = TimeSpan.FromSeconds(ptth.StartTimeStandardDeviationInSeconds);
                     tw.Write("," + time.ToString(@"hh\:mm"));
                     tw.Write("," + ptth.TeeTimeCount);
 
@@ -2147,6 +2212,35 @@ namespace WebAdmin.ViewModel
                         }
                     }
                     tw.WriteLine();
+                }
+            }
+
+            if ((TeeTimeRequests != null) && (TeeTimeRequests.Count > 0))
+            {
+                dlg.FileName = "Tee Time Request History";
+
+                // Show save file dialog box
+                result = dlg.ShowDialog();
+
+                if (result != true)
+                {
+                    return;
+                }
+
+                using (TextWriter tw = new StreamWriter(dlg.FileName))
+                {
+                    tw.WriteLine("Names,Avg Start Time,Stdev,Tee Time Count");
+
+                    foreach (var ttr in TeeTimeRequests)
+                    {
+                        tw.Write("\"" + ttr.PlayerList + "\",");
+                        TimeSpan time = TimeSpan.FromSeconds(ttr.StartTimeAverageInSeconds);
+                        tw.Write("," + time.ToString(@"hh\:mm"));
+                        time = TimeSpan.FromSeconds(ttr.StartTimeStandardDeviationInSeconds);
+                        tw.Write("," + time.ToString(@"hh\:mm"));
+                        tw.Write("," + ttr.TeeTimeCount);
+                        tw.WriteLine();
+                    }
                 }
             }
         }

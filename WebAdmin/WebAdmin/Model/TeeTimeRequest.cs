@@ -84,6 +84,11 @@ namespace WebAdmin
         private int _blindDrawValue = 0;
         public int BlindDrawValue { get { return _blindDrawValue; } set { _blindDrawValue = value; OnPropertyChanged(); } }
 
+        // These values are not shown in the UI, so no need for property changed events;
+        public double StartTimeAverageInSeconds = 0;
+        public double StartTimeStandardDeviationInSeconds = 0;
+        public int TeeTimeCount = 0;
+
         public TeeTimeRequest()
         {
             Players = new TrulyObservableCollection<Player>();
