@@ -2025,6 +2025,11 @@ namespace WebAdmin.ViewModel
             // Extract the tee time data and store it in a way to access by GHIN or name.
             for (int tournamentIndex = 0; tournamentIndex < UnprocessedHistoricalTeeTimeData.Length; tournamentIndex++)
             {
+                // tournaments during COVID may not have tee times
+                if (UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes == null)
+                {
+                    continue;
+                }
                 for (int teeTimeIndex = 0; teeTimeIndex < UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes.Length; teeTimeIndex++)
                 {
                     for (int playerIndex = 0; playerIndex < UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players.Count; playerIndex++)
@@ -2217,7 +2222,7 @@ namespace WebAdmin.ViewModel
 
             if ((TeeTimeRequests != null) && (TeeTimeRequests.Count > 0))
             {
-                dlg.FileName = "Tee Time Request History";
+                dlg.FileName = TournamentNames[TournamentNameIndex].Name +  " - Tee Time Request History";
 
                 // Show save file dialog box
                 result = dlg.ShowDialog();
@@ -2233,7 +2238,7 @@ namespace WebAdmin.ViewModel
 
                     foreach (var ttr in TeeTimeRequests)
                     {
-                        tw.Write("\"" + ttr.PlayerList + "\",");
+                        tw.Write("\"" + ttr.PlayerList + "\"");
                         TimeSpan time = TimeSpan.FromSeconds(ttr.StartTimeAverageInSeconds);
                         tw.Write("," + time.ToString(@"hh\:mm"));
                         time = TimeSpan.FromSeconds(ttr.StartTimeStandardDeviationInSeconds);
