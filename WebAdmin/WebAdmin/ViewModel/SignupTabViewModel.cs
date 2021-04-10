@@ -16,6 +16,7 @@ namespace WebAdmin.ViewModel
     {
 
         private enum TeeTimeStatus { TeeTime, Waitlisted, Cancelled };
+        public enum OrderTeeTimeRequestsByEnum { RequestedTime, BlindDraw, HistoricalTeeTimes };
 
         #region Properties
         public override string Header { get { return "Signup"; } }
@@ -194,14 +195,21 @@ namespace WebAdmin.ViewModel
             set { _teeTimeFile = value; OnPropertyChanged(); }
         }
 
-        private bool _orderByBlindDraw;
-        public bool OrderByBlindDraw { get { return _orderByBlindDraw; } 
-            set 
-            { 
-                _orderByBlindDraw = value; 
+        private OrderTeeTimeRequestsByEnum _orderTeeTimeRequestsBy;
+        public OrderTeeTimeRequestsByEnum OrderTeeTimeRequestsBy
+        {
+            get { return _orderTeeTimeRequestsBy; }
+            set
+            {
+                _orderTeeTimeRequestsBy = value;
                 OnPropertyChanged();
+
+                if ((value == OrderTeeTimeRequestsByEnum.HistoricalTeeTimes) && (UnprocessedHistoricalTeeTimeData == null))
+                {
+                    MessageBox.Show("Note: Sorting by requested tee times, since historical data has not been loaded yet");
+                }
                 SortTeeTimeRequests();
-            } 
+            }
         }
 
         private bool _groupMode;
@@ -307,6 +315,10 @@ namespace WebAdmin.ViewModel
         private int _currentNumberOfPlayersShowing;
 
         private Random _randomNumberGenerator;
+
+        private TournamentAndTeeTimes[] UnprocessedHistoricalTeeTimeData = null;
+        private List<PlayerTeeTimeHistory> PlayerTeeTimeHistoryByName = null;
+        private Hashtable PlayerTeeTimeHistoryHashTable = null;
         #endregion
 
         #region Commands
@@ -355,6 +367,9 @@ namespace WebAdmin.ViewModel
             CancelledPlayers = new TrulyObservableCollection<Player>();
             TeeTimeSource = "";
             MonthsOfTeeTimeDataToLoad = Options.MonthsOfTeeTimeDataToLoad;
+
+            // Need to change XAML default if you change default here
+            OrderTeeTimeRequestsBy = OrderTeeTimeRequestsByEnum.RequestedTime;
         }
 
         public void InitTeeTimes()
@@ -410,14 +425,27 @@ namespace WebAdmin.ViewModel
                 // trigger a selected event.
                 ClearTodoSelection();
 
-                if (OrderByBlindDraw)
+                switch (OrderTeeTimeRequestsBy)
                 {
-                    TeeTimeRequests.Sort(new BlindDrawKeySort());
+                    case OrderTeeTimeRequestsByEnum.HistoricalTeeTimes:
+                        if (UnprocessedHistoricalTeeTimeData == null)
+                        {
+                            TeeTimeRequests.Sort(new TeeTimeRequestSort());
+                        }
+                        else
+                        {
+                            TeeTimeRequests.Sort(new HistoricalTeeTimeSort());
+                        }
+                        break;
+                    case OrderTeeTimeRequestsByEnum.BlindDraw:
+                        TeeTimeRequests.Sort(new BlindDrawKeySort());
+                        break;
+                    default:
+                    case OrderTeeTimeRequestsByEnum.RequestedTime:
+                        TeeTimeRequests.Sort(new TeeTimeRequestSort());
+                        break;
                 }
-                else
-                {
-                    TeeTimeRequests.Sort(new TeeTimeRequestSort());
-                }
+
                 UpdateUnassignedList(_currentNumberOfPlayersShowing);
             }
         }
@@ -809,10 +837,10 @@ namespace WebAdmin.ViewModel
                 if (TeeTimeRequests.Count > 0)
                 {
                     // save setting
-                    var orderBy = OrderByBlindDraw;
+                    var orderBy = OrderTeeTimeRequestsBy;
 
                     // order by blind draw to upload to web
-                    OrderByBlindDraw = true;
+                    OrderTeeTimeRequestsBy = OrderTeeTimeRequestsByEnum.BlindDraw;
 
                     try
                     {
@@ -840,7 +868,7 @@ namespace WebAdmin.ViewModel
                     finally
                     {
                         // Restore order-by choice
-                        OrderByBlindDraw = orderBy;
+                        OrderTeeTimeRequestsBy = orderBy;
                     }
                 }
 
@@ -916,10 +944,10 @@ namespace WebAdmin.ViewModel
             if (savedFile && (TeeTimeRequests.Count > 0))
             {
                 // save setting
-                var orderBy = OrderByBlindDraw;
+                var orderBy = OrderTeeTimeRequestsBy;
 
                 // order by blind draw to save in file
-                OrderByBlindDraw = true;
+                OrderTeeTimeRequestsBy = OrderTeeTimeRequestsByEnum.BlindDraw;
 
                 var unassignedTeeTimes = ConvertUnassignedToTeeTimes();
 
@@ -937,7 +965,7 @@ namespace WebAdmin.ViewModel
                 finally
                 {
                     // Restore order-by choice
-                    OrderByBlindDraw = orderBy;
+                    OrderTeeTimeRequestsBy = orderBy;
                 }
             }
 
@@ -1185,14 +1213,7 @@ namespace WebAdmin.ViewModel
 
                         BlindDraw();
 
-                        if (OrderByBlindDraw)
-                        {
-                            TeeTimeRequests.Sort(new BlindDrawKeySort());
-                        }
-                        else
-                        {
-                            TeeTimeRequests.Sort(new TeeTimeRequestSort());
-                        }
+                        
                     }
                     
                     UpdateUnassignedList(4);
@@ -1200,6 +1221,14 @@ namespace WebAdmin.ViewModel
                     InitTeeTimes();
 
                     CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
+
+                    if ((TeeTimeRequests.Count > 0) && 
+                        (OrderTeeTimeRequestsBy == OrderTeeTimeRequestsByEnum.HistoricalTeeTimes) && 
+                        (UnprocessedHistoricalTeeTimeData == null))
+                    {
+                        MessageBox.Show("Note: Sorting by requested tee times, since historical data has not been loaded yet");
+                    }
+                    SortTeeTimeRequests();
                 }
             }
 
@@ -1246,6 +1275,21 @@ namespace WebAdmin.ViewModel
 
                 // Sort the non-waitlisted groups by requested time
                 return a.GetHour() - b.GetHour();
+            }
+        }
+
+        private class HistoricalTeeTimeSort : IComparer<TeeTimeRequest>
+        {
+            public int Compare(TeeTimeRequest a, TeeTimeRequest b)
+            {
+                // Put all the waitlisted groups at the end
+                if (a.Waitlisted && !b.Waitlisted) return 1;
+                if (!a.Waitlisted && b.Waitlisted) return -1;
+                // Sort the waitlisted groups by the blind draw value
+                if (a.Waitlisted && b.Waitlisted) return a.BlindDrawValue - b.BlindDrawValue;
+
+                // Sort the non-waitlisted groups by requested time
+                return (int)(a.StartTimeAverageInSeconds - b.StartTimeAverageInSeconds);
             }
         }
 
@@ -1991,12 +2035,13 @@ namespace WebAdmin.ViewModel
                     LoadHistoricalTeeTimeDataFromWebResponseJson(responseString);
                 }
             }
+
+            if ((TeeTimeRequests.Count > 0) && (OrderTeeTimeRequestsBy == OrderTeeTimeRequestsByEnum.HistoricalTeeTimes))
+            {
+                SortTeeTimeRequests();
+            }
+            
         }
-
-        private TournamentAndTeeTimes[] UnprocessedHistoricalTeeTimeData = null;
-        private List<PlayerTeeTimeHistory> PlayerTeeTimeHistoryByName = null;
-        private Hashtable PlayerTeeTimeHistoryHashTable = null;
-
 
         protected void LoadHistoricalTeeTimeDataFromWebResponseJson(string webResponse)
         {

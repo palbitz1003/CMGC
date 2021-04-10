@@ -24,5 +24,26 @@ namespace WebAdmin.View
         {
             InitializeComponent();
         }
+
+        private void OrderByRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (DataContext == null) return;
+
+            if ((HistoricalRadioButton != null) && (HistoricalRadioButton.IsChecked != null) && (HistoricalRadioButton.IsChecked.Value == true))
+            {
+                ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).OrderTeeTimeRequestsBy =
+                    ViewModel.SignupTabViewModel.OrderTeeTimeRequestsByEnum.HistoricalTeeTimes;
+            }
+            else if ((BlindDrawRadioButton != null) && (BlindDrawRadioButton.IsChecked != null) && (BlindDrawRadioButton.IsChecked.Value == true))
+            {
+                ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).OrderTeeTimeRequestsBy =
+                    ViewModel.SignupTabViewModel.OrderTeeTimeRequestsByEnum.BlindDraw;
+            }
+            if ((RequestedTimeRadioButton != null) && (RequestedTimeRadioButton.IsChecked != null) && (RequestedTimeRadioButton.IsChecked.Value == true))
+            {
+                ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).OrderTeeTimeRequestsBy =
+                    ViewModel.SignupTabViewModel.OrderTeeTimeRequestsByEnum.RequestedTime;
+            }
+        }
     }
 }
