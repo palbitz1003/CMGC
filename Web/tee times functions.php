@@ -4,10 +4,6 @@ class DatabaseTeeTime {
 	public $StartTime;
 	public $StartHole;
 	public $Players;
-	public $GHIN;
-	public $Position;
-	public $Extra;
-	public $SignupKey;
 }
 class DatabaseTeeTimePlayer {
 	public $GHIN;
