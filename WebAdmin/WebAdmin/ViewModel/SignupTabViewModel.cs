@@ -2204,7 +2204,7 @@ namespace WebAdmin.ViewModel
                             if (ptth.TeeTimes[teeTimeIndex] != null)
                             {
                                 TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
-                                double totalSecondsMinusMean = ts.TotalSeconds - ptth.StartTimeAverageInSeconds;
+                                double totalSecondsMinusMean = ts.TotalSeconds - mean;
                                 sumOfSquares += totalSecondsMinusMean * totalSecondsMinusMean;
                             }
                         }
