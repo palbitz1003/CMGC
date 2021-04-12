@@ -318,7 +318,7 @@ namespace WebAdmin.ViewModel
 
         private TournamentAndTeeTimes[] UnprocessedHistoricalTeeTimeData = null;
         private List<PlayerTeeTimeHistory> PlayerTeeTimeHistoryByName = null;
-        private Hashtable PlayerTeeTimeHistoryHashTable = null;
+        private Hashtable PlayerTeeTimeHistoryHashTableByGhin = null;
         #endregion
 
         #region Commands
@@ -2046,8 +2046,10 @@ namespace WebAdmin.ViewModel
         protected void LoadHistoricalTeeTimeDataFromWebResponseJson(string webResponse)
         {
             PlayerTeeTimeHistoryByName = new List<PlayerTeeTimeHistory>();
-            PlayerTeeTimeHistoryHashTable = new Hashtable();
+            PlayerTeeTimeHistoryHashTableByGhin = new Hashtable();
             UnprocessedHistoricalTeeTimeData = null;
+
+            var playerTeeTimeHistoryHashTableByName = new Hashtable();
 
             if (string.IsNullOrEmpty(webResponse))
             {
@@ -2080,28 +2082,42 @@ namespace WebAdmin.ViewModel
                     for (int playerIndex = 0; playerIndex < UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players.Count; playerIndex++)
                     {
                         var ghin = UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].GHIN;
+                        var name = UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name;
+                        PlayerTeeTimeHistory ptth = null;
+
                         // skip over any ghin numbers that are 0 or non-numeric
                         if (int.TryParse(ghin, out int ghinInt) && (ghinInt != 0))
                         {
-                            PlayerTeeTimeHistory ptth = null;
-                            if (!PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
+                            
+                            if (!PlayerTeeTimeHistoryHashTableByGhin.ContainsKey(ghin))
                             {
                                 ptth = new PlayerTeeTimeHistory();
-                                ptth.Name = UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name;
+                                ptth.Name = name;
                                 ptth.GHIN = ghin;
 
                                 // Create a nullable DateTime for each tournament
                                 ptth.TeeTimes = new DateTime?[UnprocessedHistoricalTeeTimeData.Length];
 
                                 // Add player to hash table
-                                PlayerTeeTimeHistoryHashTable.Add(ghin, ptth);
+                                PlayerTeeTimeHistoryHashTableByGhin.Add(ghin, ptth);
+
+                                if (playerTeeTimeHistoryHashTableByName.ContainsKey(name))
+                                {
+                                    // Hmmm. Player with 2 GHIN numbers. Let's hope the first one is the right one.
+                                    Logging.Log("Tee Time History" , name + " has GHIN " + ghin + " and " + 
+                                        ((PlayerTeeTimeHistory)playerTeeTimeHistoryHashTableByName[name]).GHIN);
+                                }
+                                else
+                                {
+                                    playerTeeTimeHistoryHashTableByName.Add(ptth.Name, ptth);
+                                }
 
                                 // Add to the list by name
                                 PlayerTeeTimeHistoryByName.Add(ptth);
                             }
                             else
                             {
-                                ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTable[ghin];
+                                ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTableByGhin[ghin];
                             }
 
                             DateTime startTime = DateTime.ParseExact(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].StartTime,
@@ -2112,8 +2128,16 @@ namespace WebAdmin.ViewModel
                         }
                         else
                         {
-                            //There are some older tee times with name "open" and GHIN 0 ...
-                            //throw new ApplicationException(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].Players[playerIndex].Name + " has invalid GHIN: " + ghin);
+                            // Older tee times didn't have GHIN numbers. Try looking them up by name and use the name as the index if it exists.
+                            if (playerTeeTimeHistoryHashTableByName.ContainsKey(name))
+                            {
+                                ptth = (PlayerTeeTimeHistory)playerTeeTimeHistoryHashTableByName[name];
+
+                                DateTime startTime = DateTime.ParseExact(UnprocessedHistoricalTeeTimeData[tournamentIndex].TeeTimes[teeTimeIndex].StartTime,
+                                "HH:mm:ss", CultureInfo.InvariantCulture);
+
+                                ptth.TeeTimes[tournamentIndex] = UnprocessedHistoricalTeeTimeData[tournamentIndex].Tournament.StartDate + new TimeSpan(startTime.Hour, startTime.Minute, 0);
+                            }
                         }
                     }
                 }
@@ -2166,15 +2190,15 @@ namespace WebAdmin.ViewModel
             stdev = 0;
             teeTimeCount = 0;
 
-            if (PlayerTeeTimeHistoryHashTable == null) return;
+            if (PlayerTeeTimeHistoryHashTableByGhin == null) return;
 
             double totalSeconds = 0;
 
             foreach (var ghin in ghinNumbers)
             {
-                if (PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
+                if (PlayerTeeTimeHistoryHashTableByGhin.ContainsKey(ghin))
                 {
-                    var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTable[ghin];
+                    var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTableByGhin[ghin];
 
                     for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
                     {
@@ -2195,9 +2219,9 @@ namespace WebAdmin.ViewModel
                 double sumOfSquares = 0;
                 foreach (var ghin in ghinNumbers)
                 {
-                    if (PlayerTeeTimeHistoryHashTable.ContainsKey(ghin))
+                    if (PlayerTeeTimeHistoryHashTableByGhin.ContainsKey(ghin))
                     {
-                        var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTable[ghin];
+                        var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTableByGhin[ghin];
 
                         for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
                         {
