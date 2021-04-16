@@ -338,7 +338,7 @@ namespace WebAdmin.ViewModel
 
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
-        public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(async s => await LoadHistoricalTeeTimesData(s)); } }
+        public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(async s => await LoadHistoricalTeeTimesDataAsync(s)); } }
 
         public ICommand SaveTeeTimeHistoryAsCsvCommand { get { return new ModelCommand(SaveTeeTimeHistoryAsCsv); } }
         #endregion
@@ -424,6 +424,11 @@ namespace WebAdmin.ViewModel
                 // sure nothing is "selected". If so, changing the list will
                 // trigger a selected event.
                 ClearTodoSelection();
+
+                foreach (var ttr in TeeTimeRequests)
+                {
+                    ttr.ShowBlindDrawValue = OrderTeeTimeRequestsBy == OrderTeeTimeRequestsByEnum.BlindDraw;
+                }
 
                 switch (OrderTeeTimeRequestsBy)
                 {
@@ -1235,6 +1240,13 @@ namespace WebAdmin.ViewModel
             TeeTimeSource = "Tee times were loaded from the website signups";
 
             GroupMode = true;
+
+            if ((UnprocessedHistoricalTeeTimeData == null) || (PlayerTeeTimeHistoryHashTableByGhin.Count == 0))
+            {
+                await LoadHistoricalTeeTimesDataAsync(o);
+                // Since we have historical data, include that in the sort
+                SortTeeTimeRequests();
+            }
         }
 
         private void BlindDraw()
@@ -1274,7 +1286,14 @@ namespace WebAdmin.ViewModel
                 if(a.Waitlisted && b.Waitlisted) return a.BlindDrawValue - b.BlindDrawValue;
 
                 // Sort the non-waitlisted groups by requested time
-                return a.GetHour() - b.GetHour();
+                int hourDifference =  a.GetHour() - b.GetHour();
+
+                // If the hours are the same, sort by average start time
+                if (hourDifference == 0)
+                {
+                    return (int)(a.StartTimeAverageInSeconds - b.StartTimeAverageInSeconds);
+                }
+                return hourDifference;
             }
         }
 
@@ -1288,7 +1307,7 @@ namespace WebAdmin.ViewModel
                 // Sort the waitlisted groups by the blind draw value
                 if (a.Waitlisted && b.Waitlisted) return a.BlindDrawValue - b.BlindDrawValue;
 
-                // Sort the non-waitlisted groups by requested time
+                // Sort the non-waitlisted groups by average start time
                 return (int)(a.StartTimeAverageInSeconds - b.StartTimeAverageInSeconds);
             }
         }
@@ -1989,7 +2008,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private async Task LoadHistoricalTeeTimesData(object o)
+        private async Task LoadHistoricalTeeTimesDataAsync(object o)
         {
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))

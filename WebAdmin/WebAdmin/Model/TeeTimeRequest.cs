@@ -36,17 +36,27 @@ namespace WebAdmin
         public string RequestedTimeAndPlayerList
         {
             get {
-                if (_paid)
+                string extraData;
+                if (ShowBlindDrawValue)
                 {
-                    return "paid: " + _blindDrawValue + " " + ToString();
-                }
-                else if (_waitlisted)
-                {
-                    return "wait: " + _blindDrawValue + " " + ToString();
+                    extraData = _blindDrawValue.ToString();
                 }
                 else
                 {
-                    return "         " + _blindDrawValue + " " + ToString();
+                    extraData = TimeSpan.FromSeconds(StartTimeAverageInSeconds).ToString(@"hh\:mm");
+                }
+
+                if (_paid)
+                {
+                    return "paid: " + extraData + " "  + ToString();
+                }
+                else if (_waitlisted)
+                {
+                    return "wait: " + extraData + " " + ToString();
+                }
+                else
+                {
+                    return "         " + extraData + " " + ToString();
                 }
             }
         }
@@ -83,6 +93,8 @@ namespace WebAdmin
 
         private int _blindDrawValue = 0;
         public int BlindDrawValue { get { return _blindDrawValue; } set { _blindDrawValue = value; OnPropertyChanged(); } }
+
+        public bool ShowBlindDrawValue = false;
 
         // These values are not shown in the UI, so no need for property changed events;
         public double StartTimeAverageInSeconds = 0;
