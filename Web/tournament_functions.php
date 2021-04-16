@@ -130,6 +130,10 @@ function GetFriendlyTournamentDates($tournament){
 // Create a string that cannot be broken across lines
 function GetUnbreakableHtmlDateString($date)
 {
+	// Since it is easy to confuse 12pm with midnight, make it
+	// clear that it is noon
+	$date = str_replace("12pm", "noon", $date);
+
 	// nbsp is non-breaking space
 	$date = str_replace(" ", "&nbsp;", $date);
 	// #8209 is non-breaking dash

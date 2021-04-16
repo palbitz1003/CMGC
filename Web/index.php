@@ -49,8 +49,9 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 			echo '<td style="border:none"><a href="' . $script_folder_href . 'tournament_description.php?tournament='  . $currentTournaments [$i]-> TournamentKey . '">Description</a></td>'. PHP_EOL;
 			
 			if($now < $startSignUp){
-				echo '<td style="border:none">Sign-up starts ' . 
-							GetUnbreakableHtmlDateString(date ( 'M d (ga)', date_timestamp_get($startSignUp) )) . '</td>'. PHP_EOL;
+				echo '<td style="border:none">Sign-up ' . 
+							GetUnbreakableHtmlDateString(date ( 'M d (ga)', date_timestamp_get($startSignUp) )) . " - " .
+							GetUnbreakableHtmlDateString(date ( 'M d (ga)', date_timestamp_get($endSignUp) )) . '</td>'. PHP_EOL;
 				echo '<td style="border:none"></td>'. PHP_EOL;
 			}
 			else if($now <= $endSignUp){
