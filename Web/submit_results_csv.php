@@ -17,7 +17,7 @@ if ($connection->connect_error)
 
 login ( $_POST ['Login'], $_POST ['Password'] );
 
-if (! isset ( $_POST ['TournamentKey'] )) {
+if (! isset ( $_POST ['TournamentKey'] ) || !is_numeric($_POST ['TournamentKey'])) {
 	die ( "Missing tournament key" );
 }
 
@@ -144,7 +144,7 @@ if ($_POST ['Action'] == 'Submit') {
 	
 		$ScoresResults = Array();
 		for($i = 0; $i < count ( $_POST ['MatchPlayResultsScores'] ); ++ $i) {
-			$c = new Match();
+			$c = new GolfMatch();
 			$c->TournamentKey = $tournamentKey;
 			$c->Round = $_POST ['MatchPlayResultsScores'] [$i] ['Round'];
 			$c->MatchNumber = $_POST ['MatchPlayResultsScores'] [$i] ['MatchNumber'];

@@ -53,7 +53,7 @@ class Scores {
 	public $TeamNumber;
 	public $Date;
 }
-class Match {
+class GolfMatch {
 	public $TournamentKey;
 	public $Round;
 	public $MatchNumber;
