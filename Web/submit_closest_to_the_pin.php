@@ -14,7 +14,7 @@ if ($connection->connect_error)
 
 login ( $_POST ['Login'], $_POST ['Password'] );
 
-if (! isset ( $_POST ['TournamentKey'] )) {
+if (! isset ( $_POST ['TournamentKey'] ) || !is_numeric($_POST ['TournamentKey'])) {
 	die ( "No tournament key provided." );
 } else {
 	if (isset ( $_POST ['ClearClosestToPin'] )) {

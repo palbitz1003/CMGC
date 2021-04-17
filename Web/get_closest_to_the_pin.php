@@ -9,7 +9,7 @@ $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_d
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
-if (isset ( $_POST ['TournamentKey'] )) {
+if (isset ( $_POST ['TournamentKey'] ) && is_numeric($_POST ['TournamentKey'])) {
 	$tournamentKey = $_POST ['TournamentKey'];
 } else {
 	die('TournamentKey is not set');
