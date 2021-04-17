@@ -16,7 +16,7 @@ login ( $_POST ['Login'], $_POST ['Password'] );
 
 if ($_POST ['Action'] == 'Delete') {
 	// Delete the tournament
-	if(!isset($_POST ['TournamentKey'])){
+	if(!isset($_POST ['TournamentKey']) || !is_numeric($_POST ['TournamentKey'])){
 		die("No tournament key");
 	}
 	DeleteTournament($connection, $_POST ['TournamentKey']);

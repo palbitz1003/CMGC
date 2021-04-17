@@ -14,6 +14,10 @@ echo '    <div id="content" role="main">';
 $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
 
 $tournamentKey = $_GET ['tournament'];
+if (! $tournamentKey || !is_numeric($tournamentKey)) {
+	die ( "Which tournament?" );
+} 
+
 if ($tournamentKey) {
 	
 	$t = GetTournament ( $connection, $tournamentKey );
