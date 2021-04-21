@@ -17,25 +17,36 @@
                 <RadioButton x:Name="TeeTimeInterval10Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval10, Mode=TwoWay}"
                              VerticalAlignment="Center" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">10</RadioButton>
             </StackPanel>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 
-                    Command="{Binding LoadSignupsCommand}" >Load Signups and Blind Draw</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromCsvButton" Height="22"
-                    Command="{Binding LoadTeeTimesAndWaitlistCsvCommand}">Load Tee Times from CSV</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveAsCsvButton" 
-                    Command="{Binding SaveAsCsvCommand}">Save Tee Times as CSV</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromWebButton" Height="22"
-                    Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="UploadToWebButton" 
-                    Command="{Binding UploadTeetimesCommand}">Upload Tee Times to Web</Button>
+            <GroupBox Header="CSV file">
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromCsvButton" Height="22"
+                        Command="{Binding LoadTeeTimesAndWaitlistCsvCommand}">Load Tee Times from CSV</Button>
+                    <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveAsCsvButton" 
+                        Command="{Binding SaveAsCsvCommand}">Save Tee Times as CSV</Button>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Website" Margin="20,0,0,0">
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromWebButton" Height="22"
+                            Command="{Binding LoadTeetimesCommand}">Load Tee Times from Web</Button>
+                    <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="UploadToWebButton" 
+                            Command="{Binding UploadTeetimesCommand}">Upload Tee Times to Web</Button>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Historical" Margin="20,0,0,0">
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveTeeTimeHistoryAsCsvButton" 
+                            Command="{Binding SaveTeeTimeHistoryAsCsvCommand}">Save Tee Time History as CSV</Button>
+                </StackPanel>
+            </GroupBox>
         </DockPanel>
         
-        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="Collapsed">
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadHistoricalTeeTimeDataButton" Height="22"
                     Command="{Binding LoadHistoricalTeeTimesDataCommand}">Load Historical Tee Time Data</Button>
             <TextBlock VerticalAlignment="Center" Margin="20, 0, 0, 0">Months of Data to Load:</TextBlock>
             <TextBox VerticalAlignment="Center" Margin="5, 0, 0, 0" Name="MonthsOfDataToLoadTextBox" Text="{Binding Path=MonthsOfTeeTimeDataToLoad, Mode=TwoWay}" Width="30"/>
-            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveTeeTimeHistoryAsCsvButton" 
-                    Command="{Binding SaveTeeTimeHistoryAsCsvCommand}">Save Tee Time History as CSV</Button>
+            
         </DockPanel>
         
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
@@ -50,6 +61,7 @@
                          Checked="OrderByRadioButton_Checked" IsChecked="True">Requested Time</RadioButton>
             <RadioButton Margin="10,0,0,0" Name="BlindDrawRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
                          Checked="OrderByRadioButton_Checked">Blind Draw</RadioButton>
+            <CheckBox Margin="70,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
         </DockPanel>
         
         
@@ -66,8 +78,10 @@
                       IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">Block :52 tee times</CheckBox>
             <TextBlock VerticalAlignment="Center" Margin="20, 0, 0, 0">Blind Draw Player Count:</TextBlock>
             <TextBox VerticalAlignment="Center" Margin="5, 0, 0, 0" Name="BlindDrawPlayerCountTextBox" Text="{Binding Path=BlindDrawPlayerCount}" Width="40"/>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 
+                    Command="{Binding LoadSignupsCommand}" >Load Signups and Blind Draw</Button>
             
-            <CheckBox Margin="70,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
+            
         </DockPanel>
 
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">

@@ -1291,6 +1291,10 @@ namespace WebAdmin.ViewModel
                 // If the hours are the same, sort by average start time
                 if (hourDifference == 0)
                 {
+                    // put those with no data last
+                    if ((a.StartTimeAverageInSeconds == 0) && (b.StartTimeAverageInSeconds != 0)) return 1;
+                    if ((a.StartTimeAverageInSeconds != 0) && (b.StartTimeAverageInSeconds == 0)) return -1;
+
                     return (int)(a.StartTimeAverageInSeconds - b.StartTimeAverageInSeconds);
                 }
                 return hourDifference;
@@ -1306,6 +1310,10 @@ namespace WebAdmin.ViewModel
                 if (!a.Waitlisted && b.Waitlisted) return -1;
                 // Sort the waitlisted groups by the blind draw value
                 if (a.Waitlisted && b.Waitlisted) return a.BlindDrawValue - b.BlindDrawValue;
+
+                // put those with no data last
+                if ((a.StartTimeAverageInSeconds == 0) && (b.StartTimeAverageInSeconds != 0)) return 1;
+                if ((a.StartTimeAverageInSeconds != 0) && (b.StartTimeAverageInSeconds == 0)) return -1;
 
                 // Sort the non-waitlisted groups by average start time
                 return (int)(a.StartTimeAverageInSeconds - b.StartTimeAverageInSeconds);

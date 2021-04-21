@@ -108,8 +108,9 @@ namespace WebAdmin
 
         public int GetHour()
         {
-            if (string.IsNullOrEmpty(Preference)) return 100;
-            if (Preference.StartsWith("None", false, System.Globalization.CultureInfo.InvariantCulture)) return 100;
+            // put the no preferences first
+            if (string.IsNullOrEmpty(Preference)) return 1;
+            if (Preference.StartsWith("None", false, System.Globalization.CultureInfo.InvariantCulture)) return 1;
 
             string hour = string.Empty;
             for (int i = 0; i < _preference.Length; i++)
@@ -123,8 +124,6 @@ namespace WebAdmin
                     break;
                 }
             }
-
-            if(string.IsNullOrEmpty(hour)) return 100;
 
             return int.Parse(hour);
         }
