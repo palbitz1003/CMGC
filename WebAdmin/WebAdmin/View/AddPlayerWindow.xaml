@@ -21,7 +21,7 @@
         <TextBlock Margin="5,0,0,0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" x:Name="AutoCompleteFeedback"/>
 
         <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" HorizontalAlignment="Center">
-            <Button Padding="10,0,10,0"  IsDefault="True" x:Name="SaveButton" Click="SaveButton_Click">Save</Button>
+            <Button Padding="10,0,10,0"  IsDefault="True" x:Name="SaveButton" Click="SaveButton_Click">Add</Button>
             <Button Padding="10,0,10,0"  Margin="20,0,0,0" x:Name="CancelButton" Click="CancelButton_Click">Cancel</Button>
         </DockPanel>
     </Grid>

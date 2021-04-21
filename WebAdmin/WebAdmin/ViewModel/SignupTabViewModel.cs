@@ -1571,7 +1571,35 @@ namespace WebAdmin.ViewModel
                     }
                 }
 
-                TeeTimeRequestsUnassigned.Insert(0, ttr);
+                // Remove from the cancelled list if player is there
+                Player cancelledPlayer = null;
+                foreach (var p in CancelledPlayers)
+                {
+                    if (!string.IsNullOrEmpty(player.GHIN) && (String.CompareOrdinal(player.GHIN, p.GHIN) == 0))
+                    {
+                        cancelledPlayer = p;
+                        break;
+                    }
+                }
+                if (cancelledPlayer != null)
+                {
+                    CancelledPlayers.Remove(cancelledPlayer);
+                }
+
+                if (!string.IsNullOrEmpty(player.GHIN))
+                {
+                    List<string> ghinNumbers = new List<string> { player.GHIN };
+                    double mean;
+                    double stdev;
+                    int count;
+                    CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count);
+                    ttr.StartTimeAverageInSeconds = mean;
+                    ttr.StartTimeStandardDeviationInSeconds = stdev;
+                    ttr.TeeTimeCount = count;
+                }
+
+                TeeTimeRequests.Add(ttr);
+                SortTeeTimeRequests();
             }
         }
 
