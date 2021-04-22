@@ -1654,6 +1654,18 @@ namespace WebAdmin.ViewModel
 
                     if (ttr != null)
                     {
+                        if ((TournamentNames[TournamentNameIndex].TeamSize == 2) && 
+                            (ttr.Players.Count == 4) &&
+                            (ttr.Players.IndexOf(rpw.Player) < 2))
+                        {
+                            // Move the first pair to the end
+                            // before removing the player, so the remaining
+                            // un-paired player is at the end of the list.
+                            // This makes it easier to add a new partner to
+                            // the un-paired player.
+                            ttr.Players.Move(0, 3);
+                            ttr.Players.Move(0, 3);
+                        }
                         ttr.Players.Remove(rpw.Player);
                         if (ttr.Players.Count == 0)
                         {
@@ -1678,6 +1690,19 @@ namespace WebAdmin.ViewModel
 
                     if (teeTimeIndex != -1)
                     {
+                        if ((TournamentNames[TournamentNameIndex].TeamSize == 2) &&
+                            (TournamentTeeTimes[teeTimeIndex].Players.Count == 4) &&
+                            (TournamentTeeTimes[teeTimeIndex].Players.IndexOf(rpw.Player) < 2))
+                        {
+                            // Move the first pair to the end
+                            // before removing the player, so the remaining
+                            // un-paired player is at the end of the list.
+                            // This makes it easier to add a new partner to
+                            // the un-paired player.
+                            TournamentTeeTimes[teeTimeIndex].Players.Move(0, 3);
+                            TournamentTeeTimes[teeTimeIndex].Players.Move(0, 3);
+                        }
+
                         // Remove the player from the tee time itself
                         TournamentTeeTimes[teeTimeIndex].RemovePlayer(rpw.Player);
                         TeeTimeSelection = teeTimeIndex;
