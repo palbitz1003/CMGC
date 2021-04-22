@@ -25,6 +25,25 @@ namespace WebAdmin
 
         public TrulyObservableCollection<Player> Players { get; set;}
 
+        // For some reason, adding directly to the Players list doesn't trigger an event the UI is looking for
+        public void AddPlayer(Player player)
+        {
+            Players.Add(player);
+            OnPropertyChanged("Players");
+        }
+
+        public void RemovePlayer(Player player)
+        {
+            Players.Remove(player);
+            OnPropertyChanged("Players");
+        }
+
+        public void ClearPlayers()
+        {
+            Players.Clear();
+            OnPropertyChanged("Players");
+        }
+
         // Do not make TeeTime a property that notifies when it is changed. When you click on an unassigned 
         // tee time request, the event triggers an extra attempt to put the item on the assigned list.
         public TeeTime TeeTime { get; set; }

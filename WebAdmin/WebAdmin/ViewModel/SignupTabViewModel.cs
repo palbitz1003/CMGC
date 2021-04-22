@@ -1707,7 +1707,7 @@ namespace WebAdmin.ViewModel
                         TournamentTeeTimes[teeTimeIndex].RemovePlayer(rpw.Player);
                         TeeTimeSelection = teeTimeIndex;
 
-                        // Tee time requests are move to the assigned list when 
+                        // Tee time requests are moved to the assigned list when 
                         // the request has been given a tee time. Remove the player
                         // from the request on that list.
                         ttr = null;
@@ -1724,7 +1724,7 @@ namespace WebAdmin.ViewModel
 
                         if (ttr != null)
                         {
-                            ttr.Players.Remove(rpw.Player);
+                            ttr.RemovePlayer(rpw.Player);
                             if (ttr.Players.Count == 0)
                             {
                                 TeeTimeRequestsAssigned.Remove(ttr);
