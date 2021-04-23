@@ -20,6 +20,17 @@ namespace WebAdmin
             }
         }
 
+        private System.Windows.Media.Brush _foregroundColor = System.Windows.Media.Brushes.Black;
+        public System.Windows.Media.Brush ForegroundColor
+        {
+            get { return _foregroundColor; }
+            set
+            {
+                _foregroundColor = value;
+                OnPropertyChanged("ForegroundColor");
+            }
+        }
+
         private string _preference;
         public string Preference { get { return _preference; } set { _preference = value; OnPropertyChanged(); } }
 

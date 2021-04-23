@@ -39,6 +39,11 @@ namespace WebAdmin
             OnPropertyChanged("Players");
         }
 
+        public void PlayersChanged()
+        {
+            OnPropertyChanged("Players");
+        }
+
         public override string ToString()
         {
             string s = StartTime + " ";
