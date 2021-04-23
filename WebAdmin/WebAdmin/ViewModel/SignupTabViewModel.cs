@@ -336,6 +336,8 @@ namespace WebAdmin.ViewModel
 
         public ICommand RemovePlayerCommand { get { return new ModelCommand(RemovePlayer); } }
 
+        public ICommand ChangePartnersInTeeTimeCommand { get { return new ModelCommand(ChangePartnersInTeeTime); } }
+
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
         public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(async s => await LoadHistoricalTeeTimesDataAsync(s)); } }
@@ -1734,6 +1736,61 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
+        }
+
+        private void ChangePartnersInTeeTime(object o)
+        {
+            if (TeeTimeSelection < 0)
+            {
+                MessageBox.Show("Select a tee time first",
+                                          "Confirmation",
+                                          MessageBoxButton.OK,
+                                          MessageBoxImage.None);
+                return;
+            }
+            if (TournamentTeeTimes[TeeTimeSelection].Players.Count < 3)
+            {
+                MessageBox.Show("There are " + TournamentTeeTimes[TeeTimeSelection].Players.Count + " players at " + 
+                                TournamentTeeTimes[TeeTimeSelection].StartTime + " -- not enough players to swap partners",
+                                          "Confirmation",
+                                          MessageBoxButton.OK,
+                                          MessageBoxImage.None);
+                return;
+            }
+
+            MessageBoxResult result = MessageBox.Show("Make " + TournamentTeeTimes[TeeTimeSelection].Players[2].Name +
+                                                        " the parnter of " + TournamentTeeTimes[TeeTimeSelection].Players[0].Name + "?",
+                                          "Confirmation",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                TournamentTeeTimes[TeeTimeSelection].Players.Move(2, 1);
+                // Send property changed event to make UI update
+                TournamentTeeTimes[TeeTimeSelection].PlayersChanged();
+                return;
+            }
+
+            if (TournamentTeeTimes[TeeTimeSelection].Players.Count == 4)
+            {
+                result = MessageBox.Show("Make " + TournamentTeeTimes[TeeTimeSelection].Players[3].Name +
+                                                        " the parnter of " + TournamentTeeTimes[TeeTimeSelection].Players[0].Name + "?",
+                                          "Confirmation",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    TournamentTeeTimes[TeeTimeSelection].Players.Move(3, 1);
+                    // Send property changed event to make UI update
+                    TournamentTeeTimes[TeeTimeSelection].PlayersChanged();
+                    return;
+                }
+            }
+
+            MessageBox.Show("No change made",
+                                          "Confirmation",
+                                          MessageBoxButton.OK,
+                                          MessageBoxImage.None);
         }
 
         //

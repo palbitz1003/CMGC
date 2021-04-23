@@ -54,6 +54,8 @@
                     Command="{Binding AddPlayerCommand}">Add Player</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
                     Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="ChangePartnersInTeeTimeButton" Height="22"
+                    Command="{Binding ChangePartnersInTeeTimeCommand}">Change Partners in Tee Time</Button>
             <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">Order By:</TextBlock>
             <RadioButton Margin="10,0,0,0" Name="HistoricalRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
                          Checked="OrderByRadioButton_Checked">Historical Tee Times</RadioButton>
@@ -112,7 +114,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
-                            <TextBlock Text="{Binding Path=RequestedTimeAndPlayerList}" Foreground="{Binding ForeGroundColor}" />
+                            <TextBlock Text="{Binding Path=RequestedTimeAndPlayerList}" Foreground="{Binding ForegroundColor}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
