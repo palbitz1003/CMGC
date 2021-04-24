@@ -738,6 +738,19 @@ namespace WebAdmin.ViewModel
                     TeeTimeSelection = TeeTimeSelection + 1;
                 }
             }
+
+            // If players were selected from the waitlist, 
+            // recalculate the blind draw waitlist. This needs to 
+            // be done last, after the tee time request has been
+            // removed from the unassigned list, otherwise it triggers
+            // a 2nd selection event when Waitlisted is set to false.
+            if (teeTimeRequest.Waitlisted)
+            {
+                teeTimeRequest.Waitlisted = false;
+                BlindDraw();
+                // Re-sort since new players may have been marked as waitlisted
+                SortTeeTimeRequests();
+            }
         }
 
         private void RemoveSelectionChanged(int selectionIndex)
@@ -1218,14 +1231,15 @@ namespace WebAdmin.ViewModel
                     {
                         TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
 
-                        BlindDraw();
-
-                        
+                        AssignBlindDrawNumbers();
                     }
                     
                     UpdateUnassignedList(4);
 
                     InitTeeTimes();
+
+                    // Blind draw after tee times cleared
+                    BlindDraw();
 
                     CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
 
@@ -1251,7 +1265,7 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private void BlindDraw()
+        private void AssignBlindDrawNumbers()
         {
             foreach (var request in TeeTimeRequests)
             {
@@ -1266,14 +1280,33 @@ namespace WebAdmin.ViewModel
                     request.BlindDrawValue = _randomNumberGenerator.Next(3000, 9999);
                 }
             }
+        }
 
-            TeeTimeRequests.Sort(new BlindDrawKeySort());
-
-            int playerCount = 0;
-            for (int i = 0; i < TeeTimeRequests.Count; i++)
+        private void BlindDraw()
+        {
+            // If a player is selected from the waitlist, recalculate
+            // the waitlist. That has to take into account how many
+            // players have tee times already.
+            int playersWithTeeTimes = 0;
+            foreach (var teeTime in TournamentTeeTimes)
             {
-                TeeTimeRequests[i].Waitlisted = playerCount >= BlindDrawPlayerCount;
-                playerCount += TeeTimeRequests[i].Players.Count;
+                playersWithTeeTimes += teeTime.Players.Count;
+            }
+
+            // Copy the tee time request list and sort the copy
+            List<TeeTimeRequest> teeTimeRequestsCopy = new List<TeeTimeRequest>();
+            foreach (var ttr in TeeTimeRequests)
+            {
+                teeTimeRequestsCopy.Add(ttr);
+            }
+
+            teeTimeRequestsCopy.Sort(new BlindDrawKeySort());
+
+            int playerCount = playersWithTeeTimes;
+            for (int i = 0; i < teeTimeRequestsCopy.Count; i++)
+            {
+                teeTimeRequestsCopy[i].Waitlisted = playerCount >= BlindDrawPlayerCount;
+                playerCount += teeTimeRequestsCopy[i].Players.Count;
             }
         }
 
