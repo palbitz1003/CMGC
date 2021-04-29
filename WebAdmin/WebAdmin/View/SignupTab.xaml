@@ -33,10 +33,10 @@
                             Command="{Binding UploadTeetimesCommand}">Upload Tee Times to Web</Button>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Header="Historical" Margin="20,0,0,0">
+            <GroupBox Header="Past Tournaments Tee Time Data" Margin="20,0,0,0">
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="SaveTeeTimeHistoryAsCsvButton" 
-                            Command="{Binding SaveTeeTimeHistoryAsCsvCommand}">Save Tee Time History as CSV</Button>
+                            Command="{Binding SaveTeeTimeHistoryAsCsvCommand}">Save Historical Data as CSV</Button>
                 </StackPanel>
             </GroupBox>
         </DockPanel>

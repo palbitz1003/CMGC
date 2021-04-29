@@ -944,7 +944,38 @@ namespace WebAdmin.ViewModel
             int teamId = 0;
             string teeTimesFileName = "Teetimes - " + TournamentNames[TournamentNameIndex].Name;
 
-            bool savedFile = SaveAsCsv(
+            // Append an index to the file name and search for the first one that
+            // is not used already
+            string defaultFolder = string.IsNullOrEmpty(Options.LastCSVTeeTimesFolder) ? "c:/" : Options.LastCSVTeeTimesFolder;
+            for (int i = 1; i < 200; i++)
+            {
+                string ttfnWithIndex = (Path.Combine(defaultFolder, teeTimesFileName + " " + i + ".csv"));
+                if (!File.Exists(ttfnWithIndex))
+                {
+                    teeTimesFileName = ttfnWithIndex;
+                    break;
+                }
+            }
+
+            // Configure save file dialog box
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = Path.GetFileName(teeTimesFileName);
+            dlg.DefaultExt = ".csv"; // Default file extension
+            dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
+
+            // Show save file dialog box
+            bool? result = dlg.ShowDialog();
+
+            if (result != true)
+            {
+                return;
+            }
+
+            Options.LastCSVTeeTimesFolder = Path.GetDirectoryName(dlg.FileName);
+            teeTimesFileName = dlg.FileName;
+            TeeTimeFile = dlg.FileName; // TeeTimeFile may not be needed anymore
+
+            SaveAsCsv(
                 TournamentTeeTimes, 
                 TournamentNames[TournamentNameIndex].TeamSize,
                 out bool _teeTimesDirty,
@@ -953,15 +984,10 @@ namespace WebAdmin.ViewModel
                 false,
                 TeeTimeStatus.TeeTime);
 
-            if (savedFile)
-            {
-                TeeTimeFile = teeTimesFileName;
-            }
-
             // If the tee times were saved and there are still 
             // tee time requests, save the remaining requests
             // as waitlisted players.
-            if (savedFile && (TeeTimeRequests.Count > 0))
+            if (TeeTimeRequests.Count > 0)
             {
                 // save setting
                 var orderBy = OrderTeeTimeRequestsBy;
@@ -989,7 +1015,7 @@ namespace WebAdmin.ViewModel
                 }
             }
 
-            if (savedFile && (CancelledPlayers.Count > 0))
+            if (CancelledPlayers.Count > 0)
             {
                 var cancelledPlayers = ConvertCancelledPlayersToTeeTimes();
 
@@ -1005,30 +1031,9 @@ namespace WebAdmin.ViewModel
         }
 
         // Make this routine static to make sure it is not using anything that is not passed in
-        private static bool SaveAsCsv(TrulyObservableCollection<TeeTime> tournamentTeeTimes, int teamSize,
+        private static void SaveAsCsv(TrulyObservableCollection<TeeTime> tournamentTeeTimes, int teamSize,
             out bool teeTimesDirty, ref string finalFileName, ref int teamId, bool appendToFile, TeeTimeStatus teeTimeStatus)
         {
-            teeTimesDirty = true;
-
-            if (!appendToFile)
-            {
-                // Configure save file dialog box
-                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-                dlg.FileName = finalFileName;
-                dlg.DefaultExt = ".csv"; // Default file extension
-                dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
-
-                // Show save file dialog box
-                bool? result = dlg.ShowDialog();
-
-                if (result != true)
-                {
-                    return false;
-                }
-
-                finalFileName = dlg.FileName;
-            }
-
             teeTimesDirty = false;
                 
             using (TextWriter tw = new StreamWriter(finalFileName, appendToFile))
@@ -1148,8 +1153,6 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
-
-            return true;
         }
 
         private bool CheckContinue()

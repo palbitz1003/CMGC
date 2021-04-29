@@ -24,6 +24,7 @@ namespace WebAdmin
         public bool TeeTimeInterval10 { get; set; }
         public bool Block52TeeTimes { get; set; }
         public int MonthsOfTeeTimeDataToLoad { get; set; }
+        public string LastCSVTeeTimesFolder { get; set; }
 
         public Options()
         {
