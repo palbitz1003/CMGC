@@ -19,6 +19,9 @@ if ($_POST ['Action'] == 'Delete') {
 } else if ($_POST ['Action'] == 'UpdatePaymentMade') {
 	
 	$tournamentKey = $_POST ['TournamentKey'];
+	if (! $tournamentKey || !is_numeric($tournamentKey)) {
+		die ( "Missing tournament key" );
+	}
 	
 	for($i = 0; $i < count ( $_POST ['Signup'] ); ++ $i) {
 		UpdateSignup($connection,$_POST ['Signup'][$i]['SignupKey'], 'Payment', $_POST ['Signup'][$i]['PaymentMade'], 'd');
