@@ -921,7 +921,14 @@ namespace WebAdmin.ViewModel
 
                     if (responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        MessageBox.Show("Tee times uploaded");
+                        MessageBoxResult result = MessageBox.Show("Tee times uploaded. Save as CSV also?",
+                                          "Confirmation",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            SaveTeeTimesAsCsv(o);
+                        }
                     }
                     else
                     {
