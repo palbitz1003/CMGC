@@ -491,10 +491,9 @@ function ShowSignups($connection, $tournamentKey) {
 	
 	if($t->SrClubChampionship){
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		echo 'F1 = Flight 1 (under 55)<br>' . PHP_EOL;
-		echo 'F2 = Flight 2 (55-59)<br>' . PHP_EOL;
-		echo 'F3 = Flight 3 (60-69)<br>' . PHP_EOL;
-		echo 'F4 = Flight 4 (70 and older)<br>' . PHP_EOL;
+		echo 'F1 = Flight 1 (under 60)<br>' . PHP_EOL;
+		echo 'F2 = Flight 2 (60-69)<br>' . PHP_EOL;
+		echo 'F3 = Flight 3 (70 and older)<br>' . PHP_EOL;
 		echo 'CH = Championship Flight (55 and older)<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 	}
@@ -953,28 +952,21 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 		{
 			echo ' checked';
 		}
-		echo '>Flight 1 (under 55)' . PHP_EOL;
+		echo '>Flight 1 (under 60)' . PHP_EOL;
 		
 		echo '<br><input  type="radio" name="' . $flightLabel . '" value="F2"';
 		if($extraForPlayer == 'F2')
 		{
 			echo ' checked';
 		}
-		echo '>Flight 2 (55-59)' . PHP_EOL;
+		echo '>Flight 2 (60-69)' . PHP_EOL;
 		
 		echo '<br><input  type="radio" name="' . $flightLabel . '" value="F3"';
 		if($extraForPlayer == 'F3')
 		{
 			echo ' checked';
 		}
-		echo '>Flight 3 (60-69)' . PHP_EOL;
-		
-		echo '<br><input  type="radio" name="' . $flightLabel . '" value="F4"';
-		if($extraForPlayer == 'F4')
-		{
-			echo ' checked';
-		}
-		echo '>Flight 4 (70 and older)' . PHP_EOL;
+		echo '>Flight 3 (70 and older)' . PHP_EOL;
 		
 		echo '<br><input  type="radio" name="' . $flightLabel . '" value="CH"';
 		if($extraForPlayer == 'CH')
