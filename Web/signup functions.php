@@ -585,7 +585,11 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			echo '<td>';
 			$needToPay = $signUpArray [$i]->Payment < $signUpArray [$i]->PaymentDue;
 			if($needToPay && $signUpArray [$i]->PaymentEnabled) {
-				echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp';
+				echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp;';
+			}
+			else {
+				// Place blanks where the "Pay" link would be, using approximately the same length
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 			}
 			echo '<a href="' . $script_folder_href . 'signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
 			// Since some players can sign up their group if they are on the waiting list, disable replace, because that would allow someone
