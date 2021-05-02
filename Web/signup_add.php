@@ -38,6 +38,8 @@ if(empty($signup)){
 	die("There is no data for signup key: " . $signupKey);
 }
 
+$signupHasPaid = $signup->Payment >= $signup->PaymentDue;
+
 $players = GetPlayersForSignUp($connection, $signupKey);
 
 if(count($players) == 0){
@@ -119,11 +121,16 @@ echo '<h3>' . $t->Name . '</h3>' . PHP_EOL;
 // If this page has not been filled in or there is an error, show the form
 if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 
-	echo '<p>You can add players to your group. The players must have already signed up and paid.</p>' . PHP_EOL;
+	if($signupHasPaid){
+		echo '<p>You can add players to your group. The players must have already signed up and paid.</p>' . PHP_EOL;
+	}
+	else {
+		echo '<p>You can add players to your group. The players must have already signed up and not paid yet.</p>' . PHP_EOL;
+	}
 	echo '<p>Select a group to add, fill in the access codes for both groups, and click Submit</p>' . PHP_EOL;
 	
 	$maxSize = 4 - count($players);
-	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey);
+	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid);
 	
 	if(count($potentialMergeGroups) == 0){
 		if(count($players) == 4){
@@ -185,6 +192,9 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	// Update the payment and payment due to be the sum of the 2 groups
 	UpdateSignup($connection, $signupKey, 'Payment', $signup->Payment + $signup2->Payment, 'd');
 	UpdateSignup($connection, $signupKey, 'PaymentDue', $signup->PaymentDue + $signup2->PaymentDue, 'd');
+
+	// If PaymentEnabled is true for group 2 and not for group 1, should we change PaymentEnabled to true
+	// for the merged group?
 	
 	// Remove the 2nd signup
 	DeleteSignup($connection, $signup2->SignUpKey);
@@ -231,14 +241,19 @@ if (isset ( $connection )) {
 
 get_footer ();
 
-function GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey)
+function GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid)
 {
 	$signups = array();
-	$paidSignups = GetSignups ( $connection, $tournamentKey, ' AND `Payment` >= `PaymentDue` ORDER BY `SubmitKey` DESC' );
+	if($signupHasPaid){
+		$samePaymentGroupSignups = GetSignups ( $connection, $tournamentKey, ' AND `Payment` >= `PaymentDue` ORDER BY `SubmitKey` DESC' );
+	}
+	else {
+		$samePaymentGroupSignups = GetSignups ( $connection, $tournamentKey, ' AND `Payment` = 0 ORDER BY `SubmitKey` DESC' );
+	}
 	
-	for($i = 0; $i < count ( $paidSignups ); ++ $i) {
-		if($signupKey != $paidSignups [$i]->SignUpKey){
-			$playersSignedUp = GetPlayersForSignUp ( $connection, $paidSignups [$i]->SignUpKey );
+	for($i = 0; $i < count ( $samePaymentGroupSignups ); ++ $i) {
+		if($signupKey != $samePaymentGroupSignups [$i]->SignUpKey){
+			$playersSignedUp = GetPlayersForSignUp ( $connection, $samePaymentGroupSignups [$i]->SignUpKey );
 			
 			if(count($playersSignedUp) <= $maxSize){
 				$playerNames = null;
@@ -250,7 +265,7 @@ function GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey)
 				}
 				
 				$m = new MergeSignUpClass();
-				$m->SignUpKey = $paidSignups [$i]->SignUpKey;
+				$m->SignUpKey = $samePaymentGroupSignups [$i]->SignUpKey;
 				$m->PlayerNames = '&nbsp;&nbsp;' . $playerNames . '&nbsp;&nbsp;'; // add spaces for listbox
 				$signups[] = $m;
 			}

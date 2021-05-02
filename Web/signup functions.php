@@ -592,9 +592,7 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			// to sign up off the waiting list and the replace the waiting list player.
 			//echo '<a href="' . $script_folder_href . 'signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
 			echo '<a href="' . $script_folder_href . 'signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
-			if(!$needToPay){
-				echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
-			}
+			echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
 			echo '</td></tr>' . PHP_EOL;
 		}
 	}
