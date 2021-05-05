@@ -1131,23 +1131,23 @@ namespace WebAdmin.ViewModel
                                 {
                                     tw.Write("0");
                                 }
-                                else if (playerExtra.Contains("F1"))
+                                else if (playerExtra.Contains("F1") || playerExtra.ToLower().Contains("flight1"))
                                 {
                                     tw.Write("1");
                                 }
-                                else if (playerExtra.Contains("F2"))
+                                else if (playerExtra.Contains("F2") || playerExtra.ToLower().Contains("flight2"))
                                 {
                                     tw.Write("2");
                                 }
-                                else if (playerExtra.Contains("F3"))
+                                else if (playerExtra.Contains("F3") || playerExtra.ToLower().Contains("flight3"))
                                 {
                                     tw.Write("3");
                                 }
-                                else if (playerExtra.Contains("F4"))
+                                else if (playerExtra.Contains("F4") || playerExtra.ToLower().Contains("flight4"))
                                 {
                                     tw.Write("4");
                                 }
-                                else if (playerExtra.Contains("F5"))
+                                else if (playerExtra.Contains("F5") || playerExtra.ToLower().Contains("flight5"))
                                 {
                                     tw.Write("5");
                                 }
