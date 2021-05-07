@@ -120,6 +120,12 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 			echo date ( 'g:i', strtotime ( $teeTimeArray [$i]->StartTime ) );
 			echo '</td><td>';
 			echo ' ' . $teeTimeArray[$i]->Players[$j]->LastName;
+			
+			// Show extra data
+			if(!empty($teeTimeArray[$i]->Players[$j]->Extra)){
+				echo ' (' . $teeTimeArray[$i]->Players[$j]->Extra . ')';
+			}
+			
 			echo '</td></tr>';
 			echo PHP_EOL;
 		}
