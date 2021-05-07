@@ -47,8 +47,9 @@ if (! $tournamentKey || !is_numeric($tournamentKey)) {
 		// A single table with 1 row. The row has 2 or 3 data elements, each a table.
 		echo PHP_EOL;
 		echo '<table style="border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
-		echo '<tr><td colspan="2" style="border:none;">';
-		echo 'Email the <a href="mailto:' . $tournament->ChairmanEmail . '">tournament director</a> if you want to cancel.' . PHP_EOL;
+		echo '<tr><td colspan="2" style="border:none;width:75px">';
+		echo 'Email the <a href="mailto:' . $tournament->ChairmanEmail . '">tournament director</a> if you want to cancel. If flight information is shown after your name, ';
+		echo 'see the <a href="tournament_description.php?tournament='  . $tournament-> TournamentKey . '">tournament description</a> for an explanation.'  . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 		echo '<tr>' . PHP_EOL;
 		
