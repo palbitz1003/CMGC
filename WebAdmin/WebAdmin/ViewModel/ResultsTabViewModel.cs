@@ -1244,7 +1244,6 @@ namespace WebAdmin.ViewModel
             int firstNameCol = -1;
             int ghinCol = -1;
             int teamIdCol = -1;
-            int divisionNameCol = -1;
             int flightNameCol = -1;
             int flightNumberCol = -1;
             int[] roundScoreCols = null;
@@ -1267,7 +1266,6 @@ namespace WebAdmin.ViewModel
                         firstNameCol = FindCol(line, "First Name", fullPath);
                         ghinCol = FindCol(line, "GHIN", fullPath);
                         teamIdCol = FindCol(line, "Team Id", fullPath);
-                        divisionNameCol = FindCol(line, "Division Name", fullPath);
                         flightNameCol = FindCol(line, "Flight Name", fullPath);
                         flightNumberCol = FindCol(line, "Flight Number", fullPath);
 
@@ -1297,12 +1295,6 @@ namespace WebAdmin.ViewModel
 
                         // skip empty lines
                         if (string.IsNullOrWhiteSpace(line[dateColumn]) && string.IsNullOrWhiteSpace(line[lastNameCol]))
-                        {
-                            continue;
-                        }
-
-                        // if players are "removed" there are a number of empty columns.
-                        if (string.IsNullOrWhiteSpace(line[divisionNameCol]))
                         {
                             continue;
                         }
