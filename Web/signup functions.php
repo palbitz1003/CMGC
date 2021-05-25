@@ -1,5 +1,11 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_functions.php';
+require '/home/' . $accountUser . '/PHPMailer/src/Exception.php';
+require '/home/' . $accountUser . '/PHPMailer/src/PHPMailer.php';
+require '/home/' . $accountUser . '/PHPMailer/src/SMTP.php';
 
 class SignUpClass {
 	public $SignUpKey;
@@ -789,6 +795,47 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 	echo '<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">' . PHP_EOL;
 	echo '</form>' . PHP_EOL;
 }
+
+function SendEmail($from, $fromPassword, $to, $subject, $message){
+    try {
+        $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
+
+        //Server settings
+        $mail->SMTPDebug = 0;      // use 2 for verbose 
+        $mail->isSMTP();                                      // Set mailer to use SMTP
+        $mail->Host = 'smtp.dreamhost.com';                  // Specify main and backup SMTP servers
+        $mail->SMTPAuth = true;                               // Enable SMTP authentication
+        $mail->Username = $from; 
+        $mail->Password = $fromPassword; 
+        $mail->SMTPSecure = 'ssl';                            // Enable SSL encryption, TLS also accepted with port 465
+        $mail->Port = 465;                                    // TCP port to connect to
+
+        //Recipients
+        $mail->setFrom($from, 'DoNotReply');          //This is the email your form sends From
+        $mail->addAddress($to, ''); // Add a recipient address
+        //$mail->addAddress('contact@example.com');               // Name is optional
+        //$mail->addReplyTo('info@example.com', 'Information');
+        //$mail->addCC('cc@example.com');
+        //$mail->addBCC('bcc@example.com');
+
+        //Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+
+        //Content
+        $mail->isHTML(false);                                  // Set email format to HTML
+        $mail->Subject = $subject;
+        $mail->Body    = $message;
+        //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+
+        $mail->send();
+        //echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo 'Message could not be sent.';
+        echo 'Mailer Error: ' . $mail->ErrorInfo;
+    }
+}
+
 function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey, $web_site){
 	
 	$signup = GetSignup($connection, $signupKey);

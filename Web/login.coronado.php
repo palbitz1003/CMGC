@@ -1,7 +1,7 @@
 <?php 
 // login.php
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
-$web_site = 'www.coronadomensgolf.org';
+$web_site = 'coronadomensgolf.org';
 $db_hostname = 'mysql-1.coronadomensgolf.org';
 $db_database = 'coronadomensgolf_main'; 
 $db_username = 'cmgcdbadmin';
@@ -17,4 +17,8 @@ $signup_start_time = 'PT05H00M';
 $signup_end_time = 'PT12H00M';
 // This is the PHP superglobalfor the root directory
 $default_log_folder = $_SERVER['DOCUMENT_ROOT'] . "/logs";
+
+$accountUser = 'cmgcweb';
+$doNotReplyEmailAddress = 'DoNotReply@coronadomensgolf.org';
+$doNotReplyEmailPassword = 'e72mailCor';
 ?>
