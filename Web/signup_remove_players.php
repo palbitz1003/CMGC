@@ -143,7 +143,7 @@ if (isset ( $_POST ['PlayersToRemove'] ) && (count($_POST ['PlayersToRemove']) >
 					UpdateSignup($connection, $signupKey, 'PaymentDue', $remainingFees, 'd');
 					// If they have paid, request a refund
 					if($signup->Payment > 0){
-						SendRefundEmail($connection, $tournament, $signup, $players, $playersRemoved, $refundFees, $web_site);
+						SendRefundEmail($connection, $tournament, $signup, $players, $playersRemoved, $refundFees, $doNotReplyEmailAddress, $doNotReplyEmailPassword);
 						$refundRequested = true;
 					}
 				}

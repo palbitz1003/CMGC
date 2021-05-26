@@ -424,7 +424,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 
 	if($t->SendEmail ){
 		$tournamentDates = GetFriendlyNonHtmlTournamentDates($t);
-		$errorMsg = SendSignupEmail($connection, $t, $tournamentDates, $insertId, $web_site);
+		$errorMsg = SendSignupEmail($connection, $t, $tournamentDates, $insertId, $doNotReplyEmailAddress, $doNotReplyEmailPassword);
 		if(!empty($errorMsg)){
 			echo '<p>' . $errorMsg . '</p>' . PHP_EOL;
 		}

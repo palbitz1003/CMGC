@@ -141,7 +141,7 @@ if (strcmp ( $res, "VERIFIED" ) == 0) {
 		// Send email if enabled and the payment amount is positive (not a refund)
 		//if(!empty($tournament) && $tournament->SendEmail && ($payment_amount > 0)){
 		//	$tournamentDates = GetFriendlyNonHtmlTournamentDates($tournament);
-		//	SendSignupEmail($connection, $tournament, $tournamentDates, $submitKey, $web_site);
+		//	SendSignupEmail($connection, $tournament, $tournamentDates, $submitKey, $doNotReplyEmailAddress, $doNotReplyEmailPassword);
 		//}
 		
 		$connection->close();

@@ -796,6 +796,7 @@ function ShowPayment($web_site, $ipn_file, $script_folder_href, $connection, $to
 	echo '</form>' . PHP_EOL;
 }
 
+// The $to can be a comma separated list of addresses
 function SendEmail($from, $fromPassword, $to, $subject, $message){
     try {
         $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
@@ -812,7 +813,11 @@ function SendEmail($from, $fromPassword, $to, $subject, $message){
 
         //Recipients
         $mail->setFrom($from, 'DoNotReply');          //This is the email your form sends From
-        $mail->addAddress($to, ''); // Add a recipient address
+		$addresses = explode(',', $to);
+		foreach ($addresses as $address) {
+    		$mail->AddAddress($address);
+		}
+        //$mail->addAddress($to, ''); // Add a recipient address
         //$mail->addAddress('contact@example.com');               // Name is optional
         //$mail->addReplyTo('info@example.com', 'Information');
         //$mail->addCC('cc@example.com');
@@ -831,12 +836,11 @@ function SendEmail($from, $fromPassword, $to, $subject, $message){
         $mail->send();
         //echo 'Message has been sent';
     } catch (Exception $e) {
-        echo 'Message could not be sent.';
-        echo 'Mailer Error: ' . $mail->ErrorInfo;
+        echo '<p>Message could not be sent. Mailer Error: ' . $mail->ErrorInfo . "</p>";
     }
 }
 
-function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey, $web_site){
+function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey, $doNotReplyEmailAddress, $doNotReplyEmailPassword){
 	
 	$signup = GetSignup($connection, $signupKey);
 	if(empty($signup)){
@@ -868,13 +872,13 @@ function SendSignupEmail($connection, $tournament, $tournamentDates, $signupKey,
 	
 		if(!empty($rosterEntry) && !empty($rosterEntry->Email)){
 			// send email
-			mail($rosterEntry->Email, 'Coronado Mens Golf Tournament Signup', $message, "From: DoNotReply@" . $web_site);
+			SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $rosterEntry->Email, 'Coronado Mens Golf Tournament Signup', $message);
 		}
 	}
 	
 	return null;
 }
-function SendRefundEmail($connection, $tournament, $signup, $players, $playersRemoved, $refundFees, $web_site){
+function SendRefundEmail($connection, $tournament, $signup, $players, $playersRemoved, $refundFees, $doNotReplyEmailAddress, $doNotReplyEmailPassword){
 
 	$message = $tournament->ChairmanName . "," . "\n\n";
 	$payerEmail = "";
@@ -901,7 +905,8 @@ function SendRefundEmail($connection, $tournament, $signup, $players, $playersRe
 	// make sure each line doesn't exceed 70 characters
 	//$message = wordwrap($message, 70);
 
-	mail($tournament->ChairmanEmail . $payerEmail, 'Coronado Mens Golf Tournament Refund Request', $message, "From: DoNotReply@" . $web_site);
+	// Send to both the chairman and the payer
+	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $tournament->ChairmanEmail . $payerEmail, 'Coronado Mens Golf Tournament Refund Request', $message);
 
 	return null;
 }
