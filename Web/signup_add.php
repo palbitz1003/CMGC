@@ -225,7 +225,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	}
 	echo '</p>' . PHP_EOL;
 
-	SendMergeEmail($t, $players1, $players2, $web_site);
+	SendMergeEmail($t, $players1, $players2, $doNotReplyEmailAddress, $doNotReplyEmailPassword);
 } // end of else clause
 
 echo '<p>' . PHP_EOL;

@@ -906,12 +906,12 @@ function SendRefundEmail($connection, $tournament, $signup, $players, $playersRe
 	//$message = wordwrap($message, 70);
 
 	// Send to both the chairman and the payer
-	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $tournament->ChairmanEmail . $payerEmail, 'Coronado Mens Golf Tournament Refund Request', $message);
+	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $tournament->ChairmanEmail . $payerEmail, 'Coronado Mens Golf tournament refund request', $message);
 
 	return null;
 }
 
-function SendMergeEmail($tournament, $playersGroup1, $playersGroup2, $web_site){
+function SendMergeEmail($tournament, $playersGroup1, $playersGroup2, $doNotReplyEmailAddress, $doNotReplyEmailPassword){
 
 	$message = "";
 
@@ -925,7 +925,7 @@ function SendMergeEmail($tournament, $playersGroup1, $playersGroup2, $web_site){
 		$message .= "\n    " . $playersGroup1[$i]->LastName;
 	}
 
-	mail($tournament->ChairmanEmail, 'Coronado Mens Golf Tournament groups merged', $message, "From: DoNotReply@" . $web_site);
+	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $tournament->ChairmanEmail, 'Coronado Mens Golf tournament groups merged', $message);
 
 	return null;
 }

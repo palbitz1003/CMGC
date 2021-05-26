@@ -8,5 +8,5 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/signup fun
 $m = 'test';
 $m .= "\n\nDo not reply to this email.  Contact the tournament director if you have any questions.\n";
 
-SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "paul.m.albitz@outlook.com", 'Coronado Mens Golf Tournament Signup', $m);
+SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "palbitz@san.rr.com, paul.m.albitz@outlook.com", 'Coronado Mens Golf Tournament Signup', $m);
 ?>
