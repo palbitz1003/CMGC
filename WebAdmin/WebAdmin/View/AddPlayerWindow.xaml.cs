@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace WebAdmin.View
 {
@@ -19,8 +11,10 @@ namespace WebAdmin.View
     /// </summary>
     public partial class AddPlayerWindow : Window
     {
+
         public List<GHINEntry> GHINList { get; set; }
         public Player Player { get; set; }
+        public bool RequiresFlight = false;
 
         private string _ghin;
         private string _email;
@@ -38,6 +32,32 @@ namespace WebAdmin.View
             {
                 MessageBox.Show("Please fill in the name before saving");
                 return;
+            }
+            if (string.IsNullOrEmpty(Player.Extra))
+            {
+                // Only complain about a missing flight if flights are required
+                if (RequiresFlight)
+                {
+                    MessageBox.Show("Please fill in the flight with CH or F1-F5");
+                    return;
+                }
+            }
+            else
+            {
+                // If Player.Extra is filled in, make sure the value is valid
+                switch (Player.Extra)
+                {
+                    case "CH":
+                    case "F1":
+                    case "F2":
+                    case "F3":
+                    case "F4":
+                    case "F5":
+                        break;
+                    default:
+                        MessageBox.Show("Please fill in the flight with CH or F1-F5");
+                        return;
+                }
             }
             DialogResult = true;
             this.Close();

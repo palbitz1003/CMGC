@@ -1581,7 +1581,20 @@ namespace WebAdmin.ViewModel
             apw.DataContext = player;
             apw.Player = player;
             apw.GHINList = ghinList;
+            apw.RequiresFlight = false;
             apw.Owner = Application.Current.MainWindow;
+
+            // See if any of the players assigned a tee time has a flight
+            for (int i = 0; (i < TournamentTeeTimes.Count) && !apw.RequiresFlight; i++)
+            {
+                for (int j = 0; (j < TournamentTeeTimes[i].Players.Count) && !apw.RequiresFlight; j++)
+                {
+                    if (TournamentTeeTimes[i].Players[j].Extra.ToLower().Contains("f"))
+                    {
+                        apw.RequiresFlight = true;
+                    }
+                }
+            }
 
             apw.ShowDialog();
             if (apw.DialogResult.HasValue && apw.DialogResult.Value)

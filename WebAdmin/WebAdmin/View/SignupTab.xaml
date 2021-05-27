@@ -57,13 +57,15 @@
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="ChangePartnersInTeeTimeButton" Height="22"
                     Command="{Binding ChangePartnersInTeeTimeCommand}">Change Partners in Tee Time</Button>
             <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">Order By:</TextBlock>
-            <RadioButton Margin="10,0,0,0" Name="HistoricalRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
-                         Checked="OrderByRadioButton_Checked">Historical Tee Times</RadioButton>
-            <RadioButton Margin="10,0,0,0" Name="RequestedTimeRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
-                         Checked="OrderByRadioButton_Checked" IsChecked="True">Requested Time</RadioButton>
-            <RadioButton Margin="10,0,0,0" Name="BlindDrawRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
-                         Checked="OrderByRadioButton_Checked">Blind Draw</RadioButton>
-            <CheckBox Margin="70,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
+            <StackPanel Orientation="Vertical">
+                <RadioButton Margin="10,0,0,0" Name="HistoricalRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
+                             Checked="OrderByRadioButton_Checked">Historical Tee Times</RadioButton>
+                <RadioButton Margin="10,0,0,0" Name="RequestedTimeRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
+                             Checked="OrderByRadioButton_Checked" IsChecked="True">Requested Time</RadioButton>
+                <RadioButton Margin="10,0,0,0" Name="BlindDrawRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
+                             Checked="OrderByRadioButton_Checked">Blind Draw</RadioButton>
+            </StackPanel>
+            <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding GroupMode}">Group Mode</CheckBox>
         </DockPanel>
         
         
