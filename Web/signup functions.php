@@ -943,21 +943,21 @@ function TeamNumber($t, $teamNumber, $flightErrorList, $extra)
 
 	echo '<td style="vertical-align:middle">Team '. $teamNumber . PHP_EOL;
 	if($t->SCGAQualifier){
-		AddSCGQQualifier($t, $teamNumber, $flightErrorList, $extra);
+		AddSCGAQualifier($t, $teamNumber, $flightErrorList, $extra);
 	}
 	echo '</td>' . PHP_EOL;
 }
-function AddSCGQQualifier($t, $teamNumber, $flightErrorList, $extra){
+function AddSCGAQualifier($t, $teamNumber, $flightErrorList, $extra){
 
 	$teamFlightIndex = GetTeamFlightIndex($teamNumber);
-	echo '<br><input  type="radio" name="'. $teamFlightIndex . '" value="Flight1"';
-	if($extra[2 * ($teamNumber - 1)] == 'Flight1')
+	echo '<br><input  type="radio" name="'. $teamFlightIndex . '" value="F1"';
+	if($extra[2 * ($teamNumber - 1)] == 'F1')
 	{
 		echo ' checked';
 	}
 	echo '>Flight 1' . PHP_EOL;
-	echo '<br><input  type="radio" name="'. $teamFlightIndex . '" value="Flight2"';
-	if($extra[2 * ($teamNumber - 1)] == 'Flight2')
+	echo '<br><input  type="radio" name="'. $teamFlightIndex . '" value="F2"';
+	if($extra[2 * ($teamNumber - 1)] == 'F2')
 	{
 		echo ' checked';
 	}
