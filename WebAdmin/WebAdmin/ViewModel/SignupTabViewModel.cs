@@ -601,6 +601,13 @@ namespace WebAdmin.ViewModel
 
         public void UpdateUnassignedList(int playerCount)
         {
+            // If the tee time is full, just show all the unassigned players,
+            // otherwise there are times you expect to see the waitlist (unassigned players)
+            // and the list looks empty
+            if (playerCount == 0)
+            {
+                playerCount = 4;
+            }
             _currentNumberOfPlayersShowing = playerCount;
 
             // Create a new list and assign it as a whole, rather
