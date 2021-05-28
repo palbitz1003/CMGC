@@ -299,7 +299,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		TeamNumber($t, 1, $flightErrorList, $Extra);
 		
 		echo '<td>' . PHP_EOL;
-		AddPlayerTable($t);
+		AddPlayerTable($t);  // adds unfinished <table> which is closed below
 		
 		AddPlayer($t, 1, $GHIN[0], $LastName[0], $Extra[0], $flightErrorList[0]);
 		insert_error_line($errorList[0], 2);
@@ -315,7 +315,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		TeamNumber($t, 2, $flightErrorList, $Extra);
 		
 		echo '<td>' . PHP_EOL;
-		AddPlayerTable($t);
+		AddPlayerTable($t);  // adds unfinished <table> which is closed below
 		
 		AddPlayer($t, 3, $GHIN[2], $LastName[2], $Extra[2], $flightErrorList[2]);
 		insert_error_line($errorList[2], 2);
@@ -330,7 +330,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		echo '<td></td>' . PHP_EOL;  // empty team number
 		
 		echo '<td>' . PHP_EOL;
-		AddPlayerTable($t);
+		AddPlayerTable($t);  // adds unfinished <table> which is closed below
 		
 		RequestedTime($RequestedTime);
 		
@@ -342,7 +342,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	}
 	else 
 	{
-		AddPlayerTable($t);
+		AddPlayerTable($t);  // adds unfinished <table> which is closed below
 		
 		AddPlayer($t, 1, $GHIN[0], $LastName[0], $Extra[0], $flightErrorList[0]);
 		insert_error_line($errorList[0], 2);
