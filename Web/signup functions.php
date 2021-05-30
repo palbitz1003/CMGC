@@ -1001,26 +1001,13 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 		else {
 			echo '<td style="border: none">' . PHP_EOL;
 		}
-		echo '<input  type="radio" name="' . $flightLabel . '" value="F1"';
-		if($extraForPlayer == 'F1')
+		echo '<input  type="radio" name="' . $flightLabel . '" value="AGE"';
+		if(($extraForPlayer == 'F1') || ($extraForPlayer == 'F2') ||
+		($extraForPlayer == 'F3') || ($extraForPlayer == 'AGE'))
 		{
 			echo ' checked';
 		}
-		echo '>Flight 1 (under 60)' . PHP_EOL;
-		
-		echo '<br><input  type="radio" name="' . $flightLabel . '" value="F2"';
-		if($extraForPlayer == 'F2')
-		{
-			echo ' checked';
-		}
-		echo '>Flight 2 (60-69)' . PHP_EOL;
-		
-		echo '<br><input  type="radio" name="' . $flightLabel . '" value="F3"';
-		if($extraForPlayer == 'F3')
-		{
-			echo ' checked';
-		}
-		echo '>Flight 3 (70 and older)' . PHP_EOL;
+		echo '>Age-based flights' . PHP_EOL;
 		
 		echo '<br><input  type="radio" name="' . $flightLabel . '" value="CH"';
 		if($extraForPlayer == 'CH')

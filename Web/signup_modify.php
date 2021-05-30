@@ -108,6 +108,23 @@ if (isset ( $_POST ['RequestedTime'] )) {
 			if(empty ($_POST[$playerFlightIndex]))
 			{
 				$flightErrorList[$i] = "Select Flight";
+			} else if($Extra[$i] == "AGE"){
+				$rosterEntry = GetRosterEntry ( $connection, $players[$i]->GHIN );
+				$birthday = new DateTime ( $rosterEntry->BirthDate);
+				$tournamentStart = new DateTime($t->StartDate);
+				$interval = $tournamentStart->diff($birthday);
+				if($interval){
+					//echo "years = " . $interval->y . "<br>";
+					if($interval->y < 60){
+						$Extra[$i] = "F1";
+					} else if($interval->y < 70){
+						$Extra[$i] = "F2";
+					} else {
+						$Extra[$i] = "F3";
+					}
+				} else {
+					echo "failed to determine age<br>";
+				}
 			}
 		}
 	}
