@@ -215,7 +215,7 @@ function ShowWaitingList($connection, $tournamentKey){
 		echo '<tbody>' . PHP_EOL;
 		echo '<tr><td style="border:none">' . PHP_EOL;
 		echo 'This tournament is oversubscribed; These players will be placed in the spot of any cancellations in the order listed. ' . PHP_EOL;
-		echo 'Players not getting an assigned time in this tournament will be given priority in the next tournament entered.' . PHP_EOL;
+		echo 'Players not getting an assigned time in this tournament will be given priority in the next 2 day tournament entered.' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 		echo '</tbody>' . PHP_EOL;
 		echo '</table>' . PHP_EOL;
