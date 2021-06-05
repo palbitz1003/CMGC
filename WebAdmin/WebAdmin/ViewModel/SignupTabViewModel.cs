@@ -319,6 +319,8 @@ namespace WebAdmin.ViewModel
         private TournamentAndTeeTimes[] UnprocessedHistoricalTeeTimeData = null;
         private List<PlayerTeeTimeHistory> PlayerTeeTimeHistoryByName = null;
         private Hashtable PlayerTeeTimeHistoryHashTableByGhin = null;
+        private int LastRemovedPlayerTeeTimeIndex = -1;
+        private Player LastRemovedPlayer = null;
         #endregion
 
         #region Commands
@@ -693,6 +695,14 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
+            if (TeeTimeSelection == LastRemovedPlayerTeeTimeIndex)
+            {
+                // If a waitlist player is added to a tee time after removing a player,
+                // the next "Add Player" will not be a replacement for the last removed player.
+                LastRemovedPlayerTeeTimeIndex = -1;
+                LastRemovedPlayer = null;
+            }
+
             // Add the players to the tee time
             _teeTimesDirty = true;
             foreach (var player in teeTimeRequest.Players)
@@ -754,6 +764,9 @@ namespace WebAdmin.ViewModel
             if (teeTimeRequest.Waitlisted)
             {
                 teeTimeRequest.Waitlisted = false;
+                // Reduce the blind draw number to keep them off the waitlist if someone else
+                // is also removed from the waitlist
+                teeTimeRequest.BlindDrawValue = (teeTimeRequest.BlindDrawValue > 4000) ? (teeTimeRequest.BlindDrawValue - 1000) : 3000;
                 BlindDraw();
                 // Re-sort since new players may have been marked as waitlisted
                 SortTeeTimeRequests();
@@ -1663,6 +1676,35 @@ namespace WebAdmin.ViewModel
                     ttr.TeeTimeCount = count;
                 }
 
+                if ((TeeTimeSelection == LastRemovedPlayerTeeTimeIndex) && (LastRemovedPlayer != null) &&
+                    (TournamentTeeTimes[TeeTimeSelection].Players.Count < 4))
+                {
+                    MessageBoxResult result = MessageBox.Show("Is " + player.Name + " to replace " + LastRemovedPlayer.Name + 
+                                                                " at " + TournamentTeeTimes[TeeTimeSelection].StartTime + "?",
+                                          "Confirmation",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Only remember the last removed player until a new player is added
+                        LastRemovedPlayerTeeTimeIndex = -1;
+                        LastRemovedPlayer = null;
+
+                        _teeTimesDirty = true;
+                        TournamentTeeTimes[TeeTimeSelection].AddPlayer(player);
+                        player.TeeTime = TournamentTeeTimes[TeeTimeSelection];
+                        ttr.TeeTime = TournamentTeeTimes[TeeTimeSelection];
+                        TeeTimeRequestsAssigned.Add(ttr);
+                        TeeTimeRequestsAssigned = TrulyObservableCollection<TeeTimeRequest>.Sort(TeeTimeRequestsAssigned,
+                            new TeeTimeSort());
+                        return;
+                    }
+                }
+
+                // Only remember the last removed player until a new player is added
+                LastRemovedPlayerTeeTimeIndex = -1;
+                LastRemovedPlayer = null;
+
                 TeeTimeRequests.Add(ttr);
                 SortTeeTimeRequests();
             }
@@ -1670,6 +1712,9 @@ namespace WebAdmin.ViewModel
 
         private void RemovePlayer(object o)
         {
+            LastRemovedPlayer = null; ;
+            LastRemovedPlayerTeeTimeIndex = -1;
+
             List<Player> playerList = new List<Player>();
             foreach (var request in TeeTimeRequests)
             {
@@ -1772,10 +1817,18 @@ namespace WebAdmin.ViewModel
                         TournamentTeeTimes[teeTimeIndex].RemovePlayer(rpw.Player);
                         TeeTimeSelection = teeTimeIndex;
 
+                        // If the tee time is not empty, remember the last player
+                        // removed in case a player is added next to replace them.
+                        if (TournamentTeeTimes[teeTimeIndex].Players.Count > 0)
+                        {
+                            LastRemovedPlayerTeeTimeIndex = teeTimeIndex;
+                            LastRemovedPlayer = rpw.Player;
+                        }
+
                         // Tee time requests are moved to the assigned list when 
                         // the request has been given a tee time. Remove the player
                         // from the request on that list.
-                        ttr = null;
+                            ttr = null;
                         foreach (var request in TeeTimeRequestsAssigned)
                         {
                             foreach (var p in request.Players)
