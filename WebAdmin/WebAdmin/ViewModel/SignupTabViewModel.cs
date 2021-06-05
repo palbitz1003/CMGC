@@ -1828,7 +1828,7 @@ namespace WebAdmin.ViewModel
                         // Tee time requests are moved to the assigned list when 
                         // the request has been given a tee time. Remove the player
                         // from the request on that list.
-                            ttr = null;
+                        ttr = null;
                         foreach (var request in TeeTimeRequestsAssigned)
                         {
                             foreach (var p in request.Players)

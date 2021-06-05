@@ -287,9 +287,17 @@ namespace WebAdmin.ViewModel
                         PaymentsDue += teeTimeRequest.PaymentDue;
                         PaymentsMade += teeTimeRequest.PaymentMade;
                     }
-                    TeeTimeRequests = ttr2;
+                    TeeTimeRequests = TrulyObservableCollection<TeeTimeRequest>.Sort(ttr2, new PlayerOrderSort());
                     ttr2.CollectionChanged += TeeTimeRequests_CollectionChanged;
                 }
+            }
+        }
+
+        private class PlayerOrderSort : IComparer<TeeTimeRequest>
+        {
+            public int Compare(TeeTimeRequest x, TeeTimeRequest y)
+            {
+                return string.Compare(x.Players[0].Name, y.Players[0].Name);
             }
         }
 
