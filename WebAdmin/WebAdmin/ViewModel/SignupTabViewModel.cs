@@ -823,6 +823,27 @@ namespace WebAdmin.ViewModel
         {
             _teeTimesDirty = false;
 
+            // Check for empty tee time list
+            int playerCount = 0;
+            for (int i = 0; i < TournamentTeeTimes.Count; i++)
+            {
+                for (int player = 0; player < TournamentTeeTimes[i].Players.Count; player++)
+                {
+                    playerCount++;
+                }
+            }
+            if (playerCount == 0)
+            {
+                MessageBoxResult result = MessageBox.Show("There are no players assigned tee times. Upload empty tee time list?",
+                                          "Confirmation",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question);
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+            }
+
             // cancelled password input
             if (string.IsNullOrEmpty(Credentials.LoginPassword))
             {
