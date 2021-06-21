@@ -13,6 +13,7 @@ namespace WebAdmin
         public double StartTimeAverageInSeconds;
         public double StartTimeStandardDeviationInSeconds;
         public int TeeTimeCount;
+        public string LastTeeTime = "00:00";
         public DateTime?[] TeeTimes;
 
         // Default sort is by name;

@@ -60,6 +60,8 @@
             <StackPanel Orientation="Vertical">
                 <RadioButton Margin="10,0,0,0" Name="HistoricalRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
                              Checked="OrderByRadioButton_Checked">Historical Tee Times</RadioButton>
+                <RadioButton Margin="10,0,0,0" Name="LastTeeTimeRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
+                             Checked="OrderByRadioButton_Checked">Last Tee Time</RadioButton>
                 <RadioButton Margin="10,0,0,0" Name="RequestedTimeRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 
                              Checked="OrderByRadioButton_Checked" IsChecked="True">Requested Time</RadioButton>
                 <RadioButton Margin="10,0,0,0" Name="BlindDrawRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 

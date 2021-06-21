@@ -16,7 +16,7 @@ namespace WebAdmin.ViewModel
     {
 
         private enum TeeTimeStatus { TeeTime, Waitlisted, Cancelled };
-        public enum OrderTeeTimeRequestsByEnum { RequestedTime, BlindDraw, HistoricalTeeTimes };
+        public enum OrderTeeTimeRequestsByEnum { RequestedTime, LastTeeTime, BlindDraw, HistoricalTeeTimes };
 
         #region Properties
         public override string Header { get { return "Signup"; } }
@@ -432,6 +432,7 @@ namespace WebAdmin.ViewModel
                 foreach (var ttr in TeeTimeRequests)
                 {
                     ttr.ShowBlindDrawValue = OrderTeeTimeRequestsBy == OrderTeeTimeRequestsByEnum.BlindDraw;
+                    ttr.ShowLastTeeTime = OrderTeeTimeRequestsBy == OrderTeeTimeRequestsByEnum.LastTeeTime;
                 }
 
                 switch (OrderTeeTimeRequestsBy)
@@ -444,6 +445,16 @@ namespace WebAdmin.ViewModel
                         else
                         {
                             TeeTimeRequests.Sort(new HistoricalTeeTimeSort());
+                        }
+                        break;
+                    case OrderTeeTimeRequestsByEnum.LastTeeTime:
+                        if (UnprocessedHistoricalTeeTimeData == null)
+                        {
+                            TeeTimeRequests.Sort(new TeeTimeRequestSort());
+                        }
+                        else
+                        {
+                            TeeTimeRequests.Sort(new LastTeeTimeSort());
                         }
                         break;
                     case OrderTeeTimeRequestsByEnum.BlindDraw:
@@ -1433,6 +1444,24 @@ namespace WebAdmin.ViewModel
             }
         }
 
+        private class LastTeeTimeSort : IComparer<TeeTimeRequest>
+        {
+            public int Compare(TeeTimeRequest a, TeeTimeRequest b)
+            {
+                // Put all the waitlisted groups at the end
+                if (a.Waitlisted && !b.Waitlisted) return 1;
+                if (!a.Waitlisted && b.Waitlisted) return -1;
+                // Sort the waitlisted groups by the blind draw value
+                if (a.Waitlisted && b.Waitlisted) return a.BlindDrawValue - b.BlindDrawValue;
+
+                // LastTeeTime is just a string
+                if ((a.LastTeeTime == null) || (b.LastTeeTime == null)) return 0;
+                string aTime = a.LastTeeTime[1] == ':' ? ("0" + a.LastTeeTime) : a.LastTeeTime;
+                string bTime = b.LastTeeTime[1] == ':' ? ("0" + b.LastTeeTime) : b.LastTeeTime;
+                return string.CompareOrdinal(aTime, bTime);
+            }
+        }
+
         private async Task LoadTeeTimesFromWeb(object o)
         {
             if (!CheckContinue()) return;
@@ -1691,7 +1720,8 @@ namespace WebAdmin.ViewModel
                     double mean;
                     double stdev;
                     int count;
-                    CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count);
+                    string lastTeeTime;
+                    CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count, out lastTeeTime);
                     ttr.StartTimeAverageInSeconds = mean;
                     ttr.StartTimeStandardDeviationInSeconds = stdev;
                     ttr.TeeTimeCount = count;
@@ -2423,13 +2453,15 @@ namespace WebAdmin.ViewModel
                 double mean;
                 double stdev;
                 int count;
+                string lastTeeTime;
 
                 List<string> ghinNumbers = new List<string>();
                 ghinNumbers.Add(ptth.GHIN);
-                CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count);
+                CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count, out lastTeeTime);
                 ptth.StartTimeAverageInSeconds = mean;
                 ptth.StartTimeStandardDeviationInSeconds = stdev;
                 ptth.TeeTimeCount = count;
+                ptth.LastTeeTime = lastTeeTime;
             }
 
             CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
@@ -2444,25 +2476,28 @@ namespace WebAdmin.ViewModel
                     double mean;
                     double stdev;
                     int count;
+                    string lastTeeTime;
 
                     List<string> ghinNumbers = new List<string>();
                     foreach (var player in ttr.Players)
                     {
                         ghinNumbers.Add(player.GHIN);
                     }
-                    CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count);
+                    CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count, out lastTeeTime);
                     ttr.StartTimeAverageInSeconds = mean;
                     ttr.StartTimeStandardDeviationInSeconds = stdev;
                     ttr.TeeTimeCount = count;
+                    ttr.LastTeeTime = lastTeeTime;
                 }
             }
         }
 
-        private void CalculateHistoricalTeeTimeMeanAndStdev(List<string> ghinNumbers, out double mean, out double stdev, out int teeTimeCount)
+        private void CalculateHistoricalTeeTimeMeanAndStdev(List<string> ghinNumbers, out double mean, out double stdev, out int teeTimeCount, out string lastTeeTime)
         {
             mean = 0;
             stdev = 0;
             teeTimeCount = 0;
+            lastTeeTime = "00:00";
 
             if (PlayerTeeTimeHistoryHashTableByGhin == null) return;
 
@@ -2481,6 +2516,11 @@ namespace WebAdmin.ViewModel
                             teeTimeCount++;
                             TimeSpan ts = new TimeSpan(ptth.TeeTimes[teeTimeIndex].Value.Hour, ptth.TeeTimes[teeTimeIndex].Value.Minute, ptth.TeeTimes[teeTimeIndex].Value.Second);
                             totalSeconds += ts.TotalSeconds;
+
+                            if (string.Compare(lastTeeTime, "00:00") == 0)
+                            {
+                                lastTeeTime = ptth.TeeTimes[teeTimeIndex].Value.ToShortTimeString();
+                            }
                         }
                     }
                 }
@@ -2531,7 +2571,7 @@ namespace WebAdmin.ViewModel
 
             using (TextWriter tw = new StreamWriter(dlg.FileName))
             {
-                tw.Write("Name,GHIN,Avg Start Time,Stdev,Tee Time Count");
+                tw.Write("Name,GHIN,Avg Start Time,Stdev,Last Tee Time,Tee Time Count");
                 for (int tournamentIndex = 0; tournamentIndex < UnprocessedHistoricalTeeTimeData.Length; tournamentIndex++)
                 {
                     tw.Write("," + UnprocessedHistoricalTeeTimeData[tournamentIndex].Tournament.StartDate.ToShortDateString());
@@ -2546,6 +2586,7 @@ namespace WebAdmin.ViewModel
                     tw.Write("," + time.ToString(@"hh\:mm"));
                     time = TimeSpan.FromSeconds(ptth.StartTimeStandardDeviationInSeconds);
                     tw.Write("," + time.ToString(@"hh\:mm"));
+                    tw.Write("," + ptth.LastTeeTime);
                     tw.Write("," + ptth.TeeTimeCount);
 
                     for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
@@ -2577,7 +2618,7 @@ namespace WebAdmin.ViewModel
 
                 using (TextWriter tw = new StreamWriter(dlg.FileName))
                 {
-                    tw.WriteLine("Names,Avg Start Time,Stdev,Tee Time Count");
+                    tw.WriteLine("Names,Avg Start Time,Stdev,Tee Time Count,Last Tee Time");
 
                     foreach (var ttr in TeeTimeRequests)
                     {
@@ -2587,6 +2628,7 @@ namespace WebAdmin.ViewModel
                         time = TimeSpan.FromSeconds(ttr.StartTimeStandardDeviationInSeconds);
                         tw.Write("," + time.ToString(@"hh\:mm"));
                         tw.Write("," + ttr.TeeTimeCount);
+                        tw.Write("," + ttr.LastTeeTime);
                         tw.WriteLine();
                     }
                 }

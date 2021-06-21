@@ -71,6 +71,10 @@ namespace WebAdmin
                 {
                     extraData = _blindDrawValue.ToString();
                 }
+                else if (ShowLastTeeTime)
+                {
+                    extraData = _lastTeetime;
+                }
                 else
                 {
                     extraData = TimeSpan.FromSeconds(StartTimeAverageInSeconds).ToString(@"hh\:mm");
@@ -124,7 +128,11 @@ namespace WebAdmin
         private int _blindDrawValue = 0;
         public int BlindDrawValue { get { return _blindDrawValue; } set { _blindDrawValue = value; OnPropertyChanged(); } }
 
+        private string _lastTeetime = "00:00";
+        public string LastTeeTime { get { return _lastTeetime; } set { _lastTeetime = value; OnPropertyChanged(); } }
+
         public bool ShowBlindDrawValue = false;
+        public bool ShowLastTeeTime = false;
 
         // These values are not shown in the UI, so no need for property changed events;
         public double StartTimeAverageInSeconds = 0;

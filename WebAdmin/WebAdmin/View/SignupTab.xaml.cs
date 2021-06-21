@@ -34,6 +34,11 @@ namespace WebAdmin.View
                 ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).OrderTeeTimeRequestsBy =
                     ViewModel.SignupTabViewModel.OrderTeeTimeRequestsByEnum.HistoricalTeeTimes;
             }
+            else if ((LastTeeTimeRadioButton != null) && (LastTeeTimeRadioButton.IsChecked != null) && (LastTeeTimeRadioButton.IsChecked.Value == true))
+            {
+                ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).OrderTeeTimeRequestsBy =
+                    ViewModel.SignupTabViewModel.OrderTeeTimeRequestsByEnum.LastTeeTime;
+            }
             else if ((BlindDrawRadioButton != null) && (BlindDrawRadioButton.IsChecked != null) && (BlindDrawRadioButton.IsChecked.Value == true))
             {
                 ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).OrderTeeTimeRequestsBy =
