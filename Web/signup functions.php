@@ -1007,14 +1007,14 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 		{
 			echo ' checked';
 		}
-		echo '>Age-based flights' . PHP_EOL;
+		echo '>Age-based flights (F1, F2, F3)' . PHP_EOL;
 		
 		echo '<br><input  type="radio" name="' . $flightLabel . '" value="CH"';
 		if($extraForPlayer == 'CH')
 		{
 			echo ' checked';
 		}
-		echo '>Championship (55 and older)' . PHP_EOL;
+		echo '>Championship' . PHP_EOL;
 		if(!empty($errorForPlayer)){
 			echo '<p style="color:red">' . $errorForPlayer . '</p>' . PHP_EOL;
 		}
