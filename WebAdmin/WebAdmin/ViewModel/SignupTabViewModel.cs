@@ -1368,7 +1368,24 @@ namespace WebAdmin.ViewModel
             for (int i = 0; i < teeTimeRequestsCopy.Count; i++)
             {
                 teeTimeRequestsCopy[i].Waitlisted = playerCount >= BlindDrawPlayerCount;
-                playerCount += teeTimeRequestsCopy[i].Players.Count;
+                if (!teeTimeRequestsCopy[i].Waitlisted)
+                {
+                    playerCount += teeTimeRequestsCopy[i].Players.Count;
+                }
+            }
+            // At this point it might be the case that if the waitlist is 172 that we have 
+            // 174 players not waitlisted. Go backwards to find a pair or 2 singles to put on the
+            // waitlist to get an exact number
+            for (int i = teeTimeRequestsCopy.Count - 1; (i >= 0) && (playerCount > BlindDrawPlayerCount); i--)
+            {
+                if (!teeTimeRequestsCopy[i].Waitlisted)
+                {
+                    if (playerCount - teeTimeRequestsCopy[i].Players.Count >= BlindDrawPlayerCount)
+                    {
+                        teeTimeRequestsCopy[i].Waitlisted = true;
+                        playerCount -= teeTimeRequestsCopy[i].Players.Count;
+                    }
+                }
             }
         }
 
