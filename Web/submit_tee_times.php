@@ -74,7 +74,7 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				else{
 					// This case can only happen if a player is added without first signing up. One
 					// could argue this shouldn't happen, but handle it if it does.
-					echo "Added player to signup list: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
+					// echo "Added player to signup list: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")<br>";
 
 					if(!empty($logFile)){
 						error_log(date ( '[Y-m-d H:i e] ' ) . "Player added to signups: " . $playerName . " (" . $_POST ['TeeTime'] [$i] ['GHIN'] [$player] . ")" . PHP_EOL, 3, $logFile);
