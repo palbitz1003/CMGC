@@ -1099,7 +1099,7 @@ namespace WebAdmin.ViewModel
             {
                 if (!appendToFile)
                 {
-                    tw.WriteLine("Tee Time,Status,Team Id,Last Name,First Name,GHIN,Flight,Email");
+                    tw.WriteLine("Tee Time,Tee Status,Team Id,Last Name,First Name,GHIN,Flight,Email");
                 }
 
                 for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
@@ -2071,7 +2071,7 @@ namespace WebAdmin.ViewModel
                     {
                         flightColumn = col;
                     }
-                    else if (string.Compare(lines[0][col], "status", true) == 0)
+                    else if ((string.Compare(lines[0][col], "status", true) == 0) || (string.Compare(lines[0][col], "tee status", true) == 0))
                     {
                         statusColumn = col;
                     }
