@@ -48,21 +48,25 @@ if (! isset ( $_POST ['TeeTime'] )) {
 				$teeTime->GHIN [] = $_POST ['TeeTime'] [$i] ['GHIN'] [$player];
 				$teeTime->Extra [] = $_POST ['TeeTime'] [$i] ['Extra'] [$player];
 
-				// We could look up the signup key, instead of having it passed in here, but that 
-				// requires that the GHIN number is always non-zero.  If GHIN number 0 is allowed, then
-				// searching for the GHIN among the players signed up for this tournament would result in multiple matches
-				// and we would not be able to pair up the player to the signup to see if they have paid.
-				//$teeTime->SignupKey [] = $_POST ['TeeTime'] [$i] ['SignupKey'] [$player];
-
 				if(intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]) === 0 ){
-					$errorMessages .= "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
-					$errors = true;
+					//$errorMessages .= "GHIN number for " . $playerName . " is 0. GHIN value 0 is not supported because it cannot be looked up in the signup list.<br>";
+					//$errors = true;
+
+					$signup = GetPlayerSignUpByName($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['Player'] [$player]);
+
+					if(!empty($signup)){
+						//die("Found player " . $signup->LastName);
+					}
+					else {
+						//die("Failed to find player " . $_POST ['TeeTime'] [$i] ['Player'] [$player]);
+					}
+				}
+				else {
+					// Get the signup data for the player. This just gets the data for the individual player, not all
+					// the players in the signup group.
+					$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
 				}
 				
-				// Get the signup data for the player. This just gets the data for the individual player, not all
-				// the players in the signup group.
-				$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
-
 				if(!empty($signup)){
 
 					$teeTime->SignupKey [] = $signup->SignUpKey;
@@ -101,7 +105,12 @@ if (! isset ( $_POST ['TeeTime'] )) {
 
 					// Save the player in a 2 dimensional array indexed by the signup key for matching up to
 					// the signups below
-					$signups[$insertId][] = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+					if(intval($_POST ['TeeTime'] [$i] ['GHIN'] [$player]) === 0){
+						$signups[$insertId][] = GetPlayerSignUpByName($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['Player'] [$player]);
+					} 
+					else {
+						$signups[$insertId][] = GetPlayerSignUp($connection, $tournamentKey, $_POST ['TeeTime'] [$i] ['GHIN'] [$player]);
+					}
 				}
 			}
 		}
@@ -167,9 +176,22 @@ if (! isset ( $_POST ['TeeTime'] )) {
 							if ($teeTimes [$i]->Players) {
 								for($player = 0; ($player < count ( $teeTimes [$i]->Players )) && !$fixedKey; ++ $player) {
 									if(intval($teeTimes [$i]->GHIN [$player]) === intval($dbSignups[$dbi]->GHIN)){
-										//echo "changed signup key from " . $teeTimes [$i]->SignupKey [$player] . " to " . $insertId . " for " . $teeTimes [$i]->Players [$player];
-										$teeTimes [$i]->SignupKey [$player] = $insertId;
-										$fixedKey = true;
+
+										// There may be more than 1 with GHIN 0, so check name
+										if(intval($teeTimes [$i]->GHIN [$player]) === 0){
+											//echo "checking for " . $dbSignups[$dbi]->LastName . " matching " . $teeTimes [$i]->Players [$player] . "<br>";
+											if(strcasecmp($dbSignups[$dbi]->LastName, $teeTimes [$i]->Players [$player]) == 0){
+												//echo "Matched by name<br>"; 
+												//echo "changed signup key from " . $teeTimes [$i]->SignupKey [$player] . " to " . $insertId . " for " . $teeTimes [$i]->Players [$player];
+												$teeTimes [$i]->SignupKey [$player] = $insertId;
+												$fixedKey = true;
+											}
+										}
+										else {
+											//echo "changed signup key from " . $teeTimes [$i]->SignupKey [$player] . " to " . $insertId . " for " . $teeTimes [$i]->Players [$player];
+											$teeTimes [$i]->SignupKey [$player] = $insertId;
+											$fixedKey = true;
+										}
 									}
 								}
 							}
@@ -222,7 +244,12 @@ if (! isset ( $_POST ['TeeTime'] )) {
 			InsertSignUpWaitingListEntry($connection, $signUpWaitingList);
 
 			// Turn off payment enabled for anyone on the waitlist
-			$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['SignUpsWaitingList'] [$i] ['GHIN1']);
+			if(intval($_POST ['SignUpsWaitingList'] [$i] ['GHIN1']) === 0){
+				$signup = GetPlayerSignUpByName($connection, $tournamentKey, $_POST ['SignUpsWaitingList'] [$i] ['Name1']);
+			}
+			else {
+				$signup = GetPlayerSignUp($connection, $tournamentKey, $_POST ['SignUpsWaitingList'] [$i] ['GHIN1']);
+			}
 			if(!empty($signup)){
 				UpdateSignup($connection, $signup->SignUpKey, 'PaymentEnabled', 0, 'i');
 			}

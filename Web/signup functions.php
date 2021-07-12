@@ -174,6 +174,52 @@ function GetPlayerSignUp($connection, $tournamentKey, $playerGHIN) {
 	
 	return $playerSignUp;
 }
+
+/*
+ * Get the record for a signed up player by name.  There must only be 1 record.
+ */
+function GetPlayerSignUpByName($connection, $tournamentKey, $playerName) {
+	
+	$sqlCmd = "SELECT * FROM `SignUpsPlayers` WHERE `TournamentKey` = ? AND `LastName` = ?";
+	$player = $connection->prepare ( $sqlCmd );
+	
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $player->bind_param ( 'is', $tournamentKey, $playerName )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$player->bind_result ( $key, $tournament, $position, $GHIN, $LastName, $extra );
+	
+	$playerSignUp = null;
+
+	$count = 1;
+	 while($player->fetch()) {
+	 	if($count > 1){
+	 		die('Player ' . $playerName . ' is signed up more than once');
+	 	}
+	 	//echo 'found player<br>';
+	 	$playerSignUp = new PlayerSignUpClass();
+	 	$playerSignUp->SignUpKey = $key;
+	 	$playerSignUp->TournamentKey = $tournamentKey;
+	 	$playerSignUp->GHIN = $GHIN;
+	 	$playerSignUp->LastName = $LastName;
+	 	$playerSignUp->Extra = $extra;
+	 	$count++;
+	 }
+	 //if(!isset($playerSignUp)) { echo 'did not find player<br>'; }
+	
+	$player->close ();
+	
+	return $playerSignUp;
+}
+
 /*
  * Return true or false whether a player is signed up
  */

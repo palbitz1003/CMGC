@@ -14,6 +14,7 @@ class TournamentName {
 	public $TeamSize;
 	public $IsStableford;
 	public $AnnouncementOnly;
+	public $MemberGuest;
 	
 	private function IntToBool($value){
 		return (!isset($value) || ($value == 0)) ? "false" : "true";
@@ -27,6 +28,7 @@ class TournamentName {
 		$this->MatchPlay = IntToBool($this->MatchPlay);
 		$this->IsStableford = IntToBool($this->IsStableford);
 		$this->AnnouncementOnly = IntToBool($this->AnnouncementOnly);
+		$this->MemberGuest = IntToBool($this->MemberGuest);
 	}
 }
 $connection = new mysqli ( 'p:' . $db_hostname, $db_username, $db_password, $db_database );
@@ -34,7 +36,7 @@ $connection = new mysqli ( 'p:' . $db_hostname, $db_username, $db_password, $db_
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
-$sqlCmd = "SELECT TournamentKey,Name,StartDate,EndDate,SignUpStartDate,Eclectic,MatchPlay,TeamSize,Stableford,AnnouncementOnly FROM `Tournaments` ORDER BY `StartDate`";
+$sqlCmd = "SELECT TournamentKey,Name,StartDate,EndDate,SignUpStartDate,Eclectic,MatchPlay,TeamSize,Stableford,AnnouncementOnly,MemberGuest FROM `Tournaments` ORDER BY `StartDate`";
 $tournament = $connection->prepare ( $sqlCmd );
 
 if (! $tournament) {
@@ -45,7 +47,7 @@ if (! $tournament->execute ()) {
 	die ( $sqlCmd . " execute failed: " . $connection->error );
 }
 
-$tournament->bind_result ( $tournamentKey, $name, $startDate, $endDate, $signupStartDate, $isEclectic, $matchPlay, $teamSize, $isStableford, $announcementOnly );
+$tournament->bind_result ( $tournamentKey, $name, $startDate, $endDate, $signupStartDate, $isEclectic, $matchPlay, $teamSize, $isStableford, $announcementOnly, $memberGuest );
 
 $tournamentNames = array();
 while ( $tournament->fetch () ) {
@@ -60,6 +62,7 @@ while ( $tournament->fetch () ) {
 	$t->TeamSize = $teamSize;
 	$t->IsStableford = $isStableford;
 	$t->AnnouncementOnly = $announcementOnly;
+	$t->MemberGuest = $memberGuest;
 	$t->ConvertToBool();
 	$tournamentNames[] = $t;
 }

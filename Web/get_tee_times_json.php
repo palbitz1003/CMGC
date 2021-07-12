@@ -100,7 +100,12 @@ function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite){
     $teeTimeComposite->WaitlistPlayers = array();
     for($i = 0; $i < count($entries); ++$i){
         
-        $playerSignUp = GetPlayerSignUp($connection, $tournamentKey, $entries[$i]->GHIN1);
+        if(intval($entries[$i]->GHIN1) === 0) {
+            $playerSignUp = GetPlayerSignUpByName($connection, $tournamentKey, $entries[$i]->Name1);
+        }
+        else {
+            $playerSignUp = GetPlayerSignUp($connection, $tournamentKey, $entries[$i]->GHIN1);
+        }
 
         $player = new Player();
         if($playerSignUp){

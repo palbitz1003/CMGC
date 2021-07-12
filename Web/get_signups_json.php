@@ -57,13 +57,16 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 	for($p = 0; $p < count ( $playersSignedUp ); ++ $p) {
 
 		$extra = $playersSignedUp [$p]->Extra;
+        /* 
 		if((strlen($extra) == 0) && ($playersSignedUp [$p]->GHIN === 0)){
 			$extra = "N";
 		}
+        
 		if(($extra === "G") && $tournament->MemberGuest)
 		{
 			$extra = $playersSignedUp [$p]->GHIN;
 		}
+        */
         $email = "";
 		if($playersSignedUp [$p]->GHIN !== 0){
 			$rosterEntry = GetRosterEntry ( $connection, $playersSignedUp [$p]->GHIN );
