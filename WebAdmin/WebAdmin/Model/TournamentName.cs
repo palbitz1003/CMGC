@@ -51,6 +51,9 @@ namespace WebAdmin
         private bool _announcementOnly;
         public bool AnnouncementOnly { get { return _announcementOnly; } set { _announcementOnly = value; OnPropertyChanged(); } }
 
+        private bool _memberGuest;
+        public bool MemberGuest { get { return _memberGuest; } set { _memberGuest = value; OnPropertyChanged(); } }
+
         public override string ToString()
         {
             return StartDate.ToShortDateString() + ": " + Name;

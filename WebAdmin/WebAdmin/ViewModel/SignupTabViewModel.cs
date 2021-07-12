@@ -1099,7 +1099,7 @@ namespace WebAdmin.ViewModel
             {
                 if (!appendToFile)
                 {
-                    tw.WriteLine("Tee Time,Tee Status,Team Id,Last Name,First Name,GHIN,Flight,Email");
+                    tw.WriteLine("Tee Time,Tee Status,Team Id,Last Name,First Name,GHIN,Flight,Email,Extra");
                 }
 
                 for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
@@ -1205,7 +1205,16 @@ namespace WebAdmin.ViewModel
                                 }
                             }
 
-                            tw.Write("," + playerEmail);
+                            tw.Write("," + playerEmail + ",");
+
+                            if (!string.IsNullOrEmpty(playerExtra))
+                            {
+                                // Member/Guest
+                                if ((playerExtra == "M") || (playerExtra == "G"))
+                                {
+                                    tw.Write(playerExtra);
+                                }
+                            }
 
                             tw.WriteLine();                             
                         }
@@ -1669,6 +1678,7 @@ namespace WebAdmin.ViewModel
             apw.Player = player;
             apw.GHINList = ghinList;
             apw.RequiresFlight = false;
+            apw.AllowGuest = TournamentNames[TournamentNameIndex].MemberGuest;
             apw.Owner = Application.Current.MainWindow;
 
             // See if any of the players assigned a tee time has a flight
@@ -1742,6 +1752,18 @@ namespace WebAdmin.ViewModel
                     ttr.StartTimeAverageInSeconds = mean;
                     ttr.StartTimeStandardDeviationInSeconds = stdev;
                     ttr.TeeTimeCount = count;
+                    if (TournamentNames[TournamentNameIndex].MemberGuest)
+                    {
+                        player.Extra = "M";
+                    }
+                }
+                else if(TournamentNames[TournamentNameIndex].MemberGuest)
+                {
+                    AddGhinWindow agw = new AddGhinWindow();
+                    agw.Owner = Application.Current.MainWindow;
+                    agw.ShowDialog();
+                    player.GHIN = agw.Ghin;
+                    player.Extra = "G";
                 }
 
                 if ((TeeTimeSelection == LastRemovedPlayerTeeTimeIndex) && (LastRemovedPlayer != null) &&
@@ -2039,6 +2061,7 @@ namespace WebAdmin.ViewModel
                 int emailColumn = -1;
                 int flightColumn = -1;
                 int statusColumn = -1;
+                int extraColumn = -1;
 
                 if (lines.Length == 0)
                 {
@@ -2074,6 +2097,10 @@ namespace WebAdmin.ViewModel
                     else if ((string.Compare(lines[0][col], "status", true) == 0) || (string.Compare(lines[0][col], "tee status", true) == 0))
                     {
                         statusColumn = col;
+                    }
+                    else if (string.Compare(lines[0][col], "extra", true) == 0)
+                    {
+                        extraColumn = col;
                     }
                 }
 
@@ -2222,6 +2249,13 @@ namespace WebAdmin.ViewModel
                                 {
                                     player.Extra = "F" + flight;
                                 }
+                            }
+                        }
+                        if (extraColumn != -1)
+                        {
+                            if ((line[extraColumn] == "M") || (line[extraColumn] == "G"))
+                            {
+                                player.Extra = line[extraColumn];
                             }
                         }
 

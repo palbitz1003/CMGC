@@ -94,6 +94,9 @@
     <Compile Include="ViewModel\TabViewModelBase.cs" />
     <Compile Include="ViewModel\TournamentDescriptionTabViewModel.cs" />
     <Compile Include="ViewModel\TournamentTabViewModel.cs" />
+    <Compile Include="View\AddGhinWindow.xaml.cs">
+      <DependentUpon>AddGhinWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\AddPlayerWindow.xaml.cs">
       <DependentUpon>AddPlayerWindow.xaml</DependentUpon>
     </Compile>
@@ -144,6 +147,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\AddGhinWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\AddPlayerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

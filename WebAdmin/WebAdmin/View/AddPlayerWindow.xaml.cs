@@ -15,6 +15,7 @@ namespace WebAdmin.View
         public List<GHINEntry> GHINList { get; set; }
         public Player Player { get; set; }
         public bool RequiresFlight = false;
+        public bool AllowGuest = false;
 
         private string _ghin;
         private string _email;
@@ -110,6 +111,12 @@ namespace WebAdmin.View
                 Player.GHIN = _ghin;
                 Player.Email = _email;
                 AutoCompleteFeedback.Text = string.Empty;
+            }
+            else if (AllowGuest && string.IsNullOrEmpty(_ghin))
+            {
+                Player.Name = PlayerTextBox.Text;
+                Player.GHIN = string.Empty;
+                Player.Email = string.Empty;
             }
         }
     }
