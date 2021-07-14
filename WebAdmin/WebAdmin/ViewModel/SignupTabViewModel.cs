@@ -1348,7 +1348,34 @@ namespace WebAdmin.ViewModel
                 }
                 else
                 {
-                    request.BlindDrawValue = _randomNumberGenerator.Next(3000, 9999);
+                    if (TournamentNames[TournamentNameIndex].MemberGuest)
+                    {
+                        bool guest = false;
+
+                        foreach (var player in request.Players)
+                        {
+                            if (player.Extra == "G")
+                            {
+                                guest = true;
+                                break;
+                            }
+                        }
+                        if (guest)
+                        {
+                            // If there is 1 guest in the group, give them a higher blind draw number
+                            request.BlindDrawValue = _randomNumberGenerator.Next(3000, 6999);
+                        }
+                        else 
+                        {
+                            // If there are only members, give them a lower blind draw number
+                            request.BlindDrawValue = _randomNumberGenerator.Next(7000, 9999);
+                        }
+                    }
+                    else
+                    {
+                        // If this is not the member guest, use the full range
+                        request.BlindDrawValue = _randomNumberGenerator.Next(3000, 9999);
+                    }
                 }
             }
         }
