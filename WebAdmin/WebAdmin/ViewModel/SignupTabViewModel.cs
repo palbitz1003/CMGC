@@ -2157,7 +2157,7 @@ namespace WebAdmin.ViewModel
                 }
                 if (statusColumn == -1)
                 {
-                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Status");
+                    throw new ApplicationException(TeeTimeFile + ": did not find header column: Tee Status");
                 }
 
                 // Initialize the first tee time combo box and the block :52 checkbox based
@@ -2202,6 +2202,13 @@ namespace WebAdmin.ViewModel
                     string[] line = lines[lineIndex];
                     if (line.Length > 0)
                     {
+                        if (string.IsNullOrEmpty(line[teeTimeColumn]) && string.IsNullOrEmpty(line[statusColumn]) &&
+                            string.IsNullOrEmpty(line[firstNameColumn]) && string.IsNullOrEmpty(line[lastNameColumn]))
+                        {
+                            // line must be empty
+                            continue;
+                        }
+
                         if (line[statusColumn].ToLower().Contains("wait"))
                         {
                             teeTimeStatus = TeeTimeStatus.Waitlisted;
