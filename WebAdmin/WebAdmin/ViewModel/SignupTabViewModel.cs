@@ -321,6 +321,7 @@ namespace WebAdmin.ViewModel
         private Hashtable PlayerTeeTimeHistoryHashTableByGhin = null;
         private int LastRemovedPlayerTeeTimeIndex = -1;
         private Player LastRemovedPlayer = null;
+        private bool RecalculateBlindDrawOnSelection = false;
         #endregion
 
         #region Commands
@@ -1310,6 +1311,7 @@ namespace WebAdmin.ViewModel
                     InitTeeTimes();
 
                     // Blind draw after tee times cleared
+                    RecalculateBlindDrawOnSelection = true;
                     BlindDraw();
 
                     CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
@@ -1382,6 +1384,8 @@ namespace WebAdmin.ViewModel
 
         private void BlindDraw()
         {
+            if (!RecalculateBlindDrawOnSelection) return;
+
             // If a player is selected from the waitlist, recalculate
             // the waitlist. That has to take into account how many
             // players have tee times already.
@@ -1572,6 +1576,7 @@ namespace WebAdmin.ViewModel
                     FillInAssignedListFromTournamentTeeTimes();
 
                     LoadWaitingListFromWebResponse(teeTimeComposite.WaitListPlayers);
+                    RecalculateBlindDrawOnSelection = false;
 
                     if (teeTimeComposite.CancelledPlayers != null)
                     {
@@ -2330,6 +2335,7 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
+            RecalculateBlindDrawOnSelection = false;
             SelectOpenTeeTime();
             FillInAssignedListFromTournamentTeeTimes();
             GroupMode = false;
