@@ -11,11 +11,13 @@ get_header ();
 
 get_sidebar ();
 
+/*
 echo '<div style = "position:relative; top:80px;text-align: center;">';
 echo "The replace feature is no longer available." . PHP_EOL;
 echo '</div>' . PHP_EOL;
 get_footer ();
 return;
+*/
 
 $tournamentKey = $_GET ['tournament'];
 if (! $tournamentKey || !is_numeric($tournamentKey)) {
