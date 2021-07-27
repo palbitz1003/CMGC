@@ -18,6 +18,9 @@ namespace WebAdmin
         private string _startTime;
         public string StartTime { get { return _startTime; } set { _startTime = value; OnPropertyChanged(); } }
 
+        private bool _blockedOut = false;
+        public bool BlockedOut { get { return _blockedOut; } set { _blockedOut = value; OnPropertyChanged(); } }
+
         public TrulyObservableCollection<Player> Players = new TrulyObservableCollection<Player>();
 
         // For some reason, adding directly to the Players list doesn't trigger an event the UI is looking for
@@ -47,6 +50,13 @@ namespace WebAdmin
         public override string ToString()
         {
             string s = StartTime + " ";
+
+            if (BlockedOut)
+            {
+                s += "     --------------- Blocked out ---------------";
+                return s;
+            }
+
             for (int i = 0; i < Players.Count; i++ )
             {
                 if (i != 0) s += " --- ";

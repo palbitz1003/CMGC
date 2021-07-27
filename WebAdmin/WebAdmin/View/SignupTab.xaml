@@ -80,8 +80,8 @@
                        Visibility="{Binding Path=GotTournamentsVisible}">First Time:</TextBlock>
             <ComboBox Margin="5,0,0,0" ItemsSource="{Binding Path=TeeTimes}" VerticalAlignment="Center" 
                       SelectedIndex="{Binding Path=FirstTeeTimeIndex, Mode=TwoWay}"/>
-            <CheckBox Margin="20,0,0,0" VerticalAlignment="Center" IsChecked="{Binding Block52TeeTimes, Mode=TwoWay}"
-                      IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">Block :52 tee times</CheckBox>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="BlockTeeTimeButton" Height="22" VerticalAlignment="Bottom" 
+                    Command="{Binding BlockTeeTimeCommand}" >Block Tee Time</Button>
             <TextBlock VerticalAlignment="Center" Margin="20, 0, 0, 0">Blind Draw Player Count:</TextBlock>
             <TextBox VerticalAlignment="Center" Margin="5, 0, 0, 0" Name="BlindDrawPlayerCountTextBox" Text="{Binding Path=BlindDrawPlayerCount}" Width="40"/>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="GetSignups" Height="22" VerticalAlignment="Bottom" 

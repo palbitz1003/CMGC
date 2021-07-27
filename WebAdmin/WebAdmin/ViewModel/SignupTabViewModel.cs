@@ -94,7 +94,7 @@ namespace WebAdmin.ViewModel
                 _firstTeeTimeIndex = value; 
                 OnPropertyChanged();
                 UpdateTournamentTeeTimes();
-                BlindDrawPlayerCount = TournamentTeeTimes.Count * 4;
+                UpdateBlindDrawPlayerCount();
             } 
         }
 
@@ -240,20 +240,6 @@ namespace WebAdmin.ViewModel
             set { _allowTeeTimeIntervalAdjust = value; OnPropertyChanged(); }
         }
 
-        private bool _block52TeeTimes;
-        public bool Block52TeeTimes
-        {
-            get { return _block52TeeTimes; }
-            set
-            {
-                _block52TeeTimes = value;
-                InitTeeTimes();
-                BlindDrawPlayerCount = TournamentTeeTimes.Count * 4;
-                Options.Block52TeeTimes = _block52TeeTimes;
-                OnPropertyChanged();
-            }
-        }
-
         private bool _teeTimeInterval78;
         public bool TeeTimeInterval78
         {
@@ -346,6 +332,8 @@ namespace WebAdmin.ViewModel
         public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(async s => await LoadHistoricalTeeTimesDataAsync(s)); } }
 
         public ICommand SaveTeeTimeHistoryAsCsvCommand { get { return new ModelCommand(SaveTeeTimeHistoryAsCsv); } }
+
+        public ICommand BlockTeeTimeCommand { get { return new ModelCommand(BlockTeeTime); } }
         #endregion
 
         public SignupTabViewModel()
@@ -364,7 +352,6 @@ namespace WebAdmin.ViewModel
             TeeTimeInterval10 = Options.TeeTimeInterval10; // initializes list
             TeeTimeInterval78 = Options.TeeTimeInterval78;
             TeeTimeInterval98 = Options.TeeTimeInterval98;
-            Block52TeeTimes = Options.Block52TeeTimes;
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
             AllowTeeTimeIntervalAdjust = true;
@@ -379,20 +366,21 @@ namespace WebAdmin.ViewModel
 
         public void InitTeeTimes()
         {
+            var oldTeeTimeList = TournamentTeeTimes;
+
             ClearPlayersFromAllTeeTimes();
-            TournamentTeeTimes.Clear();
+            TournamentTeeTimes = new TrulyObservableCollection<TeeTime>();
 
             // TODO shotgun
             int firstTime = (FirstTeeTimeIndex < 0) ? 0 : FirstTeeTimeIndex;
             for (int i = firstTime; i < _defaultTeeTimes.Count; i++)
             {
-                if (Block52TeeTimes && _defaultTeeTimes[i].Contains(":52"))
+                TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
+
+                if ((i < TournamentTeeTimes.Count) && (i < oldTeeTimeList.Count) && oldTeeTimeList[i].BlockedOut && 
+                    (string.Compare(oldTeeTimeList[i].StartTime, TournamentTeeTimes[i].StartTime) == 0))
                 {
-                    // skip
-                }
-                else
-                {
-                    TournamentTeeTimes.Add(new TeeTime { StartTime = _defaultTeeTimes[i] });
+                    TournamentTeeTimes[i].BlockedOut = true;
                 }
             }
         }
@@ -553,7 +541,7 @@ namespace WebAdmin.ViewModel
             i = 0;
             for (; i < TournamentTeeTimes.Count; i++)
             {
-                if (TournamentTeeTimes[i].Players.Count < 4)
+                if ((TournamentTeeTimes[i].Players.Count < 4) && !TournamentTeeTimes[i].BlockedOut)
                 {
                     // This also updates the unassigned list
                     TeeTimeSelection = i;
@@ -697,6 +685,13 @@ namespace WebAdmin.ViewModel
             TeeTimeRequest teeTimeRequest = selectedItem;
             TeeTime teeTime = TournamentTeeTimes[TeeTimeSelection];
 
+            if (teeTime.BlockedOut)
+            {
+                MessageBox.Show(teeTime.StartTime + " is blocked out.");
+                ClearTodoSelection();
+                return;
+            }
+
             // Check for room in this tee time
             if (teeTimeRequest.Players.Count > (4 - teeTime.Players.Count))
             {
@@ -737,7 +732,7 @@ namespace WebAdmin.ViewModel
                 bool teeTimeFound = false;
                 for (int i = TeeTimeSelection + 1; i < TournamentTeeTimes.Count; i++)
                 {
-                    if (TournamentTeeTimes[i].Players.Count < 4)
+                    if ((TournamentTeeTimes[i].Players.Count < 4) && !TournamentTeeTimes[i].BlockedOut)
                     {
                         teeTimeFound = true;
                         // This also updates the unassigned list
@@ -1626,13 +1621,6 @@ namespace WebAdmin.ViewModel
             int lowestTeeTimeIndex = -1;
             for (int teeTimeIndex = 0; teeTimeIndex < tournamentTeeTimes.Count; teeTimeIndex++)
             {
-
-                // If the tee time list contains :52, then make sure that
-                // time is available
-                if (Block52TeeTimes && tournamentTeeTimes[teeTimeIndex].StartTime.Contains(":52"))
-                {
-                    Block52TeeTimes = false;
-                }
                 for (int i = 0; i < _defaultTeeTimes.Count; i++)
                 {
                     if (String.CompareOrdinal(_defaultTeeTimes[i], tournamentTeeTimes[teeTimeIndex].StartTime) == 0)
@@ -1691,7 +1679,46 @@ namespace WebAdmin.ViewModel
             }
         }
 
-        private void AddPlayer(object o)
+        private void BlockTeeTime(object o)
+        {
+            TeeTime teeTime = TournamentTeeTimes[TeeTimeSelection];
+
+            if (teeTime.Players.Count > 0)
+            {
+                MessageBox.Show(Application.Current.MainWindow,
+                                "There are " + teeTime.Players.Count + " players at " + teeTime.StartTime + ". You can only block an empty tee time.");
+                return;
+            }
+
+            // Toggle the boolean
+            teeTime.BlockedOut = !teeTime.BlockedOut;
+            UpdateBlindDrawPlayerCount();
+
+            for (int i = TeeTimeSelection; i < TournamentTeeTimes.Count; i++)
+            {
+                if (!TournamentTeeTimes[i].BlockedOut && (TournamentTeeTimes[i].Players.Count < 4))
+                {
+                    TeeTimeSelection = i;
+                    break;
+                }
+            }
+        }
+
+        private void UpdateBlindDrawPlayerCount()
+        {
+            int count = 0;
+            for (int i = 0; i < TournamentTeeTimes.Count; i++)
+            {
+                if (!TournamentTeeTimes[i].BlockedOut)
+                {
+                    count += 4;
+                }
+            }
+
+            BlindDrawPlayerCount = count;
+        }
+
+            private void AddPlayer(object o)
         {
             List<GHINEntry> ghinList = new List<GHINEntry>();
             try
@@ -2175,13 +2202,7 @@ namespace WebAdmin.ViewModel
                     {
                         if (!string.IsNullOrEmpty(line[teeTimeColumn]))
                         {
-                            // If the tee time list contains :52, then make sure that
-                            // time is available
-                            if (Block52TeeTimes && line[teeTimeColumn].Contains(":52"))
-                            {
-                                Block52TeeTimes = false;
-                            }
-                                for (int i = 0; i < _defaultTeeTimes.Count; i++)
+                            for (int i = 0; i < _defaultTeeTimes.Count; i++)
                             {
                                 if (String.CompareOrdinal(_defaultTeeTimes[i], line[teeTimeColumn]) == 0)
                                 {
@@ -2369,7 +2390,7 @@ namespace WebAdmin.ViewModel
             bool openTeeTimeFound = false;
             for (int i = 0; i < TournamentTeeTimes.Count; i++)
             {
-                if (TournamentTeeTimes[i].Players.Count < 4)
+                if ((TournamentTeeTimes[i].Players.Count < 4) && !TournamentTeeTimes[i].BlockedOut)
                 {
                     // This also updates the unassigned list
                     TeeTimeSelection = i;
