@@ -163,6 +163,10 @@ if (isset ( $_POST ['Player'] )) {
 							}
 						}
 					}
+					// Since the GHIN is non-zero, check to see if they are already signed up.
+					if (IsPlayerSignedUp ( $connection, $tournamentKey, $GHIN [$i] )) {
+						$errorList [$i] = 'Player ' . $GHIN [$i] . ' is already signed up';
+					}
 				}
 					
 				if(empty($errorList [$i])){
@@ -172,9 +176,8 @@ if (isset ( $_POST ['Player'] )) {
 					} else if (strpos($LastName [$i], ',') === FALSE){
 						$errorList [$i] = 'Please fill in "last name, first name" for guests';
 					} else {
-						// No checks for name matching GHIN or if player is already signed up
-						// Just save the the full name.
-						$FullName[$i] = $LastName [$i];
+						// Save the the full name.
+						$FullName[$i] = FixNameCasing($LastName [$i]);
 						if($guestIsMember){
 							$Extra[$i] = "M"; // "Member" flight
 						} else {
