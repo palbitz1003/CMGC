@@ -129,10 +129,10 @@ if(!$emptyForm){
 				}
 				
 				// These are the same checks used during signup
+				// TODO: doesn't allow 2nd member of pair to be replaced by a guest
 				if($t->MemberGuest && $players[$i]->Extra == "G" && (!empty ( $GHIN [$i] ) || !empty ( $LastName [$i]))){
 					if (strpos($LastName [$i], ',') !== FALSE){
-						// No checks for name matching GHIN or if player is already signed up
-						// Just save the the full name.
+						// Save the the full name.
 						$FullName[$i] = $LastName [$i];
 							
 						if(empty ( $GHIN [$i] ))
@@ -141,8 +141,12 @@ if(!$emptyForm){
 						} else if($GHIN [$i] !== "0000000"){
 							$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
 							if (!empty ( $rosterEntry )) {
-								// Allow member-member
-								//$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
+								// Change Extra field to member
+								$players[$i]->Extra = "M";
+							}
+							// Since the GHIN is non-zero, check to see if they are already signed up.
+							if (IsPlayerSignedUp ( $connection, $tournamentKey, $GHIN [$i] )) {
+								$errorList [$i] = 'Player ' . $GHIN [$i] . ' is already signed up';
 							}
 						}
 					} else {
