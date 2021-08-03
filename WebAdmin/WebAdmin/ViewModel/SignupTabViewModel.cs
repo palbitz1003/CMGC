@@ -1854,6 +1854,16 @@ namespace WebAdmin.ViewModel
                 LastRemovedPlayerTeeTimeIndex = -1;
                 LastRemovedPlayer = null;
 
+                foreach (var ttr2 in TeeTimeRequests)
+                {
+                    // Add to the end of the waitlist if there is one
+                    if (ttr2.Waitlisted)
+                    {
+                        ttr.Waitlisted = true;
+                        ttr.BlindDrawValue = ttr2.BlindDrawValue + 1;
+                    }
+                }
+
                 TeeTimeRequests.Add(ttr);
                 SortTeeTimeRequests();
             }
