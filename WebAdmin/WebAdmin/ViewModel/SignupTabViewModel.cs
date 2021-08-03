@@ -2732,6 +2732,18 @@ namespace WebAdmin.ViewModel
                 {
                     tw.WriteLine("Names,Avg Start Time,Stdev,Tee Time Count,Last Tee Time");
 
+                    foreach (var ttr in TeeTimeRequestsAssigned)
+                    {
+                        tw.Write("\"" + ttr.PlayerList + "\"");
+                        TimeSpan time = TimeSpan.FromSeconds(ttr.StartTimeAverageInSeconds);
+                        tw.Write("," + time.ToString(@"hh\:mm"));
+                        time = TimeSpan.FromSeconds(ttr.StartTimeStandardDeviationInSeconds);
+                        tw.Write("," + time.ToString(@"hh\:mm"));
+                        tw.Write("," + ttr.TeeTimeCount);
+                        tw.Write("," + ttr.LastTeeTime);
+                        tw.WriteLine();
+                    }
+
                     foreach (var ttr in TeeTimeRequests)
                     {
                         tw.Write("\"" + ttr.PlayerList + "\"");
