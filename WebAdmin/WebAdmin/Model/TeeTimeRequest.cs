@@ -77,7 +77,7 @@ namespace WebAdmin
                 }
                 else
                 {
-                    extraData = TimeSpan.FromSeconds(StartTimeAverageInSeconds).ToString(@"hh\:mm");
+                    extraData = TimeSpan.FromSeconds(StartTimeAverageInSeconds).ToString(@"hh\:mm") + "/" + TeeTimeCount.ToString("D2");
                 }
 
                 if (_paid)
