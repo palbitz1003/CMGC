@@ -1223,7 +1223,7 @@ namespace WebAdmin.ViewModel
         {
             if (_teeTimesDirty)
             {
-                if (MessageBox.Show("Some tee times have been filled in. Do you want to continue? Your current work will be lost.",
+                if (MessageBox.Show("Some tee times have been filled in, players added, or players removed. Do you want to continue? Your current work will be lost.",
                     "Verify Continue",
                     MessageBoxButton.OKCancel) != MessageBoxResult.OK)
                 {
@@ -1523,6 +1523,8 @@ namespace WebAdmin.ViewModel
             {
                 return;
             }
+
+            if (!CheckContinue()) return;
 
             _teeTimesDirty = false;
             using (var client = new HttpClient())
@@ -1866,6 +1868,8 @@ namespace WebAdmin.ViewModel
 
                 TeeTimeRequests.Add(ttr);
                 SortTeeTimeRequests();
+
+                _teeTimesDirty = true;
             }
         }
 
@@ -1908,6 +1912,8 @@ namespace WebAdmin.ViewModel
                     {
                         return;
                     }
+
+                    _teeTimesDirty = true;
 
                     TeeTimeRequest ttr = null;
                     foreach (var request in TeeTimeRequests)
@@ -2043,6 +2049,7 @@ namespace WebAdmin.ViewModel
                 TournamentTeeTimes[TeeTimeSelection].Players.Move(2, 1);
                 // Send property changed event to make UI update
                 TournamentTeeTimes[TeeTimeSelection].PlayersChanged();
+                _teeTimesDirty = true;
                 return;
             }
 
@@ -2058,6 +2065,7 @@ namespace WebAdmin.ViewModel
                     TournamentTeeTimes[TeeTimeSelection].Players.Move(3, 1);
                     // Send property changed event to make UI update
                     TournamentTeeTimes[TeeTimeSelection].PlayersChanged();
+                    _teeTimesDirty = true;
                     return;
                 }
             }
@@ -2077,6 +2085,8 @@ namespace WebAdmin.ViewModel
 
         private void LoadTeeTimesAndWaitlistCsv(object o)
         {
+            if (!CheckContinue()) return;
+
             // Create OpenFileDialog 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
 
@@ -2108,6 +2118,8 @@ namespace WebAdmin.ViewModel
                 MessageBox.Show("File does not exist: " + TeeTimeFile);
                 return;
             }
+
+            _teeTimesDirty = false;
 
             AllowTeeTimeIntervalAdjust = false;
 
@@ -2423,7 +2435,6 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
-            _teeTimesDirty = false;
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(WebAddresses.BaseAddress);
