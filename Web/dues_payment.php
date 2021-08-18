@@ -22,6 +22,10 @@ $LastName = "";
 $FullName = "";
 $playerDues = null;
 
+$updatedDOB = "";
+$updatedEmail = "";
+$updatedPhone = "";
+
 $now = new DateTime ( "now" );
 $startDues = GetDuesStartDate();
 $endExtendedDues = GetDuesEndExtendedDate();
@@ -44,9 +48,24 @@ if (isset ( $_POST ['Player'] )) {
 		$BirthDay = trim ($_POST ['Player'] ['BirthDay']);
 		$BirthYear = trim ($_POST ['Player'] ['BirthYear']);
 		$Email = trim ($_POST ['Player'] ['Email']);
+		$Phone = trim($_POST ['Player'] ['Phone']);
 		
-		$LastName = stripslashes ( $LastName ); // remove any slashes before quotes
-		$LastName = str_replace("'", "", $LastName); // remove single quotes
+		// Remove any slashes before quotes and remove single quotes
+		// as these can be used for "SQL Injection".
+		$GHIN = stripslashes($GHIN);
+		$GHIN = str_replace("'", "", $GHIN);
+		$LastName = stripslashes ( $LastName ); 
+		$LastName = str_replace("'", "", $LastName);
+		$BirthMonth = stripslashes ( $BirthMonth ); 
+		$BirthMonth = str_replace("'", "", $BirthMonth);
+		$BirthDay = stripslashes ( $BirthDay ); 
+		$BirthDay = str_replace("'", "", $BirthDay);
+		$BirthYear = stripslashes ( $BirthYear ); 
+		$BirthYear = str_replace("'", "", $BirthYear);
+		$Email = stripslashes ( $Email ); 
+		$Email = str_replace("'", "", $Email);
+		$Phone = stripslashes ( $Phone ); 
+		$Phone = str_replace("'", "", $Phone);
 	
 		// Check that both GHIN and Last Name were filled in
 		if(empty($GHIN) && empty($LastName)){
@@ -56,7 +75,7 @@ if (isset ( $_POST ['Player'] )) {
 		} else if (empty ( $GHIN ) && ! empty ( $LastName )) {
 			$error = 'GHIN must be filled in';
 		} else if (! empty ( $GHIN ) && ! empty ( $LastName )) {
-			// TODO: Check for player already paid (may be in table but not yet paid)
+			// TODO: Check for player already paid (may also be in table, but not yet paid)
 			$playerDues = GetPlayerDues($connection, $GHIN);
 			if (!empty($playerDues) && ($playerDues->Payment > 0)) {
 				$error = 'Player ' . $LastName . ' (' . $GHIN . ') has already payed dues';
@@ -98,18 +117,16 @@ if (isset ( $_POST ['Player'] )) {
 			$changed = null;
 			$dob = $BirthYear . '-' . FormatMonthOrDay($BirthMonth)  . '-' . FormatMonthOrDay($BirthDay);
 			if(empty($rosterEntry->BirthDate) || strcmp($dob, $rosterEntry->BirthDate) != 0){
-				$changed = "DOB: " . $dob . PHP_EOL;
+				$updatedDOB = $dob;
 			}
 			if ((strtolower($Email) != "none") &&
 				 (empty($rosterEntry->Email) ||
 				 (strcasecmp($Email, $rosterEntry->Email) != 0))) {
-				$changed = $changed . "Email: " . $Email . PHP_EOL;
+				$updatedEmail = $Email;
 			}
-			if(!empty($changed)){
-				$message = $FullName . " (" . $GHIN . ")" . PHP_EOL;
-				$message = $message . $changed;
-				mail("Membership@coronadomensgolf.org", 'Update Info for ' . $FullName, $message, "From: DoNotReply@" . $web_site);
-			}
+
+			// Phone number is not in the roster yet
+			$updatedPhone = $Phone;
 		}
 	}
 	
@@ -199,6 +216,12 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<td style="border: none;"><input type="text" size=50';
 	echo '    name="Player[Email]" value="' . $Email . '"></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
+
+	echo '<tr>' . PHP_EOL;
+	echo '<td style="border: none;">Phone Number:</td>' . PHP_EOL;
+	echo '<td style="border: none;"><input type="tel" id="phone" name="Player[Phone]"';
+	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $Phone . '" required> <small>Format: 123-456-7890</small></td>' . PHP_EOL;
+	echo '</tr>'  . PHP_EOL;
 	//insert_error_line($error, 2);
 	
 	echo '</table>' . PHP_EOL;
@@ -219,10 +242,15 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 
 	if(empty($playerDues)){
 		InsertPlayerForDues($connection, $year + 1, $GHIN, $FullName);
+		InsertRosterUpdates($connection, $year + 1, $GHIN, $FullName, $updatedDOB, $updatedEmail, $updatedPhone);
 		
 		// for testing
 		//UpdateDuesDatabase($connection, $GHIN, 150, "Player 1", "Player Email", "original string from paypal");
 		//SendDuesEmail($connection, $GHIN, 150, $web_site);
+	}
+	else {
+		// There should already be a roster update record
+		UpdateRosterUpdates($connection, $year + 1, $GHIN, $FullName, $updatedDOB, $updatedEmail, $updatedPhone);
 	}
 	
 	echo '<div id="content-container" class="entry-content">' . PHP_EOL;

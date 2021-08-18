@@ -172,6 +172,44 @@ function InsertPlayerForDues($connection, $year, $ghin, $name) {
 	$insert->close();
 }
 
+function InsertRosterUpdates($connection, $year, $ghin, $name, $dob, $email, $phone) {
+	$sqlCmd = "INSERT INTO `DuesRosterUpdates` VALUES (?, ?, ?, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $insert->bind_param ( 'iissss',  $year, $ghin, $name, $dob, $email, $phone )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$insert->close();
+}
+
+function UpdateRosterUpdates($connection, $year, $ghin, $name, $dob, $email, $phone) {
+	$sqlCmd = "UPDATE `DuesRosterUpdates` SET `BirthDate`= ?, `Email`= ?, `Phone`= ? WHERE `GHIN` = ? AND `Year` = ?";
+	$insert = $connection->prepare ( $sqlCmd );
+
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $insert->bind_param ( 'sssii', $dob, $email, $phone, $ghin, $year )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$insert->close();
+}
+
 function UpdateDuesDatabase($connection, $ghin, $payment, $payerName, $payerEmail, $logMessage){
 
 	if (!file_exists('./logs')) {
@@ -199,7 +237,7 @@ function UpdateDuesDatabase($connection, $ghin, $payment, $payerName, $payerEmai
 	$payment = $payment + $player->Payment;
 
 	// Duplicate the code here so the die messages can be replace with log messages
-	$sqlCmd = "UPDATE `Dues` SET `Payment`= ?, `PaymentDateTime`= ?, `PayerName`= ?, `PayerEmail`= ?, `RIGS` = 0 WHERE `GHIN` = ?";
+	$sqlCmd = "UPDATE `Dues` SET `Payment`= ?, `PaymentDateTime`= ?, `PayerName`= ?, `PayerEmail`= ?, `RIGS` = 0 WHERE `GHIN` = ? AND `Year` = ?";
 	$update = $connection->prepare ( $sqlCmd );
 
 	if (! $update) {
@@ -208,7 +246,7 @@ function UpdateDuesDatabase($connection, $ghin, $payment, $payerName, $payerEmai
 	}
 
 	$date = date ( 'Y-m-d H:i:s' );
-	if (! $update->bind_param ( 'dsssi',  $payment, $date, $payerName, $payerEmail, $ghin)) {
+	if (! $update->bind_param ( 'dsssii',  $payment, $date, $payerName, $payerEmail, $ghin, $year)) {
 		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " bind_param failed: " . $connection->error . PHP_EOL, 3, $logFile);
 		return;
 	}
