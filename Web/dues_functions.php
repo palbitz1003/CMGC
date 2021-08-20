@@ -176,16 +176,26 @@ function InsertRosterUpdates($connection, $year, $ghin, $name, $dob, $email, $ph
 	$sqlCmd = "INSERT INTO `DuesRosterUpdates` VALUES (?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 
-	if (! $insert) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
+	try{
+		if (! $insert) {
+			echo "Error in InsertRosterUpdates: " . $sqlCmd . " prepare failed: " . $connection->error . "<br>";
+			return;
+		}
 
-	if (! $insert->bind_param ( 'iissss',  $year, $ghin, $name, $dob, $email, $phone )) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
-	}
+		if (! $insert->bind_param ( 'iissss',  $year, $ghin, $name, $dob, $email, $phone )) {
+			echo "Error in InsertRosterUpdates: " . $sqlCmd . " bind_param failed: " . $connection->error . "<br>";
+			$insert->close();
+			return;
+		}
 
-	if (! $insert->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
+		if (! $insert->execute ()) {
+			echo "Error in InsertRosterUpdates: " . $sqlCmd . " execute failed: " . $connection->error . "<br>";
+			$insert->close();
+			return;
+		}
+	}
+	catch( Throwable $e ) {
+		echo "Exception in InsertRosterUpdates: " . $e->getMessage() . "<br>";
 	}
 
 	$insert->close();
@@ -195,19 +205,30 @@ function UpdateRosterUpdates($connection, $year, $ghin, $name, $dob, $email, $ph
 	$sqlCmd = "UPDATE `DuesRosterUpdates` SET `BirthDate`= ?, `Email`= ?, `Phone`= ? WHERE `GHIN` = ? AND `Year` = ?";
 	$insert = $connection->prepare ( $sqlCmd );
 
-	if (! $insert) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
+	try{
+		if (! $insert) {
+			echo "Error in UpdateRosterUpdates: " . $sqlCmd . " prepare failed: " . $connection->error . "<br>";
+			return;
+		}
 
-	if (! $insert->bind_param ( 'sssii', $dob, $email, $phone, $ghin, $year )) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
-	}
+		if (! $insert->bind_param ( 'sssii', $dob, $email, $phone, $ghin, $year )) {
+			echo "Error in UpdateRosterUpdates: " . $sqlCmd . " bind_param failed: " . $connection->error . "<br>";
+			$insert->close();
+			return;
+		}
 
-	if (! $insert->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
+		if (! $insert->execute ()) {
+			echo "Error in UpdateRosterUpdates: " . $sqlCmd . " execute failed: " . $connection->error . "<br>";
+			$insert->close();
+			return;
+		}
+	}
+	catch( Throwable $e ) {
+		echo "Exception in UpdateRosterUpdates: " . $e->getMessage() . "<br>";
 	}
 
 	$insert->close();
+	
 }
 
 function UpdateDuesDatabase($connection, $ghin, $payment, $payerName, $payerEmail, $logMessage){
