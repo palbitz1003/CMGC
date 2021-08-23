@@ -551,7 +551,7 @@ function ShowSignups($connection, $tournamentKey) {
 	}
 	else if($t->ClubChampionship){
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		echo 'FL = Handicap-based Flights<br>' . PHP_EOL;
+		echo 'F1 = Handicap-based Flights<br>' . PHP_EOL;
 		echo 'CH = Championship Flight<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 	}
@@ -1079,8 +1079,8 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 		else {
 			echo '<td style="border: none">' . PHP_EOL;
 		}
-		echo '<input  type="radio" name="' . $flightLabel . '" value="FL"';
-		if($extraForPlayer == 'FL')
+		echo '<input  type="radio" name="' . $flightLabel . '" value="F1"';
+		if($extraForPlayer == 'F1')
 		{
 			echo ' checked';
 		}
