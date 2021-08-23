@@ -551,7 +551,7 @@ function ShowSignups($connection, $tournamentKey) {
 	}
 	else if($t->ClubChampionship){
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		echo 'F1 = Handicap-based Flights<br>' . PHP_EOL;
+		echo 'F1 = Handicap-based Flights (actual flight determined later)<br>' . PHP_EOL;
 		echo 'CH = Championship Flight<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 	}
