@@ -77,12 +77,6 @@ namespace WebAdmin
         private DateTime _cancelEndDate;
         public DateTime CancelEndDate { get { return _cancelEndDate; } set { _cancelEndDate = value; OnPropertyChanged(); } }
 
-        private bool _localHandicap;
-        public bool LocalHandicap { get { return _localHandicap; } set { _localHandicap = value; OnPropertyChanged(); } }
-
-        private bool _scgaTournament;
-        public bool ScgaTournament { get { return _scgaTournament; } set { _scgaTournament = value; OnPropertyChanged(); } }
-
         public int TeamSize
         {
             get { return _teamSizeList[_teamSizeSelectedIndex]; }
@@ -110,9 +104,6 @@ namespace WebAdmin
 
         private int _cost;
         public int Cost { get { return _cost; } set { _cost = value; OnPropertyChanged(); } }
-
-        private int _pool;
-        public int Pool { get { return _pool; } set { _pool = value; OnPropertyChanged(); } }
 
         private string _chairmanName;
         public string ChairmanName { get { return _chairmanName; } set { _chairmanName = value; OnPropertyChanged(); } }
@@ -158,12 +149,13 @@ namespace WebAdmin
 
         public bool NonSpecificTournament
         {
-            get { return !ScgaQualifier && !SrClubChampionship && !AllowNonMemberSignup && !MemberGuest; }
+            get { return !ScgaQualifier && !ClubChampionship && !SrClubChampionship && !AllowNonMemberSignup && !MemberGuest; }
             set
             {
                 if (value)
                 {
                     ScgaQualifier = false;
+                    ClubChampionship = false;
                     SrClubChampionship = false;
                     AllowNonMemberSignup = false;
                     MemberGuest = false;
@@ -176,6 +168,9 @@ namespace WebAdmin
 
         private bool _srClubChampionship;
         public bool SrClubChampionship { get { return _srClubChampionship; } set { _srClubChampionship = value; OnPropertyChanged(); } }
+
+        private bool _clubChampionship;
+        public bool ClubChampionship { get { return _clubChampionship; } set { _clubChampionship = value; OnPropertyChanged(); } }
 
         private bool _onlineSignUp;
         public bool OnlineSignUp { get { return _onlineSignUp; } set { _onlineSignUp = value; OnPropertyChanged(); } }
@@ -208,17 +203,15 @@ namespace WebAdmin
             SignupEndDate = new DateTime(thisYear, thisMonth, 1);
             CancelEndDate = new DateTime(thisYear, thisMonth, 1);
             Year = thisYear.ToString();
-            LocalHandicap = false;
-            ScgaTournament = false;
             TournamentDescriptionKey = -1;
             Cost = TwoDayCost;
-            Pool = 10;
             ChairmanName = String.Empty;
             ChairmanEmail = String.Empty;
             ChairmanPhone = String.Empty;
             Eclectic = false;
             Stableford = false;
             ScgaQualifier = false;
+            ClubChampionship = false;
             SrClubChampionship = false;
             AnnouncementOnly = false;
             SendEmail = true;
@@ -238,12 +231,9 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("SignupStartDate", SignupStartDate.ToString("yyyy-MM-dd")));
             values.Add(new KeyValuePair<string, string>("SignupEndDate", SignupEndDate.ToString("yyyy-MM-dd")));
             values.Add(new KeyValuePair<string, string>("CancelEndDate", CancelEndDate.ToString("yyyy-MM-dd")));
-            values.Add(new KeyValuePair<string, string>("LocalHandicap", LocalHandicap ? "1" : "0"));
-            values.Add(new KeyValuePair<string, string>("ScgaTournament", ScgaTournament ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("TeamSize", TeamSize.ToString()));
             values.Add(new KeyValuePair<string, string>("TournamentDescriptionKey", TournamentDescriptionKey.ToString()));
             values.Add(new KeyValuePair<string, string>("Cost", Cost.ToString()));
-            values.Add(new KeyValuePair<string, string>("Pool", Pool.ToString()));
             values.Add(new KeyValuePair<string, string>("ChairmanName", ChairmanName));
             values.Add(new KeyValuePair<string, string>("ChairmanEmail", ChairmanEmail));
             values.Add(new KeyValuePair<string, string>("ChairmanPhone", ChairmanPhone));
@@ -253,6 +243,7 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("SendEmail", SendEmail ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("RequirePayment", RequirePayment ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SCGAQualifier", ScgaQualifier ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("ClubChampionship", ClubChampionship ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("SrClubChampionship", SrClubChampionship ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("OnlineSignUp", OnlineSignUp ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("MatchPlay", MatchPlay ? "1" : "0"));

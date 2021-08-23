@@ -63,9 +63,8 @@
             <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Signup Start:</TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Signup End:</TextBlock>
             <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center">Cancel End:</TextBlock>
-            <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Handicap:</TextBlock>
-            <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Type:</TextBlock>
-            <TextBlock Grid.Row="9" Grid.Column="0" VerticalAlignment="Center">Sub-Type:</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Type:</TextBlock>
+            <TextBlock Grid.Row="8" Grid.Column="0" VerticalAlignment="Center">Sub-Type:</TextBlock>
             <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center">Team Size:</TextBlock>
             <TextBlock Grid.Row="12" Grid.Column="0" VerticalAlignment="Center">Cost:</TextBlock>
             <TextBlock Grid.Row="13" Grid.Column="0" VerticalAlignment="Center">Sign Up:</TextBlock>
@@ -86,15 +85,8 @@
                                            HorizontalAlignment="Left"  VerticalAlignment="Center" Text="{Binding Path=Tournament.SignupEndDate, Mode=TwoWay}"></DatePicker>
             <DatePicker Grid.Row="5" Grid.Column="1" Margin="5" Name="CancelDateDatePicker" 
                                            HorizontalAlignment="Left"  VerticalAlignment="Center" Text="{Binding Path=Tournament.CancelEndDate, Mode=TwoWay}"></DatePicker>
-            
-            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
-                <CheckBox  Margin="5" Name="LocalHandicapCheckbox" 
-                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.LocalHandicap}">Local Handicap</CheckBox>
-                <CheckBox  Margin="5" Name="SCGATournamentCheckbox" 
-                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.ScgaTournament}">SCGA</CheckBox>
-            </StackPanel>
 
-            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="Stroke" GroupName="TournamentType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.StrokePlay, Mode=TwoWay}" />
                 <RadioButton Content="Eclectic" GroupName="TournamentType" Margin="5" 
@@ -103,25 +95,30 @@
                     IsChecked="{Binding Path=Tournament.Stableford, Mode=TwoWay }"/>
                 
             </StackPanel>
-            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="Match Play" GroupName="TournamentType" Margin="5"
                     IsChecked="{Binding Path=Tournament.MatchPlay, Mode=TwoWay}"/>
                 <RadioButton Content="Announcement Only" GroupName="TournamentType" Margin="5"
                     IsChecked="{Binding Path=Tournament.AnnouncementOnly, Mode=TwoWay}"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="None" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.NonSpecificTournament, Mode=TwoWay}"  />
                 <RadioButton Content="SCGA Qualifier" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.ScgaQualifier, Mode=TwoWay}"  />
-                <RadioButton Content="Sr Championship" GroupName="TournamentSubType" Margin="5" 
+                <RadioButton Content="Member Guest" GroupName="TournamentSubType" Margin="5" 
+                    IsChecked="{Binding Path=Tournament.MemberGuest, Mode=TwoWay}"  />
+            </StackPanel>
+
+            <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
+                <RadioButton Content="Club Championship" GroupName="TournamentSubType" Margin="5" 
+                    IsChecked="{Binding Path=Tournament.ClubChampionship, Mode=TwoWay}"  />
+                <RadioButton Content="Sr Club Championship" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.SrClubChampionship, Mode=TwoWay}"  />
             </StackPanel>
 
             <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
-                <RadioButton Content="Member Guest" GroupName="TournamentSubType" Margin="5" 
-                    IsChecked="{Binding Path=Tournament.MemberGuest, Mode=TwoWay}"  />
                 <RadioButton Content="New Member Mixer" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.AllowNonMemberSignup, Mode=TwoWay}"  />
             </StackPanel>
@@ -139,9 +136,6 @@
                 <TextBlock Margin="5" VerticalAlignment="Center">Entry:</TextBlock>
                 <TextBox  Name="CostTextbox" Margin="5" Width="30" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Cost}"></TextBox>
-                <TextBlock Margin="5" VerticalAlignment="Center">Pool:</TextBlock>
-                <TextBox  Name="PoolTextbox" Margin="5" Width="30" 
-                                 HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Pool}"></TextBox>
             </StackPanel>
 
             <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">

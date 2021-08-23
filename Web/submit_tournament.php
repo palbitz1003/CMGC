@@ -33,12 +33,12 @@ if ($_POST ['Action'] == 'Delete') {
 	$t->SignupStartDate = $_POST ['SignupStartDate'];
 	$t->SignupEndDate = $_POST ['SignupEndDate'];
 	$t->CancelEndDate = $_POST ['CancelEndDate'];
-	$t->LocalHandicap = $_POST ['LocalHandicap'];
-	$t->ScgaTournament = $_POST ['ScgaTournament'];
+	$t->LocalHandicap = 0; // obsolete
+	$t->ScgaTournament = 1; // obsolete
 	$t->TeamSize = $_POST ['TeamSize'];
 	$t->TournamentDescriptionKey = $_POST ['TournamentDescriptionKey'];
 	$t->Cost = $_POST ['Cost'];
-	$t->Pool = $_POST ['Pool'];
+	$t->Pool = 0; // obsolete
 	$t->ChairmanName = $_POST ['ChairmanName'];
 	$t->ChairmanEmail = $_POST ['ChairmanEmail'];
 	$t->ChairmanPhone = $_POST ['ChairmanPhone'];
@@ -75,6 +75,11 @@ if ($_POST ['Action'] == 'Delete') {
 	}
 	if(isset($_POST['MaxSignups'])){
 		$t->MaxSignups = $_POST['MaxSignups'];
+	} else {
+		$t->MaxSignups = 0;
+	}
+	if(isset($_POST['ClubChampionship'])){
+		$t->ClubChampionship = $_POST['ClubChampionship'];
 	} else {
 		$t->MaxSignups = 0;
 	}
@@ -117,6 +122,7 @@ if ($_POST ['Action'] == 'Delete') {
 		UpdateTournament($connection, $t->TournamentKey, 'AnnouncementOnly', $t->AnnouncementOnly, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'MemberGuest', $t->MemberGuest, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'MaxSignups', $t->MaxSignups, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'ClubChampionship', $t->ClubChampionship, 'i');
 	}
 }
 echo "Success";

@@ -343,9 +343,8 @@ else {
 			$FullName[$i] = $players[$i]->LastName; // last name field filled in with full name
 			$Extra[$i] = $players[$i]->Extra;
 		}
-		else if(!$t->SrClubChampionship){
-			// carry forward flight info from old player, but not for the senior championship
-			// since that flight data is based on age
+		else {
+			// carry forward flight info from old player
 			$Extra[$i] = $players[$i]->Extra;  
 		}
 	}
@@ -362,7 +361,7 @@ else {
 	}
 	echo '</p>' . PHP_EOL;
 	
-	if($t->SrClubChampionship){
+	if($t->SrClubChampionship || $t->ClubChampionship){
 		echo '<p style="color: red">Click this link to select the flight for the new player: ' . PHP_EOL;
 		echo '<a href="signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signupKey . '">Modify Flight</a>' . PHP_EOL;
 		echo '</p>' . PHP_EOL;

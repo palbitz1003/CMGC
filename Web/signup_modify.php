@@ -127,6 +127,14 @@ if (isset ( $_POST ['RequestedTime'] )) {
 				}
 			}
 		}
+		else if($t->ClubChampionship){
+			$playerFlightIndex = GetPlayerFlightIndex($i + 1);
+			$Extra[$i] = $_POST[$playerFlightIndex];
+			if(empty ($_POST[$playerFlightIndex]))
+			{
+				$flightErrorList[$i] = "Select Flight";
+			}
+		}
 	}
 }
 
@@ -233,7 +241,7 @@ if ($hasError || !isset ( $_POST ['RequestedTime'] )) {
 			UpdateSignupPlayer($connection, $signupKey, $players[$i]->GHIN, 'Extra', $Extra[$i], 's');
 		}
 	}
-	else if($t->SrClubChampionship){
+	else if($t->SrClubChampionship || $t->ClubChampionship){
 		for($i = 0; $i < count($players); ++ $i) {
 			UpdateSignupPlayer($connection, $signupKey, $players[$i]->GHIN, 'Extra', $Extra[$i], 's');
 		}

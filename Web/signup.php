@@ -121,7 +121,7 @@ if (isset ( $_POST ['Player'] )) {
 				$flightErrorList[$i] = "Select Flight";
 			}
 		}
-		else if($t->SrClubChampionship)
+		else if($t->SrClubChampionship || $t->ClubChampionship)
 		{
 			$playerFlightIndex = GetPlayerFlightIndex($i + 1);
 			$Extra[$i] = $_POST[$playerFlightIndex];
@@ -129,7 +129,7 @@ if (isset ( $_POST ['Player'] )) {
 			{
 				$flightErrorList[$i] = "Select Flight";
 			}
-		}
+		} 
 		
 		// If you put in a GHIN of 0, empty("0") returns true, so change
 		// the GHIN number to "0000000"

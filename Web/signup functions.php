@@ -549,6 +549,12 @@ function ShowSignups($connection, $tournamentKey) {
 		echo 'CH = Championship Flight (55 and older)<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 	}
+	else if($t->ClubChampionship){
+		echo '<tr><td style="border: none">' . PHP_EOL;
+		echo 'FL = Handicap-based Flights<br>' . PHP_EOL;
+		echo 'CH = Championship Flight<br><br>' . PHP_EOL;
+		echo '</td></tr>' . PHP_EOL;
+	}
 
 	$count = GetPlayerCountForTournament($connection, $tournamentKey);
 	/*
@@ -591,7 +597,7 @@ function ShowSignups($connection, $tournamentKey) {
 			echo '<tr><td style="border: none">These players have signed up and have paid.</td></tr>';
 		}
 		else {
-			echo '<tr><td style="border: none">These players have signed up.</td></tr>';
+			echo '<tr><td style="border: none">These players have signed up (no payment required).</td></tr>';
 		}
 		echo '<tr><td style="border: none">' . PHP_EOL;
 		ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t);
@@ -1028,7 +1034,7 @@ function AddPlayerTable($t)
 	}
 	
 	echo '		<col>' . PHP_EOL;
-	if($t->SrClubChampionship){
+	if($t->SrClubChampionship || $t->ClubChampionship){
 		echo '		<col>' . PHP_EOL;
 	}
 	echo '	</colgroup>' . PHP_EOL;
@@ -1065,11 +1071,37 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 			echo '<p style="color:red">' . $errorForPlayer . '</p>' . PHP_EOL;
 		}
 		echo '</td>' . PHP_EOL;
+	} else if($t->ClubChampionship){
+		$flightLabel = GetPlayerFlightIndex($playerNumber);
+		if($rowSpan > 1){
+			echo '<td rowspan = "' . $rowSpan . '" style="border: none;">' . PHP_EOL;
+		}
+		else {
+			echo '<td style="border: none">' . PHP_EOL;
+		}
+		echo '<input  type="radio" name="' . $flightLabel . '" value="FL"';
+		if($extraForPlayer == 'FL')
+		{
+			echo ' checked';
+		}
+		echo '>Handicap-based flights' . PHP_EOL;
+		
+		echo '<br><input  type="radio" name="' . $flightLabel . '" value="CH"';
+		if($extraForPlayer == 'CH')
+		{
+			echo ' checked';
+		}
+		echo '>Championship flight' . PHP_EOL;
+		if(!empty($errorForPlayer)){
+			echo '<p style="color:red">' . $errorForPlayer . '</p>' . PHP_EOL;
+		}
+		echo '</td>' . PHP_EOL;
+
 	}
 }
 
 function AddFlightsError($t, $errorForPlayer){
-	if($t->SrClubChampionship){
+	if($t->SrClubChampionship || $t->ClubChampionship){
 		if(!empty($errorForPlayer)){
 			echo '<td style="border: none;color:red">' . $errorForPlayer . '</td>' . PHP_EOL;
 		}
