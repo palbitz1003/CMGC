@@ -997,7 +997,7 @@ namespace WebAdmin.ViewModel
         private void SaveTeeTimesAsCsv(object o)
         {
             int teamId = 0;
-            string teeTimesFileName = "Teetimes - " + TournamentNames[TournamentNameIndex].Name;
+            string teeTimesFileName = "Teetimes - " + TournamentNames[TournamentNameIndex].Name.Replace('/', '-');
 
             // Append an index to the file name and search for the first one that
             // is not used already
