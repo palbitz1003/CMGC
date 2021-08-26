@@ -2690,7 +2690,7 @@ namespace WebAdmin.ViewModel
         {
             // Configure save file dialog box
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "Tee Time History";
+            dlg.FileName = "Tee Time History - Last 12 Months";
             dlg.DefaultExt = ".csv"; // Default file extension
             dlg.Filter = "CSV File (.csv)|*.csv"; // Filter files by extension
 
@@ -2739,7 +2739,7 @@ namespace WebAdmin.ViewModel
 
             if ((TeeTimeRequests != null) && (TeeTimeRequests.Count > 0))
             {
-                dlg.FileName = TournamentNames[TournamentNameIndex].Name +  " - Tee Time Request History";
+                dlg.FileName = "Tee Time Request History - " + TournamentNames[TournamentNameIndex].Name.Replace('/', '-');
 
                 // Show save file dialog box
                 result = dlg.ShowDialog();
