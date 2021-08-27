@@ -23,16 +23,6 @@ namespace WebAdmin.ViewModel
 
         private List<string> _defaultTeeTimes;
 
-        private readonly List<string> _defaultTeeTimes10 = new List<string>
-        {
-            "6:00 AM", "6:10 AM", "6:20 AM", "6:30 AM", "6:40 AM", "6:50 AM",
-            "7:00 AM", "7:10 AM", "7:20 AM", "7:30 AM", "7:40 AM", "7:50 AM",
-            "8:00 AM", "8:10 AM", "8:20 AM", "8:30 AM", "8:40 AM", "8:50 AM",
-            "9:00 AM", "9:10 AM", "9:20 AM", "9:30 AM", "9:40 AM", "9:50 AM",
-            "10:00 AM", "10:10 AM", "10:20 AM", "10:30 AM", "10:40 AM", "10:50 AM",
-            "11:00 AM", "11:10 AM", "11:20 AM", "11:30 AM", "11:40 AM", "11:50 AM", "12:00 PM"
-        };
-
         private readonly List<string> _defaultTeeTimes78 = new List<string>
         {
             "6:00 AM", "6:07 AM", "6:15 AM", "6:22 AM", "6:30 AM", "6:37 AM", "6:45 AM", "6:52 AM",
@@ -41,17 +31,6 @@ namespace WebAdmin.ViewModel
             "9:00 AM", "9:07 AM", "9:15 AM", "9:22 AM", "9:30 AM", "9:37 AM", "9:45 AM", "9:52 AM",
             "10:00 AM", "10:07 AM", "10:15 AM", "10:22 AM", "10:30 AM", "10:37 AM", "10:45 AM", "10:52 AM",
             "11:00 AM", "11:07 AM", "11:15 AM", "11:22 AM", "11:30 AM", "11:37 AM", "11:45 AM", "11:52 AM", "12:00 PM"
-        };
-
-        private readonly List<string> _defaultTeeTimes98 = new List<string>
-        {
-            "6:00 AM", "6:09 AM", "6:17 AM", "6:26 AM", "6:34 AM", "6:43 AM", "6:51 AM",
-            "7:00 AM", "7:09 AM", "7:17 AM", "7:26 AM", "7:34 AM", "7:43 AM", "7:51 AM",
-            "8:00 AM", "8:09 AM", "8:17 AM", "8:26 AM", "8:34 AM", "8:43 AM", "8:51 AM",
-            "9:00 AM", "9:09 AM", "9:17 AM", "9:26 AM", "9:34 AM", "9:43 AM", "9:51 AM",
-            "10:00 AM", "10:09 AM", "10:17 AM", "10:26 AM", "10:34 AM", "10:43 AM", "10:51 AM",
-            "11:00 AM", "11:09 AM", "11:17 AM", "11:26 AM", "11:34 AM", "11:43 AM", "11:51 AM", "12:00 PM"
-
         };
 
         private Visibility _getTournamentsVisible;
@@ -240,62 +219,6 @@ namespace WebAdmin.ViewModel
             set { _allowTeeTimeIntervalAdjust = value; OnPropertyChanged(); }
         }
 
-        private bool _teeTimeInterval78;
-        public bool TeeTimeInterval78
-        {
-            get { return _teeTimeInterval78; }
-            set
-            {
-                _teeTimeInterval78 = value;
-                if (_teeTimeInterval78)
-                {
-                    _defaultTeeTimes = _defaultTeeTimes78;
-                    InitFirstTeeTimeList();
-                    InitTeeTimes();
-                }
-                Options.TeeTimeInterval78 = _teeTimeInterval78;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _teeTimeInterval10;
-        public bool TeeTimeInterval10
-        {
-            get { return _teeTimeInterval10; }
-            set
-            {
-                _teeTimeInterval10 = value;
-                if (_teeTimeInterval10)
-                {
-                    _defaultTeeTimes = _defaultTeeTimes10;
-                    InitFirstTeeTimeList();
-                    InitTeeTimes();
-                }
-
-                Options.TeeTimeInterval10 = _teeTimeInterval10;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _teeTimeInterval98;
-        public bool TeeTimeInterval98
-        {
-            get { return _teeTimeInterval98; }
-            set
-            {
-                _teeTimeInterval98 = value;
-                if (_teeTimeInterval98)
-                {
-                    _defaultTeeTimes = _defaultTeeTimes98;
-                    InitFirstTeeTimeList();
-                    InitTeeTimes();
-                }
-
-                Options.TeeTimeInterval98 = _teeTimeInterval98;
-                OnPropertyChanged();
-            }
-        }
-
         private bool _teeTimesDirty = false;
 
         private int _currentNumberOfPlayersShowing;
@@ -349,9 +272,11 @@ namespace WebAdmin.ViewModel
             // property setter code which is not needed.
             //TodoSelection = -1;
             RemoveSelection = -1;
-            TeeTimeInterval10 = Options.TeeTimeInterval10; // initializes list
-            TeeTimeInterval78 = Options.TeeTimeInterval78;
-            TeeTimeInterval98 = Options.TeeTimeInterval98;
+
+            _defaultTeeTimes = _defaultTeeTimes78;
+            InitFirstTeeTimeList();
+            InitTeeTimes();
+
             GetTournamentsVisible = Visibility.Visible;
             GotTournamentsVisible = Visibility.Collapsed;
             AllowTeeTimeIntervalAdjust = true;

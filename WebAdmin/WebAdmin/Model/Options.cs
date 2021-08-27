@@ -19,9 +19,6 @@ namespace WebAdmin
         public string GHINFileName { get; set; }
         public string LocalHandicapFileName { get; set; }
         public string LastCSVResultFolder { get; set; }
-        public bool TeeTimeInterval78 { get; set; }
-        public bool TeeTimeInterval98 { get; set; }
-        public bool TeeTimeInterval10 { get; set; }
         public int MonthsOfTeeTimeDataToLoad { get; set; }
         public string LastCSVTeeTimesFolder { get; set; }
 
@@ -29,9 +26,6 @@ namespace WebAdmin
         {
             WebSite = "www.coronadomensgolf.org";
             ScriptFolder = "v2";
-            TeeTimeInterval78 = true;
-            TeeTimeInterval98 = false;
-            TeeTimeInterval10 = false;
             MonthsOfTeeTimeDataToLoad = 12;
         }
 
@@ -52,24 +46,6 @@ namespace WebAdmin
                     {
                         var options = (Options)xs.Deserialize(sr);
 
-                        // Sanity checks on the interval choice. Only 1 can be true.
-                        if (!options.TeeTimeInterval78 && !options.TeeTimeInterval98 && !options.TeeTimeInterval10)
-                        {
-                            options.TeeTimeInterval78 = true;
-                        }
-                        else
-                        {
-                            int countTrue = 0;
-                            if (options.TeeTimeInterval78) countTrue++;
-                            if (options.TeeTimeInterval98) countTrue++;
-                            if (options.TeeTimeInterval10) countTrue++;
-                            if (countTrue > 1)
-                            {
-                                options.TeeTimeInterval78 = true;
-                                options.TeeTimeInterval98 = false;
-                                options.TeeTimeInterval10 = false;
-                            }
-                        }
                         return options;
                     }
                     catch (Exception)

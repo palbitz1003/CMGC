@@ -8,15 +8,6 @@
     <DockPanel LastChildFill="true">
 
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
-            <StackPanel Margin="20,0,0,0" Orientation="Horizontal" Visibility="Collapsed">
-                <Label VerticalAlignment="Center">Tee Time Interval:</Label>
-                <RadioButton x:Name="TeeTimeInterval78Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval78, Mode=TwoWay}" 
-                             VerticalAlignment="Center" Margin="5" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">7,8</RadioButton>
-                <RadioButton x:Name="TeeTimeInterval98Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval98, Mode=TwoWay}" 
-                             VerticalAlignment="Center" Margin="5" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">9,8</RadioButton>
-                <RadioButton x:Name="TeeTimeInterval10Button" GroupName="TeeTimeInterval" IsChecked="{Binding Path=TeeTimeInterval10, Mode=TwoWay}"
-                             VerticalAlignment="Center" IsEnabled="{Binding Path=AllowTeeTimeIntervalAdjust}">10</RadioButton>
-            </StackPanel>
             <GroupBox Header="CSV file">
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadTeeTimesFromCsvButton" Height="22"
