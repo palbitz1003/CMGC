@@ -604,7 +604,7 @@ function IsPastSignupPeriod($tournament)
 {
 	$now = new DateTime ( "now" );
 	$endSignUp = new DateTime($tournament->SignupEndDate);
-	$endSignUp->add(new DateInterval ( 'PT12H00M' )); // noon
+	$endSignUp->add(new DateInterval ( 'P5D'  )); // allow changes 5 days after signup ends
 	if($now > $endSignUp) {
 		return true;
 	}
