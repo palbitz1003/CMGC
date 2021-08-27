@@ -21,12 +21,14 @@ namespace WebAdmin
         public string LastCSVResultFolder { get; set; }
         public int MonthsOfTeeTimeDataToLoad { get; set; }
         public string LastCSVTeeTimesFolder { get; set; }
+        public List<string> BlockedOutTeeTimes { get; set; }
 
         public Options()
         {
             WebSite = "www.coronadomensgolf.org";
             ScriptFolder = "v2";
             MonthsOfTeeTimeDataToLoad = 12;
+            BlockedOutTeeTimes = new List<string>();
         }
 
         public static Options Load(string fileName)
