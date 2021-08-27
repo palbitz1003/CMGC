@@ -54,7 +54,7 @@ if (! $tournamentKey || !is_numeric($tournamentKey)) {
 		echo '<tr>' . PHP_EOL;
 		
 		echo '<td style="width:50%;border:none;">' . PHP_EOL;
-		ShowTeeTimes ($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray);
+		ShowTeeTimes ($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray, $tournament->ClubChampionship);
 		echo '</td>' . PHP_EOL;
 		
 		echo '<td style="width:50%;border:none;">' . PHP_EOL;
@@ -72,7 +72,7 @@ if (! $tournamentKey || !is_numeric($tournamentKey)) {
 echo '    </div><!-- #content -->';
 echo ' </div><!-- #content-container -->';
 
-function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray) {
+function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray, $clubChampionship) {
 	echo '<table>' . PHP_EOL;
 	echo '<thead><tr class="header"><th colspan="3">By Time</th></tr></thead>' . PHP_EOL;
 	echo '<tbody>' . PHP_EOL;
@@ -124,7 +124,12 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 			
 			// Show extra data
 			if(!empty($teeTimeArray[$i]->Players[$j]->Extra)){
-				echo ' (' . $teeTimeArray[$i]->Players[$j]->Extra . ')';
+				if($clubChampionship && ($teeTimeArray[$i]->Players[$j]->Extra == "F1")){
+					// Don't show anything because flights have not been determined
+				}
+				else {
+					echo ' (' . $teeTimeArray[$i]->Players[$j]->Extra . ')';
+				}
 			}
 			
 			echo '</td></tr>';

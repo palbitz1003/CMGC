@@ -551,7 +551,7 @@ function ShowSignups($connection, $tournamentKey) {
 	}
 	else if($t->ClubChampionship){
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		echo 'F1 = Handicap-based Flights (actual flight determined later)<br>' . PHP_EOL;
+		//echo 'F1 = Handicap-based Flights (actual flight determined later)<br>' . PHP_EOL;
 		echo 'CH = Championship Flight<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 	}
@@ -628,7 +628,11 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 				$players = $players . ' (F2)';
 			}
 			else if(!empty($playersSignedUp [$p]->Extra)) {
-				$players = $players . ' (' . $playersSignedUp [$p]->Extra . ')';
+				if($t->ClubChampionship && ($playersSignedUp [$p]->Extra == "F1")){
+					// don't show anything since flight is not yet determined
+				} else {
+					$players = $players . ' (' . $playersSignedUp [$p]->Extra . ')';
+				}
 			}
 		}
 		
