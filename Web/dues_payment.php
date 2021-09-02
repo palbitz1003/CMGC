@@ -219,7 +219,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 
 	echo '<tr>' . PHP_EOL;
 	echo '<td style="border: none;">Phone Number:</td>' . PHP_EOL;
-	echo '<td style="border: none;"><input type="tel" id="phone" name="Player[Phone]"';
+	echo '<td style="border: none;"><input type="text" id="phone" name="Player[Phone]"';
 	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $Phone . '" required> <small>Format: 123-456-7890</small></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
 	//insert_error_line($error, 2);
