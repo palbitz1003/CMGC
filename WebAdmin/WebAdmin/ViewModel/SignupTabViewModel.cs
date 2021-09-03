@@ -1241,6 +1241,7 @@ namespace WebAdmin.ViewModel
                     UpdateUnassignedList(4);
 
                     InitTeeTimes();
+                    ResetBlockedTeeTimes();
 
                     // Blind draw after tee times cleared
                     RecalculateBlindDrawOnSelection = true;
