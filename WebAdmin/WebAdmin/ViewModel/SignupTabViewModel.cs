@@ -1679,9 +1679,10 @@ namespace WebAdmin.ViewModel
             {
                 ghinList = GHINEntry.LoadGHIN(Options.GHINFileName);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // no error if file doesn't exist
+                MessageBox.Show(Application.Current.MainWindow, "Error: " + ex.Message);
+                return;
             }
 
             AddPlayerWindow apw = new AddPlayerWindow();
