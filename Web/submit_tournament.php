@@ -81,7 +81,7 @@ if ($_POST ['Action'] == 'Delete') {
 	if(isset($_POST['ClubChampionship'])){
 		$t->ClubChampionship = $_POST['ClubChampionship'];
 	} else {
-		$t->MaxSignups = 0;
+		$t->ClubChampionship = 0;
 	}
 	
 	
