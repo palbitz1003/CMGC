@@ -26,3 +26,13 @@ User-agent: DotBot
 Disallow: /
 User-agent: Applebot
 Disallow: /
+User-agent: ZoominfoBot
+Disallow: /
+User-agent: MauiBot
+Disallow: /
+User-agent: PetalBot
+Disallow: /
+User-agent: Amazonbot
+Disallow: /
+User-agent: YisouSpider
+Disallow: /
