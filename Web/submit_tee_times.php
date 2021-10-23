@@ -32,6 +32,13 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	}
 	$logFile = $default_log_folder . "/TeeTimes." . $tournamentKey . ".log";
 
+	// Remove players first, so the count of players for each signup are correct for calculations below
+	if(!empty($_POST ['Remove'])){
+		for($i = 0; $i < count ( $_POST ['Remove'] ); ++ $i) {
+			RemovePlayer($connection, $logFile, $tournamentKey, $_POST ['Remove'] [$i] ['GHIN'], $_POST ['Remove'] [$i] ['Name']);
+		}
+	}
+
 	$signups = array();
 	$errors = false;
 	$errorMessages = "";
@@ -281,5 +288,58 @@ if($errors){
 }
 else {
 	echo 'Success';
+}
+
+function RemovePlayer($connection, $logFile, $tournamentKey, $ghin, $name)
+{
+	// Get the signup data for the player. This just gets the data for the individual player, not all
+	// the players in the signup group.  Guests in member guest may have GHIN 0.
+	if(intval($ghin) === 0){
+		$removeSignupPlayer = GetPlayerSignUpByName($connection, $tournamentKey, $name);
+	}
+	else {
+		$removeSignupPlayer = GetPlayerSignUp($connection, $tournamentKey, $ghin);
+	}
+	if(!empty($removeSignupPlayer)){
+		
+		RemoveSignedUpPlayer ( $connection, $tournamentKey, $removeSignupPlayer->GHIN, $removeSignupPlayer->LastName );
+
+		if(!empty($logFile)){
+			error_log(date ( '[Y-m-d H:i e] ' ) . "Removed player: " . $name . " (" . $ghin . ")" . PHP_EOL, 3, $logFile);
+		}
+
+		$t = GetTournament($connection, $tournamentKey);
+
+		if(!empty($t) && $t->RequirePayment){
+			$removeSignup = GetSignup($connection, $removeSignupPlayer->SignUpKey);
+			if(!empty($removeSignup)){
+				$remainingFees = $removeSignup->PaymentDue - $t->Cost;
+				if($remainingFees < 0){
+					// Fee should never go below 0
+					$remainingFees = 0;
+				}
+
+				UpdateSignup($connection, $removeSignupPlayer->SignUpKey, 'PaymentDue', $remainingFees, 'd');
+
+				if(!empty($logFile)){
+					error_log(date ( '[Y-m-d H:i e] ' ) . "Updated payment due to: " . $remainingFees . PHP_EOL, 3, $logFile);
+				}
+			}
+		}
+
+		$remainingPlayers = GetPlayersForSignUp($connection, $removeSignupPlayer->SignUpKey);
+		if(count($remainingPlayers) == 0){
+			DeleteSignup($connection, $removeSignupPlayer->SignUpKey);
+
+			if(!empty($logFile)){
+				error_log(date ( '[Y-m-d H:i e] ' ) . "Deleted signup: " . $removeSignupPlayer->SignUpKey . PHP_EOL, 3, $logFile);
+			}
+		}
+	}
+	else {
+		if(!empty($logFile)){
+			error_log(date ( '[Y-m-d H:i e] ' ) . "Failed to find player to remove: " . $name . " (" . $ghin . ")" . PHP_EOL, 3, $logFile);
+		}
+	}
 }
 ?>

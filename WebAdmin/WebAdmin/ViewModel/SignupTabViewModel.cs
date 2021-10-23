@@ -166,6 +166,7 @@ namespace WebAdmin.ViewModel
         }
 
         public TrulyObservableCollection<Player> CancelledPlayers { get; set; }
+        public TrulyObservableCollection<Player> PlayersToRemoveFromSignup { get; set; }
 
         private string _teeTimeFile;
         public string TeeTimeFile
@@ -283,6 +284,7 @@ namespace WebAdmin.ViewModel
             AllowTeeTimeIntervalAdjust = true;
             _randomNumberGenerator = new Random();
             CancelledPlayers = new TrulyObservableCollection<Player>();
+            PlayersToRemoveFromSignup = new TrulyObservableCollection<Player>();
             TeeTimeSource = "";
             MonthsOfTeeTimeDataToLoad = Options.MonthsOfTeeTimeDataToLoad;
 
@@ -895,6 +897,20 @@ namespace WebAdmin.ViewModel
                     }
                 }
 
+                if (PlayersToRemoveFromSignup.Count > 0)
+                {
+                    for (int i = 0; i < PlayersToRemoveFromSignup.Count; i++)
+                    {
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Remove[{0}][GHIN]", i),
+                            PlayersToRemoveFromSignup[i].GHIN.ToString(CultureInfo.InvariantCulture)));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Remove[{0}][Name]", i),
+                            PlayersToRemoveFromSignup[i].Name));
+                    }
+                }
+
                 var content = new FormUrlEncodedContent(values);
 
                 //Logging.Log("Signup Tee Time UploadToWeb", values.ToString());
@@ -914,6 +930,7 @@ namespace WebAdmin.ViewModel
                         {
                             SaveTeeTimesAsCsv(o);
                         }
+                        PlayersToRemoveFromSignup.Clear();
                     }
                     else
                     {
@@ -1225,6 +1242,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequestsUnassigned.Clear();
                     TeeTimeRequestsAssigned.Clear();
                     CancelledPlayers.Clear();
+                    PlayersToRemoveFromSignup.Clear();
                     AllowTeeTimeIntervalAdjust = true;
 
                     if (string.IsNullOrEmpty(responseString))
@@ -1502,6 +1520,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequestsAssigned.Clear();
                     TournamentTeeTimes.Clear();
                     CancelledPlayers.Clear();
+                    PlayersToRemoveFromSignup.Clear();
 
                     AllowTeeTimeIntervalAdjust = false;
 
@@ -1901,6 +1920,7 @@ namespace WebAdmin.ViewModel
                         }
                         UpdateUnassignedList(_currentNumberOfPlayersShowing);
                         CancelledPlayers.Add(rpw.Player);
+                        PlayersToRemoveFromSignup.Add(rpw.Player);
                         return;
                     }
 
@@ -1966,6 +1986,7 @@ namespace WebAdmin.ViewModel
                                 TeeTimeRequestsAssigned.Remove(ttr);
                             }
                             CancelledPlayers.Add(rpw.Player);
+                            PlayersToRemoveFromSignup.Add(rpw.Player);
                         }
                     }
                 }
@@ -2085,6 +2106,7 @@ namespace WebAdmin.ViewModel
                 TeeTimeRequestsUnassigned.Clear();
                 TeeTimeRequestsAssigned.Clear();
                 CancelledPlayers.Clear();
+                PlayersToRemoveFromSignup.Clear();
 
                 string[][] lines = CSVParser.Parse(tr);
 
