@@ -167,6 +167,7 @@ namespace WebAdmin.ViewModel
 
         public TrulyObservableCollection<Player> CancelledPlayers { get; set; }
         public TrulyObservableCollection<Player> PlayersToRemoveFromSignup { get; set; }
+        public TrulyObservableCollection<ReplacePlayer> PlayersToReplaceFromSignup { get; set; }
 
         private string _teeTimeFile;
         public string TeeTimeFile
@@ -285,6 +286,7 @@ namespace WebAdmin.ViewModel
             _randomNumberGenerator = new Random();
             CancelledPlayers = new TrulyObservableCollection<Player>();
             PlayersToRemoveFromSignup = new TrulyObservableCollection<Player>();
+            PlayersToReplaceFromSignup = new TrulyObservableCollection<ReplacePlayer>();
             TeeTimeSource = "";
             MonthsOfTeeTimeDataToLoad = Options.MonthsOfTeeTimeDataToLoad;
 
@@ -911,6 +913,32 @@ namespace WebAdmin.ViewModel
                     }
                 }
 
+                if (PlayersToReplaceFromSignup.Count > 0)
+                {
+                    for (int i = 0; i < PlayersToReplaceFromSignup.Count; i++)
+                    {
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Replace[{0}][GHIN]", i),
+                            PlayersToReplaceFromSignup[i].Remove.GHIN.ToString(CultureInfo.InvariantCulture)));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Replace[{0}][Name]", i),
+                            PlayersToReplaceFromSignup[i].Remove.Name));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Replace[{0}][NewGHIN]", i),
+                            PlayersToReplaceFromSignup[i].Add.GHIN.ToString(CultureInfo.InvariantCulture)));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Replace[{0}][NewName]", i),
+                            PlayersToReplaceFromSignup[i].Add.Name));
+
+                        values.Add(new KeyValuePair<string, string>(
+                            string.Format("Replace[{0}][NewExtra]", i),
+                            PlayersToReplaceFromSignup[i].Add.Extra));
+                    }
+                }
+
                 var content = new FormUrlEncodedContent(values);
 
                 //Logging.Log("Signup Tee Time UploadToWeb", values.ToString());
@@ -931,6 +959,7 @@ namespace WebAdmin.ViewModel
                             SaveTeeTimesAsCsv(o);
                         }
                         PlayersToRemoveFromSignup.Clear();
+                        PlayersToReplaceFromSignup.Clear();
                     }
                     else
                     {
@@ -1243,6 +1272,7 @@ namespace WebAdmin.ViewModel
                     TeeTimeRequestsAssigned.Clear();
                     CancelledPlayers.Clear();
                     PlayersToRemoveFromSignup.Clear();
+                    PlayersToReplaceFromSignup.Clear();
                     AllowTeeTimeIntervalAdjust = true;
 
                     if (string.IsNullOrEmpty(responseString))
@@ -1521,6 +1551,7 @@ namespace WebAdmin.ViewModel
                     TournamentTeeTimes.Clear();
                     CancelledPlayers.Clear();
                     PlayersToRemoveFromSignup.Clear();
+                    PlayersToReplaceFromSignup.Clear();
 
                     AllowTeeTimeIntervalAdjust = false;
 
@@ -1809,6 +1840,15 @@ namespace WebAdmin.ViewModel
                                           MessageBoxImage.Question);
                     if (result == MessageBoxResult.Yes)
                     {
+                        // Take the last removed player off the remove list
+                        PlayersToRemoveFromSignup.Remove(LastRemovedPlayer);
+
+                        // Add the last removed player and new player to the replace list
+                        ReplacePlayer rp = new ReplacePlayer();
+                        rp.Remove = LastRemovedPlayer;
+                        rp.Add = player;
+                        PlayersToReplaceFromSignup.Add(rp);
+
                         // Only remember the last removed player until a new player is added
                         LastRemovedPlayerTeeTimeIndex = -1;
                         LastRemovedPlayer = null;
@@ -1955,13 +1995,9 @@ namespace WebAdmin.ViewModel
                         TournamentTeeTimes[teeTimeIndex].RemovePlayer(rpw.Player);
                         TeeTimeSelection = teeTimeIndex;
 
-                        // If the tee time is not empty, remember the last player
-                        // removed in case a player is added next to replace them.
-                        if (TournamentTeeTimes[teeTimeIndex].Players.Count > 0)
-                        {
-                            LastRemovedPlayerTeeTimeIndex = teeTimeIndex;
-                            LastRemovedPlayer = rpw.Player;
-                        }
+                        // Remember the last player removed in case a player is added next to replace them.
+                        LastRemovedPlayerTeeTimeIndex = teeTimeIndex;
+                        LastRemovedPlayer = rpw.Player;
 
                         // Tee time requests are moved to the assigned list when 
                         // the request has been given a tee time. Remove the player

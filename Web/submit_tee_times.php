@@ -39,6 +39,14 @@ if (! isset ( $_POST ['TeeTime'] )) {
 		}
 	}
 
+	if(!empty($_POST ['Replace'])){
+		for($i = 0; $i < count ( $_POST ['Replace'] ); ++ $i) {
+			ReplacePlayer($connection, $logFile, $tournamentKey, 
+				$_POST ['Replace'] [$i] ['GHIN'], $_POST ['Replace'] [$i] ['Name'],
+				$_POST ['Replace'] [$i] ['NewGHIN'], $_POST ['Replace'] [$i] ['NewName'], $_POST ['Replace'] [$i] ['NewExtra']);
+		}
+	}
+
 	$signups = array();
 	$errors = false;
 	$errorMessages = "";
@@ -339,6 +347,38 @@ function RemovePlayer($connection, $logFile, $tournamentKey, $ghin, $name)
 	else {
 		if(!empty($logFile)){
 			error_log(date ( '[Y-m-d H:i e] ' ) . "Failed to find player to remove: " . $name . " (" . $ghin . ")" . PHP_EOL, 3, $logFile);
+		}
+	}
+}
+
+function ReplacePlayer($connection, $logFile, $tournamentKey, $ghin, $name, $newGhin, $newName, $newExtra){
+	// Get the signup data for the player. This just gets the data for the individual player, not all
+	// the players in the signup group.  Guests in member guest may have GHIN 0.
+	if(intval($ghin) === 0){
+		$removeSignupPlayer = GetPlayerSignUpByName($connection, $tournamentKey, $name);
+	}
+	else {
+		$removeSignupPlayer = GetPlayerSignUp($connection, $tournamentKey, $ghin);
+	}
+	if(!empty($removeSignupPlayer)){
+		RemoveSignedUpPlayer ( $connection, $tournamentKey, $ghin, $name );
+
+		$ghinArray = array();
+		$ghinArray[] = $newGhin;
+		$nameArray = array();
+		$nameArray[] = $newName;
+		$extraArray = array();
+		$extraArray[] = $newExtra;
+		
+		InsertSignUpPlayers ( $connection, $tournamentKey, $removeSignupPlayer->SignUpKey, $ghinArray, $nameArray, $extraArray );
+
+		if(!empty($logFile)){
+			error_log(date ( '[Y-m-d H:i e] ' ) . "Replaced: " . $name . " with " . $newName . " (" . $newGhin . ") " . $newExtra . PHP_EOL, 3, $logFile);
+		}
+	}
+	else {
+		if(!empty($logFile)){
+			error_log(date ( '[Y-m-d H:i e] ' ) . "Failed to find player to replace: " . $name . " (" . $ghin . ")" . PHP_EOL, 3, $logFile);
 		}
 	}
 }
