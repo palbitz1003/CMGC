@@ -14,7 +14,7 @@ if(empty($submitKey) || !is_numeric($submitKey)){
 }
 
 $testMode = false;
-if($_GET ['mode'] == "test"){
+if(!empty($_GET ['mode']) && ($_GET ['mode'] == "test")){
 	$testMode = true;
 }
 

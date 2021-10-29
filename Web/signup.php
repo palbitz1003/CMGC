@@ -21,7 +21,7 @@ if (!file_exists($default_log_folder)) {
 $logFile = $default_log_folder . "/signup." . $tournamentKey . ".log";
 
 $testMode = false;
-if($_GET ['mode'] == "test"){
+if(!empty($_GET ['mode']) && ($_GET ['mode'] == "test")){
 	$testMode = true;
 }
 
@@ -85,12 +85,12 @@ if($t->TournamentDescriptionKey > 0){
 	$descr = $td->Description;
 }
 
-$errorList = array ();
-$flightErrorList = array();
-$GHIN = array ();
-$LastName = array ();
-$FullName = array();
-$Extra = array();
+$errorList = array ("", "", "", "");
+$flightErrorList = array("", "", "", "");
+$GHIN = array ("", "", "", "");
+$LastName = array ("", "", "", "");
+$FullName = array("", "", "", "");
+$Extra = array("", "", "", "");
 $RequestedTime = "None";
 $memberSignedUp = array_fill(0, 3, false);
 

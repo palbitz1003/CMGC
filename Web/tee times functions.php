@@ -79,6 +79,8 @@ function GetTeeTimes($connection, $tournamentKey) {
 	
 	$query->bind_result ( $key, $tournament, $startTime, $startHole );
 	
+	$teeTimeArray = array();
+	
 	while ( $query->fetch () ) {
 		$teeTime = new DatabaseTeeTime ();
 		$teeTime->Key = $key;

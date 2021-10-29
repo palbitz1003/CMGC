@@ -110,7 +110,7 @@ function ShowTeeTimes($connection, $tournamentKey, $teeTimeArray, $unpaidSignupA
 							$link = "Pay for Single";
 						}
 
-						echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signupKey . '">' . $link . '</a>';
+						echo '<a href="pay.php?tournament=' . $tournamentKey . '&signup=' . $signupKey . '">' . $link . '</a>';
 						// Add to list of signup keys shown for payment
 						$paymentSignupKeyShown[] = $signupKey;
 					}

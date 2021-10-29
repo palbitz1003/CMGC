@@ -433,6 +433,8 @@ function GetSignups($connection, $tournamentKey, $sqlClause) {
 
 	$signups->bind_result ( $key, $tournament, $date, $requestedTime, $payment, $paymentDue, $paymentDateTime, $accessCode, $payerName, $payerEmail, $paymentEnabled );
 
+	$signUpArray = array();
+
 	while ( $signups->fetch () ) {
 		$signUpObj = new SignUpClass ();
 		$signUpObj->SignUpKey = $key;
@@ -647,18 +649,18 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 			echo '<td>';
 			$needToPay = $signUpArray [$i]->Payment < $signUpArray [$i]->PaymentDue;
 			if($needToPay && $signUpArray [$i]->PaymentEnabled) {
-				echo '<a href="' . $script_folder_href . 'pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp;';
+				echo '<a href="pay.php?tournament=' . $tournamentKey . '&signup=' . $signUpArray [$i]->SignUpKey . '">Pay</a>&nbsp;&nbsp;&nbsp;';
 			}
 			else {
 				// Place blanks where the "Pay" link would be, using approximately the same length
 				echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 			}
-			echo '<a href="' . $script_folder_href . 'signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
+			echo '<a href="signup_remove_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Remove</a>&nbsp;&nbsp;&nbsp;';
 			// Since some players can sign up their group if they are on the waiting list, disable replace, because that would allow someone
 			// to sign up off the waiting list and the replace the waiting list player.
-			echo '<a href="' . $script_folder_href . 'signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
-			echo '<a href="' . $script_folder_href . 'signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
-			echo '&nbsp;&nbsp;&nbsp;<a href="' . $script_folder_href . 'signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
+			echo '<a href="signup_replace_players.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Replace</a>&nbsp;&nbsp;&nbsp;';
+			echo '<a href="signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Modify</a>';
+			echo '&nbsp;&nbsp;&nbsp;<a href="signup_add.php?tournament=' . $tournamentKey . '&amp;signup=' . $signUpArray [$i]->SignUpKey . '">Add</a>';
 			echo '</td></tr>' . PHP_EOL;
 		}
 	}
