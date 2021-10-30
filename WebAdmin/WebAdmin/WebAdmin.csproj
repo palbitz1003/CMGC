@@ -64,6 +64,7 @@
     </ApplicationDefinition>
     <Compile Include="ModelCommand.cs" />
     <Compile Include="Model\PlayerTeeTimeHistory.cs" />
+    <Compile Include="Model\ReplacePlayer.cs" />
     <Compile Include="Model\TeeTimeComposite.cs" />
     <Compile Include="Model\ClosestToThePin.cs" />
     <Compile Include="Model\Credentials.cs" />

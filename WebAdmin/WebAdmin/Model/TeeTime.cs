@@ -36,6 +36,12 @@ namespace WebAdmin
             OnPropertyChanged("Players");
         }
 
+        public void ReplacePlayer(Player playerToRemove, Player playerToAdd)
+        {
+            Players[Players.IndexOf(playerToRemove)] = playerToAdd;
+            OnPropertyChanged("Players");
+        }
+
         public void ClearPlayers()
         {
             Players.Clear();

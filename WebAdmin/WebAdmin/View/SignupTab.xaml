@@ -44,7 +44,9 @@
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="AddPlayerButton" Height="22"
                     Command="{Binding AddPlayerCommand}">Add Player</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="RemovePlayerButton" Height="22"
-                    Command="{Binding RemovePlayerCommand}">RemovePlayer</Button>
+                    Command="{Binding RemovePlayerCommand}">Remove Player</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="ReplacePlayerButton" Height="22"
+                    Command="{Binding ReplacePlayerCommand}">Replace Player</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="ChangePartnersInTeeTimeButton" Height="22"
                     Command="{Binding ChangePartnersInTeeTimeCommand}">Change Partners in Tee Time</Button>
             <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">Order By:</TextBlock>
