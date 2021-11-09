@@ -22,7 +22,7 @@ if(! $signupKey || !is_numeric($signupKey)) {
 }
 
 $testMode = false;
-if($_GET ['mode'] == "test"){
+if(!empty($_GET ['mode']) && ($_GET ['mode'] == "test")){
 	$testMode = true;
 }
 
