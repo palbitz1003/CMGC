@@ -1784,16 +1784,8 @@ namespace WebAdmin.ViewModel
             return null;
         }
 
-        private void AddPlayer(object o)
+        private void RemoveFromCancelledList(Player player)
         {
-            Player player = GetPlayerToAdd();
-
-            if (player == null) return;
-
-            TeeTimeRequest ttr = new TeeTimeRequest();
-            ttr.Players = new TrulyObservableCollection<Player> { player };
-            ttr.Preference = "None";
-
             // Remove from the cancelled list if player is there
             Player cancelledPlayer = null;
             foreach (var p in CancelledPlayers)
@@ -1808,6 +1800,19 @@ namespace WebAdmin.ViewModel
             {
                 CancelledPlayers.Remove(cancelledPlayer);
             }
+        }
+
+        private void AddPlayer(object o)
+        {
+            Player player = GetPlayerToAdd();
+
+            if (player == null) return;
+
+            TeeTimeRequest ttr = new TeeTimeRequest();
+            ttr.Players = new TrulyObservableCollection<Player> { player };
+            ttr.Preference = "None";
+
+            RemoveFromCancelledList(player);
 
             if (!string.IsNullOrEmpty(player.GHIN))
             {
@@ -2032,6 +2037,8 @@ namespace WebAdmin.ViewModel
                 rp.Remove = playerToRemove;
                 rp.Add = playerToAdd;
                 PlayersToReplaceFromSignup.Add(rp);
+                RemoveFromCancelledList(playerToAdd);
+                CancelledPlayers.Add(playerToRemove);
 
                 TeeTimeRequest ttr = FindTeeTimeRequest(playerToRemove);
 
