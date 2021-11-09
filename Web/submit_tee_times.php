@@ -364,13 +364,17 @@ function ReplacePlayer($connection, $logFile, $tournamentKey, $ghin, $name, $new
 		RemoveSignedUpPlayer ( $connection, $tournamentKey, $ghin, $name );
 
 		$ghinArray = array();
-		$ghinArray[] = $newGhin;
 		$nameArray = array();
-		$nameArray[] = $newName;
 		$extraArray = array();
+
+		$ghinArray[] = $newGhin;
+		$nameArray[] = $newName;
 		$extraArray[] = $newExtra;
 		
 		InsertSignUpPlayers ( $connection, $tournamentKey, $removeSignupPlayer->SignUpKey, $ghinArray, $nameArray, $extraArray );
+
+		// Fix up the signup position to match that of the removed player
+		UpdateSignupPlayer($connection, $removeSignupPlayer->SignUpKey, $newGhin, 'Position', $removeSignupPlayer->Position, 'i');
 
 		if(!empty($logFile)){
 			error_log(date ( '[Y-m-d H:i e] ' ) . "Replaced: " . $name . " with " . $newName . " (" . $newGhin . ") " . $newExtra . PHP_EOL, 3, $logFile);

@@ -166,6 +166,7 @@ function GetPlayerSignUp($connection, $tournamentKey, $playerGHIN) {
 	 	$playerSignUp->GHIN = $GHIN;
 	 	$playerSignUp->LastName = $LastName;
 	 	$playerSignUp->Extra = $extra;
+		$playerSignUp->Position = $position;
 	 	$count++;
 	 }
 	 //if(!isset($playerSignUp)) { echo 'did not find player<br>'; }
@@ -211,6 +212,7 @@ function GetPlayerSignUpByName($connection, $tournamentKey, $playerName) {
 	 	$playerSignUp->GHIN = $GHIN;
 	 	$playerSignUp->LastName = $LastName;
 	 	$playerSignUp->Extra = $extra;
+		$playerSignUp->Position = $position;
 	 	$count++;
 	 }
 	 //if(!isset($playerSignUp)) { echo 'did not find player<br>'; }
