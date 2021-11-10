@@ -207,7 +207,12 @@ if($allPlayersRemoved){
 }
 else {
 	echo '<form name="input" method="post">' . PHP_EOL;
-	echo 'Access Code: <input type="text" name="AccessCode" maxlength="4" size="4" value="' .  $_POST['AccessCode'] . '"><br><br>' . PHP_EOL;
+	// This fixes a warning when the access code is not yet set
+	$ac = "";
+	if(isset($_POST['AccessCode'])){
+		$ac = $_POST['AccessCode'];
+	}
+	echo 'Access Code: <input type="text" name="AccessCode" maxlength="4" size="4" value="' .  $ac . '"><br><br>' . PHP_EOL;
 	echo 'Players to remove:<p>' . PHP_EOL;
 	
 	for($i = 0; $i < count($players); ++$i){
