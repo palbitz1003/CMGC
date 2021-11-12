@@ -99,7 +99,10 @@ if (isset ( $_POST ['Player'] )) {
 	for($i = 0; $i < 4; ++ $i) {
 		$GHIN [$i] = trim ( $_POST ['Player'] [$i] ['GHIN'] );
 		$LastName [$i] = trim ( $_POST ['Player'] [$i] ['LastName'] );
-		$Extra [$i] = trim ( $_POST ['Player'] [$i] ['Extra'] );
+		$Extra [$i] = "";
+		if(isset($_POST ['Player'] [$i] ['Extra'])){
+			$Extra [$i] = trim ( $_POST ['Player'] [$i] ['Extra'] );
+		}
 		
 		$LastName[$i] = stripslashes ( $LastName[$i] ); // remove any slashes before quotes
 		$LastName[$i] = str_replace("'", "", $LastName[$i]); // remove single quotes
@@ -124,7 +127,10 @@ if (isset ( $_POST ['Player'] )) {
 		else if($t->SrClubChampionship || $t->ClubChampionship)
 		{
 			$playerFlightIndex = GetPlayerFlightIndex($i + 1);
-			$Extra[$i] = $_POST[$playerFlightIndex];
+			$Extra[$i] = "";
+			if(isset($_POST[$playerFlightIndex])){
+				$Extra[$i] = $_POST[$playerFlightIndex];
+			}
 			if(! empty ( $GHIN [$i] ) && empty ($_POST[$playerFlightIndex]))
 			{
 				$flightErrorList[$i] = "Select Flight";
@@ -465,7 +471,7 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 		echo '<div id="content-container" class="entry-content">' . PHP_EOL;
 		echo '<div id="content" role="main">' . PHP_EOL;
 
-		echo '<h2 class="entry-title" style="text-align:center">' . $tournament->Name . ' Signup Complete</h2>' . PHP_EOL;
+		echo '<h2 class="entry-title" style="text-align:center">' . $t->Name . ' Signup Complete</h2>' . PHP_EOL;
 		if(!empty($accessCode)){
 			echo '<p>Your signup data has been saved.  Here is your access code to make changes to your signup. Save this code for later!</p>';
 			echo '<p style="text-align: center;"><b>' . $accessCode . '</b> </p>' . PHP_EOL;
