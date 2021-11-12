@@ -111,13 +111,18 @@ if (isset ( $_POST ['Player'] )) {
 		
 		if(($t->TeamSize == 2) && ($t->SCGAQualifier))
 		{
+			$Extra[$i] = "";
 			if(($i == 0) || ($i == 1)){
 				$teamFlightIndex = GetTeamFlightIndex(1);
-				$Extra[$i] = $_POST[$teamFlightIndex];
+				if(isset($_POST[$teamFlightIndex])){
+					$Extra[$i] = $_POST[$teamFlightIndex];
+				}
 			}
 			else {
 				$teamFlightIndex = GetTeamFlightIndex(2);
-				$Extra[$i] = $_POST[$teamFlightIndex];
+				if(isset($_POST[$teamFlightIndex])){
+					$Extra[$i] = $_POST[$teamFlightIndex];
+				}
 			}
 			if(! empty ( $GHIN [$i] ) && empty ($_POST[$teamFlightIndex]))
 			{
