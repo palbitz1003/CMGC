@@ -1122,15 +1122,16 @@ function AddFlightsError($t, $errorForPlayer){
 function RequestedTime($RequestedTime)
 {
 	echo '<tr>' . PHP_EOL;
-	echo '		<td style="border: none;">Requested time:</td>' . PHP_EOL;
+	echo '		<td style="border: none;">Requested time:<br>(Tells us how early you can play)</td>' . PHP_EOL;
 	echo '		<td style="border: none;"><select name="RequestedTime">' . PHP_EOL;
 
 	new_list_option ( 'None', $RequestedTime );
-	new_list_option ( '6am-7am', $RequestedTime );
-	new_list_option ( '7am-8am', $RequestedTime );
-	new_list_option ( '8am-9am', $RequestedTime );
-	new_list_option ( '9am-10am', $RequestedTime );
-	new_list_option ( '10am-11am', $RequestedTime );
+	new_list_option ( '6am-12pm', $RequestedTime );
+	new_list_option ( '7am-12pm', $RequestedTime );
+	new_list_option ( '8am-12pm', $RequestedTime );
+	new_list_option ( '9am-12pm', $RequestedTime );
+	new_list_option ( '10am-12pm', $RequestedTime );
+	new_list_option ( '11am-12pm', $RequestedTime );
 
 	echo '		</select></td>' . PHP_EOL;
 	echo '	</tr>' . PHP_EOL;
