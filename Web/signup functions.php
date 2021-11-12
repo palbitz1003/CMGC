@@ -613,7 +613,7 @@ function ShowSignups($connection, $tournamentKey) {
 function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 {
 	echo '<table style="border: none; width: 100%">' . PHP_EOL;
-	echo '<thead><tr class="header"><th style="width:10%">Requested Time</th><th style="width:70%">Players</th><th style="width:20%;text-align:center">Actions</th></tr></thead>' . PHP_EOL;
+	echo '<thead><tr class="header"><th style="width:15%">Requested Time</th><th style="width:65%">Players</th><th style="width:20%;text-align:center">Actions</th></tr></thead>' . PHP_EOL;
 	echo '<tbody>' . PHP_EOL;
 	
 	for($i = 0; $i < count ( $signUpArray ); ++ $i) {
