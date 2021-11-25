@@ -2799,6 +2799,8 @@ namespace WebAdmin.ViewModel
                 }
             }
 
+            /* The tee time request file has not been very useful, so disable it
+            
             if ((TeeTimeRequests != null) && (TeeTimeRequests.Count > 0))
             {
                 dlg.FileName = "Tee Time Request History - " + TournamentNames[TournamentNameIndex].Name.Replace('/', '-');
@@ -2840,6 +2842,7 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
+            */
         }
 
         private void SwitchToGroupMode()
