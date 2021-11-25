@@ -1281,7 +1281,23 @@ namespace WebAdmin.ViewModel
                         }
                         if (isMultiDay)
                         {
-                            cumulativeScoreCols = FindAllCol(line, "Cumulative Score", fullPath);
+                            try
+                            {
+                                cumulativeScoreCols = FindAllCol(line, "Cumulative Score", fullPath);
+                            }
+                            catch
+                            {
+                                // Sometimes instead of cumulative score, it is "Score 3" (Savvy Huffman is one example)
+                                if (roundScoreCols.Length == 3)
+                                {
+                                    cumulativeScoreCols = new int[1];
+                                    cumulativeScoreCols[0] = roundScoreCols[2];
+                                }
+                                else
+                                {
+                                    throw;
+                                }
+                            }
                         }
                         purseCols = FindAllCol(line, "Purse", fullPath);
                         rankCols = FindAllCol(line, "Rank", fullPath);
