@@ -10,6 +10,7 @@
         <l:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
+        <!--
         <GroupBox DockPanel.Dock="Top"  x:Name="ClosestToPinGroupBox" Header="Closest To The Pin">
             <StackPanel Margin="5" Orientation="Vertical" HorizontalAlignment="Left">
                 <TextBlock Margin="5">Double-click on row to modify.  If the table is disabled, you haven't selected a tournament.</TextBlock>
@@ -47,6 +48,7 @@
                 </StackPanel>
             </StackPanel>
         </GroupBox>
+        -->
 
         <DockPanel DockPanel.Dock="Bottom" Margin="5" HorizontalAlignment="Center">
             <TextBlock VerticalAlignment="Center" Visibility="{Binding Path=GotTournamentsVisible}">Tournament:</TextBlock>
@@ -58,7 +60,7 @@
                     Command="{Binding Path=GetTournamentsCommand}">Get Tournaments</Button>
         </DockPanel>
 
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" Margin="5,40,5,5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

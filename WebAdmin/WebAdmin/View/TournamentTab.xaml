@@ -62,16 +62,15 @@
             <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">End Date:</TextBlock>
             <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Signup Start:</TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Signup End:</TextBlock>
-            <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center">Cancel End:</TextBlock>
-            <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center">Type:</TextBlock>
-            <TextBlock Grid.Row="8" Grid.Column="0" VerticalAlignment="Center">Sub-Type:</TextBlock>
-            <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center">Team Size:</TextBlock>
-            <TextBlock Grid.Row="12" Grid.Column="0" VerticalAlignment="Center">Cost:</TextBlock>
-            <TextBlock Grid.Row="13" Grid.Column="0" VerticalAlignment="Center">Sign Up:</TextBlock>
-            <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Center">Chairman:</TextBlock>
-            <TextBlock Grid.Row="16" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
-            <TextBlock Grid.Row="17" Grid.Column="0" VerticalAlignment="Center">Email:</TextBlock>
-            <TextBlock Grid.Row="18" Grid.Column="0" VerticalAlignment="Center">Phone:</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center">Type:</TextBlock>
+            <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center">Sub-Type:</TextBlock>
+            <TextBlock Grid.Row="10" Grid.Column="0" VerticalAlignment="Center">Team Size:</TextBlock>
+            <TextBlock Grid.Row="11" Grid.Column="0" VerticalAlignment="Center">Cost:</TextBlock>
+            <TextBlock Grid.Row="12" Grid.Column="0" VerticalAlignment="Center">Sign Up:</TextBlock>
+            <TextBlock Grid.Row="14" Grid.Column="0" VerticalAlignment="Center">Chairman:</TextBlock>
+            <TextBlock Grid.Row="15" Grid.Column="0" VerticalAlignment="Center">Name:</TextBlock>
+            <TextBlock Grid.Row="16" Grid.Column="0" VerticalAlignment="Center">Email:</TextBlock>
+            <TextBlock Grid.Row="17" Grid.Column="0" VerticalAlignment="Center">Phone:</TextBlock>
             
             <TextBox Grid.Row="0" Grid.Column="1" Name="NameTextbox" Margin="5" Width="300" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Name}"></TextBox>
@@ -83,10 +82,8 @@
                                            HorizontalAlignment="Left"  VerticalAlignment="Center" Text="{Binding Path=Tournament.SignupStartDate, Mode=TwoWay}"></DatePicker>
             <DatePicker Grid.Row="4" Grid.Column="1" Margin="5" Name="SignupEndDateDatePicker" 
                                            HorizontalAlignment="Left"  VerticalAlignment="Center" Text="{Binding Path=Tournament.SignupEndDate, Mode=TwoWay}"></DatePicker>
-            <DatePicker Grid.Row="5" Grid.Column="1" Margin="5" Name="CancelDateDatePicker" 
-                                           HorizontalAlignment="Left"  VerticalAlignment="Center" Text="{Binding Path=Tournament.CancelEndDate, Mode=TwoWay}"></DatePicker>
 
-            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="Stroke" GroupName="TournamentType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.StrokePlay, Mode=TwoWay}" />
                 <RadioButton Content="Eclectic" GroupName="TournamentType" Margin="5" 
@@ -95,14 +92,14 @@
                     IsChecked="{Binding Path=Tournament.Stableford, Mode=TwoWay }"/>
                 
             </StackPanel>
-            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="Match Play" GroupName="TournamentType" Margin="5"
                     IsChecked="{Binding Path=Tournament.MatchPlay, Mode=TwoWay}"/>
                 <RadioButton Content="Announcement Only" GroupName="TournamentType" Margin="5"
                     IsChecked="{Binding Path=Tournament.AnnouncementOnly, Mode=TwoWay}"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="None" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.NonSpecificTournament, Mode=TwoWay}"  />
                 <RadioButton Content="SCGA Qualifier" GroupName="TournamentSubType" Margin="5" 
@@ -111,19 +108,19 @@
                     IsChecked="{Binding Path=Tournament.MemberGuest, Mode=TwoWay}"  />
             </StackPanel>
 
-            <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="Club Championship" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.ClubChampionship, Mode=TwoWay}"  />
                 <RadioButton Content="Sr Club Championship" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.SrClubChampionship, Mode=TwoWay}"  />
             </StackPanel>
 
-            <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton Content="New Member Mixer" GroupName="TournamentSubType" Margin="5" 
                     IsChecked="{Binding Path=Tournament.AllowNonMemberSignup, Mode=TwoWay}"  />
             </StackPanel>
 
-            <ListBox Grid.Row="11" Grid.Column="1" Margin="5" Name="TeamSizeListbox" HorizontalAlignment="Left"
+            <ListBox Grid.Row="10" Grid.Column="1" Margin="5" Name="TeamSizeListbox" HorizontalAlignment="Left"
                      ItemsSource="{Binding Path=Tournament.TeamSizeList}" 
                      SelectedIndex="{Binding Path=Tournament.TeamSizeSelectedIndex, Mode=TwoWay}">
                 <ListBox.ItemsPanel>
@@ -132,20 +129,20 @@
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
-            <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="11" Grid.Column="1" Orientation="Horizontal">
                 <TextBlock Margin="5" VerticalAlignment="Center">Entry:</TextBlock>
                 <TextBox  Name="CostTextbox" Margin="5" Width="30" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.Cost}"></TextBox>
             </StackPanel>
 
-            <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
                 <CheckBox  Margin="5" Name="SendEmailCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.SendEmail}">Send Email</CheckBox>
                 <CheckBox  Margin="5" Name="RequirePaymentCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.RequirePayment}">Require Payment</CheckBox>
             </StackPanel>
 
-            <StackPanel Grid.Row="14" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
                 <CheckBox  Margin="5" Name="OnLineSignupCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.OnlineSignUp}">Web Signup</CheckBox>
                 <TextBlock Margin="5" VerticalAlignment="Center">Max Signups:</TextBlock>
@@ -153,14 +150,14 @@
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.MaxSignups}"></TextBox>
                 </StackPanel>
 
-            <ComboBox Grid.Row="15" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
+            <ComboBox Grid.Row="14" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
                     ItemsSource="{Binding Path=TournamentChairmen}" SelectedIndex="{Binding Path=TournamentChairmenSelectedIndex, Mode=TwoWay}"/>
             
-            <TextBox Grid.Row="16" Grid.Column="1"  Name="ChairmanNameTextbox" Margin="5" Width="150" 
+            <TextBox Grid.Row="15" Grid.Column="1"  Name="ChairmanNameTextbox" Margin="5" Width="150" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanName}"></TextBox>
-            <TextBox Grid.Row="17" Grid.Column="1"  Name="ChairmanEmailTextbox" Margin="5" Width="300" 
+            <TextBox Grid.Row="16" Grid.Column="1"  Name="ChairmanEmailTextbox" Margin="5" Width="300" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanEmail}"></TextBox>
-            <TextBox Grid.Row="18" Grid.Column="1"  Name="ChairmanPhoneTextbox" Margin="5" Width="150" 
+            <TextBox Grid.Row="17" Grid.Column="1"  Name="ChairmanPhoneTextbox" Margin="5" Width="150" 
                                  HorizontalAlignment="Left"  TextAlignment="Left" Text="{Binding Path=Tournament.ChairmanPhone}"></TextBox>
 
             <Grid Grid.Row="0" Grid.RowSpan="20" Grid.Column="2">
