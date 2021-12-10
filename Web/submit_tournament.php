@@ -73,11 +73,7 @@ if ($_POST ['Action'] == 'Delete') {
 	} else {
 		$t->MemberGuest = 0;
 	}
-	if(isset($_POST['MaxSignups'])){
-		$t->MaxSignups = $_POST['MaxSignups'];
-	} else {
-		$t->MaxSignups = 0;
-	}
+
 	if(isset($_POST['ClubChampionship'])){
 		$t->ClubChampionship = $_POST['ClubChampionship'];
 	} else {
@@ -121,7 +117,6 @@ if ($_POST ['Action'] == 'Delete') {
 		UpdateTournament($connection, $t->TournamentKey, 'AllowNonMemberSignup', $t->AllowNonMemberSignup, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'AnnouncementOnly', $t->AnnouncementOnly, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'MemberGuest', $t->MemberGuest, 'i');
-		UpdateTournament($connection, $t->TournamentKey, 'MaxSignups', $t->MaxSignups, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'ClubChampionship', $t->ClubChampionship, 'i');
 	}
 }

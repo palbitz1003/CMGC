@@ -60,25 +60,6 @@ if($now < $startSignUp){
 	return;
 }
 
-/*
-$count = GetPlayerCountForTournament($connection, $tournamentKey);
-if(($t->MaxSignups != 0) && ($count >= $t->MaxSignups))
-{
-	$overrideTitle = "Sign Up";
-	get_header ();
-
-	get_sidebar ();
-
-	echo "<p>This tournament is full.</p>";
-	if (isset ( $connection )) {
-		$connection->close ();
-	}
-	
-	get_footer ();
-	return;
-}
-*/
-
 $descr = '';
 if($t->TournamentDescriptionKey > 0){
 	$td = GetTournamentDescription($connection, $t->TournamentDescriptionKey);

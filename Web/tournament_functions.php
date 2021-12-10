@@ -32,7 +32,6 @@ class Tournament {
 	public $AllowNonMemberSignup;
 	public $AnnouncementOnly;
 	public $MemberGuest;
-	public $MaxSignups;
 	
 	private function IntToBool($value){
 		return (!isset($value) || ($value == 0)) ? "false" : "true";
@@ -179,7 +178,7 @@ function GetTournaments($connection, $year) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, 
 			$TournamentDescriptionKey, $cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup, $announcementOnly, $memberGuest, $maxSignups, $clubChampionship );
+			$allowNonMemberSignup, $announcementOnly, $memberGuest, $clubChampionship );
 
 	$tournaments = array();
 	while ( $tournament->fetch () ) {
@@ -213,7 +212,6 @@ function GetTournaments($connection, $year) {
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
 		$t->AnnouncementOnly = $announcementOnly;
 		$t->MemberGuest = $memberGuest;
-		$t->MaxSignups = $maxSignups;
 		
 		if(empty($year)){
 			// return all tournaments
@@ -256,7 +254,7 @@ function GetTournament($connection, $tournamentKey) {
 			$SignupEndDate, $CancelEndDate, $LocalHandicap, $SCGATournament, $TeamSize, $tournamentDescriptionKey,
 			$cost, $pool, $chairmanName, $chairmanEmail, $chairmanPhone, $stableford,
 			$eclectic, $sendEmail, $requirePayment, $scgaQualifier, $srClubChampionship, $onlineSignUp, $matchPlay,
-			$allowNonMemberSignup, $announcementOnly, $memberGuest, $maxSignups, $clubChampionship ); 
+			$allowNonMemberSignup, $announcementOnly, $memberGuest, $clubChampionship ); 
 
 	$t = null;
 	if($tournament->fetch ()){
@@ -289,7 +287,6 @@ function GetTournament($connection, $tournamentKey) {
 		$t->AllowNonMemberSignup = $allowNonMemberSignup;
 		$t->AnnouncementOnly = $announcementOnly;
 		$t->MemberGuest = $memberGuest;
-		$t->MaxSignups = $maxSignups;
 	}
 
 	$tournament->close ();
@@ -535,7 +532,7 @@ function ShowTournamentResultsLinks($connection, $tournament, $style, $skipThisR
  */
 function InsertTournament($connection, $tournament) {
 	// This has become too long ...
-	$sqlCmd = "INSERT INTO `Tournaments` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	$sqlCmd = "INSERT INTO `Tournaments` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
@@ -550,7 +547,7 @@ function InsertTournament($connection, $tournament) {
 			$tournament->ChairmanPhone, $tournament->Stableford, $tournament->Eclectic, $tournament->SendEmail,
 			$tournament->RequirePayment, $tournament->SCGAQualifier, $tournament->SrClubChampionship,
 			$tournament->OnlineSignUp, $tournament->MatchPlay, $tournament->AllowNonMemberSignup,
-			$tournament->AnnouncementOnly, $tournament->MemberGuest, $tournament->MaxSignups, $tournament->ClubChampionship )) {
+			$tournament->AnnouncementOnly, $tournament->MemberGuest, $tournament->ClubChampionship )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	

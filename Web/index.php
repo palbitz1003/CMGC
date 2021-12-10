@@ -54,14 +54,6 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 				echo '<td style="border:none"></td>'. PHP_EOL;
 			}
 			else if($now <= $endSignUp){
-				$maxSignups = "";
-				/*
-				if($currentTournaments [$i]-> MaxSignups != 0){
-					// &nbsp; is a non-breakable space
-					$maxSignups = ', max&nbsp;signup&nbsp;' . $currentTournaments [$i]-> MaxSignups;
-				}
-				*/
-				
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'signup.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Sign up</a> (<span style="font-size:small;">ends&nbsp;' . GetUnbreakableHtmlDateString(date ( 'M d ga', date_timestamp_get($endSignUp))) . '</span>)</td>'. PHP_EOL;
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'signups.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">View Signups</a></td>'. PHP_EOL;
 			}
