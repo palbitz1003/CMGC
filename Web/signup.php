@@ -420,8 +420,11 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	// Need the previous 2 day tournament key to get the waitlist
 	$previousTournamentKey = GetPrevious2DayTournamentKey($connection, $tournamentKey);
 	
-	// Enable payment for some groups immediately
-	$paymentEnabled = DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $logFile);
+	$paymentEnabled = $t->PayAtSignup;
+	if(!$paymentEnabled){
+		// Enable payment for some groups immediately
+		$paymentEnabled = DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $logFile);
+	}
 
 	// The signup has no errors. Proceed to sign up the group. First create the signup entry.
 	$insertId = InsertSignUp ( $connection, $tournamentKey, $RequestedTime, $entryFees, $accessCode, $paymentEnabled);

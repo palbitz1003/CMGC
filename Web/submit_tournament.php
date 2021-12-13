@@ -73,11 +73,15 @@ if ($_POST ['Action'] == 'Delete') {
 	} else {
 		$t->MemberGuest = 0;
 	}
-
 	if(isset($_POST['ClubChampionship'])){
 		$t->ClubChampionship = $_POST['ClubChampionship'];
 	} else {
 		$t->ClubChampionship = 0;
+	}
+	if(isset($_POST['PayAtSignup'])){
+		$t->PayAtSignup = $_POST['PayAtSignup'];
+	} else {
+		$t->PayAtSignup = 1; // default to on
 	}
 	
 	
@@ -118,6 +122,7 @@ if ($_POST ['Action'] == 'Delete') {
 		UpdateTournament($connection, $t->TournamentKey, 'AnnouncementOnly', $t->AnnouncementOnly, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'MemberGuest', $t->MemberGuest, 'i');
 		UpdateTournament($connection, $t->TournamentKey, 'ClubChampionship', $t->ClubChampionship, 'i');
+		UpdateTournament($connection, $t->TournamentKey, 'PayAtSignup', $t->PayAtSignup, 'i');
 	}
 }
 echo "Success";
