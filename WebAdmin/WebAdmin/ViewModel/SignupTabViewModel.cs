@@ -704,9 +704,8 @@ namespace WebAdmin.ViewModel
             if (teeTimeRequest.Waitlisted)
             {
                 teeTimeRequest.Waitlisted = false;
-                // Reduce the blind draw number to keep them off the waitlist if someone else
-                // is also removed from the waitlist
-                teeTimeRequest.BlindDrawValue = (teeTimeRequest.BlindDrawValue > 4000) ? (teeTimeRequest.BlindDrawValue - 1000) : 3000;
+                // Reduce the blind draw number to keep them off the waitlist
+                teeTimeRequest.BlindDrawValue = 1000;
                 BlindDraw();
                 // Re-sort since new players may have been marked as waitlisted
                 SortTeeTimeRequests();
@@ -1319,37 +1318,37 @@ namespace WebAdmin.ViewModel
                 {
                     // Selecting lower numbers ensures those that have paid will
                     // be higher in blind draw list
-                    request.BlindDrawValue = _randomNumberGenerator.Next(1000, 2999);
+                    request.BlindDrawValue = _randomNumberGenerator.Next(1000, 3999);
                 }
                 else
                 {
-                    if (TournamentNames[TournamentNameIndex].MemberGuest)
-                    {
-                        bool guest = false;
+                    // If this is not the member guest, use the full range
+                    request.BlindDrawValue = _randomNumberGenerator.Next(4000, 9999);
+                }
 
-                        foreach (var player in request.Players)
+                // For the member-guest, favor those groups with a guest
+                if (TournamentNames[TournamentNameIndex].MemberGuest)
+                {
+                    bool guest = false;
+
+                    foreach (var player in request.Players)
+                    {
+                        if (player.Extra == "G")
                         {
-                            if (player.Extra == "G")
-                            {
-                                guest = true;
-                                break;
-                            }
+                            guest = true;
+                            break;
                         }
-                        if (guest)
-                        {
-                            // If there is 1 guest in the group, give them a higher blind draw number
-                            request.BlindDrawValue = _randomNumberGenerator.Next(3000, 6999);
-                        }
-                        else 
-                        {
-                            // If there are only members, give them a lower blind draw number
-                            request.BlindDrawValue = _randomNumberGenerator.Next(7000, 9999);
-                        }
+                    }
+
+                    if (guest)
+                    {
+                        // If there is 1 guest in the group, give them a higher blind draw number
+                        request.BlindDrawValue = _randomNumberGenerator.Next(4000, 6999);
                     }
                     else
                     {
-                        // If this is not the member guest, use the full range
-                        request.BlindDrawValue = _randomNumberGenerator.Next(3000, 9999);
+                        // If there are only members, give them a lower blind draw number
+                        request.BlindDrawValue = _randomNumberGenerator.Next(7000, 9999);
                     }
                 }
             }

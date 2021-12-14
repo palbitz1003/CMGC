@@ -86,13 +86,13 @@ namespace WebAdmin
                     extraData = TimeSpan.FromSeconds(StartTimeAverageInSeconds).ToString(@"hh\:mm") + "/" + TeeTimeCount.ToString("D2");
                 }
 
-                if (_paid)
-                {
-                    return "paid: " + extraData + " "  + ToString();
-                }
-                else if (_waitlisted)
+                if (_waitlisted)
                 {
                     return "wait: " + extraData + " " + ToString();
+                }
+                else if (_paid)
+                {
+                    return "paid: " + extraData + " "  + ToString();
                 }
                 else
                 {
