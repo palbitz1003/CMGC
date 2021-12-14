@@ -181,6 +181,9 @@ namespace WebAdmin
         private bool _memberGuest;
         public bool MemberGuest { get { return _memberGuest; } set { _memberGuest = value; OnPropertyChanged();} }
 
+        private bool _payAtSignup;
+        public bool PayAtSignup { get { return _payAtSignup; } set { _payAtSignup = value; OnPropertyChanged(); } }
+
         public Tournament()
         {
             TeamSizeList = new ObservableCollection<int>() { 1, 2, 4 };
@@ -214,6 +217,7 @@ namespace WebAdmin
             SendEmail = true;
             RequirePayment = true;
             MemberGuest = false;
+            PayAtSignup = true;
         }
 
         public List<KeyValuePair<string, string>> ToKeyValuePairs()
@@ -245,6 +249,7 @@ namespace WebAdmin
             values.Add(new KeyValuePair<string, string>("MatchPlay", MatchPlay ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("AllowNonMemberSignup", AllowNonMemberSignup ? "1" : "0"));
             values.Add(new KeyValuePair<string, string>("MemberGuest", MemberGuest ? "1" : "0"));
+            values.Add(new KeyValuePair<string, string>("PayAtSignup", PayAtSignup ? "1" : "0"));
 
             return values;
         }

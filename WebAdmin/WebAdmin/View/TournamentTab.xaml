@@ -138,13 +138,15 @@
             <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
                 <CheckBox  Margin="5" Name="SendEmailCheckbox" 
                                   VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.SendEmail}">Send Email</CheckBox>
-                <CheckBox  Margin="5" Name="RequirePaymentCheckbox" 
-                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.RequirePayment}">Require Payment</CheckBox>
+                <CheckBox  Margin="5" Name="OnLineSignupCheckbox" 
+                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.OnlineSignUp}">Web Signup</CheckBox>
             </StackPanel>
 
             <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
-                <CheckBox  Margin="5" Name="OnLineSignupCheckbox" 
-                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.OnlineSignUp}">Web Signup</CheckBox>
+                <CheckBox  Margin="5" Name="RequirePaymentCheckbox" 
+                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.RequirePayment}">Require Payment</CheckBox>
+                <CheckBox  Margin="5" Name="PayAtSignupCheckbox" 
+                                  VerticalAlignment="Center" IsChecked="{Binding Path=Tournament.PayAtSignup}">Pay at Signup</CheckBox>
             </StackPanel>
 
             <ComboBox Grid.Row="14" Grid.Column="1" x:Name="ChairmenComboBox" Margin="5"
