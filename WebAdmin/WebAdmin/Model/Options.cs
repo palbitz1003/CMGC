@@ -17,7 +17,6 @@ namespace WebAdmin
         public string WaitListFileName { get; set; }
         public string RosterFileName { get; set; }
         public string GHINFileName { get; set; }
-        public string LocalHandicapFileName { get; set; }
         public string LastCSVResultFolder { get; set; }
         public int MonthsOfTeeTimeDataToLoad { get; set; }
         public string LastCSVTeeTimesFolder { get; set; }

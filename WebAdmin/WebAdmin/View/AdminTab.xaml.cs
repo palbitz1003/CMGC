@@ -40,7 +40,6 @@ namespace WebAdmin.View
             ScriptFolderTextBox.Text = TabViewModelBase.Options.ScriptFolder;
             WaitListTextBox.Text = TabViewModelBase.Options.WaitListFileName;
             GHINTextBox.Text = TabViewModelBase.Options.GHINFileName;
-            LocalHandicapTextBox.Text = TabViewModelBase.Options.LocalHandicapFileName;
         }
 
         private void BrowseWaitListButton_Click(object sender, RoutedEventArgs e)
@@ -103,6 +102,7 @@ namespace WebAdmin.View
             }
         }
 
+        /*
         private void BrowseLocalHandicapButton_Click(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog 
@@ -137,6 +137,7 @@ namespace WebAdmin.View
                 }
             }
         }
+        */
 
         private void WebSiteTextBox_KeyUp(object sender, KeyEventArgs e)
         {

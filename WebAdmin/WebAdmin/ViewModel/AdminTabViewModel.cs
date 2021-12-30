@@ -16,9 +16,6 @@ namespace WebAdmin.ViewModel
         #region Properties
         public override string Header { get { return "Admin"; } }
 
-        private DateTime _localHandicapDate;
-        public DateTime LocalHandicapDate { get { return _localHandicapDate; } set { _localHandicapDate = value; OnPropertyChanged(); } }
-
         private string _playerName;
         public string PlayerName { get { return _playerName; } set { _playerName = value; OnPropertyChanged(); } }
 
@@ -32,7 +29,6 @@ namespace WebAdmin.ViewModel
         #region Commands
         public ICommand SubmitWaitingListCommand { get { return new ModelCommand(async s => await SubmitWaitingList(s)); } }
         public ICommand SubmitGhinCommand { get { return new ModelCommand(async s => await SubmitGhin(s)); } }
-        public ICommand SubmitLocalHandicapCommand { get { return new ModelCommand(async s => await SubmitLocalHandicap(s)); } }
         public ICommand LoginCommand { get { return new ModelCommand(s => Login(s)); } }
         public ICommand GetDuesCommand { get { return new ModelCommand(async s => await GetDues(s)); } }
         public ICommand PayDuesCommand { get { return new ModelCommand(async s => await PayDues(s)); } }
@@ -45,16 +41,6 @@ namespace WebAdmin.ViewModel
 
         public AdminTabViewModel()
         {
-            DateTime d;
-            if (File.Exists(Options.LocalHandicapFileName))
-            {
-                d = File.GetLastWriteTime(Options.LocalHandicapFileName);
-            }
-            else
-            {
-                d = DateTime.Now;
-            }
-                LocalHandicapDate = new DateTime(d.Year, d.Month, (d.Day >= 15) ? 15 : 1);
         }
         
 
@@ -328,215 +314,6 @@ namespace WebAdmin.ViewModel
                     return membershipTypes;
                 }
             }
-        }
-        #endregion
-
-        #region Local Handicap
-        private class LocalHandicapEntry
-        {
-            public int Ghin { get; set; }
-            public string ScgaHandicap { get; set; }
-            public string LocalHandicap { get; set; }
-        }
-
-        private async Task SubmitLocalHandicap(object s)
-        {
-            var localHandicap = LoadGgHandicapIndexes(Options.LocalHandicapFileName);
-
-            // cancelled password input
-            if (string.IsNullOrEmpty(Credentials.LoginPassword))
-            {
-                return;
-            }
-
-            if ((localHandicap != null) && (localHandicap.Count > 0))
-            {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri(WebAddresses.BaseAddress);
-
-                    var values = new List<KeyValuePair<string, string>>();
-
-                    values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
-                    values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
-                    values.Add(new KeyValuePair<string, string>("LocalHandicapDate", LocalHandicapDate.ToString("yyyy-MM-dd")));
-
-                    int chunkIndex = 0;
-                    bool firstChunk = true;
-                    for (int i = 0; i < localHandicap.Count; i++)
-                    {
-                        if (firstChunk)
-                        {
-                            firstChunk = false;
-                            values.Add(new KeyValuePair<string, string>("ClearTable", "1"));
-                        }
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("LocalHandicap[{0}][GHIN]", chunkIndex),
-                            localHandicap[i].Ghin.ToString()));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("LocalHandicap[{0}][SCGAHandicap]", chunkIndex),
-                             localHandicap[i].ScgaHandicap));
-
-                        values.Add(new KeyValuePair<string, string>(
-                            string.Format("LocalHandicap[{0}][LocalHandicap]", chunkIndex),
-                             localHandicap[i].LocalHandicap));
-
-                        chunkIndex++;
-                        // If too much data is sent at once, you get an error 503
-                        if (values.Count >= 500)
-                        {
-                            bool sent = await HttpSend(client, HtmlRequestType.Post, values, WebAddresses.ScriptFolder + WebAddresses.SubmitLocalHandicap);
-                            chunkIndex = 0;
-
-                            // Send partial list
-                            if (!sent)
-                            {
-                                return;
-                            }
-
-                            // start over with a new list
-                            values.Clear();
-
-                            values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
-                            values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
-                        }
-
-                    }
-
-                    if (chunkIndex > 0)
-                    {
-                        bool sent = await HttpSend(client, HtmlRequestType.Post, values, WebAddresses.ScriptFolder + WebAddresses.SubmitLocalHandicap);
-
-                        if (!sent)
-                        {
-                            return;
-                        }
-                    }
-
-                    MessageBox.Show("Local Handicap updated");
-
-                }
-            }
-        }
-
-        //private List<LocalHandicapEntry> LoadLocalHandicap(string localHandicapFileName)
-        //{
-        //    if (!File.Exists(localHandicapFileName))
-        //    {
-        //        throw new FileNotFoundException("File does not exist: " + localHandicapFileName);
-        //    }
-        //    List<LocalHandicapEntry> entries = new List<LocalHandicapEntry>();
-        //    string[][] csvFileEntries;
-        //    using (TextReader tr = new StreamReader(localHandicapFileName))
-        //    {
-        //        csvFileEntries = CSVParser.Parse(tr);
-        //    }
-
-        //    int ghinColumn = 2;
-        //    int scgaHandicapColumn = 4;
-        //    int localHandicapColumn = 5;
-
-        //    for (int row = 1; row < csvFileEntries.Length; row++)
-        //    {
-        //        if (!string.IsNullOrEmpty(csvFileEntries[row][0]))
-        //        {
-        //            LocalHandicapEntry localHandicapEntry = new LocalHandicapEntry();
-
-        //            int ghinNumber;
-        //            if (!int.TryParse(csvFileEntries[row][ghinColumn], out ghinNumber))
-        //            {
-        //                throw new ArgumentException(string.Format("Invalid GHIN number on row {0}: '{1}'", row + 1, csvFileEntries[row][ghinColumn]));
-        //            }
-
-        //            localHandicapEntry.Ghin = ghinNumber;
-        //            localHandicapEntry.ScgaHandicap = csvFileEntries[row][scgaHandicapColumn];
-        //            localHandicapEntry.LocalHandicap = csvFileEntries[row][localHandicapColumn];
-
-        //            entries.Add(localHandicapEntry);
-        //        }
-        //    }
-
-        //    return entries;
-        //}
-
-        private List<LocalHandicapEntry> LoadGgHandicapIndexes(string ggMasterRosterFile)
-        {
-            if (!File.Exists(ggMasterRosterFile))
-            {
-                throw new FileNotFoundException("File does not exist: " + ggMasterRosterFile);
-            }
-            List<LocalHandicapEntry> entries = new List<LocalHandicapEntry>();
-            string[][] csvFileEntries;
-            using (TextReader tr = new StreamReader(ggMasterRosterFile))
-            {
-                csvFileEntries = CSVParser.Parse(tr);
-            }
-
-            int ghinColumn = -1;
-            int scgaIndexColumn = -1;
-
-            int headerRow = -1;
-            for (int row = 0; (row < csvFileEntries.Length) && (row < 4); row++)
-            {
-                for (int col = 0; (col < csvFileEntries[row].Length) && (ghinColumn == -1); col++)
-                {
-                    if (csvFileEntries[row][col].Contains("GHIN"))
-                    {
-                        ghinColumn = col;
-                        headerRow = row;
-                    }
-                }
-
-                for (int col = 0; (col < csvFileEntries[row].Length) && (scgaIndexColumn == -1); col++)
-                {
-                    if (csvFileEntries[row][col].Contains("Index"))
-                    {
-                        scgaIndexColumn = col;
-                    }
-                }
-            }
-
-            if (headerRow == -1)
-            {
-                throw new ArgumentException("Failed to find a header row that had 'GHIN' in one of the column headers");
-            }
-
-            if (scgaIndexColumn == -1)
-            {
-                throw new ArgumentException("Failed to find a header row that had 'Index' in one of the column headers");
-            }
-
-            for (int row = headerRow + 1; row < csvFileEntries.Length; row++)
-            {
-                if (!string.IsNullOrEmpty(csvFileEntries[row][0]))
-                {
-                    LocalHandicapEntry localHandicapEntry = new LocalHandicapEntry();
-
-                    int ghinNumber;
-                    if (!int.TryParse(csvFileEntries[row][ghinColumn], out ghinNumber))
-                    {
-                        throw new ArgumentException(string.Format("Invalid GHIN number on row {0}: '{1}'", row + 1, csvFileEntries[row][ghinColumn]));
-                    }
-
-                    localHandicapEntry.Ghin = ghinNumber;
-                    if (string.IsNullOrEmpty(csvFileEntries[row][scgaIndexColumn]))
-                    {
-                        localHandicapEntry.ScgaHandicap = "0";
-                        localHandicapEntry.LocalHandicap = "0";
-                    }
-                    else
-                    {
-                        localHandicapEntry.ScgaHandicap = csvFileEntries[row][scgaIndexColumn];
-                        localHandicapEntry.LocalHandicap = localHandicapEntry.ScgaHandicap;  // We don't have local handicaps for now
-                    }
-
-                    entries.Add(localHandicapEntry);
-                }
-            }
-
-            return entries;
         }
         #endregion
 

@@ -47,24 +47,13 @@
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="GHINTextBox" IsReadOnly="true"></TextBox>
         </DockPanel>
 
-        <Button Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitLocalHandicapCommand}">
-            <TextBlock TextWrapping="Wrap">Upload Local Handicap to Web</TextBlock>
-        </Button>
-        <TextBlock Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Local Handicap CSV File:</TextBlock>
-        <DockPanel Grid.Row="4" Grid.Column="2" LastChildFill="true" Margin="5">
-            <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseLocalHandicapButton" DockPanel.Dock="Right" Click="BrowseLocalHandicapButton_Click">Browse ...</Button>
-            <DatePicker  Margin="5" Name="LocalHandicapDatePicker"  DockPanel.Dock="Left"  VerticalAlignment="Center" 
-                         Text="{Binding Path=LocalHandicapDate, Mode=TwoWay}"></DatePicker>
-            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="LocalHandicapTextBox" IsReadOnly="true"></TextBox>
-        </DockPanel>
-
-        <Button Grid.Row="5" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding GetDuesCommand}">
+        <Button Grid.Row="4" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding GetDuesCommand}">
             <TextBlock TextWrapping="Wrap">Get Dues</TextBlock>
         </Button>
-        <Button Grid.Row="5" Grid.Column="1" Margin="5" VerticalAlignment="Center" Command="{Binding PayDuesCommand}">
+        <Button Grid.Row="4" Grid.Column="1" Margin="5" VerticalAlignment="Center" Command="{Binding PayDuesCommand}">
             <TextBlock TextWrapping="Wrap">Pay  Dues</TextBlock>
         </Button>
-        <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal">
+        <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal">
             <TextBlock Margin="5" VerticalAlignment="Center">Player</TextBlock>
             <TextBox Margin="5" Width="150" x:Name="PlayerNameTextBox" Text="{Binding Path=PlayerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  KeyDown="PlayerNameTextBox_KeyDown" TextChanged="PlayerNameTextBox_TextChanged" LostFocus="PlayerNameTextBox_LostFocus"/>
