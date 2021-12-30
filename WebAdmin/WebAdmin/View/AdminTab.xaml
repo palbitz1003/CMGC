@@ -32,7 +32,7 @@
         <Button Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitWaitingListCommand}" >
             <TextBlock TextWrapping="Wrap">Upload Wait List to Web</TextBlock>
         </Button>
-        <TextBlock Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Waiting List CSV File:</TextBlock>
+        <TextBlock Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Membership Waiting List CSV:</TextBlock>
         <DockPanel Grid.Row="2" Grid.Column="2" LastChildFill="true" Margin="5" VerticalAlignment="Center">
             <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseWaitListButton" DockPanel.Dock="Right" Click="BrowseWaitListButton_Click">Browse ...</Button>
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WaitListTextBox" IsReadOnly="true"></TextBox>
