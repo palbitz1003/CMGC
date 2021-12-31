@@ -26,6 +26,7 @@ class Player {
     public $Extra;
     public $Email;
     public $SignupKey;
+    public $SignupPriority;
 }
 
 // login() requires headers functions.php and wp-blog-header.php
@@ -68,10 +69,12 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
 		}
         */
         $email = "";
+        $signupPriority = "G";
 		if($playersSignedUp [$p]->GHIN !== 0){
 			$rosterEntry = GetRosterEntry ( $connection, $playersSignedUp [$p]->GHIN );
 			if($rosterEntry){
                 $email = $rosterEntry-> Email;
+                $signupPriority = $rosterEntry->SignupPriority;
 			}
         }
 
@@ -82,6 +85,7 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
         $player->Extra = $extra;
         $player->Email = $email;
         $player->SignupKey = $playersSignedUp [$p]->SignUpKey;
+        $player->SignupPriority = $signupPriority;
 
         $playersArray[] = $player;
     }
