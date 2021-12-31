@@ -15,6 +15,7 @@ namespace WebAdmin
         public string WebSite { get; set; }
         public string ScriptFolder { get; set; }
         public string WaitListFileName { get; set; }
+        public string SignupWaitListFileName { get; set; }
         public string RosterFileName { get; set; }
         public string GHINFileName { get; set; }
         public string LastCSVResultFolder { get; set; }

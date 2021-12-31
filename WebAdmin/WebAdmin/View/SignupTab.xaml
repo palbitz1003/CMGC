@@ -31,6 +31,15 @@
                 </StackPanel>
             </GroupBox>
         </DockPanel>
+
+        <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="{Binding Path=GotTournamentsVisible}">
+            <TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Players Previously on Waitlist:</TextBlock>
+            <DockPanel LastChildFill="true" Margin="5">
+                <Button Margin="5" VerticalAlignment="Center" x:Name="ClearPrevWaitlistButton" DockPanel.Dock="Right" Padding="20,0,20,0" Click="ClearPrevWaitlistButton_Click">Clear</Button>
+                <Button Margin="5" VerticalAlignment="Center" x:Name="BrowsePrevWaitlistButton" DockPanel.Dock="Right" Padding="20,0,20,0" Click="BrowsePrevWaitlistButton_Click">Browse ...</Button>
+                <TextBox Width="700" VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="PrevWaitlistTextBox" IsReadOnly="true"></TextBox>
+            </DockPanel>
+        </DockPanel>
         
         <DockPanel Margin="5" HorizontalAlignment="Center"  Dock="Bottom" Visibility="Collapsed">
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="LoadHistoricalTeeTimeDataButton" Height="22"
@@ -108,8 +117,10 @@
             </Grid.ColumnDefinitions>
 
             <ListBox Margin="5" Name="TODOListBox"  Grid.Row="1" Grid.Column="0" 
-                 ItemsSource="{Binding Path=TeeTimeRequestsUnassigned}"
+                 
                  SelectedIndex="{Binding Path=TodoSelection}">
+                <!--
+                ItemsSource="{Binding Path=TeeTimeRequestsUnassigned}"
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
@@ -117,6 +128,7 @@
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+                -->
             </ListBox>
             <GridSplitter Grid.Column="1" Width="3"  HorizontalAlignment="Center" VerticalAlignment="Stretch"></GridSplitter>
             <ListBox Margin="5" Name="TeeTimesListBox"  Grid.Row="1" Grid.Column="2" 

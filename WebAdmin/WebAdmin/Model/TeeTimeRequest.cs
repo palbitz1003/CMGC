@@ -69,9 +69,10 @@ namespace WebAdmin
             get { return PlayersToString(); }
         }
 
-        public string RequestedTimeAndPlayerList
+        public string RequestedTimeWithoutPlayerList
         {
-            get {
+            get
+            {
                 string extraData;
                 if (ShowBlindDrawValue)
                 {
@@ -86,23 +87,29 @@ namespace WebAdmin
                     extraData = TimeSpan.FromSeconds(StartTimeAverageInSeconds).ToString(@"hh\:mm") + "/" + TeeTimeCount.ToString("D2");
                 }
 
+                string s = string.Empty;
                 if (_waitlisted)
                 {
-                    return "wait: " + extraData + " " + ToString();
-                }
-                else if (_paid)
-                {
-                    return "paid: " + extraData + " "  + ToString();
+                    s = "wait: ";
                 }
                 else
                 {
-                    return "         " + extraData + " " + ToString();
+                    s = "         ";
                 }
+
+                return s += extraData + " (" + Preference + ") ";
+            }
+        }
+
+        public string RequestedTimeAndPlayerList
+        {
+            get {
+                return RequestedTimeWithoutPlayerList + PlayersToString();
             }
         }
 
         private bool _waitlisted = false;
-        public bool Waitlisted { get { return _waitlisted; } set { _waitlisted = value; OnPropertyChanged(); } }
+        public bool Waitlisted { get { return _waitlisted; } set { _waitlisted = value; } }
 
         private float _paymentDue;
         public float PaymentDue { get { return _paymentDue; } set { _paymentDue = value; OnPropertyChanged(); } }
@@ -189,7 +196,7 @@ namespace WebAdmin
             return s;
         }
 
-        private string PlayersToString()
+        public string PlayersToString()
         {
             string s = string.Empty;
 

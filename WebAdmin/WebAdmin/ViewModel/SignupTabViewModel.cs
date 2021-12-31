@@ -232,6 +232,7 @@ namespace WebAdmin.ViewModel
         private Hashtable PlayerTeeTimeHistoryHashTableByGhin = null;
         private bool RecalculateBlindDrawOnSelection = false;
         private List<string> BlockedTeeTimes;
+        private List<string> PreviouslyWaitlistedGhins;
         #endregion
 
         #region Commands
@@ -292,6 +293,8 @@ namespace WebAdmin.ViewModel
 
             // Need to change XAML default if you change default here
             OrderTeeTimeRequestsBy = OrderTeeTimeRequestsByEnum.RequestedTime;
+
+            PreviouslyWaitlistedGhins = new List<string>();
         }
 
         public void InitTeeTimes()
@@ -542,6 +545,61 @@ namespace WebAdmin.ViewModel
             }
         }
 
+        private void LoadPreviouslyWaitlistedGhins()
+        {
+            if (string.IsNullOrWhiteSpace(Options.SignupWaitListFileName))
+            {
+                PreviouslyWaitlistedGhins.Clear();
+                return;
+            }
+
+            if (!File.Exists(Options.SignupWaitListFileName))
+            {
+                throw new FileNotFoundException("Historical waiting list file does not exist: " + Options.SignupWaitListFileName);
+            }
+
+            string[][] csvFileEntries;
+            using (TextReader tr = new StreamReader(Options.SignupWaitListFileName))
+            {
+                csvFileEntries = CSVParser.Parse(tr);
+            }
+
+            int ghinCol = -1;
+            for (int col = 0; col < csvFileEntries[0].Length; col++)
+            {
+                if (string.Compare(csvFileEntries[0][col], "ghin", true) == 0)
+                {
+                    ghinCol = col;
+                    break;
+                }
+            }
+
+            if (ghinCol == -1)
+            {
+                throw new ArgumentException("Historical waiting list file does not contain a column header with \"GHIN\"");
+            }
+
+            PreviouslyWaitlistedGhins.Clear();
+            for (int row = 1; row < csvFileEntries.Length; row++)
+            {
+                if (!string.IsNullOrWhiteSpace(csvFileEntries[row][ghinCol]))
+                {
+                    PreviouslyWaitlistedGhins.Add(csvFileEntries[row][ghinCol].Trim());
+                }
+            }
+        }
+
+        private void MarkPlayersPreviouslyWaitlisted()
+        {
+            foreach (var request in TeeTimeRequests)
+            {
+                for (int i = 0; i < request.Players.Count; i++)
+                {
+                    request.Players[i].PreviouslyWaitlisted = PreviouslyWaitlistedGhins.Contains(request.Players[i].GHIN);
+                }
+            }
+        }
+
         public void UpdateUnassignedList(int playerCount)
         {
             // If the tee time is full, just show all the unassigned players,
@@ -626,6 +684,19 @@ namespace WebAdmin.ViewModel
             TeeTimeRequest teeTimeRequest = selectedItem;
             TeeTime teeTime = TournamentTeeTimes[TeeTimeSelection];
 
+            // If players were selected from the waitlist, 
+            // recalculate the blind draw waitlist. 
+            if (teeTimeRequest.Waitlisted)
+            {
+                teeTimeRequest.Waitlisted = false;
+                // Reduce the blind draw number to keep them off the waitlist
+                teeTimeRequest.BlindDrawValue = 1000;
+                BlindDraw();
+                // Re-sort since new players may have been marked as waitlisted
+                SortTeeTimeRequests();
+                return;
+            }
+
             if (teeTime.BlockedOut)
             {
                 MessageBox.Show(teeTime.StartTime + " is blocked out.");
@@ -694,21 +765,6 @@ namespace WebAdmin.ViewModel
                     // This also updates the unassigned list
                     TeeTimeSelection = TeeTimeSelection + 1;
                 }
-            }
-
-            // If players were selected from the waitlist, 
-            // recalculate the blind draw waitlist. This needs to 
-            // be done last, after the tee time request has been
-            // removed from the unassigned list, otherwise it triggers
-            // a 2nd selection event when Waitlisted is set to false.
-            if (teeTimeRequest.Waitlisted)
-            {
-                teeTimeRequest.Waitlisted = false;
-                // Reduce the blind draw number to keep them off the waitlist
-                teeTimeRequest.BlindDrawValue = 1000;
-                BlindDraw();
-                // Re-sort since new players may have been marked as waitlisted
-                SortTeeTimeRequests();
             }
         }
 
@@ -1274,6 +1330,10 @@ namespace WebAdmin.ViewModel
                     {
                         TeeTimeRequests = LoadSignupsFromWebResponseJson(responseString);
 
+                        LoadPreviouslyWaitlistedGhins();
+
+                        MarkPlayersPreviouslyWaitlisted();
+
                         AssignBlindDrawNumbers();
                     }
                     
@@ -1284,7 +1344,6 @@ namespace WebAdmin.ViewModel
 
                     // Blind draw after tee times cleared
                     RecalculateBlindDrawOnSelection = true;
-                    BlindDraw();
 
                     CalculateHistoricalTeeTimeMeanAndStdevForTeeTimeRequests();
 
@@ -1294,6 +1353,8 @@ namespace WebAdmin.ViewModel
                     {
                         MessageBox.Show("Note: Sorting by requested tee times, since historical data has not been loaded yet");
                     }
+
+                    BlindDraw();
                     SortTeeTimeRequests();
                 }
             }
@@ -1305,50 +1366,88 @@ namespace WebAdmin.ViewModel
             if ((UnprocessedHistoricalTeeTimeData == null) || (PlayerTeeTimeHistoryHashTableByGhin.Count == 0))
             {
                 await LoadHistoricalTeeTimesDataAsync(o);
-                // Since we have historical data, include that in the sort
+                // Since we have historical data, include that in the sort.
+                // The historical data may have adjusted blind draw numbers, so repeat the blind draw.
+                BlindDraw();
                 SortTeeTimeRequests();
             }
         }
 
         private void AssignBlindDrawNumbers()
         {
+
             foreach (var request in TeeTimeRequests)
             {
-                if (request.Paid)
+                int playersPreviouslyWaitlisted = 0;
+                bool isBoardMember = false;
+                bool isGuest = false;
+                foreach (var player in request.Players)
                 {
-                    // Selecting lower numbers ensures those that have paid will
-                    // be higher in blind draw list
-                    request.BlindDrawValue = _randomNumberGenerator.Next(1000, 3999);
+                    if (player.PreviouslyWaitlisted)
+                    {
+                        playersPreviouslyWaitlisted++;
+                    }
+
+                    if (string.Compare(player.SignupPriority, "B", true) == 0)
+                    {
+                        isBoardMember = true;
+                    }
+
+                    if (string.Compare(player.Extra, "G", true) == 0)
+                    {
+                        isGuest = true;
+                    }
+                }
+
+                /*
+                 * 500 - Board members
+                 * 1000-1999 - Member-Guest tournament and group has a guest
+                 * 2000-4999 - Someone in group was previously on waitlist
+                 * 5000-5999 - Someone in group has played 2 or fewer rounds
+                 * 6000-9999 - None of the above criteria apply
+                 */
+                if (isBoardMember)
+                {
+                    // Put board members at the highest priority
+                    request.BlindDrawValue = 500;
+                }
+                else if (isGuest && TournamentNames[TournamentNameIndex].MemberGuest)
+                {
+                    // For the member-guest, favor those groups with a guest
+                    request.BlindDrawValue = _randomNumberGenerator.Next(1000, 1999);
+                }
+                else if (playersPreviouslyWaitlisted != 0)
+                {
+                    // Give groups with previously waitlist players more favorable numbers
+                    request.BlindDrawValue = _randomNumberGenerator.Next(2000, 4999);
                 }
                 else
                 {
-                    // If this is not the member guest, use the full range
-                    request.BlindDrawValue = _randomNumberGenerator.Next(4000, 9999);
+                    // Worst priority to groups with no one waitlisted
+                    request.BlindDrawValue = _randomNumberGenerator.Next(6000, 9999);
+                }
+            }
+        }
+
+        private void AdjustBlindDrawNumbersForInfrequentPlayers()
+        {
+            foreach (var request in TeeTimeRequests)
+            {
+                bool infrequentPlayer = false;
+                foreach (var player in request.Players)
+                {
+                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2))
+                    {
+                        infrequentPlayer = true;
+                    }
                 }
 
-                // For the member-guest, favor those groups with a guest
-                if (TournamentNames[TournamentNameIndex].MemberGuest)
+                if (infrequentPlayer)
                 {
-                    bool guest = false;
-
-                    foreach (var player in request.Players)
+                    int newBlindDrawNumber = _randomNumberGenerator.Next(5000, 5999);
+                    if (newBlindDrawNumber < request.BlindDrawValue)
                     {
-                        if (player.Extra == "G")
-                        {
-                            guest = true;
-                            break;
-                        }
-                    }
-
-                    if (guest)
-                    {
-                        // If there is 1 guest in the group, give them a higher blind draw number
-                        request.BlindDrawValue = _randomNumberGenerator.Next(4000, 6999);
-                    }
-                    else
-                    {
-                        // If there are only members, give them a lower blind draw number
-                        request.BlindDrawValue = _randomNumberGenerator.Next(7000, 9999);
+                        request.BlindDrawValue = newBlindDrawNumber;
                     }
                 }
             }
@@ -2676,6 +2775,7 @@ namespace WebAdmin.ViewModel
                     foreach (var player in ttr.Players)
                     {
                         ghinNumbers.Add(player.GHIN);
+                        player.TeeTimeCount = GetTeeTimesPerGhin(player.GHIN);
                     }
                     CalculateHistoricalTeeTimeMeanAndStdev(ghinNumbers, out mean, out stdev, out count, out lastTeeTime);
                     ttr.StartTimeAverageInSeconds = mean;
@@ -2684,6 +2784,30 @@ namespace WebAdmin.ViewModel
                     ttr.LastTeeTime = lastTeeTime;
                 }
             }
+
+            AdjustBlindDrawNumbersForInfrequentPlayers();
+        }
+
+        private int GetTeeTimesPerGhin(string ghin)
+        {
+            if (PlayerTeeTimeHistoryHashTableByGhin == null) return -1;
+
+            int teeTimeCount = 0;
+
+            if (PlayerTeeTimeHistoryHashTableByGhin.ContainsKey(ghin))
+            {
+                var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTableByGhin[ghin];
+
+                for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                {
+                    if (ptth.TeeTimes[teeTimeIndex] != null)
+                    {
+                        teeTimeCount++;
+                    }
+                }
+            }
+
+            return teeTimeCount;
         }
 
         private void CalculateHistoricalTeeTimeMeanAndStdev(List<string> ghinNumbers, out double mean, out double stdev, out int teeTimeCount, out string lastTeeTime)

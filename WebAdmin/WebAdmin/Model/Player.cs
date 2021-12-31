@@ -33,15 +33,24 @@ namespace WebAdmin
         private string _extra = string.Empty;
         public string Extra { get { return _extra; } set { _extra = value; OnPropertyChanged(); } }
 
-        //public TeeTimeRequest TeeTimeRequest { get; set; }
         public TeeTime TeeTime { get; set; }
         public int Position { get; set; }
         public string Email { get; set; }
         public int SignupKey { get; set; }
+        public string SignupPriority { get; set; }
+        public bool PreviouslyWaitlisted { get; set; }
+        public int TeeTimeCount { get; set; }
 
         public override string ToString()
         {
             return Name + " (" + GHIN + ")";
+        }
+
+        public Player()
+        {
+            SignupPriority = string.Empty;
+            PreviouslyWaitlisted = false;
+            TeeTimeCount = -1;
         }
     }
 }
