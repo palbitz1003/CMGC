@@ -101,7 +101,7 @@ namespace WebAdmin.ViewModel
                 // is updated during a selection index change event, there is a 2nd event
                 // that comes in right away with the same value.
                 var timeSinceLastEvent = DateTime.Now - _lastSelectionTime;
-                if ((_lastSelection == value) &&  (timeSinceLastEvent.TotalMilliseconds < 150))
+                if ((_lastSelection == value) &&  (timeSinceLastEvent.TotalMilliseconds < 200))
                 {
                     System.Diagnostics.Debug.WriteLine("Duplicate selection event ms: " + timeSinceLastEvent.TotalMilliseconds);
 
