@@ -88,7 +88,7 @@ namespace WebAdmin
                 }
 
                 string s = string.Empty;
-                if (_waitlisted)
+                if (Waitlisted)
                 {
                     s = "wait: ";
                 }
@@ -108,8 +108,8 @@ namespace WebAdmin
             }
         }
 
-        private bool _waitlisted = false;
-        public bool Waitlisted { get { return _waitlisted; } set { _waitlisted = value; } }
+        // Don't send out an event when this property changes -- no need
+        public bool Waitlisted { get; set; } = false;
 
         private float _paymentDue;
         public float PaymentDue { get { return _paymentDue; } set { _paymentDue = value; OnPropertyChanged(); } }

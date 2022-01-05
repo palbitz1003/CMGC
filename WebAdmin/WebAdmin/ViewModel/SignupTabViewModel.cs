@@ -233,6 +233,7 @@ namespace WebAdmin.ViewModel
         private bool RecalculateBlindDrawOnSelection = false;
         private List<string> BlockedTeeTimes;
         private List<string> PreviouslyWaitlistedGhins;
+        private bool WorkingOnSignups = false;
         #endregion
 
         #region Commands
@@ -684,17 +685,24 @@ namespace WebAdmin.ViewModel
             TeeTimeRequest teeTimeRequest = selectedItem;
             TeeTime teeTime = TournamentTeeTimes[TeeTimeSelection];
 
-            // If players were selected from the waitlist, 
-            // recalculate the blind draw waitlist. 
+             
             if (teeTimeRequest.Waitlisted)
             {
                 teeTimeRequest.Waitlisted = false;
-                // Reduce the blind draw number to keep them off the waitlist
-                teeTimeRequest.BlindDrawValue = 1000;
-                BlindDraw();
-                // Re-sort since new players may have been marked as waitlisted
-                SortTeeTimeRequests();
-                return;
+                if (WorkingOnSignups)
+                {
+                    // If players were selected from the waitlist, 
+                    // recalculate the blind draw waitlist, but only
+                    // if data was loaded from signups -- not when it is
+                    // loaded from the website tee times or csv file.
+                    //
+                    // Reduce the blind draw number to keep them off the waitlist
+                    teeTimeRequest.BlindDrawValue = 1000;
+                    BlindDraw();
+                    // Re-sort since new players may have been marked as waitlisted
+                    SortTeeTimeRequests();
+                    return;
+                }
             }
 
             if (teeTime.BlockedOut)
@@ -1007,6 +1015,11 @@ namespace WebAdmin.ViewModel
                         }
                         PlayersToRemoveFromSignup.Clear();
                         PlayersToReplaceFromSignup.Clear();
+                        if (WorkingOnSignups)
+                        {
+                            ConvertWaitingListToSinglePlayers();
+                        }
+                        WorkingOnSignups = false;
                     }
                     else
                     {
@@ -1022,6 +1035,30 @@ namespace WebAdmin.ViewModel
 
                 // TODO error handling
             }
+        }
+
+        private void ConvertWaitingListToSinglePlayers()
+        {
+            List<TeeTimeRequest> singlePlayers = new List<TeeTimeRequest>();
+
+            OrderTeeTimeRequestsBy = OrderTeeTimeRequestsByEnum.BlindDraw;
+
+            int blindDrawNumber = 1000;
+            foreach (var request in TeeTimeRequestsUnassigned)
+            {
+                foreach (var player in request.Players)
+                {
+                    var teeTimeRequest = new TeeTimeRequest();
+                    teeTimeRequest.Players.Add(player);
+                    teeTimeRequest.Waitlisted = true;
+                    teeTimeRequest.Preference = request.Preference;
+                    teeTimeRequest.BlindDrawValue = blindDrawNumber++;
+                    singlePlayers.Add(teeTimeRequest);
+                }
+            }
+
+            TeeTimeRequests = singlePlayers;
+            UpdateUnassignedList(4);
         }
 
         private void SaveTeeTimesAsCsv(object o)
@@ -1360,6 +1397,7 @@ namespace WebAdmin.ViewModel
             }
 
             TeeTimeSource = "Tee times were loaded from the website signups";
+            WorkingOnSignups = true;
 
             GroupMode = true;
 
@@ -1664,6 +1702,7 @@ namespace WebAdmin.ViewModel
 
             GroupMode = false;
             TeeTimeSource = "Tee times were loaded from the website";
+            WorkingOnSignups = false;
         }
 
         protected TeeTimeComposite LoadTeeTimeCompositeFromWebResponseJson(string webResponse)
@@ -2543,6 +2582,7 @@ namespace WebAdmin.ViewModel
             FillInAssignedListFromTournamentTeeTimes();
             GroupMode = false;
             TeeTimeSource = "Tee times were loaded from file: " + Path.GetFileName(TeeTimeFile);
+            WorkingOnSignups = false;
         }
 
         private void FillInAssignedListFromTournamentTeeTimes()
