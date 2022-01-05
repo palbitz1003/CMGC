@@ -14,7 +14,6 @@ namespace WebAdmin.ViewModel
 {
     public class SignupTabViewModel : TabViewModelBase
     {
-
         private enum TeeTimeStatus { TeeTime, Waitlisted, Cancelled };
         public enum OrderTeeTimeRequestsByEnum { RequestedTime, LastTeeTime, BlindDraw, HistoricalTeeTimes };
 
@@ -755,12 +754,16 @@ namespace WebAdmin.ViewModel
 
                 if (!teeTimeFound)
                 {
+                    ClearTodoSelection();
+
                     // show all remaining unassigned
                     UpdateUnassignedList(4);
                 }
             }
             else
             {
+                ClearTodoSelection();
+
                 // Only show the unassigned that fit into this tee time
                 UpdateUnassignedList(4 - teeTime.Players.Count);
 
@@ -1851,7 +1854,7 @@ namespace WebAdmin.ViewModel
             BlindDrawPlayerCount = count;
         }
 
-        private Player GetPlayerToAdd()
+        private Player GetPlayerToAdd(bool replacingPlayer)
         {
             List<GHINEntry> ghinList = new List<GHINEntry>();
             try
@@ -1895,9 +1898,16 @@ namespace WebAdmin.ViewModel
                     {
                         if (!string.IsNullOrEmpty(player.GHIN) && (String.CompareOrdinal(player.GHIN, p.GHIN) == 0))
                         {
-                            MessageBox.Show(Application.Current.MainWindow,
-                                player.Name + " is already in the signup list at tee time preference " + request.Preference);
-                            return null;
+                            if (replacingPlayer)
+                            {
+                                return p;
+                            }
+                            else
+                            {
+                                MessageBox.Show(Application.Current.MainWindow,
+                                    player.Name + " is already in the signup list at tee time preference " + request.Preference);
+                                return null;
+                            }
                         }
                     }
                 }
@@ -1941,7 +1951,7 @@ namespace WebAdmin.ViewModel
 
         private void AddPlayer(object o)
         {
-            Player player = GetPlayerToAdd();
+            Player player = GetPlayerToAdd(false);
 
             if (player == null) return;
 
@@ -2158,7 +2168,7 @@ namespace WebAdmin.ViewModel
 
             if (playerToRemove == null) return;
 
-            Player playerToAdd = GetPlayerToAdd();
+            Player playerToAdd = GetPlayerToAdd(true);
 
             if (playerToAdd == null) return;
 
@@ -2177,7 +2187,16 @@ namespace WebAdmin.ViewModel
                 RemoveFromCancelledList(playerToAdd);
                 CancelledPlayers.Add(playerToRemove);
 
-                TeeTimeRequest ttr = FindTeeTimeRequest(playerToRemove);
+                // If replacing with a player from the waiting list, there will be only
+                // a single player in the tee time request
+                TeeTimeRequest ttr = FindTeeTimeRequest(playerToAdd);
+                if ((ttr != null) && (ttr.Players.Count == 1))
+                {
+                    TeeTimeRequests.Remove(ttr);
+                    UpdateUnassignedList(4);
+                }
+
+                ttr = FindTeeTimeRequest(playerToRemove);
 
                 // fix up the tee time request in the unassigned list
                 if (ttr != null)

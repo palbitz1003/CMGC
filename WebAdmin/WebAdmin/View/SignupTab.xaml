@@ -117,7 +117,6 @@
             </Grid.ColumnDefinitions>
 
             <ListBox Margin="5" Name="TODOListBox"  Grid.Row="1" Grid.Column="0" 
-                 
                  SelectedIndex="{Binding Path=TodoSelection}">
                 <!--
                 ItemsSource="{Binding Path=TeeTimeRequestsUnassigned}"

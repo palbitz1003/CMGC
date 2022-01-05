@@ -31,6 +31,15 @@ namespace WebAdmin.View
             DataContextChanged += (sender, args) => SubscribeToTeeTimeRequestChanges((INotifyPropertyChanged)args.NewValue);
             SubscribeToTeeTimeRequestChanges(previous);
             PrevWaitlistTextBox.Text = TabViewModelBase.Options.SignupWaitListFileName;
+            TODOListBox.IsVisibleChanged += TODOListBox_IsVisibleChanged;
+        }
+
+        private void TODOListBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool)e.NewValue)
+            {
+                DisplayTodoListboxItems();
+            }
         }
 
         // subscriber
@@ -48,46 +57,50 @@ namespace WebAdmin.View
         {
             if (args.PropertyName.Equals("TeeTimeRequestsUnassigned"))
             {
-                TODOListBox.Items.Clear();
-                foreach (var ttr in ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).TeeTimeRequestsUnassigned)
+                DisplayTodoListboxItems();
+            }
+        }
+
+        private void DisplayTodoListboxItems()
+        {
+            TODOListBox.Items.Clear();
+            foreach (var ttr in ((WebAdmin.ViewModel.SignupTabViewModel)DataContext).TeeTimeRequestsUnassigned)
+            {
+                var rtb = new RichTextBox();
+                rtb.Height = 20;
+                rtb.Width = 800; // TODOListBox.ActualWidth;
+                rtb.BorderThickness = new Thickness(0);
+                rtb.IsReadOnly = true;
+                rtb.Focusable = false;
+                AppendText(rtb, ttr.RequestedTimeWithoutPlayerList, Brushes.Black);
+
+                for (int i = 0; i < ttr.Players.Count; i++)
                 {
-                    var rtb = new RichTextBox();
-                    rtb.Height = 20;
-                    rtb.Width = 800; // TODOListBox.ActualWidth;
-                    rtb.BorderThickness = new Thickness(0);
-                    rtb.IsReadOnly = true;
-                    rtb.Focusable = false;
-                    AppendText(rtb, ttr.RequestedTimeWithoutPlayerList, Brushes.Black);
-
-                    for (int i = 0; i < ttr.Players.Count; i++)
+                    if (i > 0)
                     {
-                        if (i > 0)
-                        {
-                            AppendText(rtb, " --- ", Brushes.Black);
-                        }
-
-                        if (ttr.Players[i].PreviouslyWaitlisted)
-                        {
-                            AppendText(rtb, ttr.Players[i].Name, Brushes.Blue);
-                        }
-                        else if ((ttr.Players[i].TeeTimeCount >= 0) && (ttr.Players[i].TeeTimeCount <= 2))
-                        {
-                            AppendText(rtb, ttr.Players[i].Name, Brushes.DarkRed);
-                        }
-                        else
-                        {
-                            AppendText(rtb, ttr.Players[i].Name, Brushes.Black);
-                        }
-
-                        if (!string.IsNullOrEmpty(ttr.Players[i].Extra))
-                        {
-                            AppendText(rtb, "(" + ttr.Players[i].Extra + ")", Brushes.Black);
-                        }
+                        AppendText(rtb, " --- ", Brushes.Black);
                     }
 
-                    TODOListBox.Items.Add(rtb);
+                    if (ttr.Players[i].PreviouslyWaitlisted)
+                    {
+                        AppendText(rtb, ttr.Players[i].Name, Brushes.Blue);
+                    }
+                    else if ((ttr.Players[i].TeeTimeCount >= 0) && (ttr.Players[i].TeeTimeCount <= 2))
+                    {
+                        AppendText(rtb, ttr.Players[i].Name, Brushes.DarkRed);
+                    }
+                    else
+                    {
+                        AppendText(rtb, ttr.Players[i].Name, Brushes.Black);
+                    }
+
+                    if (!string.IsNullOrEmpty(ttr.Players[i].Extra))
+                    {
+                        AppendText(rtb, "(" + ttr.Players[i].Extra + ")", Brushes.Black);
+                    }
                 }
-                return;
+
+                TODOListBox.Items.Add(rtb);
             }
         }
 
