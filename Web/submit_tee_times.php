@@ -360,7 +360,22 @@ function ReplacePlayer($connection, $logFile, $tournamentKey, $ghin, $name, $new
 	else {
 		$removeSignupPlayer = GetPlayerSignUp($connection, $tournamentKey, $ghin);
 	}
+
+	if(intval($newghin) === 0){
+		$newPlayer = GetPlayerSignUpByName($connection, $tournamentKey, $newName);
+	}
+	else {
+		$newPlayer = GetPlayerSignUp($connection, $tournamentKey, $newGhin);
+	}
+
 	if(!empty($removeSignupPlayer)){
+		// If moving a player from one signup to another, remove the new player from
+		// their original signup before moving them to the new signup.
+		// Call RemovePlayer() instead of RemoveSignedUpPlayer(), so the payment due is updated
+		if(!empty($newPlayer)){
+			RemovePlayer($connection, $logFile, $tournamentKey, $newGhin, $newName);
+		}
+
 		RemoveSignedUpPlayer ( $connection, $tournamentKey, $ghin, $name );
 
 		$ghinArray = array();
