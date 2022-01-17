@@ -1299,7 +1299,21 @@ namespace WebAdmin.ViewModel
                                 }
                             }
                         }
-                        purseCols = FindAllCol(line, "Purse", fullPath);
+                        try
+                        {
+                            purseCols = FindAllCol(line, "Purse", fullPath);
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                purseCols = FindAllCol(line, "Team Purse", fullPath);
+                            }
+                            catch
+                            {
+                                throw new ApplicationException("Failed to find column header: Purse or Team Purse in " + fullPath);
+                            }
+                        }
                         rankCols = FindAllCol(line, "Rank", fullPath);
                         findHeaders = false;
 
