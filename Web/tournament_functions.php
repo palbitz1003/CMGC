@@ -512,14 +512,6 @@ function ShowTournamentResultsLinks($connection, $tournament, $style, $skipThisR
 			echo '<td ' . $style . '>Chits</td>';
 		}
 	}
-	
-	if ($skipThisResult != 'Closest-To-The-Pin') {
-		if (IsDateSet ( $details->ClosestToThePinPostedDate )) {
-			echo '<td ' . $style . '><a href="' . $script_folder_href . 'closest_to_the_pin.php?tournament=' . $tournament->TournamentKey . '">Closest to Pin</a></td>';
-		} else {
-			echo '<td ' . $style . '>Closest to Pin</td>';
-		}
-	}
 
 	if ($skipThisResult != 'GolfGeniusResults') {
 		if (!empty($details->GolfGeniusResults)) {
