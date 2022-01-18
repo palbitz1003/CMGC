@@ -293,8 +293,9 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	} else {
 		echo 'Fill in the GHIN and last name for 1-4 players.  Player 1 must be filled in.' . PHP_EOL;
 	}
+	echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
+	echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
 	
-	echo '</p>' . PHP_EOL;
 	if($t->RequirePayment) { 
 		echo '<p>This is only step 1.  After entering the list of players, you will be asked to pay the tournament fee.</p>' . PHP_EOL;
 	}

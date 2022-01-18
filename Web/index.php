@@ -60,10 +60,10 @@ if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 			else if ($details->TeeTimesPostedDate != TournamentDetails::EMPTYDATE) {
 				$friendlyDate = GetUnbreakableHtmlDateString(date ( 'M d', strtotime ( $details->TeeTimesPostedDate )));
 				echo '<td style="border:none"><a href="' . $script_folder_href . 'tee_times.php?tournament=' . $currentTournaments[$i]->TournamentKey . '">Tee Times</a> (<span style="font-size:small;">posted ' . $friendlyDate . '</span>)</td>'. PHP_EOL;
-				echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>'. PHP_EOL;
+				echo '<td style="border:none"><a href="mailto:' . $currentTournaments [$i]->ChairmanEmail . '">Tournament Director</a></td>'. PHP_EOL;
 			} else {
 				echo '<td style="border:none">Tee Times (<span style="font-size:small;">pending</span>)</td>'. PHP_EOL;
-				echo '<td style="border:none"><a href="' . $script_folder_href . 'contact_chairman.php?tournament=' . $currentTournaments [$i]-> TournamentKey . '">Tournament Director</a></td>'. PHP_EOL;
+				echo '<td style="border:none"><a href="mailto:' . $currentTournaments [$i]->ChairmanEmail . '">Tournament Director</a></td>'. PHP_EOL;
 			}
 			
 			echo '</tr>' . PHP_EOL;
