@@ -63,7 +63,7 @@ if (! $tournamentKey || !is_numeric($tournamentKey)) {
 		
 		echo '</tr></table>' . PHP_EOL;
 		
-		ShowWaitingList($connection, $tournamentKey);
+		ShowWaitingList($connection, $tournamentKey, $tournament);
 
 		ShowTeeTimesCancelledList($connection, $tournamentKey);
 	}
@@ -210,7 +210,7 @@ function ShowPlayersAlphabetically($connection, $tournamentKey, $teeTimeArray) {
 
 	$query->close ();
 }
-function ShowWaitingList($connection, $tournamentKey){
+function ShowWaitingList($connection, $tournamentKey, $tournament){
 	
 	$waitingList = GetSignUpWaitingList($connection, $tournamentKey);
 	
@@ -220,7 +220,12 @@ function ShowWaitingList($connection, $tournamentKey){
 		echo '<tbody>' . PHP_EOL;
 		echo '<tr><td style="border:none">' . PHP_EOL;
 		echo 'This tournament is oversubscribed or players are waiting for a tee time in a specific time range; These players will be offered the spot of any cancellations in the order listed. ' . PHP_EOL;
-		echo 'Players not getting an assigned time in this tournament will be given priority in the next 2 day tournament entered.' . PHP_EOL;
+		if($tournament->StartDate != $tournament->EndDate){
+			echo 'Players not getting an assigned time in this tournament will be given priority in the next 2 day tournament entered.' . PHP_EOL;
+		}
+		else {
+			echo 'Since this is a 1 day tournament, being on the waitlist does not get you priority into the next 2 day tournament.' . PHP_EOL;
+		}
 		echo '</td></tr>' . PHP_EOL;
 		echo '</tbody>' . PHP_EOL;
 		echo '</table>' . PHP_EOL;
