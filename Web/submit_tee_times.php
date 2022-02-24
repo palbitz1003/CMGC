@@ -32,6 +32,17 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	}
 	$logFile = $default_log_folder . "/TeeTimes." . $tournamentKey . ".log";
 
+	// Don't allow tee times to be submitted for a future tournament. Otherwise, individual signups
+	// would be created for all the players.
+	$t = GetTournament($connection, $tournamentKey);
+	$startSignUp = new DateTime ( $t->SignupStartDate);
+	$now = new DateTime ( "now" );
+	if($now < $startSignUp){
+		echo "The signups for this tournament don't start until " . date ( 'M d', date_timestamp_get($startSignUp)) ;
+		echo ". Tee times are not accepted until after the signup period has started.";
+		return;
+	}
+
 	// Remove players first, so the count of players for each signup are correct for calculations below
 	if(!empty($_POST ['Remove'])){
 		for($i = 0; $i < count ( $_POST ['Remove'] ); ++ $i) {
