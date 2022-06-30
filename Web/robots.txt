@@ -36,3 +36,9 @@ User-agent: Amazonbot
 Disallow: /
 User-agent: YisouSpider
 Disallow: /
+User-agent: MojeekBot
+Disallow: /
+User-agent: DataForSeoBot
+Disallow: /
+User-agent: Neevabot
+Disallow: /
