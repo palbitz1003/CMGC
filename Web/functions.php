@@ -103,6 +103,13 @@ function FixNameCasing($name)
 	}
 	
 	$name = stripslashes($name);
+
+	// If the name already has both upper and lower case characters,
+	// just use the name as-is.
+	if(strtolower($name) != $name && strtoupper($name) != $name){
+		return(trim($name));
+	}
+
 	$nameArray = explode(',', $name);
 	if(count($nameArray) == 1){
 		return ucfirst(strtolower(trim($nameArray[0])));
