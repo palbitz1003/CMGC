@@ -230,9 +230,9 @@ if (isset ( $_POST ['Player'] )) {
 							$interval = $tournamentStart->diff($birthday);
 							if($interval){
 								//echo "years = " . $interval->y . "<br>";
-								if($interval->y < 60){
+								if($interval->y < 65){
 									$Extra[$i] = "F1";
-								} else if($interval->y < 70){
+								} else if($interval->y < 72){
 									$Extra[$i] = "F2";
 								} else {
 									$Extra[$i] = "F3";
