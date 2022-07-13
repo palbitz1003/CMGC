@@ -536,7 +536,7 @@ function InsertTournament($connection, $tournament) {
 	}
 	
 	// This has become too long ...
-	if (! $insert->bind_param ( 'sssssssiiiiiisssiiiiiiiiiiiiii', $tournament->Name, $tournament->Year, $tournament->StartDate, $tournament->EndDate, 
+	if (! $insert->bind_param ( 'sssssssiiiiiisssiiiiiiiiiiiii', $tournament->Name, $tournament->Year, $tournament->StartDate, $tournament->EndDate, 
 			$tournament->SignupStartDate, $tournament->SignupEndDate, $tournament->CancelEndDate, $tournament->LocalHandicap, 
 			$tournament->ScgaTournament, $tournament->TeamSize, $tournament->TournamentDescriptionKey,
 			$tournament->Cost, $tournament->Pool, $tournament->ChairmanName, $tournament->ChairmanEmail, 
