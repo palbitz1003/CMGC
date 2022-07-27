@@ -1330,10 +1330,12 @@ namespace WebAdmin.ViewModel
                         }
 
                         // Some rows are used for recording which player's drive is used. There is no GHIN, so skip those
-                        if (IsEclectic && string.IsNullOrWhiteSpace(line[ghinCol]))
-                        {
-                            continue;
-                        }
+                        // Abandoned keeping track of whose drive it used -- Member-Guest can have guests with no GHIN, which 
+                        // GG leaves empty.
+                        //if (IsEclectic && string.IsNullOrWhiteSpace(line[ghinCol]))
+                        //{
+                        //    continue;
+                        //}
 
                         Score score = new Score();
                         // Not all tournaments are 2 day. If round 2
@@ -1650,7 +1652,7 @@ namespace WebAdmin.ViewModel
                         // names of the other players?
 
                         kvpChitsList.Add(new KeyValuePair<string, string>(
-                            string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), line[ghinCol]));
+                            string.Format("{0}[{1}][GHIN]", ResultsChits, chitsIndex), string.IsNullOrWhiteSpace(line[ghinCol]) ? "0" : line[ghinCol]));
 
                         chitsIndex++;
                     }
