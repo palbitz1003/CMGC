@@ -25,6 +25,11 @@ if ($_POST ['Action'] == 'Delete') {
 	
 	for($i = 0; $i < count ( $_POST ['Signup'] ); ++ $i) {
 		UpdateSignup($connection,$_POST ['Signup'][$i]['SignupKey'], 'Payment', $_POST ['Signup'][$i]['PaymentMade'], 'd');
+
+		// If marking that signup is paid, put in WebAdmin as the PayerName
+		if($_POST ['Signup'][$i]['PaymentMade'] != "0"){
+			UpdateSignup($connection,$_POST ['Signup'][$i]['SignupKey'], 'PayerName', "WebAdmin", 's');
+		}
 	}
 }
 echo "Success";
