@@ -29,6 +29,9 @@ if ($_POST ['Action'] == 'Delete') {
 		// If marking that signup is paid, put in WebAdmin as the PayerName
 		if($_POST ['Signup'][$i]['PaymentMade'] != "0"){
 			UpdateSignup($connection,$_POST ['Signup'][$i]['SignupKey'], 'PayerName', "WebAdmin", 's');
+
+			$date = date ( 'Y-m-d H:i:s' );
+			UpdateSignup($connection,$_POST ['Signup'][$i]['SignupKey'], 'PaymentDateTime', $date, 's');
 		}
 	}
 }
