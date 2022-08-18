@@ -1066,30 +1066,21 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 		echo '</td>' . PHP_EOL;
 	} else if($t->ClubChampionship){
 		$flightLabel = GetPlayerFlightIndex($playerNumber);
+
 		if($rowSpan > 1){
 			echo '<td rowspan = "' . $rowSpan . '" style="border: none;">' . PHP_EOL;
 		}
 		else {
 			echo '<td style="border: none">' . PHP_EOL;
 		}
-		echo '<input  type="radio" name="' . $flightLabel . '" value="F1"';
-		if($extraForPlayer == 'F1')
-		{
-			echo ' checked';
+		if($extraForPlayer == "CH"){
+			echo 'Championship flight' . PHP_EOL;
 		}
-		echo '>Handicap-based flights' . PHP_EOL;
-		
-		echo '<br><input  type="radio" name="' . $flightLabel . '" value="CH"';
-		if($extraForPlayer == 'CH')
-		{
-			echo ' checked';
+		else {
+			echo 'Handicap-based flights' . PHP_EOL;
 		}
-		echo '>Championship flight' . PHP_EOL;
-		if(!empty($errorForPlayer)){
-			echo '<p style="color:red">' . $errorForPlayer . '</p>' . PHP_EOL;
-		}
+		echo '<input type="hidden" name="' . $flightLabel . '" value="' . $extraForPlayer . '">' . PHP_EOL;
 		echo '</td>' . PHP_EOL;
-
 	}
 }
 
@@ -1104,7 +1095,7 @@ function AddFlightsError($t, $errorForPlayer){
 	}
 }
 
-function RequestedTime($RequestedTime)
+function RequestedTime($RequestedTime, $numColumns)
 {
 	echo '<tr>' . PHP_EOL;
 	echo '		<td style="border: none;">Requested time:<br>(Tells us how early you can play)</td>' . PHP_EOL;
@@ -1119,6 +1110,11 @@ function RequestedTime($RequestedTime)
 	new_list_option ( '11am-12pm', $RequestedTime );
 
 	echo '		</select></td>' . PHP_EOL;
+
+	if($numColumns == 3){
+		echo '<td style="border: none;"></td>' . PHP_EOL;
+	}
+
 	echo '	</tr>' . PHP_EOL;
 }
 

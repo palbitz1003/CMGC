@@ -67,6 +67,18 @@ if(IsPastSignupPeriod($t)) {
 	return;
 }
 
+if($t->ClubChampionship && ($players[0]->Extra == "CH")){
+	echo '<div style = "position:relative; top:80px;text-align: center;">';
+	echo "Championship flight players only sign up as singles." . PHP_EOL;
+    echo '</div>' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 //var_dump($_POST);
 
 $errorAccessCode1 = null;
@@ -130,7 +142,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	echo '<p>Select a group to add, fill in the access codes for both groups, and click Submit</p>' . PHP_EOL;
 	
 	$maxSize = 4 - count($players);
-	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid);
+	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid, $t->ClubChampionship);
 	
 	if(count($potentialMergeGroups) == 0){
 		if(count($players) == 4){
@@ -241,7 +253,7 @@ if (isset ( $connection )) {
 
 get_footer ();
 
-function GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid)
+function GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid, $isClubChampionship)
 {
 	$signups = array();
 	if($signupHasPaid){
@@ -255,19 +267,24 @@ function GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $si
 		if($signupKey != $samePaymentGroupSignups [$i]->SignUpKey){
 			$playersSignedUp = GetPlayersForSignUp ( $connection, $samePaymentGroupSignups [$i]->SignUpKey );
 			
-			if(count($playersSignedUp) <= $maxSize){
-				$playerNames = null;
-				for($p = 0; $p < count ( $playersSignedUp ); ++ $p) {
-					if (! empty ( $playerNames )) {
-						$playerNames = $playerNames . " --- ";
+			if($isClubChampionship && (count($playersSignedUp) > 0) && ($playersSignedUp [0]-> Extra == "CH")){
+				// skip over championship players since they sign up as singles
+			}
+			else {
+				if(count($playersSignedUp) <= $maxSize){
+					$playerNames = null;
+					for($p = 0; $p < count ( $playersSignedUp ); ++ $p) {
+						if (! empty ( $playerNames )) {
+							$playerNames = $playerNames . " --- ";
+						}
+						$playerNames = $playerNames . " " . $playersSignedUp [$p]->LastName;
 					}
-					$playerNames = $playerNames . " " . $playersSignedUp [$p]->LastName;
+					
+					$m = new MergeSignUpClass();
+					$m->SignUpKey = $samePaymentGroupSignups [$i]->SignUpKey;
+					$m->PlayerNames = '&nbsp;&nbsp;' . $playerNames . '&nbsp;&nbsp;'; // add spaces for listbox
+					$signups[] = $m;
 				}
-				
-				$m = new MergeSignUpClass();
-				$m->SignUpKey = $samePaymentGroupSignups [$i]->SignUpKey;
-				$m->PlayerNames = '&nbsp;&nbsp;' . $playerNames . '&nbsp;&nbsp;'; // add spaces for listbox
-				$signups[] = $m;
 			}
 		}
 	}

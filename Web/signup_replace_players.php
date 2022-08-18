@@ -68,6 +68,18 @@ if($players[0]->TournamentKey != $tournamentKey){
 	die("The players for signup key  " . $signupKey . " are part of tournament " . $players[0]->TournamentKey . " not tournament " . $tournamentKey);
 }
 
+if($t->ClubChampionship && ($players[0]->Extra == "CH")){
+	echo '<div style = "position:relative; top:80px;text-align: center;">';
+	echo "Instead of replacing a championship flight player, remove the current player, then signup the new player." . PHP_EOL;
+    echo '</div>' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 $errorList = array ();
 $GHIN = array ();
 $LastName = array ();
@@ -361,7 +373,7 @@ else {
 	}
 	echo '</p>' . PHP_EOL;
 	
-	if($t->SrClubChampionship || $t->ClubChampionship){
+	if($t->SrClubChampionship){
 		echo '<p style="color: red">Click this link to select the flight for the new player: ' . PHP_EOL;
 		echo '<a href="signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signupKey . '">Modify Flight</a>' . PHP_EOL;
 		echo '</p>' . PHP_EOL;

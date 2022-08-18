@@ -71,6 +71,18 @@ for($i = 0; $i < count($players); ++ $i) {
 	$Extra[$i] = $players[$i]->Extra;
 }
 
+if(($Extra[0] == "CH") && $t->ClubChampionship){
+	echo '<div style = "position:relative; top:80px;text-align: center;">';
+	echo "There is nothing to modify for a championship flight player in this tournament." . PHP_EOL;
+    echo '</div>' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 if (isset ( $_POST ['RequestedTime'] )) {
 	
 	$accessCode = trim($_POST['AccessCode']);
@@ -205,7 +217,7 @@ if ($hasError || !isset ( $_POST ['RequestedTime'] )) {
 		echo '<td>' . PHP_EOL;
 		AddPlayerTable($t);
 		
-		RequestedTime($RequestedTime);
+		RequestedTime($RequestedTime, 2);
 		
 		echo '</table>' . PHP_EOL;
 		echo '</td>' . PHP_EOL;
@@ -222,7 +234,13 @@ if ($hasError || !isset ( $_POST ['RequestedTime'] )) {
 		AddPlayer($t, 3, $players, $Extra, $flightErrorList);
 		AddPlayer($t, 4, $players, $Extra, $flightErrorList);
 	
-		RequestedTime($RequestedTime);
+		// Some tournaments have 3 columns in the table
+		if($t->SrClubChampionship || $t->ClubChampionship){
+			RequestedTime($RequestedTime, 3);
+		} 
+		else {
+			RequestedTime($RequestedTime, 2);
+		}
 		echo '</table>' . PHP_EOL;
 	}
 
