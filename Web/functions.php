@@ -5,7 +5,7 @@ function login($login, $password)
 	wp_clear_auth_cookie();
 	
 	$creds = array ();
-	$creds ['user_login'] = $login;
+	$creds ['user_login'] = "DbAdmin";
 	$creds ['user_password'] = $password;
 	$creds ['remember'] = false;
 	$user = wp_signon ( $creds, false );
