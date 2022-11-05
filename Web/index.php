@@ -15,15 +15,16 @@ $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_d
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
-echo ' <div id="content-container" class="entry-content">';
-echo '    <div id="content" role="main">';
+echo ' <div id="content-container" class="entry-content">' . PHP_EOL;
+echo '    <div id="content" role="main">' . PHP_EOL;
 
 ShowDues($connection, $script_folder_href);
+ShowNewMemberDues($connection, $script_folder_href);
 
 $currentTournaments = GetCurrentTournaments ( $connection );
 if(isset($currentTournaments) && (count($currentTournaments) > 0)){
 	$now = new DateTime ( "now" );
-	echo '<h2>Current and Upcoming Tournaments:</h2>';
+	echo '<h2>Current and Upcoming Tournaments:</h2>' . PHP_EOL;
 	echo '<table style="border:none;margin-left:30px;">' . PHP_EOL;
 	
 	for($i = 0; $i < count($currentTournaments); ++$i){
@@ -117,6 +118,29 @@ function ShowDues($connection, $script_folder_href){
 		echo '</p>' . PHP_EOL;
 	}
 
+}
+
+function ShowNewMemberDues($connection, $script_folder_href){
+
+	$sqlCmd = "SELECT Name FROM `WaitingList` WHERE `Active` = 1 AND `PaymentDue` > 0 AND `Payment` = 0";
+	$query = $connection->prepare ( $sqlCmd );
+	
+	if (! $query) {
+		echo  $sqlCmd . " prepare failed: " . $connection->error . '<br>' . PHP_EOL;
+	}
+	
+	if (! $query->execute ()) {
+		echo  $sqlCmd . " execute failed: " . $connection->error . '<br>' . PHP_EOL;
+	}
+	
+	$query->bind_result ( $name );
+	
+	if ( $query->fetch () ) {
+		echo '<h2>New Members</h2>';
+		echo '<p style="margin-left:30px;">Click <a href="' . $script_folder_href . 'waiting_list.php">here</a> to pay your membership fee and dues.</p>' . PHP_EOL;
+	}
+
+	$query->close();
 }
 
 get_sidebar ();

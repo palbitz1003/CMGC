@@ -11,6 +11,7 @@ $script_folder = '/v2';
 $script_folder_href = 'v2/';
 $ipn_file = 'paypal_ipn.php';
 $ipn_dues_file = 'paypal_dues_ipn.php';
+$ipn_membership_file = 'paypal_membership_ipn.php';
 // 5am, P is for "period" and T is for "time", 05H is 5 hours, 00M is 0 minutes
 $signup_start_time = 'PT05H00M';
 // noon, P is for "period" and T is for "time", 12H is 12 hours, 00M is 0 minutes
