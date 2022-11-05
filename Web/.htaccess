@@ -1,14 +1,47 @@
-# Disable directory listings
+# details of rules at https://httpd.apache.org/docs/2.4/rewrite/flags.html
+# another source: https://httpd.apache.org/docs/current/mod/mod_rewrite.html
+# NC - case insensitive, L - last, R - redirect
+# You will almost always want to use [R] in conjunction with [L] (that is, use [R,L]) because on its own, the [R] flag 
+#      prepends http://thishost[:thisport] to the URI, but then passes this on to the next rule in the ruleset
+# Using the [F] flag causes the server to return a 403 Forbidden status code to the client. 
+
+# Disable directory listings. After adding RewriteCond below that redirect to index.php any
+# file or directory failures, trying to list a directory just sends you to index.php
 Options -Indexes
 
 # Allow rewriting
 RewriteEngine On
+
+# A dash indicates that no substitution should be performed (the existing path is passed through untouched). 
+#   This is used when a flag needs to be applied without changing the path.
+#
+# When PHP is installed as CGI then Apache prevents the Authorization HTTP request header (used with HTTP Authentication) from being passed through to CGI 
+# scripts (ie. PHP in this instance). This is a "security feature", to prevent the user's credentials from being passed to all CGI scripts (which might not be trusted, if you don't control the server).
+#
+# PHP normally sets the $_SERVER['HTTP_AUTHORIZATION'] superglobal (and associated array elements) from the HTTP Authorization header, but if it's been stripped by Apache then it can't.
+#
+# The RewriteRule directive in .htaccess attempts to "fix" this by setting an HTTP_AUTHORIZATION environment variable to the value of the Authorization HTTP request header 
+# (this is before the request is passed to PHP). PHP then assigns the HTTP_AUTHORIZATION env var to the $_SERVER superglobal array. So, in theory, it's doing the same thing. 
+# However, depending on the server config, this doesn't necessarily work.
+#
+# (this line is from https://wordpress.org/support/article/htaccess/)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 RewriteBase /
 
-# Rewrite coronadomensgolf.org/index.html to just coronadomensgolf.org/
-RewriteRule ^index\.html?$ / [NC,R,L]
+# (this line is from https://wordpress.org/support/article/htaccess/)
+RewriteRule ^index\.php$ - [L]
+
+# -f: Is regular file.
+# -d: Is directory.
+# if file or directory not found, show index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
 
 # convert http to https
+# A 301 redirect is a permanent redirect. When a user tries to access an old URL, the server 
+#     sends their browser the 301-Permanently Moved status code and sends them to another page.
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
