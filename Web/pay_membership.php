@@ -27,7 +27,6 @@ $testMode = false;
 if(!empty($_GET ['mode']) && ($_GET ['mode'] == "test")){
 	$testMode = true;
 }
-$testMode = true;
 
 $overrideTitle = "Pay Membership";
 get_header ();
@@ -101,7 +100,7 @@ echo '<p>You are paying for: ' . $waitingListEntry->Name . '</p><p> Your payment
 echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>";
 echo '<p>PayPal will notify the CMGC website of your payment and the link next to your name on the waiting list will change to "Paid". If the waiting list does not update to "Paid" within 24hrs, contact the membership chairman.</p>' . PHP_EOL;
 echo '<p>If you have problems reaching PayPal, turn off your VPN if you are using one, or try a different device.</p>' . PHP_EOL;
-echo '<p style="text-align: center;"><b>Entry Fees: $' . $waitingListEntry->PaymentDue . '</b></p>' . PHP_EOL;
+echo '<p style="text-align: center;"><b>Entry Fees: $' . $paypalDetails->Dues . '</b></p>' . PHP_EOL;
 
 if($testMode){
     echo '<form style="text-align:center" action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top">' . PHP_EOL;
@@ -119,7 +118,7 @@ echo '<input type="hidden" name="custom" value="FinalPayment;' . $waitingListEnt
 //echo '<input type="hidden" name="os0" value="' .  $payPalComboBoxChoice . '">' . PHP_EOL; 
 echo '<input type="hidden" name="currency_code" value="USD">' . PHP_EOL;
 echo '<input type="hidden" name="notify_url" value="https://' . $web_site . '/' . $ipn_membership_file . '">' . PHP_EOL;
-echo '<input type="hidden" name="return" value="https://' . $web_site . '">' . PHP_EOL;
+echo '<input type="hidden" name="return" value="https://' . $web_site . '/index.php">' . PHP_EOL;
 // rm is return method. Value 1 is: The buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included.
 echo '<input type="hidden" name="rm" value="1">' . PHP_EOL;
 if($testMode){
@@ -167,13 +166,13 @@ function cmgc_waitlist_GetPayPalDetails($connection, $paymentType){
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$payPal->bind_result ( $payPalButton, $dues, $paymentType );
+	$payPal->bind_result ( $payPalButton, $dues, $type );
 
 	$details = new PayPalDetailsMembership();
 	if($payPal->fetch ()){
 		$details->PayPayButton = $payPalButton;
 		$details->Dues = $dues;
-		$details->PaymentType = $paymentType;
+		$details->PaymentType = $type;
 	}
 
 	$payPal->close ();
