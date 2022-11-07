@@ -109,6 +109,7 @@ else {
     echo '<form style="text-align:center" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">' . PHP_EOL;
 }
 
+// Variables described in https://developer.paypal.com/api/nvp-soap/paypal-payments-standard/integration-guide/Appx-websitestandard-htmlvariables/
 echo '<input type="hidden" name="cmd" value="_s-xclick">' . PHP_EOL;
 echo '<input type="hidden" name="hosted_button_id" value="' . $paypalDetails->PayPayButton . '">' . PHP_EOL;
 echo '<input type="hidden" name="item_name" value="Membership Dues">' . PHP_EOL;
