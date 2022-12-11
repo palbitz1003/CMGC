@@ -12,8 +12,9 @@ $testMode = false;
 
 $connection = new mysqli ( $db_hostname, $db_username, $db_password, $db_database );
 
-if ($connection->connect_error)
+if ($connection->connect_error){
 	die ( $connection->connect_error );
+}
 
 $error = "";
 $ghin = "";
@@ -22,9 +23,10 @@ $firstName = "";
 $birthMonth = "";
 $birthDay = "";
 $birthYear = "";
+$birthDate = "";
 $email = "";
 $email2 = "";
-$phone = "";
+$phoneNumber = "";
 $mailingAddress = "";
 $sponsor1LastName = "";
 $sponsor1Ghin = "";
@@ -33,6 +35,10 @@ $sponsor2LastName = "";
 $sponsor2Ghin = "";
 $sponsor2Phone = "";
 
+// Remove single and double quotes?
+//$LastName[$i] = str_replace("'", "", $LastName[$i]); // remove single quotes
+//$LastName[$i] = str_replace('"', "", $LastName[$i]); // remove double quotes
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$lastName = test_input($_POST["LastName"]);
 	$firstName = test_input($_POST["FirstName"]);
@@ -40,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$email = test_input($_POST["Email"]);
 	$email2 = test_input($_POST["Email2"]);
 	$ghin = test_input($_POST["GHIN"]);
-	$phone = test_input($_POST["Phone"]);
+	$phoneNumber = test_input($_POST["Phone"]);
 	$birthMonth = test_input($_POST["BirthMonth"]);
 	$birthDay = test_input($_POST["BirthDay"]);
 	$birthYear = test_input($_POST["BirthYear"]);
@@ -51,13 +57,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$sponsor2Ghin = test_input($_POST["Sponsor2Ghin"]);
 	$sponsor2Phone = test_input($_POST["Sponsor1Phone"]);
 
-	$error = "none yet";
+	$birthDate = $birthYear . '-' . $birthMonth . '-' . $birthDay;
+
 	if(strcasecmp($email, $email2) != 0){
 		$error = "Email addresses are different: " . $email . ", " . $email2;
 	}
 	else if(!checkdate($birthMonth, $birthDay, $birthYear))
 	{
 		$error = "Date of birth is not a valid date: " . $birthMonth . "/" . $birthDay . "/" . $birthYear;
+	}
+	else if(intVal($sponsor1Ghin) === 0){
+		$error = "Sponsor 1 GHIN number cannot be 0";
+	}
+	else if(intVal($sponsor2Ghin) === 0){
+		$error = "Sponsor 2 GHIN number cannot be 0";
+	}
+	else if(intval($sponsor1Ghin) == intval($sponsor2Ghin)){
+		$error = "Sponsor 1 and sponsor 2 must be different people (the GHIN numbers match)";
+	}
+	else {
+		$error = check_GHIN($connection, $sponsor1LastName, $sponsor1Ghin);
+		if(empty($error)){
+			$error = check_GHIN($connection, $sponsor2LastName, $sponsor2Ghin);
+		}
 	}
 	
 }
@@ -118,7 +140,7 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 	echo '    value="' . $ghin . '"  required><br> <small>(Use zero if you don\'t have one)</small></td>' . PHP_EOL;
 	echo '<td style="border: none;">Phone Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" id="phone" name="Phone"  size="25"';
-	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $phone . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
+	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $phoneNumber . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
 	echo '</tr>' . PHP_EOL;
 	
 	echo '<tr>' . PHP_EOL;
@@ -136,7 +158,10 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 
 <ol >
   <li style="margin-bottom: 15px">
-The cost of membership for the Coronado Men’s Golf Club (CMGC) is an initiation fee of $300 plus one year’s annual dues, which is currently $160.00.
+The cost of membership for the Coronado Men’s Golf Club (CMGC) is an initiation fee of $300 plus one year’s annual dues, which is currently $160.
+  </li>
+  <li style="margin-bottom: 15px">
+You must have 2 CMGC sponsors (see below).
   </li>
   <li style="margin-bottom: 15px">
 Once your application is complete, you must pay half of the initiation fee ($150) which is non-refundable. 
@@ -167,7 +192,7 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	echo '<table style="border: none; margin-left:auto;margin-right:auto;">' . PHP_EOL;
 	
     echo '<tr>' . PHP_EOL;
-	echo '<td style="border: none;">a: Sponsor\'s Last Name</td>' . PHP_EOL;
+	echo '<td style="border: none;">1: Sponsor\'s Last Name</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" size="20"';
 	echo '    name="Sponsor1LastName" value="' . $sponsor1LastName . '" required></td>' . PHP_EOL;
 	echo '<td style="border: none;">GHIN Number</td>' . PHP_EOL;
@@ -179,7 +204,7 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	echo '</tr>'  . PHP_EOL;
 
 	echo '<tr>' . PHP_EOL;
-	echo '<td style="border: none;">b: Sponsor\'s Last Name</td>' . PHP_EOL;
+	echo '<td style="border: none;">2: Sponsor\'s Last Name</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" size="20"';
 	echo '    name="Sponsor2LastName" value="' . $sponsor2LastName . '" required></td>' . PHP_EOL;
 	echo '<td style="border: none;">GHIN Number</td>' . PHP_EOL;
@@ -204,6 +229,94 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	echo '</div><!-- #content-container -->' . PHP_EOL;
 
 } else {
+
+	$insert_id = InsertApplication($connection, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
+						$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
+						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone);
+}
+
+function InsertApplication($connection, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
+								$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
+								$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone) {
+
+	$sqlCmd = "INSERT INTO `MembershipApplication` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+	
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	$active = 1;
+	$dateTimeAdded = date ( 'Y-m-d H:i:s' );
+	$payment = 0;
+	$payerName = "";
+	$paymentDateTime = "";
+	
+	// Record Key
+	// Active
+	// LastName
+	// FirstName
+	// Mailing Address 
+	// Email
+	// GHIN
+	// Phone Number
+	// Birth Date
+	// Sponsor 1: last name, ghin, phone number
+	// Sponsor 2: last name, ghin, phone number
+	// Date Time Added
+	// Payment
+	// Payment Date Time
+	// Payer Name
+	if (! $insert->bind_param ( 'issssisssissississ', $active, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
+													$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
+													$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
+													$dateTimeAdded, $payment, $paymentDateTime, $payerName )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	// insert_id: Returns the ID generated by an INSERT or UPDATE query on a table with a column having the AUTO_INCREMENT attribute. 
+	// In the case of a multiple-row INSERT statement, it returns the first automatically generated value that was successfully inserted.
+	echo 'insert id is: ' . $insert->insert_id . '<br>';
+	return $insert->insert_id;
+}
+
+function check_GHIN($connection, $lastName, $ghin){
+
+	$rosterEntry = GetRosterEntry ( $connection, $ghin );
+
+	if (empty ( $rosterEntry )) {
+		return 'GHIN ' . $ghin . " is not a member of the Coronado Men's Golf Club";
+	} else if(!$rosterEntry->Active) {
+		return 'GHIN ' . $ghin . " is not an active member of the Coronado Men's Golf Club";
+	} else {
+		if (strpos($rosterEntry->LastName, ' ') !== FALSE){
+			// Only compare the part before the space
+			$nameArray1 = explode(' ', $rosterEntry->LastName);
+			$nameArray2 = explode(' ', $lastName);
+			$lastNamesMatch = strcasecmp ( $nameArray1[0], $nameArray2[0] ) == 0;
+		} else {
+			$lastNamesMatch = strcasecmp ( $lastName, $rosterEntry->LastName ) == 0;
+		}
+		
+		if (!$lastNamesMatch) {
+			return 'Last name for GHIN ' . $ghin . ' is not ' . $lastName;
+		}
+
+		$now = new DateTime ( "now" );
+		$memberAdded = new DateTime($rosterEntry->DateAdded);
+		$interval = $now->diff($memberAdded);
+		//return 'interval years: ' . $interval->y . ' months: ' . $interval->m;
+		if($interval->y < 1){
+			return $lastName . '(' . $ghin . ')' . ' has not been a member for 12 months yet';
+		}
+		
+	}
+
+	return null;
 }
 
 function test_input($data) {
