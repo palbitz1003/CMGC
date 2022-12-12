@@ -1,6 +1,136 @@
 <?php
 require_once plugin_dir_path(__FILE__) . 'functions.php';
 
+function cmgc_admin_membership_waitlist_page2()
+{
+   // After the upload completes, the browser is redirected back to this admin page.
+   // Show the result of the upload and then clear the result.
+   $cmgc_admin_options = get_option('cmgc_admin_plugin_options', array());
+   if(!empty($cmgc_admin_options) && !empty($cmgc_admin_options['waiting_list_upload_results'])){
+       if(str_contains($cmgc_admin_options['waiting_list_upload_results'], 'Error:')){
+           echo '<div class="notice notice-error is-dismissible"><p>'. $cmgc_admin_options['waiting_list_upload_results'] . "</p></div>";
+       }
+       else {
+           echo '<div class="notice notice-success is-dismissible"><p>'. $cmgc_admin_options['waiting_list_upload_results'] . "</p></div>";
+       }
+       
+       // Clear the result
+       $cmgc_admin_options['waiting_list_upload_results'] = '';
+       update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
+   }
+
+   ?>
+   <div class="wrap">
+       <?php screen_icon ( 'plugins' ); ?>
+
+       <h2>Upload New Waiting List</h2>
+
+       <!-- This form will post to admin.php with the action admin_action_cmgc_admin_upload_waitlist,
+            which triggers calling cmgc_admin_upload_waitlist_action() below.
+            Must have enctype="multipart/form-data" so _FILES variable filled in -->
+       <form method="POST" enctype="multipart/form-data" action="<?php echo admin_url( 'admin.php' ); ?>">
+           <input type="hidden" name="action" value="cmgc_admin_upload_waitlist">
+           <table class="form-table">
+               <tr>
+                   <th scope="row"><label for="filename">Membership Waiting List (.csv):</label></th>
+                   <td><input type="file" id="filename" name="filename" accept=".csv" required></td>
+               </tr>
+               <tr>
+                   <td>
+                       <input type="submit" name="Import" value="Upload" class="button-primary">
+                   </td>
+                   <td></td>
+               </tr>
+           </table>
+       </form>
+       <?php cmgc_admin_show_waitlist_with_payment_due(); ?>
+   </div>
+   <?php
+}
+
+function cmgc_admin_show_waitlist_with_payment_due(){
+    // Putting require_once at the top of this file didn't work
+    require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
+
+    //var_dump( get_defined_vars() );
+
+    class WaitingListEntry {
+        public $Position;
+        public $Name;
+        public $DateAdded;
+        public $PaymentDue;
+        public $Payment;
+        public $PaymentDateTime;
+        public $PayerName;
+    }
+    
+    $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
+    
+    if ($connection->connect_error){
+        echo 'Database connection error: ' .  $connection->connect_error . "<br>";
+        return;
+    }
+    
+    //echo ' <div id="content-container" class="entry-content">';
+    //echo '    <div id="content" role="main">';
+    
+    $sqlCmd = "SELECT * FROM `WaitingList` WHERE `Active` = 1 and `PaymentDue` > 0 ORDER BY `Position` ASC";
+    $query = $connection->prepare ( $sqlCmd );
+    
+    if (! $query) {
+        die ( $sqlCmd . " prepare failed: " . $connection->error );
+    }
+    
+    if (! $query->execute ()) {
+        die ( $sqlCmd . " execute failed: " . $connection->error );
+    }
+    
+    $query->bind_result ( $recordKey, $position, $name, $dateAdded, $active, $paymentDue, $payment, $paymentDateTime, $payerName );
+    
+    $waitingListEntriesByPosition = array();
+    while ( $query->fetch () ) {
+        $waitingListEntry = new WaitingListEntry();
+        $waitingListEntry->Position = $position;
+        $waitingListEntry->Name = $name;
+        $waitingListEntry->DateAdded = $dateAdded;
+        $waitingListEntry->PaymentDue = $paymentDue;
+        $waitingListEntry->Payment = $payment;
+        $waitingListEntry->PaymentDateTime = $paymentDateTime;
+        $waitingListEntry->PayerName = $payerName;
+        $waitingListEntriesByPosition [] = $waitingListEntry;
+    }
+    
+    $query->close ();
+    if (! $waitingListEntriesByPosition || (count ( $waitingListEntriesByPosition ) == 0)) {
+        return;
+    }
+
+    echo '<h2>Membership Waiting Final Payment</h2>' ;
+
+    // Table class can be widefat, fixed, or striped
+    echo '<table class="fixed" >' . PHP_EOL;
+    echo '<thead><tr><th>Pos</th><th>Name</th><th>Date Added</th><th>Payment Due</th><th>Payment</th><th>Payment Date</th><th>Payer Name</th></tr></thead>' . PHP_EOL;
+    echo '<tbody>' . PHP_EOL;
+
+    for($i = 0; $i < count ( $waitingListEntriesByPosition ); ++ $i) {
+
+        echo '<tr>';
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $waitingListEntriesByPosition[$i]->Position . '</td>';
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $waitingListEntriesByPosition[$i]->Name . '</td>';
+        echo '<td style="padding: 0px 10px 0px 10px;">' . date ( 'n/j/Y', strtotime ( $waitingListEntriesByPosition[$i]->DateAdded ) ) . '</td>';
+        echo '<td style="text-align: center;">' . $waitingListEntriesByPosition[$i]->PaymentDue . '</td>';
+        echo '<td style="text-align: center;">' . $waitingListEntriesByPosition[$i]->Payment . '</td>';
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $waitingListEntriesByPosition[$i]->PaymentDateTime . '</td>';
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $waitingListEntriesByPosition[$i]->PayerName . '</td>';
+        echo '</tr>' . PHP_EOL;
+    }
+
+
+    // Finish the first column table.  Show the 2nd column table.
+    echo '</tbody>' . PHP_EOL;
+    echo '</table>' . PHP_EOL;
+ }
+
 function cmgc_admin_upload_waitlist_action2()
 {
     class WaitingListEntry {
