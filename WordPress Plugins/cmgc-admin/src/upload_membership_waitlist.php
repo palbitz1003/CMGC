@@ -1,6 +1,7 @@
 <?php
 require_once plugin_dir_path(__FILE__) . 'functions.php';
 
+// Show the waitlist page
 function cmgc_admin_membership_waitlist_page2()
 {
    // After the upload completes, the browser is redirected back to this admin page.
@@ -48,6 +49,7 @@ function cmgc_admin_membership_waitlist_page2()
    <?php
 }
 
+// At the bottom of the waitlist page, show the users with payment due
 function cmgc_admin_show_waitlist_with_payment_due(){
     // Putting require_once at the top of this file didn't work
     require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
@@ -131,6 +133,7 @@ function cmgc_admin_show_waitlist_with_payment_due(){
     echo '</table>' . PHP_EOL;
  }
 
+ // Do the actual upload of the waitlist
 function cmgc_admin_upload_waitlist_action2()
 {
     class WaitingListEntry {
