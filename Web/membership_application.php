@@ -3,7 +3,6 @@
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/signup functions.php';
-require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/dues_functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
@@ -234,6 +233,9 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	$insert_id = InsertApplication($connection, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
 						$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
 						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone);
+
+	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	//SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "pma1960@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
 
 	// Redirect to payment page after clearing output buffer
 	ob_start();

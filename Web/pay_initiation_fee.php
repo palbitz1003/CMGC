@@ -74,7 +74,7 @@ if(empty($applicationEntry->RecordKey)){
 }
 
 if($applicationEntry->Payment > 0){
-    cmgc_finish_initiation_fee_page($connection, 'Initiation fee for "' . $applicationEntry->FullName . '" has already paid');
+    cmgc_finish_initiation_fee_page($connection, 'Initiation fee for "' . $applicationEntry->FullName . '" has already been paid');
     die();
 }
 
@@ -95,7 +95,7 @@ if($testMode){
 
 echo '<p>You are paying for: ' . $applicationEntry->FullName . '</p><p> Your payment covers half of the initiation fee.</p>' . PHP_EOL;
 echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>";
-echo '<p>PayPal will notify the CMGC website of your payment and the link next to your name on the application list will change to "Paid". If the application list does not update to "Paid" within 24hrs, contact the membership chairman.</p>' . PHP_EOL;
+echo '<p>PayPal will notify the CMGC website of your payment and the link next to your name on the Pending Applications list will change to "Paid". If the application list does not update to "Paid" within 24hrs, contact the membership chairman.</p>' . PHP_EOL;
 echo '<p>If you have problems reaching PayPal, turn off your VPN if you are using one, or try a different device.</p>' . PHP_EOL;
 echo '<p style="text-align: center;"><b>Entry Fees: $' . $paypalDetails->Dues . '</b></p>' . PHP_EOL;
 
@@ -110,7 +110,7 @@ else {
 echo '<input type="hidden" name="cmd" value="_s-xclick">' . PHP_EOL;
 echo '<input type="hidden" name="hosted_button_id" value="' . $paypalDetails->PayPayButton . '">' . PHP_EOL;
 echo '<input type="hidden" name="item_name" value="Membership Dues">' . PHP_EOL;
-echo '<input type="hidden" name="custom" value="FinalPayment;' . $applicationEntry->RecordKey . ';' . $applicationEntry->FullName . ';' . $applicationEntry->GHIN . '">' . PHP_EOL;
+echo '<input type="hidden" name="custom" value="InitialPayment;' . $applicationEntry->RecordKey . ';' . $applicationEntry->FullName . ';' . $applicationEntry->GHIN . '">' . PHP_EOL;
 // Don't need the on0 (option name 0) and os0 (option selection 0) since we are not paying for a tournament
 //echo '<input type="hidden" name="on0" value="Entry Fees">' . PHP_EOL;
 //echo '<input type="hidden" name="os0" value="' .  $payPalComboBoxChoice . '">' . PHP_EOL; 

@@ -7,7 +7,7 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/dues_funct
 // Set this to 0 once you go live or don't require logging.
 define ( "DEBUG", 0 );
 // Set to 0 once you're ready to go live
-define ( "USE_SANDBOX", 0 );
+define ( "USE_SANDBOX", 1 );
 
 if (!file_exists('./logs')) {
 	mkdir('./logs', 0755, true);
@@ -119,9 +119,12 @@ if (strcmp ( $res, "VERIFIED" ) == 0) {
      $recordKey = 0;
      $name = '';
      $dateAdded = '';
+	 $ghin = '';
 
 	 if(!empty($custom)){
-	 	// format is "FinalPayment;RecordKey;Name;DateAdded
+	 	// format is:
+		// FinalPayment;RecordKey;Name;DateAdded or
+		// InitialPayment;RecordKey;Name;GHIN
 	 	$customArray = explode(";", $custom);
 	 	if((count($customArray) > 0) && !empty($customArray[0])){
 	 		$membershipAction = trim($customArray[0]);
@@ -133,7 +136,12 @@ if (strcmp ( $res, "VERIFIED" ) == 0) {
 	 		$name = trim($customArray[2]);
 	 	}
          if((count($customArray) > 3) && !empty($customArray[3])){
-            $dateAdded = trim($customArray[3]);
+			if($membershipAction === "FinalPayment"){
+            	$dateAdded = trim($customArray[3]);
+			}
+			else {
+				$ghin = trim($customArray[3]);
+			}
         }
 	 }
 	if (DEBUG == true) {
@@ -147,11 +155,26 @@ if (strcmp ( $res, "VERIFIED" ) == 0) {
 		else {
 			$label = "Final payment: ";
 		}
-		$logMessage = $label . "RecordKey = " . $recordKey . ", waiting list name = " . $name . ", waiting list date added = " . $dateAdded . ", payment = " . $payment_amount;
+		$logMessage = $label . "Waiting list RecordKey = " . $recordKey . ", waiting list name = " . $name . ", waiting list date added = " . $dateAdded . ", payment = " . $payment_amount;
 		
 		$connection = new mysqli ( $db_hostname, $db_username, $db_password, $db_database );
 
         cmgc_paid_final_membership($connection, $payment_amount, $payerName, $recordKey, $logMessage);
+		
+		$connection->close();
+	}
+	else if($membershipAction === "InitialPayment"){
+		if($payment_amount < 0){
+			$label = "Application initial payment refund: ";
+		}
+		else {
+			$label = "Application initial payment: ";
+		}
+		$logMessage = $label . "Application RecordKey = " . $recordKey . ", application name = " . $name . ", application GHIN = " . $ghin . ", payment = " . $payment_amount;
+		
+		$connection = new mysqli ( $db_hostname, $db_username, $db_password, $db_database );
+
+        cmgc_paid_application_fee($connection, $payment_amount, $payerName, $recordKey, $logMessage);
 		
 		$connection->close();
 	}
@@ -222,6 +245,83 @@ function cmgc_paid_final_membership($connection, $paymentAmount, $payerName, $re
 	$updatedPaymentAmount = cmgc_waitlist_get_current_payment($connection, $recordKey, $logFile) + $paymentAmount;
 
     $sqlCmd = "UPDATE `WaitingList` SET `Payment`= ?, `PaymentDateTime` = ?, `PayerName` = ? WHERE `RecordKey` = ?";
+    $update = $connection->prepare ( $sqlCmd );
+
+    if (! $update) {
+        error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " prepare failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+    }
+
+    $date = date ( 'Y-m-d H:i:s' );
+    if (! $update->bind_param ( 'issi', $updatedPaymentAmount, $date, $payerName, $recordKey)) {
+        error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " bind_param failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+    }
+    
+    if (! $update->execute ()) {
+        error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " execute failed: " . $connection->error . PHP_EOL, 3, $logFile);
+		return;
+    }
+    $update->close ();
+
+    error_log(date ( '[Y-m-d H:i e] ' ) . "Record key " . $recordKey . " updated payment to " . $updatedPaymentAmount . PHP_EOL, 3, $logFile);
+}
+
+function cmgc_application_get_current_payment($connection, $recordKey, $logFile){
+
+	$sqlCmd = "SELECT Payment FROM `MembershipApplication` WHERE `RecordKey` = ?";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query->bind_param ( 'i', $recordKey )) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " bind_param failed: " . $connection->error  . PHP_EOL, 3, $logFile);
+		return 0;
+	}
+
+	if (! $query) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " prepare failed: " . $connection->error  . PHP_EOL, 3, $logFile);
+		return 0;
+	}
+
+	if (! $query->execute ()) {
+		error_log(date ( '[Y-m-d H:i e] ' ) . $sqlCmd . " execute failed: " . $connection->error  . PHP_EOL, 3, $logFile);
+		return 0;
+	}
+
+	$payment = 0;
+
+	$query->bind_result ($payment);
+
+	$query->fetch ();
+
+	error_log(date ( '[Y-m-d H:i e] ' ) . "previous payment value was " . $payment  . PHP_EOL, 3, $logFile);
+
+	$query->close();
+
+	return $payment;
+}
+
+function cmgc_paid_application_fee($connection, $paymentAmount, $payerName, $recordKey, $logMessage){
+
+    if (!file_exists('./logs')) {
+		mkdir('./logs', 0755, true);
+	}
+
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+
+	$logFile = "./logs/MembershipApplication.log";
+	error_log(date ( '[Y-m-d H:i e] ' ) . $logMessage . PHP_EOL, 3, $logFile);
+
+    if ($connection->connect_error){
+		error_log(date ( '[Y-m-d H:i e] ' ) . "connection error: " . $connection->connect_error . PHP_EOL, 3, $logFile);
+		return;
+	}
+
+	// Get the current payment amount, so we can adjust relative to that value, which
+	// will handle the case of refunds.
+	$updatedPaymentAmount = cmgc_application_get_current_payment($connection, $recordKey, $logFile) + $paymentAmount;
+
+    $sqlCmd = "UPDATE `MembershipApplication` SET `Payment`= ?, `PaymentDateTime` = ?, `PayerName` = ? WHERE `RecordKey` = ?";
     $update = $connection->prepare ( $sqlCmd );
 
     if (! $update) {
