@@ -53,6 +53,7 @@ class RosterEntry {
 	public $DateAdded;
 	public $MembershipType;
 	public $SignupPriority;
+	public $Tee;
 }
 
 function InsertSignUp($connection, $tournamentKey, $requestedTime, $entryFees, $accessCode, $paymentEnabled) {
@@ -395,7 +396,7 @@ function GetRosterEntry($connection, $playerGHIN) {
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 
-	$player->bind_result ( $GHIN, $lastName, $firstName, $active, $email, $birthDate, $dateAdded, $membershipType, $signupPriority );
+	$player->bind_result ( $GHIN, $lastName, $firstName, $active, $email, $birthDate, $dateAdded, $membershipType, $signupPriority, $tee );
 
 	if ( $player->fetch () ) {
 		$rosterEntry = new RosterEntry();
@@ -407,6 +408,7 @@ function GetRosterEntry($connection, $playerGHIN) {
 		$rosterEntry->DateAdded = $dateAdded;
 		$rosterEntry->MembershipType = $membershipType;
 		$rosterEntry->SignupPriority = $signupPriority;
+		$rosterEntry->Tee = $tee;
 		return $rosterEntry;
 	}
 	else {
