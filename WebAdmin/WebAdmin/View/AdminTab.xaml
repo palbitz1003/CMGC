@@ -23,17 +23,17 @@
 
         <Button Grid.Row="1" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding LoginCommand}" >Login</Button>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,50,5,5" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed">Web Site and Script Folder:</TextBlock>
-        <StackPanel Grid.Row="0" Grid.Column="2" Margin="5,50,5,5" Orientation="Horizontal" Visibility="Collapsed">
+        <TextBlock Visibility="Collapsed" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,50,5,5" VerticalAlignment="Center" TextWrapping="Wrap">Web Site and Script Folder:</TextBlock>
+        <StackPanel Visibility="Collapsed" Grid.Row="0" Grid.Column="2" Margin="5,50,5,5" Orientation="Horizontal" >
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WebSiteTextBox" Width="300" KeyUp="WebSiteTextBox_KeyUp"></TextBox>
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="ScriptFolderTextBox" Width="200" Margin="20,0,0,0" KeyUp="ScriptFolderTextBox_KeyUp"></TextBox>
         </StackPanel>
 
-        <Button Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitWaitingListCommand}" >
+        <Button Visibility="Collapsed" Grid.Row="2" Grid.Column="0" Margin="5" VerticalAlignment="Center" Command="{Binding SubmitWaitingListCommand}" >
             <TextBlock TextWrapping="Wrap">Upload Wait List to Web</TextBlock>
         </Button>
-        <TextBlock Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Membership Waiting List CSV:</TextBlock>
-        <DockPanel Grid.Row="2" Grid.Column="2" LastChildFill="true" Margin="5" VerticalAlignment="Center">
+        <TextBlock Visibility="Collapsed" Grid.Row="2" Grid.Column="1" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">Membership Waiting List CSV:</TextBlock>
+        <DockPanel Visibility="Collapsed" Grid.Row="2" Grid.Column="2" LastChildFill="true" Margin="5" VerticalAlignment="Center">
             <Button Margin="5" VerticalAlignment="Center" x:Name="BrowseWaitListButton" DockPanel.Dock="Right" Click="BrowseWaitListButton_Click">Browse ...</Button>
             <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" x:Name="WaitListTextBox" IsReadOnly="true"></TextBox>
         </DockPanel>

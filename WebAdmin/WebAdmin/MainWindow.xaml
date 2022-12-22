@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:localView="clr-namespace:WebAdmin.View"
         xmlns:localViewModel="clr-namespace:WebAdmin.ViewModel"
-        Title="WebAdmin 4.5" Height="800" Width="1300">
+        Title="WebAdmin 4.6" Height="800" Width="1300">
     <DockPanel LastChildFill="True">
         <StatusBar DockPanel.Dock="Bottom" Visibility="Collapsed">
             <StatusBarItem>
