@@ -61,6 +61,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	if(strcasecmp($email, $email2) != 0){
 		$error = "Email addresses are different: " . $email . ", " . $email2;
 	}
+	else if(strpos($email, '@') === false){
+		$error = "Invalid email address. Format is user@domain";
+	}
 	else if(!checkdate($birthMonth, $birthDay, $birthYear))
 	{
 		$error = "Date of birth is not a valid date: " . $birthMonth . "/" . $birthDay . "/" . $birthYear;
@@ -102,6 +105,20 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 <p>
 
 <?php
+	if(isset($error)){
+		echo '<p style="color:red;">' . PHP_EOL;
+		echo $error . PHP_EOL;
+		echo '</p>' . PHP_EOL;
+	}
+
+	echo '<p>' . PHP_EOL;
+	echo 'NOTE: Normally, membership applications are processed in the order they are submitted. But, during the first week ';
+	echo 'that applications are being accepted, we will randomize the order of the applications. We do not want this to be a race ';
+	echo 'to get your application submitted and it gives us time to deal with any initial problems. So, applications completed before ';
+	echo 'end of day Sunday January 8th will be assigned a random number and moved to the waiting list in random number order. ';
+	echo '(Your application is not "complete" until half of the initiation fee has been paid, as described below.)' . PHP_EOL;
+	echo '</p>' . PHP_EOL;
+
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
 	echo '<table style="border: none;margin-left:auto;margin-right:auto;">' . PHP_EOL;
@@ -216,12 +233,6 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	echo '</tr>'  . PHP_EOL;
 
 	echo '</table>' . PHP_EOL;
-	
-	if(isset($error)){
-		echo '<p style="color:red;">' . PHP_EOL;
-		echo $error . PHP_EOL;
-		echo '</p>' . PHP_EOL;
-	}
 
 	echo '<input type="submit" value="Submit Application And Pay Fee"> <br> <br>' . PHP_EOL;
 	echo '</form>' . PHP_EOL;
