@@ -97,7 +97,7 @@ $overrideTitle = "Membership Application";
 if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 	get_header ();
 
-	get_sidebar ();
+	//get_sidebar ();
 ?>
 	<div id="content-container" class="entry-content">
 	<div id="content" role="main">
@@ -202,7 +202,6 @@ Your CMGC sponsors must be members in good standing for a minimum of 12 months. 
 and have played at least two rounds of golf with you. The Membership Chair will verify your sponsors. Please provide the following information for your sponsors:
   </li>
 </ol>
-</p>
 	
 <?php
 
@@ -216,7 +215,7 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	echo '<td style="border: none;"><input type="text" size="10" pattern="[0-9]+"';
 	echo '    name="Sponsor1Ghin" value="' . $sponsor1Ghin . '" required></td>' . PHP_EOL;
 	echo '<td style="border: none;">Phone Number</td>' . PHP_EOL;
-	echo '<td style="border: none;"><input type="text" id="phone" name="Sponsor1Phone"';
+	echo '<td style="border: none;"><input type="text" id="sp1phone" name="Sponsor1Phone"';
 	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $sponsor1Phone . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
 
@@ -228,7 +227,7 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 	echo '<td style="border: none;"><input type="text" size="10" pattern="[0-9]+"';
 	echo '    name="Sponsor2Ghin" value="' . $sponsor2Ghin . '" required></td>' . PHP_EOL;
 	echo '<td style="border: none;">Phone Number</td>' . PHP_EOL;
-	echo '<td style="border: none;"><input type="text" id="phone" name="Sponsor2Phone"';
+	echo '<td style="border: none;"><input type="text" id="sp2phone" name="Sponsor2Phone"';
 	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $sponsor2Phone . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
 
