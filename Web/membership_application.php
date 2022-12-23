@@ -97,7 +97,6 @@ $overrideTitle = "Membership Application";
 if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 	get_header ();
 
-	//get_sidebar ();
 ?>
 	<div id="content-container" class="entry-content">
 	<div id="content" role="main">
