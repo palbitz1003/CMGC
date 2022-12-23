@@ -94,14 +94,14 @@ for($i = 0; $i < count ( $applicationEntryList ); ++ $i) {
 	}
 	echo '<td>';
     if($applicationEntryList[$i]->Payment > 0){
-        echo "Paid";
+        echo "&nbsp;&nbsp;Paid&nbsp;&nbsp;";
     }
     else {
         echo '<a href="pay_initiation_fee.php?application_id=' . $applicationEntryList[$i]->RecordKey . '">Pay Fee</a>';
     }
 	echo '</td>';
-	echo '<td>' . $applicationEntryList[$i]->FullName . '</td>';
-    echo '<td>' . $applicationEntryList[$i]->DateTimeAdded . '</td>';
+	echo '<td>&nbsp;&nbsp;' . $applicationEntryList[$i]->FullName . '&nbsp;&nbsp;</td>';
+    echo '<td>&nbsp;&nbsp;' . $applicationEntryList[$i]->DateTimeAdded . '</td>';
 	echo '</tr>' . PHP_EOL;
 }
 
