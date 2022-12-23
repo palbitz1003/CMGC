@@ -27,7 +27,6 @@ $testMode = false;
 if(!empty($_GET ['mode']) && ($_GET ['mode'] == "test")){
 	$testMode = true;
 }
-$testMode = true;
 
 $overrideTitle = "Pay Initiation Fee";
 get_header ();
