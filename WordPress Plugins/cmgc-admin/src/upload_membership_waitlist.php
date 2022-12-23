@@ -22,7 +22,6 @@ function cmgc_admin_membership_waitlist_page2()
 
    ?>
    <div class="wrap">
-       <?php screen_icon ( 'plugins' ); ?>
 
        <h2>Upload New Waiting List</h2>
 
