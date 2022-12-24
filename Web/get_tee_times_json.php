@@ -26,6 +26,7 @@ class Player {
     public $Extra;
     public $Email;
     public $SignupKey;
+    public $Tee;
 }
 
 // login() requires headers functions.php and wp-blog-header.php
@@ -77,12 +78,14 @@ function FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite){
             $player->Position = $j + 1;
             $player->Extra = $teeTimes[$i]->Players[$j]->Extra;
             $player->SignupKey = $teeTimes[$i]->Players[$j]->SignupKey;
-    
+
+            $player->Tee = "W";
             $player->Email = "";
             if($player->GHIN !== 0){
                 $rosterEntry = GetRosterEntry ( $connection, $player->GHIN );
                 if($rosterEntry){
                     $player->Email = $rosterEntry-> Email;
+                    $player->Tee = $rosterEntry->Tee;
                 }
             }
     
@@ -126,9 +129,12 @@ function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite){
             $player->SignupKey = 0;
         }
 
+        $player->Email = "";
+        $player->Tee = "W";
         $rosterEntry = GetRosterEntry ( $connection, $entries[$i]->GHIN1 );
         if($rosterEntry){
             $player->Email = $rosterEntry-> Email;
+            $player->Tee = $rosterEntry->Tee;
         }
 
         $teeTimeComposite->WaitlistPlayers[] = $player;
@@ -148,11 +154,13 @@ function FillInCancelledPlayers($connection, $tournamentKey, $teeTimeComposite){
         $player->Extra = "";
         $player->SignupKey = 0; // may no longer be signed up
 
+        $player->Tee = "W";
         $player->Email = "";
         if($player->GHIN !== 0){
             $rosterEntry = GetRosterEntry ( $connection, $player->GHIN );
             if($rosterEntry){
                 $player->Email = $rosterEntry-> Email;
+                $player->Tee = $rosterEntry->Tee;
             }
         }
 
