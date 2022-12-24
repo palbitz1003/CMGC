@@ -86,6 +86,10 @@ namespace WebAdmin
                 ghinEntry.MembershipType = csvFileEntries[row][membershipTypeColumn].Trim();
                 ghinEntry.SignupPriority = csvFileEntries[row][signupPriorityColumn].Trim();
                 ghinEntry.Tee = csvFileEntries[row][teeColumn].Trim();
+                if (string.IsNullOrEmpty(ghinEntry.Tee))
+                {
+                    ghinEntry.Tee = "W";
+                }
 
                 DateTime dt = default(DateTime);
                 if (!string.IsNullOrEmpty(csvFileEntries[row][birthdayColumn]))

@@ -19,6 +19,7 @@ namespace WebAdmin.View
 
         private string _ghin;
         private string _email;
+        private string _tee;
 
         public AddPlayerWindow()
         {
@@ -79,6 +80,7 @@ namespace WebAdmin.View
                     Player.Name = AutoCompleteFeedback.Text;
                     Player.GHIN = _ghin;
                     Player.Email = _email;
+                    Player.Tee = _tee;
                     AutoCompleteFeedback.Text = string.Empty;
                     e.Handled = true;
                 }
@@ -94,12 +96,14 @@ namespace WebAdmin.View
                     AutoCompleteFeedback.Text = player.LastNameFirstName;
                     _ghin = player.GHIN.ToString();
                     _email = player.Email;
+                    _tee = player.Tee;
                     return;
                 }
             }
             AutoCompleteFeedback.Text = null;
             _ghin = string.Empty;
             _email = string.Empty;
+            _tee = string.Empty;
         }
 
         private void PlayerTextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -110,6 +114,7 @@ namespace WebAdmin.View
                 Player.Name = AutoCompleteFeedback.Text;
                 Player.GHIN = _ghin;
                 Player.Email = _email;
+                Player.Tee = _tee;
                 AutoCompleteFeedback.Text = string.Empty;
             }
             else if (AllowGuest && string.IsNullOrEmpty(_ghin))
@@ -117,6 +122,7 @@ namespace WebAdmin.View
                 Player.Name = PlayerTextBox.Text;
                 Player.GHIN = string.Empty;
                 Player.Email = string.Empty;
+                Player.Tee = string.Empty;
             }
         }
     }

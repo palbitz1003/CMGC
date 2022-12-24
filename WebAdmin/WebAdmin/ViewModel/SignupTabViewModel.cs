@@ -1165,7 +1165,7 @@ namespace WebAdmin.ViewModel
             {
                 if (!appendToFile)
                 {
-                    tw.WriteLine("Tee Time,Tee Status,Team Id,Last Name,First Name,GHIN,Flight,Email,Extra");
+                    tw.WriteLine("Start Time,Tee Status,Team Id,Last Name,First Name,GHIN,Flight,Email,Extra,Tee");
                 }
 
                 for (int teeTimeNumber = 0; teeTimeNumber < tournamentTeeTimes.Count; teeTimeNumber++)
@@ -1178,6 +1178,7 @@ namespace WebAdmin.ViewModel
                         string playerGhin = string.Empty;
                         string playerEmail = string.Empty;
                         string playerExtra = string.Empty;
+                        string playerTee = string.Empty;
 
                         if (player < tournamentTeeTimes[teeTimeNumber].Players.Count)
                         {
@@ -1213,6 +1214,7 @@ namespace WebAdmin.ViewModel
                             {
                                 playerEmail = string.Empty;
                             }
+                            playerTee = tournamentTeeTimes[teeTimeNumber].Players[player].Tee;
 
                         }
 
@@ -1281,6 +1283,8 @@ namespace WebAdmin.ViewModel
                                     tw.Write(playerExtra);
                                 }
                             }
+
+                            tw.Write("," + playerTee);
 
                             tw.WriteLine();                             
                         }
@@ -2361,6 +2365,7 @@ namespace WebAdmin.ViewModel
                 int flightColumn = -1;
                 int statusColumn = -1;
                 int extraColumn = -1;
+                int teeColumn = -1;
 
                 if (lines.Length == 0)
                 {
@@ -2369,7 +2374,7 @@ namespace WebAdmin.ViewModel
 
                 for (int col = 0; col < lines[0].Length; col++)
                 {
-                    if (string.Compare(lines[0][col], "tee time", true) == 0)
+                    if (string.Compare(lines[0][col], "start time", true) == 0)
                     {
                         teeTimeColumn = col;
                     }
@@ -2401,6 +2406,10 @@ namespace WebAdmin.ViewModel
                     {
                         extraColumn = col;
                     }
+                    else if (string.Compare(lines[0][col], "tee", true) == 0)
+                    {
+                        teeColumn = col;
+                    }
                 }
 
                 if (teeTimeColumn == -1)
@@ -2431,6 +2440,7 @@ namespace WebAdmin.ViewModel
                 {
                     throw new ApplicationException(TeeTimeFile + ": did not find header column: Tee Status");
                 }
+                // Allow csv to be missing "Tee" column
 
                 // Initialize the first tee time combo box and the block :52 checkbox based
                 // on the values in the tee time list.
@@ -2557,6 +2567,14 @@ namespace WebAdmin.ViewModel
                             {
                                 player.Extra = line[extraColumn];
                             }
+                        }
+                        if (teeColumn != -1)
+                        {
+                            player.Tee = line[teeColumn];
+                        }
+                        if(string.IsNullOrEmpty(player.Tee))
+                        {
+                            player.Tee = "W";
                         }
 
                         if (teeTimeStatus == TeeTimeStatus.TeeTime)

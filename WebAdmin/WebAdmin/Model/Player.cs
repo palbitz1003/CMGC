@@ -38,6 +38,7 @@ namespace WebAdmin
         public string Email { get; set; }
         public int SignupKey { get; set; }
         public string SignupPriority { get; set; }
+        public string Tee { get; set; }
         public bool PreviouslyWaitlisted { get; set; }
         public int TeeTimeCount { get; set; }
 
