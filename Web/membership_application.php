@@ -26,9 +26,9 @@ if($now < $startDate){
 	<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
 	<p>
 	Applications will be accepted starting Jan 1, 2023.
-	Normally, membership applications are processed in the order they are submitted. But, during the first week
+	Normally, membership applications are processed in the order they are completed. But, during the first week
 	that applications are being accepted, we will randomize the order of the applications. We do not want this to be a race
-	to get your application submitted and it gives us time to deal with any initial problems. So, applications completed before
+	to get your application completed and it gives us time to deal with any initial problems. So, applications completed before
 	end of day Sunday January 8th will be assigned a random number and moved to the waiting list in random number order.
 	</p>
 	</div><!-- #content -->
@@ -134,9 +134,9 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 	}
 
 	echo '<p>' . PHP_EOL;
-	echo 'NOTE: Normally, membership applications are processed in the order they are submitted. But, during the first week ';
+	echo 'NOTE: Normally, membership applications are processed in the order they are completed. But, during the first week ';
 	echo 'that applications are being accepted, we will randomize the order of the applications. We do not want this to be a race ';
-	echo 'to get your application submitted and it gives us time to deal with any initial problems. So, applications completed before ';
+	echo 'to get your application completed and it gives us time to deal with any initial problems. So, applications completed before ';
 	echo 'end of day Sunday January 8th will be assigned a random number and moved to the waiting list in random number order. ';
 	echo '(Your application is not "complete" until half of the initiation fee has been paid, as described below.)' . PHP_EOL;
 	echo '</p>' . PHP_EOL;
