@@ -322,6 +322,10 @@ function GetTournamentDetails($connection, $tournamentKey){
 	
 	$details = new TournamentDetails();
 	$details->TournamentKey = $tournamentKey;
+	$details->ScoresPostedDate = TournamentDetails::EMPTYDATE;
+	$details->ChitsPostedDate = TournamentDetails::EMPTYDATE;
+	$details->PoolPostedDate = TournamentDetails::EMPTYDATE;
+	$details->ClosestToThePinPostedDate = TournamentDetails::EMPTYDATE;
 	if($tournament->fetch ()){
 		$details->TeeTimesPostedDate = $teeTimesPostedDate;
 		$details->ScoresPostedDate = $scoresPostedDate;
