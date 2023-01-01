@@ -12,7 +12,7 @@ function cmgc_admin_membership_application_page2()
         return;
     }
     
-    $sqlCmd = "SELECT * FROM `MembershipApplication` WHERE `Active` = 1 ORDER BY `DateTimeAdded` DESC";
+    $sqlCmd = "SELECT * FROM `MembershipApplication` WHERE `Active` = 1 ORDER BY `DateTimeAdded` ASC";
     $query = $connection->prepare ( $sqlCmd );
     
     if (! $query) {
