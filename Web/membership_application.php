@@ -133,6 +133,7 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 		echo '</p>' . PHP_EOL;
 	}
 
+	/*
 	echo '<p>' . PHP_EOL;
 	echo 'NOTE: Normally, membership applications are processed in the order they are completed. But, during the first week ';
 	echo 'that applications are being accepted, we will randomize the order of the applications. We do not want this to be a race ';
@@ -140,6 +141,7 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 	echo 'end of day Sunday January 8th will be assigned a random number and moved to the waiting list in random number order. ';
 	echo '(Your application is not "complete" until half of the initiation fee has been paid, as described below.)' . PHP_EOL;
 	echo '</p>' . PHP_EOL;
+	*/
 
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
