@@ -192,7 +192,11 @@ function cmgc_admin_upload_waitlist_action2()
                             $getData[0] = trim($getData[0]);
                         }
                         if(!empty($getData[1])){
-                            $getData[1] = trim($getData[1]);
+                            $name = trim($getData[1]);
+                            // Remove any non-ascii characters. If not removed, they
+                            // will be removed when saving to SQL. Remove them now so
+                            // the string will match data saved in SQL.
+                            $getData[1] = preg_replace('/[^\x20-\x7E]/','', $name);
                         }
                         if(!empty($getData[2])){
                             $getData[2] = trim($getData[2]);
@@ -291,12 +295,10 @@ function cmgc_admin_upload_waitlist_action2()
 
         if ($connection->connect_error)
             wp_die ( $connection->connect_error );
-
-        //cmgc_admin_clear_table($connection, 'WaitingList');
-        cmgc_admin_waitlist_set_inactive($connection);
-
+        
         $allEntries = cmgc_admin_waitlist_get_all($connection);
 
+        cmgc_admin_waitlist_set_inactive($connection);
         
         for($i = 0; $i < count ( $waitingList ); ++ $i) {
             
@@ -411,7 +413,7 @@ function cmgc_admin_waitlist_get_all($connection){
         // Add to array by combination of name and date added, since we don't have GHIN
         $key = $waitingListEntry->Name . " " . $dateAdded;
         if(!empty($waitingListEntries [$key])){
-            wp_die("Duplicate entry for " . $key);
+            wp_die("Internal database error: Duplicate entry for " . $key);
         }
         $waitingListEntries [$key] = $waitingListEntry;
     }
