@@ -15,9 +15,9 @@ if ($connection->connect_error){
 	die ( $connection->connect_error );
 }
 
-$now = new DateTime ( "now" );
-$startDate = new DateTime('2023-01-01');
-if($now < $startDate){
+//$now = new DateTime ( "now" );
+//$startDate = new DateTime('2023-01-01');
+//if($now < $startDate){
 	$overrideTitle = "Membership Application";
 	get_header ();
 ?>
@@ -25,18 +25,14 @@ if($now < $startDate){
 	<div id="content" role="main">
 	<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
 	<p>
-	Applications will be accepted starting Jan 1, 2023.
-	Normally, membership applications are processed in the order they are completed. But, during the first week
-	that applications are being accepted, we will randomize the order of the applications. We do not want this to be a race
-	to get your application completed and it gives us time to deal with any initial problems. So, applications completed before
-	end of day Sunday January 8th will be assigned a random number and moved to the waiting list in random number order.
+	The CMGC New Member Application acceptance period has closed for 2023. 
 	</p>
 	</div><!-- #content -->
 	</div><!-- #content-container -->
 <?php
 	get_footer();
 	return;
-}
+//}
 
 $error = "";
 $ghin = "";
