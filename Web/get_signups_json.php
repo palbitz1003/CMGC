@@ -114,7 +114,9 @@ for($i = 0; $i < count ( $signUpArray ); ++ $i) {
         $teeTimeRequest->SignupKey = $signUpArray [$i]->SignUpKey;
         // Next line needs utf8_encode because payer name can have some non-standard
         // characters, like the "r" registered trademark 
-        $teeTimeRequest->PayerName = utf8_encode($signUpArray [$i]->PayerName);
+        // utf8_encode is deprecated in php 8.2: 
+        //    https://php.watch/versions/8.2/utf8_encode-utf8_decode-deprecated#:~:text=mbstring%20extension%2C%20one%20of%20the,function%20deprecated%20in%20PHP%208.2.
+        $teeTimeRequest->PayerName = mb_convert_encoding($signUpArray [$i]->PayerName, 'UTF-8', mb_list_encodings()); // utf8_encode($signUpArray [$i]->PayerName);
         $teeTimeRequest->PayerEmail = $signUpArray [$i]->PayerEmail;
         $teeTimeRequest->Players = $playersArray;
         $teeTimeRequests[] = $teeTimeRequest;
