@@ -9,6 +9,7 @@ using System.Windows.Input;
 using WebAdmin.View;
 using System.Web.Script.Serialization;
 using System.Collections;
+using System.Windows.Threading;
 
 namespace WebAdmin.ViewModel
 {
@@ -621,6 +622,10 @@ namespace WebAdmin.ViewModel
                     teeTimeRequestsUnassigned.Add(teeTimeRequest);
                 }
             }
+
+            // Here's how to do the assignment on a new thread
+            //Dispatcher.CurrentDispatcher.BeginInvoke(
+            //                    new Action(() => TeeTimeRequestsUnassigned = teeTimeRequestsUnassigned));
 
             TeeTimeRequestsUnassigned = teeTimeRequestsUnassigned;
         }
@@ -1481,7 +1486,7 @@ namespace WebAdmin.ViewModel
                 bool infrequentPlayer = false;
                 foreach (var player in request.Players)
                 {
-                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2))
+                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 1))
                     {
                         infrequentPlayer = true;
                     }
