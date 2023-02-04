@@ -1505,7 +1505,7 @@ namespace WebAdmin.ViewModel
                 bool infrequentPlayer = false;
                 foreach (var player in request.Players)
                 {
-                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 1))
+                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2))
                     {
                         infrequentPlayer = true;
                     }
