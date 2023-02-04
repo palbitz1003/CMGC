@@ -122,10 +122,29 @@ namespace WebAdmin.ViewModel
             } 
         }
 
-        private int _removeSelection;
+        DateTime _lastRemoveSelectionTime = DateTime.Now;
+        private int _lastRemoveSelection = -1;
+
+        private int _removeSelection = -1;
         public int RemoveSelection { get { return _removeSelection; } 
             set 
-            { 
+            {
+                var timeSinceLastEvent = DateTime.Now - _lastRemoveSelectionTime;
+                if ((_lastRemoveSelection == value) && (timeSinceLastEvent.TotalMilliseconds < 1000))
+                {
+                    System.Diagnostics.Debug.WriteLine("Duplicate remove selection event ms: " + timeSinceLastEvent.TotalMilliseconds);
+
+                    // Since the ListBox thinks the same item has been selected, you can't click
+                    // on it again. Setting to an empty list clears the selected item without
+                    // triggering another selection event.
+                    var savedList = TeeTimeRequestsAssigned;
+                    TeeTimeRequestsAssigned = new TrulyObservableCollection<TeeTimeRequest>();
+                    TeeTimeRequestsAssigned = savedList;
+                    return;
+                }
+                _lastRemoveSelectionTime = DateTime.Now;
+                _lastRemoveSelection = value;
+
                 if (value != -1) 
                 { 
                     RemoveSelectionChanged(value); 
