@@ -91,10 +91,6 @@ function GetTeeTimes($connection, $tournamentKey) {
 	
 	$query->close ();
 	
-	if (! $teeTimeArray || (count ( $teeTimeArray ) == 0)) {
-		return;
-	}
-	
 	for($i = 0; $i < count ( $teeTimeArray ); ++ $i) {
 		$teeTimeArray [$i]->Players = GetPlayersForTeeTime ( $connection, $teeTimeArray [$i]->Key );
 	}
