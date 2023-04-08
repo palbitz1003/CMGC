@@ -745,6 +745,8 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
+            CheckTeeTimeVsPreferredTime(teeTime.StartTime, teeTimeRequest.Preference);
+
             // Add the players to the tee time
             _teeTimesDirty = true;
             foreach (var player in teeTimeRequest.Players)
@@ -799,6 +801,34 @@ namespace WebAdmin.ViewModel
                 {
                     // This also updates the unassigned list
                     TeeTimeSelection = TeeTimeSelection + 1;
+                }
+            }
+        }
+
+        private void CheckTeeTimeVsPreferredTime(string teeTime, string preferredTime)
+        {
+            // Check for selecting a signup which requested a later time 
+            // than the current tee time
+            // string is either of the form "6am-12pm" or "None"
+            string[] h1 = preferredTime.Split(new string[] { "am" }, StringSplitOptions.None);
+            if (h1.Length > 1)
+            {
+                int requestStartHour;
+                if (int.TryParse(h1[0], out requestStartHour))
+                {
+                    // string is of the form "7:15"
+                    string[] h2 = teeTime.Split(':');
+                    if (h2.Length > 1)
+                    {
+                        int teeTimeStartHour;
+                        if (int.TryParse(h2[0], out teeTimeStartHour))
+                        {
+                            if (teeTimeStartHour < requestStartHour)
+                            {
+                                MessageBox.Show("Note: Tee time is " + teeTime + ", which is earlier than the requested time " + preferredTime);
+                            }
+                        }
+                    }
                 }
             }
         }
