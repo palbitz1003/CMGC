@@ -749,10 +749,16 @@ namespace WebAdmin.ViewModel
 
             // Add the players to the tee time
             _teeTimesDirty = true;
+            bool gaveAfter11Msg = false;
             foreach (var player in teeTimeRequest.Players)
             {
                 teeTime.AddPlayer(player);
                 player.TeeTime = teeTime;
+
+                if (!gaveAfter11Msg)
+                {
+                    gaveAfter11Msg = CheckLastTeeTime(teeTime.StartTime, player.GHIN, player.Name);
+                }
             }
             teeTimeRequest.TeeTime = teeTime;
 
@@ -831,6 +837,43 @@ namespace WebAdmin.ViewModel
                     }
                 }
             }
+        }
+
+        private bool CheckLastTeeTime(string teeTime, string ghin, string name)
+        {
+            if (PlayerTeeTimeHistoryHashTableByGhin == null) return false;
+
+            if (PlayerTeeTimeHistoryHashTableByGhin.ContainsKey(ghin))
+            {
+                var ptth = (PlayerTeeTimeHistory)PlayerTeeTimeHistoryHashTableByGhin[ghin];
+
+                string[] h1 = ptth.LastTeeTime.Split(':');
+                if (h1.Length > 1)
+                {
+                    int hour;
+                    if (int.TryParse(h1[0], out hour))
+                    {
+                        if (hour >= 11)
+                        {
+                            string[] h2 = teeTime.Split(':');
+                            if (h2.Length > 1)
+                            {
+                                int teeTimeStartHour;
+                                if (int.TryParse(h2[0], out teeTimeStartHour))
+                                {
+                                    if (teeTimeStartHour >= 11)
+                                    {
+                                        MessageBox.Show("Note: " + name + " had a late tee time (" + ptth.LastTeeTime + ") last time also.");
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private void RemoveSelectionChanged(int selectionIndex)
