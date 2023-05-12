@@ -291,72 +291,13 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	
 	if($t->ClubChampionship){
 
-		if(!isset($_POST['championshipFlight'])){
-			// First select which form will display (single championship player or 4 player net group)
-			echo '<form name="input" method="post">' . PHP_EOL;
-			echo '<input type="hidden" name="championshipFlight" value="F1">' . PHP_EOL;
-			echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-			echo '<input type="submit" value="Sign Up For Net Flights"> <br> <br>' . PHP_EOL;
-			echo '</form>' . PHP_EOL;
+		ShowChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $flightErrorList, $errorList, $RequestedTime);
 
-			echo '<form name="input" method="post">' . PHP_EOL;
-			echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
-			echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-			echo '<input type="submit" value="Sign Up For Championship Flight"> <br> <br>' . PHP_EOL;
-			echo '</form>' . PHP_EOL;
-		} 
-		else {
+	}
+	else if($t->SrClubChampionship) {
 
-			echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
-			echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
-			
-			echo '<form name="input" method="post">' . PHP_EOL;
+		ShowSeniorChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $flightErrorList, $errorList, $RequestedTime);
 
-			if($_POST['championshipFlight'] == "CH") {
-
-				// these hidden items are not in a table row/col, so start the table after them
-				echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
-				echo '<input type="hidden" name="RequestedTime" value="None">' . PHP_EOL;
-
-				AddPlayerTable($t);  // adds unfinished <table> which is closed below
-
-				AddPlayer($t, 1, $GHIN[0], $LastName[0], "CH", $flightErrorList[0]);
-				// Championship table has 3 columns
-				insert_error_line($errorList[0], 3);
-			}
-			else {
-
-				// these hidden items are not in a table row/col, so start the table after them
-				echo '<input type="hidden" name="championshipFlight" value="F1">' . PHP_EOL;
-
-				AddPlayerTable($t);  // adds unfinished <table> which is closed below
-
-				AddPlayer($t, 1, $GHIN[0], $LastName[0], "F1", $flightErrorList[0]);
-				// Championship table has 3 columns
-				insert_error_line($errorList[0], 3);
-				
-				AddPlayer($t, 2, $GHIN[1], $LastName[1], "F1", $flightErrorList[1]);
-				// Championship table has 3 columns
-				insert_error_line($errorList[1], 3);
-				
-				AddPlayer($t, 3, $GHIN[2], $LastName[2], "F1", $flightErrorList[2]);
-				// Championship table has 3 columns
-				insert_error_line($errorList[2], 3);
-				
-				AddPlayer($t, 4, $GHIN[3], $LastName[3], "F1", $flightErrorList[3]);
-				// Championship table has 3 columns
-				insert_error_line($errorList[3], 3);
-			
-				RequestedTime($RequestedTime, 3);
-			}
-
-			echo '</table>' . PHP_EOL;
-			echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-			echo '<input type="submit" value="Sign Up"> <br> <br>' . PHP_EOL;
-			echo '<a href="signups.php?tournament=' . $tournamentKey . '">Current Signups</a>' . PHP_EOL;
-			echo '</form>' . PHP_EOL;
-
-		}
 	}
 	else {
 		if($t->MemberGuest){
@@ -549,6 +490,143 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	}
 } // end of else clause
 
+function ShowChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $flightErrorList, $errorList, $RequestedTime)
+{
+	if(!isset($_POST['championshipFlight'])){
+		// First select which form will display (single championship player or 4 player net group)
+		echo '<form name="input" method="post">' . PHP_EOL;
+		echo '<input type="hidden" name="championshipFlight" value="F1">' . PHP_EOL;
+		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Net Flights"> <br> <br>' . PHP_EOL;
+		echo '</form>' . PHP_EOL;
+
+		echo '<form name="input" method="post">' . PHP_EOL;
+		echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
+		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Championship Flight"> <br> <br>' . PHP_EOL;
+		echo '</form>' . PHP_EOL;
+	} 
+	else {
+
+		echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
+		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
+		
+		echo '<form name="input" method="post">' . PHP_EOL;
+
+		if($_POST['championshipFlight'] == "CH") {
+
+			// these hidden items are not in a table row/col, so start the table after them
+			echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
+			echo '<input type="hidden" name="RequestedTime" value="None">' . PHP_EOL;
+
+			AddPlayerTable($t);  // adds unfinished <table> which is closed below
+
+			AddPlayer($t, 1, $GHIN[0], $LastName[0], "CH", $flightErrorList[0]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[0], 3);
+		}
+		else {
+
+			// these hidden items are not in a table row/col, so start the table after them
+			echo '<input type="hidden" name="championshipFlight" value="F1">' . PHP_EOL;
+
+			AddPlayerTable($t);  // adds unfinished <table> which is closed below
+
+			AddPlayer($t, 1, $GHIN[0], $LastName[0], "F1", $flightErrorList[0]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[0], 3);
+			
+			AddPlayer($t, 2, $GHIN[1], $LastName[1], "F1", $flightErrorList[1]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[1], 3);
+			
+			AddPlayer($t, 3, $GHIN[2], $LastName[2], "F1", $flightErrorList[2]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[2], 3);
+			
+			AddPlayer($t, 4, $GHIN[3], $LastName[3], "F1", $flightErrorList[3]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[3], 3);
+		
+			RequestedTime($RequestedTime, 3);
+		}
+
+		echo '</table>' . PHP_EOL;
+		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up"> <br> <br>' . PHP_EOL;
+		echo '<a href="signups.php?tournament=' . $tournamentKey . '">Current Signups</a>' . PHP_EOL;
+		echo '</form>' . PHP_EOL;
+	}
+}
+
+function ShowSeniorChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $flightErrorList, $errorList, $RequestedTime)
+{
+	if(!isset($_POST['championshipFlight'])){
+		// First select which form will display (single championship player or 4 player net group)
+		echo '<form name="input" method="post">' . PHP_EOL;
+		echo '<input type="hidden" name="championshipFlight" value="AGE">' . PHP_EOL;
+		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Age-based Net Flights"> <br> <br>' . PHP_EOL;
+		echo '</form>' . PHP_EOL;
+
+		echo '<form name="input" method="post">' . PHP_EOL;
+		echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
+		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Senior Championship Flight"> <br> <br>' . PHP_EOL;
+		echo '</form>' . PHP_EOL;
+	} 
+	else {
+
+		echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
+		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
+		
+		echo '<form name="input" method="post">' . PHP_EOL;
+
+		if($_POST['championshipFlight'] == "CH") {
+
+			// these hidden items are not in a table row/col, so start the table after them
+			echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
+			echo '<input type="hidden" name="RequestedTime" value="None">' . PHP_EOL;
+
+			AddPlayerTable($t);  // adds unfinished <table> which is closed below
+
+			AddPlayer($t, 1, $GHIN[0], $LastName[0], "CH", $flightErrorList[0]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[0], 3);
+		}
+		else {
+
+			// these hidden items are not in a table row/col, so start the table after them
+			echo '<input type="hidden" name="championshipFlight" value="AGE">' . PHP_EOL;
+
+			AddPlayerTable($t);  // adds unfinished <table> which is closed below
+
+			AddPlayer($t, 1, $GHIN[0], $LastName[0], "AGE", $flightErrorList[0]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[0], 3);
+			
+			AddPlayer($t, 2, $GHIN[1], $LastName[1], "AGE", $flightErrorList[1]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[1], 3);
+			
+			AddPlayer($t, 3, $GHIN[2], $LastName[2], "AGE", $flightErrorList[2]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[2], 3);
+			
+			AddPlayer($t, 4, $GHIN[3], $LastName[3], "AGE", $flightErrorList[3]);
+			// Championship table has 3 columns
+			insert_error_line($errorList[3], 3);
+		
+			RequestedTime($RequestedTime, 3);
+		}
+
+		echo '</table>' . PHP_EOL;
+		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up"> <br> <br>' . PHP_EOL;
+		echo '<a href="signups.php?tournament=' . $tournamentKey . '">Current Signups</a>' . PHP_EOL;
+		echo '</form>' . PHP_EOL;
+	}
+}
 
 function AddPlayer($t, $playerNumber, $GHIN, $lastName, $extraForPlayer, $errorForPlayer)
 {

@@ -549,9 +549,9 @@ function ShowSignups($connection, $tournamentKey) {
 	
 	if($t->SrClubChampionship){
 		echo '<tr><td style="border: none">' . PHP_EOL;
-		echo 'F1 = Flight 1 (under 60)<br>' . PHP_EOL;
-		echo 'F2 = Flight 2 (60-69)<br>' . PHP_EOL;
-		echo 'F3 = Flight 3 (70 and older)<br>' . PHP_EOL;
+		echo 'F1 = Flight 1 (under 65)<br>' . PHP_EOL;
+		echo 'F2 = Flight 2 (65-71)<br>' . PHP_EOL;
+		echo 'F3 = Flight 3 (72 and older)<br>' . PHP_EOL;
 		echo 'CH = Championship Flight (55 and older)<br><br>' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 	}
@@ -1042,6 +1042,23 @@ function GetPlayerFlightIndex($playerNumber){
 function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpan){
 	if($t->SrClubChampionship){
 		$flightLabel = GetPlayerFlightIndex($playerNumber);
+
+		if($rowSpan > 1){
+			echo '<td rowspan = "' . $rowSpan . '" style="border: none;">' . PHP_EOL;
+		}
+		else {
+			echo '<td style="border: none">' . PHP_EOL;
+		}
+		if($extraForPlayer == "CH"){
+			echo 'Senior Championship flight' . PHP_EOL;
+		}
+		else {
+			echo 'Age-based net flight' . PHP_EOL;
+		}
+		echo '<input type="hidden" name="' . $flightLabel . '" value="' . $extraForPlayer . '">' . PHP_EOL;
+		echo '</td>' . PHP_EOL;
+
+		/*  Below is for when signups allowed mix of championship and age-based flights
 		if($rowSpan > 1){
 			echo '<td rowspan = "' . $rowSpan . '" style="border: none;">' . PHP_EOL;
 		}
@@ -1065,7 +1082,9 @@ function AddFlights($t, $playerNumber, $extraForPlayer, $errorForPlayer, $rowSpa
 		if(!empty($errorForPlayer)){
 			echo '<p style="color:red">' . $errorForPlayer . '</p>' . PHP_EOL;
 		}
+		
 		echo '</td>' . PHP_EOL;
+		*/
 	} else if($t->ClubChampionship){
 		$flightLabel = GetPlayerFlightIndex($playerNumber);
 
