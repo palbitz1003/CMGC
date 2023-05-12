@@ -71,10 +71,11 @@ for($i = 0; $i < count($players); ++ $i) {
 	$Extra[$i] = $players[$i]->Extra;
 }
 
-if(($Extra[0] == "CH") && $t->ClubChampionship){
-	echo '<div style = "position:relative; top:80px;text-align: center;">';
+if(($t->ClubChampionship || $t->SrClubChampionship) && ($Extra[0] == "CH")){
+	echo '<div id="content-container" class="entry-content">' . PHP_EOL;;
+	echo '<p style = "text-align: center;">' . PHP_EOL;;
 	echo "There is nothing to modify for a championship flight player in this tournament." . PHP_EOL;
-    echo '</div>' . PHP_EOL;
+    echo '</div><!-- #content-container -->' . PHP_EOL;
 	
 	if (isset ( $connection )) {
 		$connection->close ();
@@ -127,9 +128,9 @@ if (isset ( $_POST ['RequestedTime'] )) {
 				$interval = $tournamentStart->diff($birthday);
 				if($interval){
 					//echo "years = " . $interval->y . "<br>";
-					if($interval->y < 60){
+					if($interval->y < 65){
 						$Extra[$i] = "F1";
-					} else if($interval->y < 70){
+					} else if($interval->y < 72){
 						$Extra[$i] = "F2";
 					} else {
 						$Extra[$i] = "F3";

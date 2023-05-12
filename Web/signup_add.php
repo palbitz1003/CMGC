@@ -67,10 +67,11 @@ if(IsPastSignupPeriod($t)) {
 	return;
 }
 
-if($t->ClubChampionship && ($players[0]->Extra == "CH")){
-	echo '<div style = "position:relative; top:80px;text-align: center;">';
+if(($t->ClubChampionship || $t->SrClubChampionship) && ($players[0]->Extra == "CH")){
+	echo '<div id="content-container" class="entry-content">' . PHP_EOL;;
+	echo '<p style = "text-align: center;">' . PHP_EOL;;
 	echo "Championship flight players only sign up as singles." . PHP_EOL;
-    echo '</div>' . PHP_EOL;
+    echo '</div><!-- #content-container -->' . PHP_EOL;
 	
 	if (isset ( $connection )) {
 		$connection->close ();
@@ -142,7 +143,7 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 	echo '<p>Select a group to add, fill in the access codes for both groups, and click Submit</p>' . PHP_EOL;
 	
 	$maxSize = 4 - count($players);
-	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid, $t->ClubChampionship);
+	$potentialMergeGroups = GetSignupsOfSize($connection, $tournamentKey, $maxSize, $signupKey, $signupHasPaid, ($t->ClubChampionship || $t->SrClubChampionship));
 	
 	if(count($potentialMergeGroups) == 0){
 		if(count($players) == 4){

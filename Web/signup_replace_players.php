@@ -68,10 +68,11 @@ if($players[0]->TournamentKey != $tournamentKey){
 	die("The players for signup key  " . $signupKey . " are part of tournament " . $players[0]->TournamentKey . " not tournament " . $tournamentKey);
 }
 
-if($t->ClubChampionship && ($players[0]->Extra == "CH")){
-	echo '<div style = "position:relative; top:80px;text-align: center;">';
+if(($t->ClubChampionship || $t->SrClubChampionship) && ($players[0]->Extra == "CH")){
+	echo '<div id="content-container" class="entry-content">' . PHP_EOL;;
+	echo '<p style = "text-align: center;">' . PHP_EOL;;
 	echo "Instead of replacing a championship flight player, remove the current player, then signup the new player." . PHP_EOL;
-    echo '</div>' . PHP_EOL;
+    echo '</div><!-- #content-container -->' . PHP_EOL;
 	
 	if (isset ( $connection )) {
 		$connection->close ();
