@@ -116,6 +116,7 @@ if (isset ( $_POST ['RequestedTime'] )) {
 		}
 		else if($t->SrClubChampionship)
 		{
+			// Not needed anymore since flight is age based and not selected???
 			$playerFlightIndex = GetPlayerFlightIndex($i + 1);
 			$Extra[$i] = $_POST[$playerFlightIndex];
 			if(empty ($_POST[$playerFlightIndex]))
@@ -123,21 +124,7 @@ if (isset ( $_POST ['RequestedTime'] )) {
 				$flightErrorList[$i] = "Select Flight";
 			} else if($Extra[$i] == "AGE"){
 				$rosterEntry = GetRosterEntry ( $connection, $players[$i]->GHIN );
-				$birthday = new DateTime ( $rosterEntry->BirthDate);
-				$tournamentStart = new DateTime($t->StartDate);
-				$interval = $tournamentStart->diff($birthday);
-				if($interval){
-					//echo "years = " . $interval->y . "<br>";
-					if($interval->y < 65){
-						$Extra[$i] = "F1";
-					} else if($interval->y < 72){
-						$Extra[$i] = "F2";
-					} else {
-						$Extra[$i] = "F3";
-					}
-				} else {
-					echo "failed to determine age<br>";
-				}
+				$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
 			}
 		}
 		else if($t->ClubChampionship){

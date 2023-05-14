@@ -225,21 +225,7 @@ if (isset ( $_POST ['Player'] )) {
 							$Extra[$i] = "M"; // "Member" flight
 						}
 						else if($t->SrClubChampionship && ($Extra[$i] == "AGE")){
-							$birthday = new DateTime ( $rosterEntry->BirthDate);
-							$tournamentStart = new DateTime($t->StartDate);
-							$interval = $tournamentStart->diff($birthday);
-							if($interval){
-								//echo "years = " . $interval->y . "<br>";
-								if($interval->y < 65){
-									$Extra[$i] = "F1";
-								} else if($interval->y < 72){
-									$Extra[$i] = "F2";
-								} else {
-									$Extra[$i] = "F3";
-								}
-							} else {
-								echo "failed to determine age<br>";
-							}
+							$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
 						}
 					}
 				}
@@ -282,12 +268,14 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	echo '<h2 class="entry-title">Sign Up</h2>' . PHP_EOL;
 	echo '<h3>' . $t->Name . '</h3>' . PHP_EOL;
 
-	if(!$hasError) {
-		echo '<h4>Tournament Description</h4>' . PHP_EOL;
-		echo $descr; 
-		DisplayTournamentDetails($t); 
+	echo '<h4>Tournament Description</h4>' . PHP_EOL;
+	echo $descr; 
+	DisplayTournamentDetails($t); 
+
+	if($hasError) {
+		echo '<p style="font-weight:bold;">If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
+		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
 	}
-	echo '<p>' . PHP_EOL;
 	
 	if($t->ClubChampionship){
 
@@ -300,13 +288,13 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 
 	}
 	else {
+		echo '<p>' . PHP_EOL;
 		if($t->MemberGuest){
 			echo 'Fill in the GHIN and last name for members and GHIN and both the last name and first name for guests.' . PHP_EOL;
 		} else {
 			echo 'Fill in the GHIN and last name for 1-4 players.  Player 1 must be filled in.' . PHP_EOL;
 		}
-		echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
-		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
+		echo '</p>' . PHP_EOL;
 		
 		if($t->RequirePayment) { 
 			echo '<p>This is only step 1.  After entering the list of players, you will be asked to pay the tournament fee.</p>' . PHP_EOL;
@@ -507,9 +495,6 @@ function ShowChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $flightErr
 		echo '</form>' . PHP_EOL;
 	} 
 	else {
-
-		echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
-		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
 		
 		echo '<form name="input" method="post">' . PHP_EOL;
 
@@ -577,9 +562,6 @@ function ShowSeniorChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $fli
 	} 
 	else {
 
-		echo '</p><p>If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
-		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
-		
 		echo '<form name="input" method="post">' . PHP_EOL;
 
 		if($_POST['championshipFlight'] == "CH") {

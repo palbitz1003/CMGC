@@ -359,6 +359,12 @@ else {
 		else {
 			// carry forward flight info from old player
 			$Extra[$i] = $players[$i]->Extra;  
+
+			// Update the age based flight
+			if($t->SrClubChampionship){
+				$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
+				$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
+			}
 		}
 	}
 	
@@ -374,11 +380,14 @@ else {
 	}
 	echo '</p>' . PHP_EOL;
 	
+	/*
+	// must commit to championship flight or not championship flight
 	if($t->SrClubChampionship){
 		echo '<p style="color: red">Click this link to select the flight for the new player: ' . PHP_EOL;
 		echo '<a href="signup_modify.php?tournament=' . $tournamentKey . '&amp;signup=' . $signupKey . '">Modify Flight</a>' . PHP_EOL;
 		echo '</p>' . PHP_EOL;
 	}
+	*/
 	
 	echo '<p><a href="' . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>' . PHP_EOL;
 }

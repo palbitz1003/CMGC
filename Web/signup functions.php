@@ -1139,4 +1139,23 @@ function RequestedTime($RequestedTime, $numColumns)
 	echo '	</tr>' . PHP_EOL;
 }
 
+function GetSrChampionshipFlight($t, $rosterEntry)
+{
+	$birthday = new DateTime ( $rosterEntry->BirthDate);
+	$tournamentStart = new DateTime($t->StartDate);
+	$interval = $tournamentStart->diff($birthday);
+	if($interval){
+		//echo "years = " . $interval->y . "<br>";
+		if($interval->y < 65){
+			return "F1";
+		} else if($interval->y < 72){
+			return "F2";
+		} else {
+			return "F3";
+		}
+	} else {
+		return "AGE";
+	}
+}
+
 ?>
