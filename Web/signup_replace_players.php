@@ -360,10 +360,12 @@ else {
 			// carry forward flight info from old player
 			$Extra[$i] = $players[$i]->Extra;  
 
-			// Update the age based flight
+			// Update the age based flight. Championship flight players can't be replaced. See checks above.
 			if($t->SrClubChampionship){
 				$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
-				$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
+				if (!empty ( $rosterEntry )) {
+					$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
+				}
 			}
 		}
 	}

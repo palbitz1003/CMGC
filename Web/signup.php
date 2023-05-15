@@ -224,8 +224,20 @@ if (isset ( $_POST ['Player'] )) {
 							$memberSignedUp[$i] = true;
 							$Extra[$i] = "M"; // "Member" flight
 						}
-						else if($t->SrClubChampionship && ($Extra[$i] == "AGE")){
-							$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
+						else if($t->SrClubChampionship){
+							if($Extra[$i] == "AGE"){
+								$Extra[$i] = GetSrChampionshipFlight($t, $rosterEntry);
+							} else if($Extra[$i] == "CH"){
+								$birthday = new DateTime ( $rosterEntry->BirthDate);
+								$tournamentStart = new DateTime($t->StartDate);
+								$interval = $tournamentStart->diff($birthday);
+								if($interval){
+									//echo "years = " . $interval->y . "<br>";
+									if($interval->y < 55){
+										$errorList [$i] = "Sr Championship player must be 55 or over and " . $LastName [$i] . " is only " . $interval->y . " years old";
+									}
+								}
+							}
 						}
 					}
 				}
