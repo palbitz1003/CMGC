@@ -42,7 +42,7 @@ namespace WebAdmin
                 OnPropertyChanged();
 
                 EndDate = value.Add(TimeSpan.FromDays(1));
-                SignupStartDate = value.Subtract(TimeSpan.FromDays(28));
+                SignupStartDate = value.Subtract(TimeSpan.FromDays(14));
                 SignupEndDate = value.Subtract(TimeSpan.FromDays(10));
                 CancelEndDate = value.Subtract(TimeSpan.FromDays(1));
                 } 
