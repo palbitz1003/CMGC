@@ -280,13 +280,19 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 	echo '<h2 class="entry-title">Sign Up</h2>' . PHP_EOL;
 	echo '<h3>' . $t->Name . '</h3>' . PHP_EOL;
 
-	echo '<h4>Tournament Description</h4>' . PHP_EOL;
-	echo $descr; 
-	DisplayTournamentDetails($t); 
-
 	if($hasError) {
-		echo '<p style="font-weight:bold;">If you are getting an error message and cannot resolve the error, click on the tournament director link above and provide ';
-		echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
+		// If there is an error, don't repeat the tournament description because it
+		// can require the user to scroll down when signing up on a phone
+		if(isset($t->ChairmanName) && (strlen($t->ChairmanName) > 0)){
+			echo '<p>If you are getting an error message and cannot resolve the error, ';
+			echo 'send email to the <a href="mailto:' . $t->ChairmanEmail . '">tournament director</a> and provide ';
+			echo 'the GHIN number, last name, and error message</p>' . PHP_EOL;
+		}
+	}
+	else {
+		echo '<h4>Tournament Description</h4>' . PHP_EOL;
+		echo $descr; 
+		DisplayTournamentDetails($t); 
 	}
 	
 	if($t->ClubChampionship){
