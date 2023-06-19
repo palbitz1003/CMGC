@@ -153,13 +153,20 @@ if ($hasError || !isset ( $_POST ['AccessCode1'] )) {
 		}
 	} else {
 		echo '<form name="input" method="post">' . PHP_EOL;
-		
-		echo "Your Group's Access Code: " . '<input type="text" name="AccessCode1" maxlength="4" size="4" value="' .  $_POST['AccessCode1'] . '"><br><br>' . PHP_EOL;
+		$accessCode1 = "";
+		if(isset($_POST['AccessCode1'])){
+			$accessCode1 = $_POST['AccessCode1'];
+		}
+		echo "Your Group's Access Code: " . '<input type="text" name="AccessCode1" maxlength="4" size="4" value="' .  $accessCode1 . '"><br><br>' . PHP_EOL;
 		if(!empty($errorAccessCode1)){
 			echo '<p style="color:red;">' . $errorAccessCode1 . '</p>' . PHP_EOL;
 		}
 		
-		echo "Added Group's Access Code: " . '<input type="text" name="AccessCode2" maxlength="4" size="4" value="' .  $_POST['AccessCode2'] . '"><br><br>' . PHP_EOL;
+		$accessCode2 = "";
+		if(isset($_POST['AccessCode2'])){
+			$accessCode2 = $_POST['AccessCode2'];
+		}
+		echo "Added Group's Access Code: " . '<input type="text" name="AccessCode2" maxlength="4" size="4" value="' .  $accessCode2 . '"><br><br>' . PHP_EOL;
 		if(!empty($errorAccessCode2)){
 			echo '<p style="color:red;">' . $errorAccessCode2 . '</p>' . PHP_EOL;
 		}

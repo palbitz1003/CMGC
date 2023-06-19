@@ -1119,7 +1119,7 @@ function AddFlightsError($t, $errorForPlayer){
 function RequestedTime($RequestedTime, $numColumns)
 {
 	echo '<tr>' . PHP_EOL;
-	echo '		<td style="border: none;">Requested time:<br>(Tells us how early you can play)</td>' . PHP_EOL;
+	echo '		<td style="border: none;">Requested range:<br>(Tells us how early you can play)</td>' . PHP_EOL;
 	echo '		<td style="border: none;"><select name="RequestedTime">' . PHP_EOL;
 
 	new_list_option ( 'None', $RequestedTime );

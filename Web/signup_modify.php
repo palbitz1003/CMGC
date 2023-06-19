@@ -63,8 +63,8 @@ if(IsPastSignupPeriod($t)) {
 //var_dump($_POST);
 
 $error = null;
-$flightErrorList = array();
-$Extra = array();
+$flightErrorList = array_fill(0, 4, "");
+$Extra = array_fill(0, 4, "");
 $RequestedTime = $signup->RequestedTime;
 
 for($i = 0; $i < count($players); ++ $i) {
@@ -159,7 +159,11 @@ if ($hasError || !isset ( $_POST ['RequestedTime'] )) {
 	echo '</p>' . PHP_EOL;
 	echo '<form name="input" method="post">' . PHP_EOL;
 	
-	echo 'Access Code: <input type="text" name="AccessCode" maxlength="4" size="4" value="' .  $_POST['AccessCode'] . '"><br><br>' . PHP_EOL;
+	$accessCode = "";
+	if(isset($_POST['AccessCode'])){
+		$accessCode = $_POST['AccessCode'];
+	}
+	echo 'Access Code: <input type="text" name="AccessCode" maxlength="4" size="4" value="' .  $accessCode . '"><br><br>' . PHP_EOL;
 	if(!empty($error)){
 		echo '<p style="color:red;">' . $error . '</p>' . PHP_EOL;
 	}
