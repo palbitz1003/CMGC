@@ -6,6 +6,7 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
+$overrideTitle = "Tournament Description";
 get_header ();
 
 echo ' <div id="content-container" class="entry-content">';

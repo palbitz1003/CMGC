@@ -5,9 +5,9 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
 
-$year = $_GET ['year'];
-if (! $year) {
-	$year = date ( "Y" );
+$year = date ( "Y" );
+if (! empty($_GET ['year']) && is_numeric($_GET ['year'])) {
+	$year = $_GET ['year'];
 }
 
 $overrideTitle = $year . " Tournament Schedule";

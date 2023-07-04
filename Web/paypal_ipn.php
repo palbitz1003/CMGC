@@ -29,6 +29,7 @@ foreach ( $raw_post_array as $keyval ) {
 }
 // read the post from PayPal system and add 'cmd'
 $req = 'cmd=_notify-validate';
+$get_magic_quotes_exists = false;
 if (function_exists ( 'get_magic_quotes_gpc' )) {
 	$get_magic_quotes_exists = true;
 }

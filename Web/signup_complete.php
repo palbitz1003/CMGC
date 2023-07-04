@@ -17,11 +17,6 @@ echo '<h2 class="entry-title" style="text-align:center">Signup Complete</h2>' . 
 echo '<p>Thank you for your payment. Your transaction has been completed, and a receipt for your tournament fees has been emailed to you. ';
 echo 'You may log into your account at <a href="https://www.paypal.com/us">www.paypal.com/us</a> to view details of this transaction.</p>' . PHP_EOL;
 
-$tournamentKey = $_GET ['tournament'];
-if(!empty($tournamentKey)){
-	echo '<p><a href="https://' . $web_site . '/' . $script_folder_href . 'signups.php?tournament=' . $tournamentKey . '">View Signups</a></p>';
-}
-
 //$everything = get_defined_vars();
 //ksort($everything);
 //echo '<pre>';
