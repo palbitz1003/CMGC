@@ -2084,7 +2084,7 @@ namespace WebAdmin.ViewModel
                 agw.Owner = Application.Current.MainWindow;
                 agw.ShowDialog();
                 player.GHIN = agw.Ghin;
-                player.Extra = "G";
+                player.Tee = "W";
             }
 
             foreach (var ttr2 in TeeTimeRequests)
@@ -2273,10 +2273,20 @@ namespace WebAdmin.ViewModel
 
             if (playerToAdd == null) return;
 
+            if (string.IsNullOrEmpty(playerToAdd.GHIN) && TournamentNames[TournamentNameIndex].MemberGuest)
+            {
+                AddGhinWindow agw = new AddGhinWindow();
+                agw.Owner = Application.Current.MainWindow;
+                agw.ShowDialog();
+                playerToAdd.GHIN = agw.Ghin;
+                playerToAdd.Tee = "W";
+            }
+
             MessageBoxResult result = MessageBox.Show("Is " + playerToAdd.Name + " to replace " + playerToRemove.Name + "?",
-                                        "Confirmation",
-                                        MessageBoxButton.YesNo,
-                                        MessageBoxImage.Question);
+                                    "Confirmation",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question);
+
             if (result == MessageBoxResult.Yes)
             {
                 // Add the removed player and new player to the replace list

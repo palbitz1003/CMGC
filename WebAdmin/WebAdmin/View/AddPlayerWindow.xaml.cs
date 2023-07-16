@@ -57,8 +57,16 @@ namespace WebAdmin.View
                     case "F5":
                         break;
                     default:
-                        MessageBox.Show("Please fill in the flight with CH or F1-F5");
-                        return;
+                        if (AllowGuest && ((string.Compare(Player.Extra, "M") == 0) || (string.Compare(Player.Extra, "G") == 0)))
+                        {
+                            // Member/Guest Extra properly filled in
+                            break;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Please fill in the flight with CH or F1-F5");
+                            return;
+                        }
                 }
             }
             DialogResult = true;
@@ -116,6 +124,10 @@ namespace WebAdmin.View
                 Player.Email = _email;
                 Player.Tee = _tee;
                 AutoCompleteFeedback.Text = string.Empty;
+                if (AllowGuest)
+                {
+                    Player.Extra = "M";
+                }
             }
             else if (AllowGuest && string.IsNullOrEmpty(_ghin))
             {
@@ -123,6 +135,7 @@ namespace WebAdmin.View
                 Player.GHIN = string.Empty;
                 Player.Email = string.Empty;
                 Player.Tee = string.Empty;
+                Player.Extra = "G";
             }
         }
     }
