@@ -181,7 +181,7 @@ if (!empty($error) || !isset ( $_POST ['Player'] )) {
 	echo '<div id="content" role="main">' . PHP_EOL;
 	echo '<h2 class="entry-title" style="text-align:center">Pay Yearly Dues</h2>' . PHP_EOL;
 	
-	echo '<p>Most members can use on-line payment. The dues for regular members is $' . $dues->TournamentFee . ' before Oct 1. From Oct 1 through Oct 31, the dues are $' . $extendedDues->TournamentFee .'.';
+	echo '<p>Dues payment is through PayPal (no checks). The dues for regular members is $' . $dues->TournamentFee . ' before Oct 1. From Oct 1 through Oct 31, the dues are $' . $extendedDues->TournamentFee .'.';
 	echo ' Life members pay the annual SCGA fee of $' . $scgaOnly->TournamentFee .'. Social members should send a check to the CMGC office.' . PHP_EOL;
 	echo '<p>After Oct 31, you will be dropped from membership automatically.</p>' . PHP_EOL;
 	echo '<p>Fill in your GHIN and last name below.</p>' . PHP_EOL;

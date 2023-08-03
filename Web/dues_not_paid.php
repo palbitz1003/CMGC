@@ -19,10 +19,8 @@ echo '    <div id="content" role="main">';
 
 echo '<h2 class="entry-title" style="text-align:center">Have Not Paid Yearly Dues</h2>' . PHP_EOL;
 
-echo '<p>Once you pay via Pay Pal you will automatically be listed on the paid list. ';
-echo 'If you pay your renewal by check, however, <b>you will not be listed automatically on the paid list</b>. ';
-echo 'We have to make a manual entry to show online who has paid by check, and <b>we will only do this manual update once or twice</b>. ';
-echo 'If your bank indicates your check has been cashed you will know your payment has been received.</p>';
+echo '<p>Once you pay via PayPal you will automatically be listed on the paid list. ';
+echo 'Paying by check is not an option anymore. You must pay through PayPal.';
 
 echo '<table style="border: none;margin-left:auto;margin-right:auto;width: 96%">' . PHP_EOL;
 echo '<tbody><tr>' . PHP_EOL;
