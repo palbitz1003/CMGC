@@ -111,7 +111,7 @@ function ShowDues($connection, $script_folder_href){
 		$scgaOnly = GetPayPalDuesDetails($connection, 'L');
 		
 		echo '<h2>Yearly Dues Payment</h2>';
-		echo '<p style="margin-left:30px;">The dues for regular members is $' . $dues->TournamentFee . ' before Oct 1. From Oct 1 through Oct 31, the dues are $' . $extendedDues->TournamentFee .'. Life members pay the annual SCGA fee of $' . $scgaOnly->TournamentFee .'.  After Oct 31, you will be dropped from membership automatically. ';
+		echo '<p style="margin-left:30px;">The dues for regular members is $' . $dues->TournamentFee . ' before Oct 1. From Oct 1 through Oct 31, the dues are $' . $extendedDues->TournamentFee .'. Life members pay the annual SCGA fee of $' . $scgaOnly->TournamentFee .'.  After Oct 31, you will be dropped from membership automatically on Dec 31. ';
 		echo '<p style="margin-left:30px;font-size:large;">' . PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_payment.php">Pay Dues</a>&nbsp;&nbsp;&nbsp;&nbsp;'. PHP_EOL;
 		echo '<a href="' . $script_folder_href . 'dues_not_paid.php">View Have Not Paid List</a>'. PHP_EOL;
