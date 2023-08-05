@@ -52,6 +52,10 @@ $sponsor1Phone = "";
 $sponsor2LastName = "";
 $sponsor2Ghin = "";
 $sponsor2Phone = "";
+$streetAddress = "";
+$city = "";
+$state = "CA";
+$zipCode = "";
 
 // Remove single and double quotes?
 //$LastName[$i] = str_replace("'", "", $LastName[$i]); // remove single quotes
@@ -60,7 +64,7 @@ $sponsor2Phone = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$lastName = test_input($_POST["LastName"]);
 	$firstName = test_input($_POST["FirstName"]);
-	$mailingAddress = test_input($_POST["MailingAddress"]);
+	//$mailingAddress = test_input($_POST["MailingAddress"]);
 	$email = test_input($_POST["Email"]);
 	$email2 = test_input($_POST["Email2"]);
 	$ghin = test_input($_POST["GHIN"]);
@@ -74,6 +78,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$sponsor2LastName = test_input($_POST["Sponsor2LastName"]);
 	$sponsor2Ghin = test_input($_POST["Sponsor2Ghin"]);
 	$sponsor2Phone = test_input($_POST["Sponsor1Phone"]);
+	$streetAddress = test_input($_POST["StreetAddress"]);
+	$city = test_input($_POST["City"]);
+	$state = test_input($_POST["State"]);
+	$zipCode = test_input($_POST["ZipCode"]);
+
+	if(empty($state)){
+		$state = "CA";
+	}
 
 	$birthDate = $birthYear . '-' . $birthMonth . '-' . $birthDay;
 
@@ -153,9 +165,29 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 	echo '</tr>'  . PHP_EOL;
 
     echo '<tr>' . PHP_EOL;
-	echo '<td style="border: none;">Mailing Address</td>' . PHP_EOL;
+	echo '<td style="border: none;">Street Address</td>' . PHP_EOL;
 	echo '<td style="border: none;" colspan="3"><input type="text"';
-	echo '    name="MailingAddress" size="70" value="' . $mailingAddress . '" required></td>' . PHP_EOL;
+	echo '    name="StreetAddress" size="70" value="' . $streetAddress . '" required></td>' . PHP_EOL;
+	echo '</tr>'  . PHP_EOL;
+
+	echo '<tr>' . PHP_EOL;
+	echo '<td style="border: none;">City</td>' . PHP_EOL;
+	echo '<td style="border: none;" colspan="3"><input type="text"';
+	echo '    name="City" size="70" value="' . $city . '" required></td>' . PHP_EOL;
+	echo '</tr>'  . PHP_EOL;
+
+	echo '<tr>' . PHP_EOL;
+	echo '<td style="border: none;">State</td>' . PHP_EOL;
+	echo '<td style="border: none;" colspan="3"><input type="text"';
+	// Make size 1 larger for iPhone
+	echo '    name="State" size="3" value="' . $state . '" required></td>' . PHP_EOL;
+	echo '</tr>'  . PHP_EOL;
+
+	echo '<tr>' . PHP_EOL;
+	echo '<td style="border: none;">Zip Code</td>' . PHP_EOL;
+	echo '<td style="border: none;" colspan="3"><input type="text"';
+	// Make size 1 larger for iPhone
+	echo '    name="ZipCode" size="6" value="' . $zipCode . '" required></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
 
 	echo '<tr>' . PHP_EOL;
@@ -264,7 +296,8 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 
 	$insert_id = InsertApplication($connection, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
 						$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
-						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone);
+						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
+						$streetAddress, $city, $state, $zipCode);
 
 	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
 	//SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "pma1960@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
@@ -276,9 +309,10 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 
 function InsertApplication($connection, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
 								$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
-								$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone) {
+								$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
+								$streetAddress, $city, $state, $zipCode) {
 
-	$sqlCmd = "INSERT INTO `MembershipApplication` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	$sqlCmd = "INSERT INTO `MembershipApplication` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
@@ -295,7 +329,7 @@ function InsertApplication($connection, $lastName, $firstName, $mailingAddress, 
 	// Active
 	// LastName
 	// FirstName
-	// Mailing Address 
+	// Mailing Address (now obsolete)
 	// Email
 	// GHIN
 	// Phone Number
@@ -306,10 +340,15 @@ function InsertApplication($connection, $lastName, $firstName, $mailingAddress, 
 	// Payment
 	// Payment Date Time
 	// Payer Name
-	if (! $insert->bind_param ( 'issssisssissississ', $active, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
+	// Street Address
+	// City
+	// State
+	// Zip Code
+	if (! $insert->bind_param ( 'issssisssissississssss', $active, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
 													$sponsor1LastName, $sponsor1Ghin, $sponsor1Phone,
 													$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
-													$dateTimeAdded, $payment, $paymentDateTime, $payerName )) {
+													$dateTimeAdded, $payment, $paymentDateTime, $payerName,
+													$streetAddress, $city, $state, $zipCode )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	
@@ -386,6 +425,9 @@ function check_for_existing_application($connection, $lastName, $firstName, $ghi
 }
 
 function test_input($data) {
+	if(empty($data)){
+		return $data;
+	}
 	$data = trim($data);
 	$data = stripslashes($data);
 	$data = htmlspecialchars($data);

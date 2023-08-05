@@ -43,12 +43,17 @@ function cmgc_admin_membership_application_page2()
         public $Payment;
         public $PaymentDateTime;
         public $PayerName;
+        public $StreetAddress;
+        public $City;
+        public $State;
+        public $ZipCode;
     }
     
     $query->bind_result ( $recordKey, $active, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,
                         $sponsor1LastName, $sponsor1Ghin, $sponsor1PhoneNumber,
                         $sponsor2LastName, $sponsor2Ghin, $sponsor2PhoneNumber,
-                        $dateTimeAdded, $payment, $paymentDateTime, $payerName );
+                        $dateTimeAdded, $payment, $paymentDateTime, $payerName,
+                        $streetAddress, $city, $state, $ZipCode );
     
     $membershipApplicationEntries = array();
     while ( $query->fetch () ) {
@@ -72,6 +77,10 @@ function cmgc_admin_membership_application_page2()
         $membershipApplication->Payment = $payment;
         $membershipApplication->PaymentDateTime = $paymentDateTime;
         $membershipApplication->PayerName = $payerName;
+        $membershipApplication->StreetAddress = $streetAddress;
+        $membershipApplication->City = $city;
+        $membershipApplication->State = $state;
+        $membershipApplication->ZipCode = $ZipCode;
 
         $membershipApplicationEntries[] = $membershipApplication;
     }
@@ -90,7 +99,7 @@ function cmgc_admin_membership_application_page2()
 
     // Table class can be widefat, fixed, or striped
     echo '<table class="fixed" >' . PHP_EOL;
-    echo '<thead><tr><th>Clear</th><th>Date Added</th><th>Last</th><th>First</th><th>GHIN</th><th>Mailing Address</th><th>Email Address</th><th>Phone</th><th>DOB</th>';
+    echo '<thead><tr><th>Clear</th><th>Date Added</th><th>Last</th><th>First</th><th>GHIN</th><th>Street Address</th><th>City</th><th>State</th><th>Zip</th><th>Email Address</th><th>Phone</th><th>DOB</th>';
     echo '<th>Sp1 Last</th><th>Sp1 GHIN</th><th>Sp1 Phone</th><th>Sp2 Last</th><th>Sp2 GHIN</th><th>Sp2 Phone</th><th>Payment</th><th>Payment Date</th><th>Payer Name</th></tr></thead>' . PHP_EOL;
     echo '<tbody>' . PHP_EOL;
 
@@ -103,7 +112,13 @@ function cmgc_admin_membership_application_page2()
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->LastName . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->FirstName . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->GHIN . '</td>' . PHP_EOL;
-        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->MailingAddress . '</td>' . PHP_EOL;
+
+        //echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->MailingAddress . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->StreetAddress . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->City . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->State . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->ZipCode . '</td>' . PHP_EOL;
+
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->Email . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->PhoneNumber . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->BirthDate . '</td>' . PHP_EOL;
