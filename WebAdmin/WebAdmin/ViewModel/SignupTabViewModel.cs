@@ -3071,6 +3071,16 @@ namespace WebAdmin.ViewModel
                 return;
             }
 
+            List<GHINEntry> ghinList = new List<GHINEntry>();
+            try
+            {
+                ghinList = GHINEntry.LoadGHIN(Options.GHINFileName);
+            }
+            catch
+            {
+                // ignore error and save all historical tee time entries
+            }
+
             using (TextWriter tw = new StreamWriter(dlg.FileName))
             {
                 tw.Write("Name,GHIN,Avg Start Time,Stdev,Last Tee Time,Tee Time Count");
@@ -3082,27 +3092,42 @@ namespace WebAdmin.ViewModel
 
                 foreach (var ptth in PlayerTeeTimeHistoryByName)
                 {
-                    tw.Write("\"" + ptth.Name + "\"," + ptth.GHIN);
+                    bool found = true;  // If unable to parse the GHIN number into an integer, display the data anyway
+                    int ghinNumber = 0;
 
-                    TimeSpan time = TimeSpan.FromSeconds(ptth.StartTimeAverageInSeconds);
-                    tw.Write("," + time.ToString(@"hh\:mm"));
-                    time = TimeSpan.FromSeconds(ptth.StartTimeStandardDeviationInSeconds);
-                    tw.Write("," + time.ToString(@"hh\:mm"));
-                    tw.Write("," + ptth.LastTeeTime);
-                    tw.Write("," + ptth.TeeTimeCount);
-
-                    for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                    if (int.TryParse(ptth.GHIN, out ghinNumber))
                     {
-                        if (ptth.TeeTimes[teeTimeIndex] == null)
+                        // If the GHIN list can't be loaded, don't filter the data
+                        if ((ghinList != null) && (ghinList.Count > 0))
                         {
-                            tw.Write(",");
-                        }
-                        else
-                        {
-                            tw.Write("," + ptth.TeeTimes[teeTimeIndex].Value.ToShortTimeString());
+                            found = GHINEntry.FindGHIN(ghinList, ghinNumber) != null;
                         }
                     }
-                    tw.WriteLine();
+
+                    if (found)
+                    {
+                        tw.Write("\"" + ptth.Name + "\"," + ptth.GHIN);
+
+                        TimeSpan time = TimeSpan.FromSeconds(ptth.StartTimeAverageInSeconds);
+                        tw.Write("," + time.ToString(@"hh\:mm"));
+                        time = TimeSpan.FromSeconds(ptth.StartTimeStandardDeviationInSeconds);
+                        tw.Write("," + time.ToString(@"hh\:mm"));
+                        tw.Write("," + ptth.LastTeeTime);
+                        tw.Write("," + ptth.TeeTimeCount);
+
+                        for (int teeTimeIndex = 0; teeTimeIndex < ptth.TeeTimes.Length; teeTimeIndex++)
+                        {
+                            if (ptth.TeeTimes[teeTimeIndex] == null)
+                            {
+                                tw.Write(",");
+                            }
+                            else
+                            {
+                                tw.Write("," + ptth.TeeTimes[teeTimeIndex].Value.ToShortTimeString());
+                            }
+                        }
+                        tw.WriteLine();
+                    }
                 }
             }
 

@@ -131,5 +131,21 @@ namespace WebAdmin
 
             return null;
         }
+
+        public static GHINEntry FindGHIN(List<GHINEntry> GHINList, int number)
+        {
+
+            if (GHINList == null) return null;
+
+            foreach (var entry in GHINList)
+            {
+                if (entry.GHIN == number)
+                {
+                        return entry;
+                }
+            }
+
+            return null;
+        }
     }
 }
