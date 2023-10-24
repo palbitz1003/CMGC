@@ -56,6 +56,7 @@ function cmgc_admin_show_waitlist_with_payment_due(){
     //var_dump( get_defined_vars() );
 
     class WaitingListEntry {
+        public $RecordKey;
         public $Position;
         public $Name;
         public $DateAdded;
@@ -63,6 +64,23 @@ function cmgc_admin_show_waitlist_with_payment_due(){
         public $Payment;
         public $PaymentDateTime;
         public $PayerName;
+    }
+
+    class MembershipInvitation {
+        public $RecordKey;
+        public $Active;
+        public $DateAdded;
+        public $WaitingListRecordKey;
+        public $LastName;
+        public $FirstName;
+        public $Email;
+        public $GHIN;
+        public $PhoneNumber;
+        public $BirthDate;
+        public $StreetAddress;
+        public $City;
+        public $State;
+        public $ZipCode;
     }
     
     $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
@@ -91,6 +109,7 @@ function cmgc_admin_show_waitlist_with_payment_due(){
     $waitingListEntriesByPosition = array();
     while ( $query->fetch () ) {
         $waitingListEntry = new WaitingListEntry();
+        $waitingListEntry->RecordKey = $recordKey;
         $waitingListEntry->Position = $position;
         $waitingListEntry->Name = $name;
         $waitingListEntry->DateAdded = $dateAdded;
@@ -124,6 +143,75 @@ function cmgc_admin_show_waitlist_with_payment_due(){
         echo '<td style="padding: 0px 10px 0px 10px;">' . $waitingListEntriesByPosition[$i]->PaymentDateTime . '</td>';
         echo '<td style="padding: 0px 10px 0px 10px;">' . $waitingListEntriesByPosition[$i]->PayerName . '</td>';
         echo '</tr>' . PHP_EOL;
+    }
+
+
+    // Finish the first column table.  Show the 2nd column table.
+    echo '</tbody>' . PHP_EOL;
+    echo '</table>' . PHP_EOL;
+
+    $sqlCmd = "SELECT * FROM `MembershipInvitation` WHERE `Active` = 1";
+    $query = $connection->prepare ( $sqlCmd );
+    
+    if (! $query) {
+        die ( $sqlCmd . " prepare failed: " . $connection->error );
+    }
+    
+    if (! $query->execute ()) {
+        die ( $sqlCmd . " execute failed: " . $connection->error );
+    }
+    
+    $query->bind_result ( $recordKey, $active, $dateAdded, $waitingListRecordKey, $lastName, $firstName, $email, $ghin, $phoneNumber, $birthdate, $streetAddress, $city, $state, $zipCode );
+    
+    $membershipInvitationsByRecordKey = array();
+    while ( $query->fetch () ) {
+        $membershipInvitation = new MembershipInvitation();
+        $membershipInvitation->RecordKey = $recordKey;
+        $membershipInvitation->Active = $active;
+        $membershipInvitation->DateAdded = $dateAdded;
+        $membershipInvitation->WaitingListRecordKey = $waitingListRecordKey;
+        $membershipInvitation->LastName = $lastName;
+        $membershipInvitation->FirstName = $firstName;
+        $membershipInvitation->Email = $email;
+        $membershipInvitation->GHIN = $ghin;
+        $membershipInvitation->PhoneNumber = $phoneNumber;
+        $membershipInvitation->BirthDate = $birthdate;
+        $membershipInvitation->StreetAddress = $streetAddress;
+        $membershipInvitation->City = $city;
+        $membershipInvitation->State = $state;
+        $membershipInvitation->ZipCode = $zipCode;
+        
+        $membershipInvitationsByRecordKey[$waitingListRecordKey] = $membershipInvitation;
+    }
+    
+    $query->close ();
+
+    echo '<h2>Player Data For Players That Have Completed Payment</h2>' ;
+
+    // Table class can be widefat, fixed, or striped
+    echo '<table class="fixed" >' . PHP_EOL;
+    echo '<thead><tr><th>Name</th><th>GHIN</th><th>Email</th><th>Address</th><th>City</th><th>State</th><th>Zip Code</th><th>DOB</th><th>Phone Number</th></tr></thead>' . PHP_EOL;
+    echo '<tbody>' . PHP_EOL;
+
+    for($i = 0; $i < count ( $waitingListEntriesByPosition ); ++ $i) {
+        if($waitingListEntriesByPosition[$i]->Payment > 0){
+            if(!empty($membershipInvitationsByRecordKey[$waitingListEntriesByPosition[$i]->RecordKey]))
+            {
+                $record = $membershipInvitationsByRecordKey[$waitingListEntriesByPosition[$i]->RecordKey];
+            
+                echo '<tr>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->LastName . ', ' . $record->FirstName . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->GHIN . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->Email . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->StreetAddress . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->City . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->State . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->ZipCode . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->BirthDate . '</td>';
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $record->PhoneNumber . '</td>';
+                echo '</tr>' . PHP_EOL;
+            }
+        }
     }
 
 

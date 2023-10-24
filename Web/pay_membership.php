@@ -1,16 +1,8 @@
 <?php
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . '/login.php';
+require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $script_folder . '/membership_functions.php';
 require_once realpath ( $_SERVER ["DOCUMENT_ROOT"] ) . $wp_folder . '/wp-blog-header.php';
 date_default_timezone_set ( 'America/Los_Angeles' );
-
-class WaitingListEntry {
-	public $RecordKey;
-	public $Position;
-	public $Name;
-	public $DateAdded;
-	public $PaymentDue;
-	public $Payment;
-}
 
 class PayPalDetailsMembership {
 	public $PayPayButton;
@@ -37,32 +29,7 @@ $connection = new mysqli ( $db_hostname, $db_username, $db_password, $db_databas
 if ($connection->connect_error)
 	die ( $connection->connect_error );
 
-$sqlCmd = "SELECT * FROM `WaitingList` WHERE `Active` = 1 AND `RecordKey` = ?";
-$query = $connection->prepare ( $sqlCmd );
-
-if (! $query->bind_param ( 'i', $recordKey )) {
-    die ( $sqlCmd . " bind_param failed: " . $connection->error );
-}
-
-if (! $query) {
-	die ( $sqlCmd . " prepare failed: " . $connection->error );
-}
-
-if (! $query->execute ()) {
-	die ( $sqlCmd . " execute failed: " . $connection->error );
-}
-
-$query->bind_result ( $recordKey, $position, $name, $dateAdded, $active, $paymentDue, $payment, $paymentDateTime, $PayerName );
-
-$waitingListEntry = new WaitingListEntry();
-while ( $query->fetch () ) {
-	$waitingListEntry->RecordKey = $recordKey;
-	$waitingListEntry->Position = $position;
-	$waitingListEntry->Name = $name;
-	$waitingListEntry->DateAdded = $dateAdded;
-	$waitingListEntry->PaymentDue = $paymentDue;
-	$waitingListEntry->Payment = $payment;
-}
+$waitingListEntry = GetWaitlistEntry($connection, $recordKey);
 
 cmgc_start_waitlist_page();
 
