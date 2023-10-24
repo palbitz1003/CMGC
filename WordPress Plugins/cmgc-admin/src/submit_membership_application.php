@@ -99,7 +99,7 @@ function cmgc_admin_membership_application_page2()
 
     // Table class can be widefat, fixed, or striped
     echo '<table class="fixed" >' . PHP_EOL;
-    echo '<thead><tr><th>Clear</th><th>Date Added</th><th>Last</th><th>First</th><th>GHIN</th><th>Street Address</th><th>City</th><th>State</th><th>Zip</th><th>Email Address</th><th>Phone</th><th>DOB</th>';
+    echo '<thead><tr><th>Clear</th><th>Date Added</th><th>Name</th><th>GHIN</th><th>Email Address</th><th>Street Address</th><th>City</th><th>State</th><th>Zip</th><th>DOB</th><th>Phone</th>';
     echo '<th>Sp1 Last</th><th>Sp1 GHIN</th><th>Sp1 Phone</th><th>Sp2 Last</th><th>Sp2 GHIN</th><th>Sp2 Phone</th><th>Payment</th><th>Payment Date</th><th>Payer Name</th></tr></thead>' . PHP_EOL;
     echo '<tbody>' . PHP_EOL;
 
@@ -109,19 +109,15 @@ function cmgc_admin_membership_application_page2()
         echo '<tr>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;"><input type="checkbox" name="RecordKey[]" value="' . $membershipApplicationEntries[$i]->RecordKey . '"></td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->DateTimeAdded . '</td>' . PHP_EOL;
-        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->LastName . '</td>' . PHP_EOL;
-        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->FirstName . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->LastName . ', ' .  $membershipApplicationEntries[$i]->FirstName .'</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->GHIN . '</td>' . PHP_EOL;
-
-        //echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->MailingAddress . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->Email . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->StreetAddress . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->City . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->State . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->ZipCode . '</td>' . PHP_EOL;
-
-        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->Email . '</td>' . PHP_EOL;
-        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->PhoneNumber . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->BirthDate . '</td>' . PHP_EOL;
+        echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->PhoneNumber . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->Sponsor1LastName . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->Sponsor1Ghin . '</td>' . PHP_EOL;
         echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->Sponsor1PhoneNumber . '</td>' . PHP_EOL;
