@@ -45,6 +45,7 @@ $birthDate = "";
 $email = "";
 $email2 = "";
 $phoneNumber = "";
+// mailing address was replaced with street/city/state/zip
 $mailingAddress = "";
 $sponsor1LastName = "";
 $sponsor1Ghin = "";
@@ -64,6 +65,7 @@ $zipCode = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$lastName = test_input($_POST["LastName"]);
 	$firstName = test_input($_POST["FirstName"]);
+	// mailing address was replaced with street/city/state/zip
 	//$mailingAddress = test_input($_POST["MailingAddress"]);
 	$email = test_input($_POST["Email"]);
 	$email2 = test_input($_POST["Email2"]);

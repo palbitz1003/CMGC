@@ -5,12 +5,24 @@
  * Version: 1.0.0
  */
 
+ // Documentation: 
+ //    https://developer.wordpress.org/plugins/
 
+ // When this plugin is activated, call cmgc_admin_plugin_create_options.
+ // This plugin uses the activation to create variables used for communication in the WP options table
  register_activation_hook(__FILE__, 'cmgc_admin_plugin_create_options');
+
+ // See https://blog.idrsolutions.com/wordpress-plugin-part-1/
+ //     https://developer.wordpress.org/plugins/administration-menus/top-level-menus/
  add_action( 'admin_menu', 'cmgc_admin_create_menu');
 
  // Create the menu on the WP admin page.
- // parameter 3: replaced manage_options with edit_pages so users with editor permissions can see them
+ // The first option ‘CMGC Admin’ is the title of our options page
+ // The second parameter ‘CMGC Admin’ is the label for our admin panel
+ // The third parameter determines which users can see the option by limiting access to certain users with certain capabilities
+ // parameter 3: replaced "manage_options" with "edit_pages" so users with editor permissions can see them
+ // ‘cmgc-admin-menu’ is the slug which is used to identify the menu
+ // The final parameter ‘cmgc_admin_show_menu’ is the name of the function we want to call when the option is selected
  function cmgc_admin_create_menu() {
     add_menu_page('CMGC Admin', "CMGC Admin", 
         'edit_pages', 'cmgc-admin-menu', 'cmgc_admin_show_menu',
@@ -20,22 +32,28 @@
         'Membership Waitlist', // title of page
         'Membership Waitlist', // name of sub-menu
         'edit_pages', // minimum capability (editor)
-        'cmgc-admin-membership-waitlist', // slub name for submenu
+        'cmgc-admin-membership-waitlist', // slug name for submenu
         'cmgc_admin_membership_waitlist_page'); // function to call
 
-    add_submenu_page('cmgc-admin-menu', 'Membership Applications', 'Membership Applications',
-        'edit_pages', 'cmgc-admin-membership-applications', 'cmgc_admin_membership_application_page');
+    add_submenu_page('cmgc-admin-menu', // slug name for parent menu
+        'Membership Applications', // title of page
+        'Membership Applications', // name of sub-menu
+        'edit_pages', // minimum capability (editor)
+        'cmgc-admin-membership-applications', // slug name for submenu
+        'cmgc_admin_membership_application_page'); // function to call
 
  }
 
+ // Options are database entries in the WP database
+ // waiting_list_upload_results is a return value passed between web pages, because I couldn't find a direct way to return a value
  function cmgc_admin_plugin_create_options()
  {
     // Only load these options if explicitly needed
     // Use WP options table to pass back result of upload to waitlist page
-    add_option('cmgc_admin_plugin_options', array(
-        'waiting_list_upload_results' => ''
-        ), 
-    '', "no");
+    add_option('cmgc_admin_plugin_options', // Name of the option to add
+        array('waiting_list_upload_results' => ''), // Option value
+        '', // deprecated
+        "no"); // Whether to load the option when WordPress starts up
  }
 
  function cmgc_admin_show_menu() {
