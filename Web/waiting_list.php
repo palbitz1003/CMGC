@@ -130,7 +130,7 @@ for($i = 0; $i < count ( $waitingListEntriesByPosition ); ++ $i) {
 			echo "Paid";
 		}
 		else {
-			echo '<a href="pay_membership.php?waiting_list_id=' . $waitingListEntriesByPosition[$i]->RecordKey . '">Pay Membership</a>';
+			echo '<a href="membership_invitation_application.php?waiting_list_id=' . $waitingListEntriesByPosition[$i]->RecordKey . '">Pay Membership</a>';
 		}
 	}
 	echo '</td>';

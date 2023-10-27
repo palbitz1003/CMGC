@@ -40,8 +40,8 @@ if($waitingListEntry->Payment > 0){
 $error = "";
 $ghin = "";
 $name = explode(",", $waitingListEntry->Name);
-$lastName = trim($name[0]);;
-$firstName = trim($name[1]);;
+$lastName = trim($name[0]);
+$firstName = trim($name[1]);
 $birthMonth = "";
 $birthDay = "";
 $birthYear = "";
@@ -127,8 +127,7 @@ if (!empty($error) || !isset ( $_POST ['Email'] )) {
 	echo '<td style="border: none;"><input type="text" size="25"';
 	echo '    name="FirstName" value="' . $firstName . '" readonly></td>' . PHP_EOL;
     */
-    echo '<td style="border: none;">Last Name</td><td style="border: none;">' . $lastName . '</td>' . PHP_EOL;
-    echo '<td style="border: none;">First Name</td><td style="border: none;">' . $firstName . '</td>' . PHP_EOL;
+    echo '<td style="border: none;">Name</td><td style="border: none;">' . $lastName . ', ' . $firstName . '</td><td style="border: none;"></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
 
     echo '<tr>' . PHP_EOL;
