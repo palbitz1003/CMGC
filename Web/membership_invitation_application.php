@@ -104,7 +104,7 @@ if (!empty($error) || !isset ( $_POST ['Email'] )) {
 ?>
 	<div id="content-container" class="entry-content">
 	<div id="content" role="main">
-	<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
+	<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Form</h2>
 <p>
 
 <?php
@@ -127,7 +127,7 @@ if (!empty($error) || !isset ( $_POST ['Email'] )) {
 	echo '<td style="border: none;"><input type="text" size="25"';
 	echo '    name="FirstName" value="' . $firstName . '" readonly></td>' . PHP_EOL;
     */
-    echo '<td style="border: none;">Name</td><td style="border: none;">' . $lastName . ', ' . $firstName . '</td><td style="border: none;"></td>' . PHP_EOL;
+    echo '<td style="border: none;">Name</td><td colspan="3" style="border: none;">' . $lastName . ', ' . $firstName . '</td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
 
     echo '<tr>' . PHP_EOL;
