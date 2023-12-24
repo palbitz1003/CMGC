@@ -42,6 +42,13 @@
         'cmgc-admin-membership-applications', // slug name for submenu
         'cmgc_admin_membership_application_page'); // function to call
 
+    add_submenu_page('cmgc-admin-menu', // slug name for parent menu
+        'Tee Times', // title of page
+        'Tee Times', // name of sub-menu
+        'edit_pages', // minimum capability (editor)
+        'cmgc-admin-tee_times', // slug name for submenu
+        'cmgc_admin_tee_times_page'); // function to call
+
  }
 
  // Options are database entries in the WP database
@@ -52,6 +59,11 @@
     // Use WP options table to pass back result of upload to waitlist page
     add_option('cmgc_admin_plugin_options', // Name of the option to add
         array('waiting_list_upload_results' => ''), // Option value
+        '', // deprecated
+        "no"); // Whether to load the option when WordPress starts up
+
+    add_option('cmgc_admin_plugin_options', // Name of the option to add
+        array('save_tee_times_as_csv_results' => ''), // Option value
         '', // deprecated
         "no"); // Whether to load the option when WordPress starts up
  }
@@ -121,6 +133,22 @@ function cmgc_admin_upload_waitlist_action()
         }
     }
   }
+
+// When the user clicks on the Membership Waitlist page, this function is called
+ function cmgc_admin_tee_times_page()
+ {
+    require_once plugin_dir_path(__FILE__) . 'src/tee_times.php';
+    cmgc_admin_tee_times_page2();
+
+ }
+
+ // When the user clicks on the "submit" waiting list button, this function is called
+ add_action( 'admin_action_cmgc_save_tee_times_as_csv', 'cmgc_save_tee_times_as_csv_action' );
+function cmgc_save_tee_times_as_csv_action()
+{
+    require_once plugin_dir_path(__FILE__) . 'src/tee_times.php';
+    cmgc_save_tee_times_as_csv_action2();
+}
 
  
 
