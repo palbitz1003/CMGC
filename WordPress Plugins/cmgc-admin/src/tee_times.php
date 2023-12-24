@@ -45,6 +45,28 @@ class cmgc_admin_Player {
     public $Tee;
 }
 
+class cmgc_admin_SignUpWaitingListClass {
+	public $TournamentKey;
+	public $Position;
+	public $GHIN1;
+	public $Name1;
+	public $GHIN2;
+	public $Name2;
+	public $GHIN3;
+	public $Name3;
+	public $GHIN4;
+	public $Name4;
+}
+
+class cmgc_admin_PlayerSignUpClass {
+	public $SignUpKey;
+	public $TournamentKey;
+	public $Position;
+	public $GHIN;
+	public $LastName;
+	public $Extra;
+}
+
 // Show the waitlist page
 function cmgc_admin_tee_times_page2()
 {
@@ -158,20 +180,39 @@ function cmgc_admin_tee_times_page2()
 
     $t = cmgc_admin_get_tournament($connection, $tournamentKey);
 
+    $activeRoster = cmgc_admin_get_all_active_roster_entries($connection);
+
     $teeTimeComposite = new cmgc_admin_TeeTimeComposite();
 
-    cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeComposite);
+    cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
+    cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
 
     header('Content-Type: application/csv');
     header('Content-Disposition: attachment; filename=Tee Times - ' . $t->Name . '.csv');
     header('Pragma: no-cache');
 
     echo 'Start Time,Tee Status,Team Id,Last Name,First Name,GHIN,Flight,Email,Extra,Tee' . PHP_EOL;
-    $teeTimes = $teeTimeComposite->TeeTimes;
-    $teamId = 1;
+    $teamId = 0;
+    cmgc_admin_write_tee_times_to_csv($teeTimeComposite->TeeTimes, $teamId, 'TeeTime', $t->TeamSize);
+    cmgc_admin_write_tee_times_to_csv($teeTimeComposite->WaitlistPlayers, $teamId, 'Waitlisted', $t->TeamSize);
+ }
+
+ function cmgc_admin_write_tee_times_to_csv($teeTimes, &$teamId, $teeStatus, $teamSize){
     for($i = 0; $i < count($teeTimes); ++$i){
         for($j = 0; $j < count($teeTimes[$i]->Players); ++$j){
-            echo $teeTimes[$i]->StartTime . ',TeeTime,';
+
+            if(($teamSize == 4) && ($j == 0)){
+                // Increment team on 1st player of foursome
+                $teamId++;
+            } else if(($teamSize == 2) && (($j == 0) || ($j == 2))){
+                // Increment team on 1st player of pair
+                $teamId++;
+            } else if($teamSize == 1){
+                $teamId++;
+            }
+
+            echo $teeTimes[$i]->StartTime . ',';
+            echo $teeStatus . ',';
             echo $teamId . ',';
 
             $name = explode(',', $teeTimes[$i]->Players[$j]->Name);
@@ -215,15 +256,6 @@ function cmgc_admin_tee_times_page2()
             }
             echo ',';
             echo $teeTimes[$i]->Players[$j]->Tee . PHP_EOL;
-
-            if($t->TeamSize == 1){
-                $teamId++;
-            } else if(($t->TeamSize == 2) && (($j == 1) || ($j == 3))){
-                $teamId++;
-            }
-        }
-        if($t->TeamSize == 4){
-            $teamId++;
         }
     }
  }
@@ -264,11 +296,9 @@ function cmgc_admin_tee_times_page2()
 	return $currentTournaments;
 }
 
-function cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeComposite){
+function cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
 
     $teeTimes = cmgc_admin_get_tee_times($connection, $tournamentKey);
-
-    $activeRoster = cmgc_admin_get_all_active_roster_entries($connection);
 
     $teeTimeComposite->TeeTimes = array();
     for($i = 0; $i < count($teeTimes); ++$i){
@@ -386,5 +416,187 @@ function cmgc_admin_get_players_for_tee_time($connection, $teeTimeKey) {
 	return $playerArray;
 }
 
+function cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
+
+    $entries = cmgc_admin_get_signup_waitinglist($connection, $tournamentKey);
+
+    $teeTimeComposite->WaitlistPlayers = array();
+    for($i = 0; $i < count($entries); ++$i){
+        
+        if(intval($entries[$i]->GHIN1) === 0) {
+            $playerSignUp = cmgc_admin_get_player_signup_by_name($connection, $tournamentKey, $entries[$i]->Name1);
+        }
+        else {
+            $playerSignUp = cmgc_admin_get_player_signup($connection, $tournamentKey, $entries[$i]->GHIN1);
+        }
+
+        $player = new cmgc_admin_Player();
+        if($playerSignUp){
+            
+            $player->Name = $playerSignUp->LastName;  // is actually full name
+            $player->Position = $entries[$i]->Position; // waitlist position
+            $player->GHIN = $playerSignUp->GHIN;
+            $player->Extra = $playerSignUp->Extra;
+            $player->SignupKey = $playerSignUp->SignUpKey;
+        }
+        else {
+            // Take what info we have. If this player makes it into the
+            // tournament, the tee time submission will create a signup.
+            $player->Name = $entries[$i]->Name1;
+            $player->Position = $entries[$i]->Position; // waitlist position
+            $player->GHIN = $entries[$i]->GHIN1;
+            $player->Extra = "";
+            $player->SignupKey = 0;
+        }
+
+        $player->Email = "";
+        $player->Tee = "W";
+        if(array_key_exists($entries[$i]->GHIN1, $activeRoster)){
+            $player->Email = $activeRoster[$entries[$i]->GHIN1]-> Email;
+            $player->Tee = $activeRoster[$entries[$i]->GHIN1]->Tee;
+        }
+
+        $teeTime = new cmgc_admin_TeeTime();
+        $teeTime->StartTime = '01:' . sprintf("%02d", $i) . ' PM';
+        if($i >= 60){
+            $teeTime->StartTime = '02:' . sprintf("%02d", $i - 60) . ' PM';
+        }
+        $teeTime->Players = array();
+        $teeTime->Players[] = $player;
+
+        $teeTimeComposite->WaitlistPlayers[] = $teeTime;
+    }
+}
+
+function cmgc_admin_get_signup_waitinglist($connection, $tournamentKey){
+	$sqlCmd = "SELECT * FROM `SignUpsWaitingList` WHERE TournamentKey = ? ORDER BY `Position` ASC";
+	$entries = $connection->prepare ( $sqlCmd );
+	
+	if (! $entries) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $entries->bind_param ( 'i', $tournamentKey )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $entries->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$entries->bind_result ( $key, $position, $ghin1, $name1, $ghin2, $name2, $ghin3, $name3, $ghin4, $name4 );
+	
+	$waitingList = array();
+	while ( $entries->fetch () ) {
+		$entry = new cmgc_admin_SignUpWaitingListClass();
+		$entry->TournamentKey = $tournamentKey;
+		$entry->Position = $position;
+		$entry->GHIN1 = $ghin1;
+		$entry->Name1 = $name1;
+		$entry->GHIN2 = $ghin2;
+		$entry->Name2 = $name2;
+		$entry->GHIN3 = $ghin3;
+		$entry->Name3 = $name3;
+		$entry->GHIN4 = $ghin4;
+		$entry->Name4 = $name4;
+		$waitingList[] = $entry;
+	}
+	
+	$entries->close ();
+	
+	return $waitingList;
+}
+
+/*
+ * Get the record for a signed up player by GHIN.  There must only be 1 record.
+ */
+function cmgc_admin_get_player_signup($connection, $tournamentKey, $playerGHIN) {
+	
+	$sqlCmd = "SELECT * FROM `SignUpsPlayers` WHERE `TournamentKey` = ? AND `PlayerGHIN` = ?";
+	$player = $connection->prepare ( $sqlCmd );
+	
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $player->bind_param ( 'ii', $tournamentKey, $playerGHIN )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$player->bind_result ( $key, $tournament, $position, $GHIN, $LastName, $extra );
+	
+	$playerSignUp = null;
+
+	$count = 1;
+	 while($player->fetch()) {
+	 	if($count > 1){
+	 		die('Player ' . $playerGHIN . ' is signed up more than once');
+	 	}
+	 	//echo 'found player<br>';
+	 	$playerSignUp = new cmgc_admin_PlayerSignUpClass();
+	 	$playerSignUp->SignUpKey = $key;
+	 	$playerSignUp->TournamentKey = $tournamentKey;
+	 	$playerSignUp->GHIN = $GHIN;
+	 	$playerSignUp->LastName = $LastName;
+	 	$playerSignUp->Extra = $extra;
+		$playerSignUp->Position = $position;
+	 	$count++;
+	 }
+	 //if(!isset($playerSignUp)) { echo 'did not find player<br>'; }
+	
+	$player->close ();
+	
+	return $playerSignUp;
+}
+
+/*
+ * Get the record for a signed up player by name.  There must only be 1 record.
+ */
+function cmgc_admin_get_player_signup_by_name($connection, $tournamentKey, $playerName) {
+	
+	$sqlCmd = "SELECT * FROM `SignUpsPlayers` WHERE `TournamentKey` = ? AND `LastName` = ?";
+	$player = $connection->prepare ( $sqlCmd );
+	
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $player->bind_param ( 'is', $tournamentKey, $playerName )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$player->bind_result ( $key, $tournament, $position, $GHIN, $LastName, $extra );
+	
+	$playerSignUp = null;
+
+	$count = 1;
+	 while($player->fetch()) {
+	 	if($count > 1){
+	 		die('Player ' . $playerName . ' is signed up more than once');
+	 	}
+	 	//echo 'found player<br>';
+	 	$playerSignUp = new cmgc_admin_PlayerSignUpClass();
+	 	$playerSignUp->SignUpKey = $key;
+	 	$playerSignUp->TournamentKey = $tournamentKey;
+	 	$playerSignUp->GHIN = $GHIN;
+	 	$playerSignUp->LastName = $LastName;
+	 	$playerSignUp->Extra = $extra;
+		$playerSignUp->Position = $position;
+	 	$count++;
+	 }
+	 //if(!isset($playerSignUp)) { echo 'did not find player<br>'; }
+	
+	$player->close ();
+	
+	return $playerSignUp;
+}
 
 ?>
