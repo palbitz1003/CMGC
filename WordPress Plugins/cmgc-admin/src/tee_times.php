@@ -186,6 +186,7 @@ function cmgc_admin_tee_times_page2()
 
     cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
     cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
+    cmgc_admin_fill_in_cancelled_layers($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
 
     header('Content-Type: application/csv');
     header('Content-Disposition: attachment; filename=Tee Times - ' . $t->Name . '.csv');
@@ -195,6 +196,7 @@ function cmgc_admin_tee_times_page2()
     $teamId = 0;
     cmgc_admin_write_tee_times_to_csv($teeTimeComposite->TeeTimes, $teamId, 'TeeTime', $t->TeamSize);
     cmgc_admin_write_tee_times_to_csv($teeTimeComposite->WaitlistPlayers, $teamId, 'Waitlisted', $t->TeamSize);
+    cmgc_admin_write_tee_times_to_csv($teeTimeComposite->CancelledPlayers, $teamId, 'Cancelled', $t->TeamSize);
  }
 
  function cmgc_admin_write_tee_times_to_csv($teeTimes, &$teamId, $teeStatus, $teamSize){
@@ -597,6 +599,73 @@ function cmgc_admin_get_player_signup_by_name($connection, $tournamentKey, $play
 	$player->close ();
 	
 	return $playerSignUp;
+}
+
+function cmgc_admin_fill_in_cancelled_layers($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
+
+    $cancelledList = cmgc_admin_get_tee_times_cancelled_list($connection, $tournamentKey);
+
+    $teeTimeComposite->CancelledPlayers = array();
+    for($i = 0; $i < count($cancelledList); ++$i){
+        $player = new cmgc_admin_Player();
+        $player->Name = $cancelledList[$i]->Name;
+        $player->GHIN = $cancelledList[$i]->GHIN;
+        $player->Position = $cancelledList[$i]->Position;
+        $player->Extra = "";
+        $player->SignupKey = 0; // may no longer be signed up
+
+        $player->Tee = "W";
+        $player->Email = "";
+        if($player->GHIN !== 0){
+            if(array_key_exists($player->GHIN, $activeRoster)){
+                $player->Email = $activeRoster[$player->GHIN]-> Email;
+                $player->Tee = $activeRoster[$player->GHIN]->Tee;
+            }
+        }
+
+        $teeTime = new cmgc_admin_TeeTime();
+        $teeTime->StartTime = '03:' . sprintf("%02d", $i) . ' PM';
+        if($i >= 60){
+            $teeTime->StartTime = '04:' . sprintf("%02d", $i - 60) . ' PM';
+        }
+        $teeTime->Players = array();
+        $teeTime->Players[] = $player;
+
+        $teeTimeComposite->CancelledPlayers[] = $teeTime;
+    }
+}
+
+function cmgc_admin_get_tee_times_cancelled_list($connection, $tournamentKey){
+	$sqlCmd = "SELECT * FROM `TeeTimesCancelled` WHERE TournamentKey = ? ORDER BY `Position` ASC";
+	$entries = $connection->prepare ( $sqlCmd );
+	
+	if (! $entries) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $entries->bind_param ( 'i', $tournamentKey )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $entries->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$entries->bind_result ( $key, $position, $ghin, $name );
+	
+	$teeTimesCancelledList = array();
+	while ( $entries->fetch () ) {
+		$entry = new cmgc_admin_TeeTimeCancelledPlayer();
+		$entry->TournamentKey = $tournamentKey;
+		$entry->Position = $position;
+		$entry->GHIN = $ghin;
+		$entry->Name = $name;
+		$teeTimesCancelledList[] = $entry;
+	}
+	
+	$entries->close ();
+	
+	return $teeTimesCancelledList;
 }
 
 ?>
