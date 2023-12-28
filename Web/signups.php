@@ -34,7 +34,7 @@ if(!empty($tournament) && ($tournament->StartDate != $tournament->EndDate)){
 	// Need the previous 2 day tournament key to get the waitlist
 	$previousTournamentKey = GetPrevious2DayTournamentKey($connection, $tournamentKey);
 
-	$waitingList = GetSignUpWaitingList($connection, $previousTournamentKey);
+	$waitingList = GetTeeTimeWaitingList($connection, $previousTournamentKey);
 	
 	if(count($waitingList) != 0){
 		// Sigh. I couldn't get a paragraph to center properly without putting it in a table

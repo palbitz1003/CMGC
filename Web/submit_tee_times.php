@@ -63,6 +63,9 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	$errorMessages = "";
 	for($i = 0; $i < count ( $_POST ['TeeTime'] ); ++ $i) {
 		$teeTime = new DatabaseTeeTime ();
+		$teeTime->Players = array();
+		$teeTime->GHIN = array();
+		$teeTime->Extra = array();
 		$teeTime->StartTime = $_POST ['TeeTime'] [$i] ['StartTime'];
 		$teeTime->StartHole = $_POST ['TeeTime'] [$i] ['StartHole'];
 		
@@ -251,21 +254,15 @@ if (! isset ( $_POST ['TeeTime'] )) {
 	//var_dump($signups);
 
 	// Handle the waitlist
-	ClearTableWithTournamentKey ( $connection, 'SignUpsWaitingList', $tournamentKey);
+	ClearTableWithTournamentKey ( $connection, 'TeeTimesWaitingList', $tournamentKey);
 	if(!empty($_POST ['SignUpsWaitingList'])){
 		for($i = 0; $i < count ( $_POST ['SignUpsWaitingList'] ); ++ $i) {
-			$signUpWaitingList = new SignUpWaitingListClass();
+			$signUpWaitingList = new TeeTimeWaitingListClass();
 			$signUpWaitingList->TournamentKey = $tournamentKey;
 			$signUpWaitingList->Position = $_POST ['SignUpsWaitingList'] [$i] ['Position'];
-			$signUpWaitingList->GHIN1 = $_POST ['SignUpsWaitingList'] [$i] ['GHIN1'];
-			$signUpWaitingList->Name1 = $_POST ['SignUpsWaitingList'] [$i] ['Name1'];
-
-			$signUpWaitingList->GHIN2 = "";
-			$signUpWaitingList->Name2 = "";
-			$signUpWaitingList->GHIN3 = "";
-			$signUpWaitingList->Name3 = "";
-			$signUpWaitingList->GHIN4 = "";
-			$signUpWaitingList->Name4 = "";
+			$signUpWaitingList->GHIN = $_POST ['SignUpsWaitingList'] [$i] ['GHIN1'];
+			$signUpWaitingList->Name = $_POST ['SignUpsWaitingList'] [$i] ['Name1'];
+			$signUpWaitingList->Extra = "";  // not implemented yet
 
 			InsertSignUpWaitingListEntry($connection, $signUpWaitingList);
 

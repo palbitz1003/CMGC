@@ -98,16 +98,16 @@ function FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite){
 
 function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite){
 
-    $entries = GetSignUpWaitingList($connection, $tournamentKey);
+    $entries = GetTeeTimeWaitingList($connection, $tournamentKey);
 
     $teeTimeComposite->WaitlistPlayers = array();
     for($i = 0; $i < count($entries); ++$i){
         
-        if(intval($entries[$i]->GHIN1) === 0) {
-            $playerSignUp = GetPlayerSignUpByName($connection, $tournamentKey, $entries[$i]->Name1);
+        if(intval($entries[$i]->GHIN) === 0) {
+            $playerSignUp = GetPlayerSignUpByName($connection, $tournamentKey, $entries[$i]->Name);
         }
         else {
-            $playerSignUp = GetPlayerSignUp($connection, $tournamentKey, $entries[$i]->GHIN1);
+            $playerSignUp = GetPlayerSignUp($connection, $tournamentKey, $entries[$i]->GHIN);
         }
 
         $player = new Player();
@@ -122,16 +122,16 @@ function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite){
         else {
             // Take what info we have. If this player makes it into the
             // tournament, the tee time submission will create a signup.
-            $player->Name = $entries[$i]->Name1;
+            $player->Name = $entries[$i]->Name;
             $player->Position = $entries[$i]->Position; // waitlist position
-            $player->GHIN = $entries[$i]->GHIN1;
+            $player->GHIN = $entries[$i]->GHIN;
             $player->Extra = "";
             $player->SignupKey = 0;
         }
 
         $player->Email = "";
         $player->Tee = "W";
-        $rosterEntry = GetRosterEntry ( $connection, $entries[$i]->GHIN1 );
+        $rosterEntry = GetRosterEntry ( $connection, $entries[$i]->GHIN );
         if($rosterEntry){
             $player->Email = $rosterEntry-> Email;
             $player->Tee = $rosterEntry->Tee;

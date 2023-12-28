@@ -3,6 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tournament_functions.php';
+require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/tee times functions.php';
 require '/home/' . $accountUser . '/PHPMailer/src/Exception.php';
 require '/home/' . $accountUser . '/PHPMailer/src/PHPMailer.php';
 require '/home/' . $accountUser . '/PHPMailer/src/SMTP.php';
@@ -28,19 +29,6 @@ class PlayerSignUpClass {
 	public $GHIN;
 	public $LastName;
 	public $Extra;
-}
-
-class SignUpWaitingListClass {
-	public $TournamentKey;
-	public $Position;
-	public $GHIN1;
-	public $Name1;
-	public $GHIN2;
-	public $Name2;
-	public $GHIN3;
-	public $Name3;
-	public $GHIN4;
-	public $Name4;
 }
 
 class RosterEntry {
@@ -347,20 +335,16 @@ function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $log
 
 	if($previousTournamentKey != -1){
 
-		$waitingList = GetSignUpWaitingList($connection, $previousTournamentKey);
+		$waitingList = GetTeeTimeWaitingList($connection, $previousTournamentKey);
 
 		for($i = 0; $i < count ( $waitingList ); ++ $i) {
 			for($j = 0; $j < count ($GHIN); ++$j){
 				if (isset ( $GHIN [$j] ) && (strlen($GHIN [$j]) > 0) ) {
 					$GHINint = intval($GHIN[$j]);
 					if($GHINint != 0){
-						if((($waitingList[$i]->GHIN1 != 0) && ($waitingList[$i]->GHIN1 === $GHINint)) ||
-							(($waitingList[$i]->GHIN2 != 0) && ($waitingList[$i]->GHIN2 === $GHINint)) ||
-							(($waitingList[$i]->GHIN3 != 0) && ($waitingList[$i]->GHIN3 === $GHINint)) ||
-							(($waitingList[$i]->GHIN4 != 0) && ($waitingList[$i]->GHIN4 === $GHINint))){
+						if(($waitingList[$i]->GHIN != 0) && ($waitingList[$i]->GHIN === $GHINint)){
 								if(!empty($logFile)){
-									// While the waiting list supports 4 players in each entry, in reality, only the 1st is used
-									error_log(date ( '[Y-m-d H:i e] ' ) . "Waiting list member signed up: ". $waitingList[$i]->Name1 . PHP_EOL, 3, $logFile);
+									error_log(date ( '[Y-m-d H:i e] ' ) . "Waiting list member signed up: ". $waitingList[$i]->Name . PHP_EOL, 3, $logFile);
 								}
 								return true;
 						}
@@ -655,61 +639,6 @@ function ShowSignupsTable($connection, $tournamentKey, $signUpArray, $t)
 	}
 	
 	echo '</tbody></table>' . PHP_EOL;
-}
-function InsertSignUpWaitingListEntry($connection, $signUpWaitingList){
-	$sqlCmd = "INSERT INTO `SignUpsWaitingList` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	$insert = $connection->prepare ( $sqlCmd );
-	
-	if (! $insert) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
-	
-	if (! $insert->bind_param ( 'iiisisisis', $signUpWaitingList->TournamentKey, $signUpWaitingList->Position, $signUpWaitingList->GHIN1, $signUpWaitingList->Name1, $signUpWaitingList->GHIN2, $signUpWaitingList->Name2, $signUpWaitingList->GHIN3, $signUpWaitingList->Name3, $signUpWaitingList->GHIN4, $signUpWaitingList->Name4 )) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
-	}
-	
-	if (! $insert->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
-	}
-}
-
-function GetSignUpWaitingList($connection, $tournamentKey){
-	$sqlCmd = "SELECT * FROM `SignUpsWaitingList` WHERE TournamentKey = ? ORDER BY `Position` ASC";
-	$entries = $connection->prepare ( $sqlCmd );
-	
-	if (! $entries) {
-		die ( $sqlCmd . " prepare failed: " . $connection->error );
-	}
-	
-	if (! $entries->bind_param ( 'i', $tournamentKey )) {
-		die ( $sqlCmd . " bind_param failed: " . $connection->error );
-	}
-	
-	if (! $entries->execute ()) {
-		die ( $sqlCmd . " execute failed: " . $connection->error );
-	}
-	
-	$entries->bind_result ( $key, $position, $ghin1, $name1, $ghin2, $name2, $ghin3, $name3, $ghin4, $name4 );
-	
-	$waitingList = array();
-	while ( $entries->fetch () ) {
-		$entry = new SignUpWaitingListClass();
-		$entry->TournamentKey = $tournamentKey;
-		$entry->Position = $position;
-		$entry->GHIN1 = $ghin1;
-		$entry->Name1 = $name1;
-		$entry->GHIN2 = $ghin2;
-		$entry->Name2 = $name2;
-		$entry->GHIN3 = $ghin3;
-		$entry->Name3 = $name3;
-		$entry->GHIN4 = $ghin4;
-		$entry->Name4 = $name4;
-		$waitingList[] = $entry;
-	}
-	
-	$entries->close ();
-	
-	return $waitingList;
 }
 
 function GetPayPalDetails($connection, $tournamentFee){

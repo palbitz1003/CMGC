@@ -4,6 +4,9 @@ class DatabaseTeeTime {
 	public $StartTime;
 	public $StartHole;
 	public $Players;
+	public $GHIN;
+	public $Extra;
+	public $SignupKey;
 }
 class DatabaseTeeTimePlayer {
 	public $GHIN;
@@ -12,6 +15,14 @@ class DatabaseTeeTimePlayer {
 	public $Handicap;
 	public $Extra;
 	public $SignupKey;
+}
+
+class TeeTimeWaitingListClass {
+	public $TournamentKey;
+	public $Position;
+	public $GHIN;
+	public $Name;
+	public $Extra;
 }
 
 class TeeTimeCancelledPlayer {
@@ -173,6 +184,57 @@ function GetPlayerHandicap($connection, $GHIN) {
 	return 0;
 }
 
+function InsertSignUpWaitingListEntry($connection, $signUpWaitingList){
+	$sqlCmd = "INSERT INTO `TeeTimesWaitingList` VALUES (?, ?, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+	
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $insert->bind_param ( 'iiiss', $signUpWaitingList->TournamentKey, $signUpWaitingList->Position, $signUpWaitingList->GHIN, $signUpWaitingList->Name, $signUpWaitingList->Extra )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+}
+
+function GetTeeTimeWaitingList($connection, $tournamentKey){
+	$sqlCmd = "SELECT * FROM `TeeTimesWaitingList` WHERE TournamentKey = ? ORDER BY `Position` ASC";
+	$entries = $connection->prepare ( $sqlCmd );
+	
+	if (! $entries) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $entries->bind_param ( 'i', $tournamentKey )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $entries->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+	
+	$entries->bind_result ( $key, $position, $ghin, $name, $extra);
+	
+	$waitingList = array();
+	while ( $entries->fetch () ) {
+		$entry = new TeetimeWaitingListClass();
+		$entry->TournamentKey = $tournamentKey;
+		$entry->Position = $position;
+		$entry->GHIN = $ghin;
+		$entry->Name = $name;
+		$entry->Extra = $extra;
+		$waitingList[] = $entry;
+	}
+	
+	$entries->close ();
+	
+	return $waitingList;
+}
+
 function InsertTeeTimeCancelledPlayer($connection, $teeTimeCancelledPlayer){
 	$sqlCmd = "INSERT INTO `TeeTimesCancelled` VALUES (?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
@@ -238,11 +300,11 @@ function ShowWaitingListTable($waitingList){
 		$cols = 0;
 		for(; ($cols < 4) && ($i < count($waitingList)); ++$cols, ++$i){
 			if($cols == 0){
-				echo '<td style="width:25%;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+				echo '<td style="width:25%;">' . $waitingList[$i]->Name . '</td>' . PHP_EOL;
 			}
 			else {
 				// would be better for a style to provide the border ...
-				echo '<td style="border-left: 1px solid #ccc;width:25%;">' . $waitingList[$i]->Name1 . '</td>' . PHP_EOL;
+				echo '<td style="border-left: 1px solid #ccc;width:25%;">' . $waitingList[$i]->Name . '</td>' . PHP_EOL;
 			}
 		}
 		// Finish the column data to add in all the border lines

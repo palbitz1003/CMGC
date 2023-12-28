@@ -212,7 +212,7 @@ function ShowPlayersAlphabetically($connection, $tournamentKey, $teeTimeArray) {
 }
 function ShowWaitingList($connection, $tournamentKey, $tournament){
 	
-	$waitingList = GetSignUpWaitingList($connection, $tournamentKey);
+	$waitingList = GetTeeTimeWaitingList($connection, $tournamentKey);
 	
 	if(count($waitingList) != 0){
 		// Sigh. I couldn't get a paragraph to center properly without putting it in a table
