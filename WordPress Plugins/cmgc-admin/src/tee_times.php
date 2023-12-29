@@ -45,17 +45,12 @@ class cmgc_admin_Player {
     public $Tee;
 }
 
-class cmgc_admin_SignUpWaitingListClass {
+class cmgc_admin_TeeTimeWaitingListClass {
 	public $TournamentKey;
 	public $Position;
-	public $GHIN1;
-	public $Name1;
-	public $GHIN2;
-	public $Name2;
-	public $GHIN3;
-	public $Name3;
-	public $GHIN4;
-	public $Name4;
+	public $GHIN;
+	public $Name;
+    public $Extra;
 }
 
 class cmgc_admin_PlayerSignUpClass {
@@ -133,6 +128,9 @@ function cmgc_admin_tee_times_page2()
                 </tr>
             </table>
         </form>
+        <p>
+            (There is no feedback when the save succeeds. Just look in your download folder for a file.)
+        </p>
     </div>
     <?php
 }
@@ -227,7 +225,18 @@ function cmgc_admin_tee_times_page2()
                 $lastName = $name[0];
             }
 
-            // TODO: handle name with "jr"
+            // Check for Jr or Jr. in the last name and move to first name
+            $fields = explode(' ', $lastName);
+            if (count($fields) > 1)
+            {
+                if (strcasecmp($fields[count($fields) - 1], "jr") === 0)
+                {
+                    // Move the Jr. to the first name
+                    $firstName = $firstName . " " + $fields[count($fields) - 1];
+                    // Remove the Jr. from the last name
+                    $lastName = trim(str_replace($fields[$fields.Length - 1], "", $lastName));
+                }
+            }
 
             echo $lastName . ',' . $firstName . ',';
             echo $teeTimes[$i]->Players[$j]->GHIN . ',';
@@ -252,6 +261,7 @@ function cmgc_admin_tee_times_page2()
             echo $teeTimes[$i]->Players[$j]->Email . ',';
 
             if(!empty($extra)){
+                // Member/Guest
                 if(($extra === 'M') || ($extra === 'G')){
                     echo $extra;
                 }
@@ -420,16 +430,16 @@ function cmgc_admin_get_players_for_tee_time($connection, $teeTimeKey) {
 
 function cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
 
-    $entries = cmgc_admin_get_signup_waitinglist($connection, $tournamentKey);
+    $entries = cmgc_admin_get_tee_times_waitinglist($connection, $tournamentKey);
 
     $teeTimeComposite->WaitlistPlayers = array();
     for($i = 0; $i < count($entries); ++$i){
         
-        if(intval($entries[$i]->GHIN1) === 0) {
-            $playerSignUp = cmgc_admin_get_player_signup_by_name($connection, $tournamentKey, $entries[$i]->Name1);
+        if(intval($entries[$i]->GHIN) === 0) {
+            $playerSignUp = cmgc_admin_get_player_signup_by_name($connection, $tournamentKey, $entries[$i]->Name);
         }
         else {
-            $playerSignUp = cmgc_admin_get_player_signup($connection, $tournamentKey, $entries[$i]->GHIN1);
+            $playerSignUp = cmgc_admin_get_player_signup($connection, $tournamentKey, $entries[$i]->GHIN);
         }
 
         $player = new cmgc_admin_Player();
@@ -444,18 +454,18 @@ function cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTi
         else {
             // Take what info we have. If this player makes it into the
             // tournament, the tee time submission will create a signup.
-            $player->Name = $entries[$i]->Name1;
+            $player->Name = $entries[$i]->Name;
             $player->Position = $entries[$i]->Position; // waitlist position
-            $player->GHIN = $entries[$i]->GHIN1;
-            $player->Extra = "";
+            $player->GHIN = $entries[$i]->GHIN;
+            $player->Extra = ""; // Not implemented yet
             $player->SignupKey = 0;
         }
 
         $player->Email = "";
         $player->Tee = "W";
-        if(array_key_exists($entries[$i]->GHIN1, $activeRoster)){
-            $player->Email = $activeRoster[$entries[$i]->GHIN1]-> Email;
-            $player->Tee = $activeRoster[$entries[$i]->GHIN1]->Tee;
+        if(array_key_exists($entries[$i]->GHIN, $activeRoster)){
+            $player->Email = $activeRoster[$entries[$i]->GHIN]-> Email;
+            $player->Tee = $activeRoster[$entries[$i]->GHIN]->Tee;
         }
 
         $teeTime = new cmgc_admin_TeeTime();
@@ -470,8 +480,8 @@ function cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTi
     }
 }
 
-function cmgc_admin_get_signup_waitinglist($connection, $tournamentKey){
-	$sqlCmd = "SELECT * FROM `SignUpsWaitingList` WHERE TournamentKey = ? ORDER BY `Position` ASC";
+function cmgc_admin_get_tee_times_waitinglist($connection, $tournamentKey){
+	$sqlCmd = "SELECT * FROM `TeeTimesWaitingList` WHERE TournamentKey = ? ORDER BY `Position` ASC";
 	$entries = $connection->prepare ( $sqlCmd );
 	
 	if (! $entries) {
@@ -486,21 +496,16 @@ function cmgc_admin_get_signup_waitinglist($connection, $tournamentKey){
 		die ( $sqlCmd . " execute failed: " . $connection->error );
 	}
 	
-	$entries->bind_result ( $key, $position, $ghin1, $name1, $ghin2, $name2, $ghin3, $name3, $ghin4, $name4 );
+	$entries->bind_result ( $key, $position, $ghin, $name, $extra );
 	
 	$waitingList = array();
 	while ( $entries->fetch () ) {
-		$entry = new cmgc_admin_SignUpWaitingListClass();
+		$entry = new cmgc_admin_TeeTimeWaitingListClass();
 		$entry->TournamentKey = $tournamentKey;
 		$entry->Position = $position;
-		$entry->GHIN1 = $ghin1;
-		$entry->Name1 = $name1;
-		$entry->GHIN2 = $ghin2;
-		$entry->Name2 = $name2;
-		$entry->GHIN3 = $ghin3;
-		$entry->Name3 = $name3;
-		$entry->GHIN4 = $ghin4;
-		$entry->Name4 = $name4;
+		$entry->GHIN = $ghin;
+		$entry->Name = $name;
+        $entry->Extra = $extra;
 		$waitingList[] = $entry;
 	}
 	
