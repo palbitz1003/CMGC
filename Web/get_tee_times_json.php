@@ -43,13 +43,15 @@ if ($connection->connect_error){
 	die ( $connection->connect_error );
 }
 
+$activeRoster = GetAllActiveRosterEntries($connection);
+
 $teeTimeComposite = new TeeTimeComposite();
 
-FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite);
+FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
 
-FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite);
+FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
 
-FillInCancelledPlayers($connection, $tournamentKey, $teeTimeComposite);
+FillInCancelledPlayers($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
 
 try
 {
@@ -60,7 +62,7 @@ catch(JsonException $e)
     echo "JSON error: (from get_tee_times_json.php json_encode): " . $e->getMessage();
 }
 
-function FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite){
+function FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
 
     $teeTimes = GetTeeTimes($connection, $tournamentKey);
 
@@ -82,8 +84,8 @@ function FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite){
             $player->Tee = "W";
             $player->Email = "";
             if($player->GHIN !== 0){
-                $rosterEntry = GetRosterEntry ( $connection, $player->GHIN );
-                if($rosterEntry){
+                if(array_key_exists($player->GHIN, $activeRoster)){
+                    $rosterEntry = $activeRoster[$player->GHIN];
                     $player->Email = $rosterEntry-> Email;
                     $player->Tee = $rosterEntry->Tee;
                 }
@@ -96,7 +98,7 @@ function FillInTeeTimes($connection, $tournamentKey, $teeTimeComposite){
     }
 }
 
-function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite){
+function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
 
     $entries = GetTeeTimeWaitingList($connection, $tournamentKey);
 
@@ -131,17 +133,16 @@ function FillInWaitListPlayers($connection, $tournamentKey, $teeTimeComposite){
 
         $player->Email = "";
         $player->Tee = "W";
-        $rosterEntry = GetRosterEntry ( $connection, $entries[$i]->GHIN );
-        if($rosterEntry){
-            $player->Email = $rosterEntry-> Email;
-            $player->Tee = $rosterEntry->Tee;
+        if(array_key_exists($entries[$i]->GHIN, $activeRoster)){
+            $player->Email = $activeRoster[$entries[$i]->GHIN]-> Email;
+            $player->Tee = $activeRoster[$entries[$i]->GHIN]-> Tee;
         }
 
         $teeTimeComposite->WaitlistPlayers[] = $player;
     }
 }
 
-function FillInCancelledPlayers($connection, $tournamentKey, $teeTimeComposite){
+function FillInCancelledPlayers($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
 
     $cancelledList = GetTeeTimesCancelledList($connection, $tournamentKey);
 
@@ -157,10 +158,9 @@ function FillInCancelledPlayers($connection, $tournamentKey, $teeTimeComposite){
         $player->Tee = "W";
         $player->Email = "";
         if($player->GHIN !== 0){
-            $rosterEntry = GetRosterEntry ( $connection, $player->GHIN );
-            if($rosterEntry){
-                $player->Email = $rosterEntry-> Email;
-                $player->Tee = $rosterEntry->Tee;
+            if(array_key_exists($player->GHIN, $activeRoster)){
+                $player->Email = $activeRoster[$player->GHIN]-> Email;
+                $player->Tee = $activeRoster[$player->GHIN]->Tee;
             }
         }
 

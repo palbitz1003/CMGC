@@ -358,6 +358,45 @@ function DecideIfPaymentEnabled($connection, $previousTournamentKey, $GHIN, $log
 }
 
 /*
+ * Get all the active roster entries
+ */
+function GetAllActiveRosterEntries($connection) {
+
+	$sqlCmd = "SELECT * FROM `Roster` WHERE `Active` = 1";
+	$player = $connection->prepare ( $sqlCmd );
+
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$player->bind_result ( $GHIN, $lastName, $firstName, $active, $email, $birthDate, $dateAdded, $membershipType, $signupPriority, $tee );
+
+	$activeRoster = array();
+	while ( $player->fetch () ) {
+		$rosterEntry = new RosterEntry();
+		$rosterEntry->GHIN = $GHIN;
+		$rosterEntry->LastName = $lastName;
+		$rosterEntry->FirstName = $firstName;
+		$rosterEntry->Active = $active;
+		$rosterEntry->Email = $email;
+		$rosterEntry->BirthDate = $birthDate;
+		$rosterEntry->DateAdded = $dateAdded;
+		$rosterEntry->MembershipType = $membershipType;
+		$rosterEntry->SignupPriority = $signupPriority;
+		$rosterEntry->Tee = $tee;
+		$activeRoster[$GHIN] = $rosterEntry;
+	}
+
+	$player->close();
+
+	return $activeRoster;
+}
+
+/*
  * Get the roster data for a player
  */
 function GetRosterEntry($connection, $playerGHIN) {
@@ -384,6 +423,7 @@ function GetRosterEntry($connection, $playerGHIN) {
 
 	if ( $player->fetch () ) {
 		$rosterEntry = new RosterEntry();
+		$rosterEntry->GHIN = $GHIN;
 		$rosterEntry->LastName = $lastName;
 		$rosterEntry->FirstName = $firstName;
 		$rosterEntry->Active = $active;
