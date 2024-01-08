@@ -2,6 +2,7 @@
 
 class cmgc_admin_RosterEntry {
 	public $GHIN;
+	public $FullName;
 	public $LastName;
 	public $FirstName;
 	public $Active;
@@ -277,6 +278,8 @@ function cmgc_admin_get_roster_entry($connection, $playerGHIN) {
 
 	if ( $player->fetch () ) {
 		$rosterEntry = new cmgc_admin_RosterEntry();
+		$rosterEntry->GHIN = $GHIN;
+		$rosterEntry->FullName = $lastName . ', ' . $firstName;
 		$rosterEntry->LastName = $lastName;
 		$rosterEntry->FirstName = $firstName;
 		$rosterEntry->Active = $active;
@@ -313,6 +316,8 @@ function cmgc_admin_get_all_active_roster_entries($connection) {
 	$activeRoster = array();
 	while ( $player->fetch () ) {
 		$rosterEntry = new cmgc_admin_RosterEntry();
+		$rosterEntry->GHIN = $GHIN;
+		$rosterEntry->FullName = $lastName . ', ' . $firstName;
 		$rosterEntry->LastName = $lastName;
 		$rosterEntry->FirstName = $firstName;
 		$rosterEntry->Active = $active;
@@ -323,6 +328,43 @@ function cmgc_admin_get_all_active_roster_entries($connection) {
 		$rosterEntry->SignupPriority = $signupPriority;
 		$rosterEntry->Tee = $tee;
 		$activeRoster[$GHIN] = $rosterEntry;
+	}
+
+	$player->close();
+
+	return $activeRoster;
+}
+
+function cmgc_admin_get_all_active_roster_entries_alphabetically($connection) {
+
+	$sqlCmd = "SELECT * FROM `Roster` WHERE `Active` = 1 ORDER BY `LastName` ASC, `FirstName` ASC";
+	$player = $connection->prepare ( $sqlCmd );
+
+	if (! $player) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $player->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$player->bind_result ( $GHIN, $lastName, $firstName, $active, $email, $birthDate, $dateAdded, $membershipType, $signupPriority, $tee );
+
+	$activeRoster = array();
+	while ( $player->fetch () ) {
+		$rosterEntry = new cmgc_admin_RosterEntry();
+		$rosterEntry->GHIN = $GHIN;
+		$rosterEntry->FullName = $lastName . ', ' . $firstName;
+		$rosterEntry->LastName = $lastName;
+		$rosterEntry->FirstName = $firstName;
+		$rosterEntry->Active = $active;
+		$rosterEntry->Email = $email;
+		$rosterEntry->BirthDate = $birthDate;
+		$rosterEntry->DateAdded = $dateAdded;
+		$rosterEntry->MembershipType = $membershipType;
+		$rosterEntry->SignupPriority = $signupPriority;
+		$rosterEntry->Tee = $tee;
+		$activeRoster[] = $rosterEntry;
 	}
 
 	$player->close();

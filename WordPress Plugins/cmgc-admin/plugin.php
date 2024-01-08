@@ -134,7 +134,7 @@ function cmgc_admin_upload_waitlist_action()
     }
   }
 
-// When the user clicks on the Membership Waitlist page, this function is called
+// When the user clicks on the Tee Times page, this function is called
  function cmgc_admin_tee_times_page()
  {
     require_once plugin_dir_path(__FILE__) . 'src/tee_times.php';
@@ -143,14 +143,18 @@ function cmgc_admin_upload_waitlist_action()
  }
 
  // When the user clicks on the "submit" waiting list button, this function is called
- add_action( 'admin_action_cmgc_save_tee_times_as_csv', 'cmgc_save_tee_times_as_csv_action' );
-function cmgc_save_tee_times_as_csv_action()
+ add_action( 'admin_action_cmgc_admin_tee_times_form', 'cmgc_admin_tee_times_form_action' );
+function cmgc_admin_tee_times_form_action()
 {
-    require_once plugin_dir_path(__FILE__) . 'src/tee_times.php';
-    cmgc_save_tee_times_as_csv_action2();
-}
+    //print_r($_POST);
 
- 
+    require_once plugin_dir_path(__FILE__) . 'src/tee_times.php';
+    if (isset($_POST['SaveTeeTimesAsCSV_button'])) {
+        cmgc_admin_save_tee_times_as_csv_action2();
+    } else if(isset($_POST['AddPlayerToWaitingList_button'])){
+        cmgc_admin_add_player_to_waitlist();
+    }
+}
 
  /*
  function add_custom_menu_item(){
