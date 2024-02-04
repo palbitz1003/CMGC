@@ -3,7 +3,7 @@
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
 $web_site = 'paulalbitz.com';
 $db_hostname = 'cmgcdb.paulalbitz.com';
-$db_database = 'cmgc_2023_jul'; 
+$db_database = 'cmgc_2024_jan'; 
 $db_username = 'cmgc';
 $db_password = 'pau58Onado'; 
 $wp_folder = '/wp';
