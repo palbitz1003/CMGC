@@ -41,12 +41,12 @@ if(!empty($tournament) && ($tournament->StartDate != $tournament->EndDate)){
 		echo '<table style="width:500px;border:none;margin-left:auto;margin-right:auto">' . PHP_EOL;
 		echo '<tbody>' . PHP_EOL;
 		echo '<tr><td style="border:none">' . PHP_EOL;
-		echo 'These players were on the waitlist for the last 2 day tournament and have been given priority for this tournament.' . PHP_EOL;
+		echo 'These players were on the waitlist for the last 2 day tournament and have been given priority to get into this tournament.' . PHP_EOL;
 		echo '</td></tr>' . PHP_EOL;
 		echo '</tbody>' . PHP_EOL;
 		echo '</table>' . PHP_EOL;
 
-		ShowWaitingListTable($waitingList);
+		ShowWaitingListTable($waitingList, 4);
 	}
 }
 echo '    </div><!-- #content -->';
