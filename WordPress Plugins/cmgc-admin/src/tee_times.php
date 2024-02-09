@@ -189,7 +189,7 @@ function cmgc_admin_tee_times_error($error)
 
     cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
     cmgc_admin_fill_in_waitList_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
-    cmgc_admin_fill_in_cancelled_layers($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
+    cmgc_admin_fill_in_cancelled_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster);
 
     header('Content-Type: application/csv');
     header('Content-Disposition: attachment; filename=Tee Times - ' . $t->Name . '.csv');
@@ -240,6 +240,8 @@ function cmgc_admin_tee_times_error($error)
 
 function cmgc_admin_add_player_to_waitlist()
  {
+    require_once plugin_dir_path(__FILE__) . 'tee_times_save.php';
+
     if(!isset($_POST['Tournament']) || empty($_POST['Tournament'])){
         cmgc_admin_tee_times_error('Error: $_POST[Tournament] is empty');
     }
@@ -250,8 +252,110 @@ function cmgc_admin_add_player_to_waitlist()
         cmgc_admin_tee_times_error('Error: Add Player to Waiting List: no player selected');
     }
 
+    // Putting require_once at the top of this file didn't work
+    require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
+
+    $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
+    
+    if ($connection->connect_error){
+        echo 'Database connection error: ' .  $connection->connect_error . "<br>";
+        return;
+    }
+
+    $t = cmgc_admin_get_tournament($connection, $tournamentKey);
+
+    $teeTimes = cmgc_admin_get_tee_times($connection, $tournamentKey);
+
+    $hasExtra = false;
+    for($i = 0; $i < count($teeTimes); ++$i){
+        for($j = 0; $j < count($teeTimes[$i]->Players); ++$j){
+            if(!empty($teeTimes[$i]->Players[$j]->Extra)){
+                $hasExtra = true;
+            }
+            if($teeTimes[$i]->Players[$j]->GHIN == $_POST['GHIN']){
+                cmgc_admin_tee_times_error(
+                    "Error: " . $teeTimes[$i]->Players[$j]->LastName . " is already at " . date ( 'g:i A', strtotime ($teeTimes[$i]->StartTime)));
+            }
+        }
+    }
+
+    $waitingList = cmgc_admin_get_tee_times_waitinglist($connection, $tournamentKey);
+
+    // Determine new player's position in the waiting list. The first spot is position 0.
+    $position = 0;
+    for($i = 0; $i < count($waitingList); ++$i){
+        if(intval($waitingList[$i]->GHIN) !== 0) {
+            //echo "comparing to waiting list " . $waitingList[$i]->GHIN . "<br>";
+            if($waitingList[$i]->GHIN == $_POST['GHIN']){
+                cmgc_admin_tee_times_error(
+                    "Error: " . $waitingList[$i]->Name . " is already on the waiting list ");
+            }
+            if($waitingList[$i]->Position >= $position){
+                // New position will be 1 higher than highest position
+                $position = $waitingList[$i]->Position + 1;
+            }
+        }
+    }
+    echo "New player's waiting list position is " . $position . '<br>';
+    echo "Has Extra field set: " . $hasExtra ? 'true' : 'false' . "<br>";
+    // TODO: proper checks for value of Extra field if needed
+
+    $cancelledList = cmgc_admin_get_tee_times_cancelled_list($connection, $tournamentKey);
+
+    for($i = 0; $i < count($cancelledList); ++$i){
+        //echo "comparing to cancelled list " . $cancelledList[$i]->GHIN . "<br>";
+        if($cancelledList[$i]->GHIN == $_POST['GHIN']){
+            // Since the player is being added to the waiting list, remove them from the cancelled list
+            cmgc_admin_delete_cancelled_player($connection, $tournamentKey, intval($_POST['GHIN']));
+        }
+    }
+
+    $signUpWaitingList = new cmgc_admin_TeeTimeWaitingListClass();
+    $signUpWaitingList->TournamentKey = $tournamentKey;
+    $signUpWaitingList->Position = $position;
+    $signUpWaitingList->GHIN = $_POST['GHIN'];
+    $signUpWaitingList->Name = $_POST['FullName'];
+    $signUpWaitingList->Extra = $_POST['Flight'];
+    cmgc_admin_add_player_to_waiting_list($connection, $signUpWaitingList);
+
+    echo "cmgc_admin_add_player_to_waitlist<br>";
     print_r($_POST);
  }
+
+ function cmgc_admin_delete_cancelled_player($connection, $tournamentKey, $ghin) {
+    //echo "removing " . $ghin . " from cancelled list<br>";
+	$sqlCmd = "DELETE FROM `TeeTimesCancelled` WHERE `TournamentKey` = ? AND `GHIN` = ?";
+	$clear = $connection->prepare ( $sqlCmd );
+
+	if (! $clear) {
+		cmgc_admin_tee_times_error ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $clear->bind_param ( 'ii', $tournamentKey, $ghin )) {
+		cmgc_admin_tee_times_error ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $clear->execute ()) {
+		cmgc_admin_tee_times_error ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+}
+
+function cmgc_admin_add_player_to_waiting_list($connection, $signUpWaitingList){
+	$sqlCmd = "INSERT INTO `TeeTimesWaitingList` VALUES (?, ?, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+	
+	if (! $insert) {
+		cmgc_admin_tee_times_error ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+	
+	if (! $insert->bind_param ( 'iiiss', $signUpWaitingList->TournamentKey, $signUpWaitingList->Position, $signUpWaitingList->GHIN, $signUpWaitingList->Name, $signUpWaitingList->Extra )) {
+		cmgc_admin_tee_times_error ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $insert->execute ()) {
+		cmgc_admin_tee_times_error ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+}
 
  
 

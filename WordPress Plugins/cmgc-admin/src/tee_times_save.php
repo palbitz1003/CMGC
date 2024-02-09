@@ -15,18 +15,22 @@ class cmgc_admin_DatabaseTeeTimePlayer {
 	public $SignupKey;
 }
 
-class cmgc_admin_TeeTimeCancelledPlayer {
+class cmgc_admin_DataBaseTeeTimeCancelledPlayer {
 	public $TournamentKey;
 	public $Position;
 	public $GHIN;
 	public $Name;
 }
 
+// TeeTime is like DatabaseTeeTime, but with Player instead of DatabaseTeetTimePlayer
+// and Starttime is formatted
 class cmgc_admin_TeeTime {
     public $StartTime;
     public $Players;
 }
 
+// Player is like DatabaseTeeTimePlayer, but
+// adds Email and Tee from the roster
 class cmgc_admin_Player {
     public $Name;
     public $Position;
@@ -140,6 +144,9 @@ function cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeCompo
     for($i = 0; $i < count($teeTimes); ++$i){
         
         $teeTime = new cmgc_admin_TeeTime();
+		// g - 12-hour format of an hour without leading zeros 
+		// i - Minutes with leading zeros
+		// A - Uppercase AM and PM
         $teeTime->StartTime = date ( 'g:i A', strtotime ($teeTimes[$i]->StartTime));
         $teeTime->Players = array();
         
@@ -430,7 +437,7 @@ function cmgc_admin_get_player_signup_by_name($connection, $tournamentKey, $play
 	return $playerSignUp;
 }
 
-function cmgc_admin_fill_in_cancelled_layers($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
+function cmgc_admin_fill_in_cancelled_players($connection, $tournamentKey, $teeTimeComposite, $activeRoster){
 
     $cancelledList = cmgc_admin_get_tee_times_cancelled_list($connection, $tournamentKey);
 
@@ -484,7 +491,7 @@ function cmgc_admin_get_tee_times_cancelled_list($connection, $tournamentKey){
 	
 	$teeTimesCancelledList = array();
 	while ( $entries->fetch () ) {
-		$entry = new cmgc_admin_TeeTimeCancelledPlayer();
+		$entry = new cmgc_admin_DataBaseTeeTimeCancelledPlayer();
 		$entry->TournamentKey = $tournamentKey;
 		$entry->Position = $position;
 		$entry->GHIN = $ghin;
