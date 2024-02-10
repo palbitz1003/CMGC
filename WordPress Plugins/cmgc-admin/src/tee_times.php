@@ -40,7 +40,21 @@ function cmgc_admin_tee_times_page2()
        update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
    }
 
+    // Default to the last tournament
+    $currentTournamentIndex = count($currentTournaments) - 1;
+    // Try to find the last selected tournament in the list
+    if(!empty($cmgc_admin_options) && !empty($cmgc_admin_options['tee_times_current_tournament'])){
+        for($i = 0; $i < count($currentTournaments); ++$i){
+            //echo 'comparing ' . $cmgc_admin_options['tee_times_current_tournament'] . " to " . $currentTournaments[$i]->TournamentKey . '<br>';
+            if($currentTournaments[$i]->TournamentKey == $cmgc_admin_options['tee_times_current_tournament']){
+                $currentTournamentIndex = $i;
+            }
+        }
 
+        // Clear the result so it doesn't last forever
+       $cmgc_admin_options['tee_times_current_tournament'] = '';
+       update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
+    }
 
     ?>
     <script>
@@ -88,11 +102,12 @@ function cmgc_admin_tee_times_page2()
             <input type="hidden" name="action" value="cmgc_admin_tee_times_form">
             <table class="fixed">
                 <tr>
+                    <!-- Selected tournament is passed to cmgc_admin_save_tee_times_as_csv as $_POST['Tournament'] -->
                     <td style="padding: 0px 10px 0px 10px;">Tournament: 
                     <select name="Tournament" id="Tournament">
                         <?php
                             for($i = 0; $i < count($currentTournaments); ++$i){
-                                if($i == (count($currentTournaments) - 1)){
+                                if($i == $currentTournamentIndex){
                                     echo '<option selected value="';
                                 }
                                 else {
@@ -107,7 +122,6 @@ function cmgc_admin_tee_times_page2()
                 </tr>
                 <tr>
                     <td>
-                        <!-- Selected tournament is passed to cmgc_admin_save_tee_times_as_csv as $_POST['Tournament'] -->
                         <input type="submit" name="SaveTeeTimesAsCSV_button" value="Save Tee Times As CSV" class="button-primary">
                         (There is no feedback when the save succeeds. Just look in your download folder for a file.)
                     </td>

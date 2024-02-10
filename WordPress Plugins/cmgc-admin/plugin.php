@@ -58,6 +58,11 @@
     // Only load these options if explicitly needed
     // Use WP options table to pass back result of upload to waitlist page
     add_option('cmgc_admin_plugin_options', // Name of the option to add
+        array('tee_times_current_tournament' => ''), // Option value
+        '', // deprecated
+        "no"); // Whether to load the option when WordPress starts up
+
+    add_option('cmgc_admin_plugin_options', // Name of the option to add
         array('waiting_list_upload_results' => ''), // Option value
         '', // deprecated
         "no"); // Whether to load the option when WordPress starts up
@@ -142,6 +147,20 @@ function cmgc_admin_upload_waitlist_action()
 
  }
 
+ // Without saving the current tournament, the current tournament will
+ // always reset to the latest tournament. Given that the default page
+ // is the result of a redirect, we have to save the current tournament
+ // in an options variable instead of using $_POST['Tournament']
+ function cmgc_admin_set_current_tournament(){
+    if(isset($_POST['Tournament']) || !empty($_POST['Tournament'])){
+        $cmgc_admin_options = get_option('cmgc_admin_plugin_options', array());
+
+        $cmgc_admin_options['tee_times_current_tournament'] = $_POST['Tournament'];
+        update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
+    }
+    
+}
+
  // When the user clicks on the "submit" waiting list button, this function is called
  add_action( 'admin_action_cmgc_admin_tee_times_form', 'cmgc_admin_tee_times_form_action' );
 function cmgc_admin_tee_times_form_action()
@@ -152,6 +171,9 @@ function cmgc_admin_tee_times_form_action()
     if (isset($_POST['SaveTeeTimesAsCSV_button'])) {
         cmgc_admin_save_tee_times_as_csv_action2();
     } else if(isset($_POST['AddPlayerToWaitingList_button'])){
+        // save the current tournament so it doesn't reset to the latest tournament
+        // after the redirect
+        cmgc_admin_set_current_tournament(); 
         cmgc_admin_add_player_to_waitlist();
     }
 }
