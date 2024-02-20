@@ -49,6 +49,13 @@
         'cmgc-admin-tee_times', // slug name for submenu
         'cmgc_admin_tee_times_page'); // function to call
 
+    add_submenu_page('cmgc-admin-menu', // slug name for parent menu
+        'Roster', // title of page
+        'Roster', // name of sub-menu
+        'edit_pages', // minimum capability (editor)
+        'cmgc-admin-roster', // slug name for submenu
+        'cmgc_admin_roster_page'); // function to call
+
  }
 
  // Options are database entries in the WP database
@@ -144,7 +151,6 @@ function cmgc_admin_upload_waitlist_action()
  {
     require_once plugin_dir_path(__FILE__) . 'src/tee_times.php';
     cmgc_admin_tee_times_page2();
-
  }
 
  // Without saving the current tournament, the current tournament will
@@ -161,7 +167,7 @@ function cmgc_admin_upload_waitlist_action()
     
 }
 
- // When the user clicks on the "submit" waiting list button, this function is called
+ // When the user clicks on an action button on the tee times page, this function is called
  add_action( 'admin_action_cmgc_admin_tee_times_form', 'cmgc_admin_tee_times_form_action' );
 function cmgc_admin_tee_times_form_action()
 {
@@ -176,6 +182,13 @@ function cmgc_admin_tee_times_form_action()
         cmgc_admin_set_current_tournament(); 
         cmgc_admin_add_player_to_waitlist();
     }
+}
+
+// When the user clicks on the Tee Times page, this function is called
+function cmgc_admin_roster_page()
+{
+   require_once plugin_dir_path(__FILE__) . 'src/roster.php';
+   cmgc_admin_roster_page2();
 }
 
  /*
