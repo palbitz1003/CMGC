@@ -15,7 +15,47 @@ function cmgc_admin_roster_page2()
 
     $activeRoster = cmgc_admin_get_all_active_roster_entries_alphabetically($connection);
 
-?>
+    // After the upload completes, the browser is redirected back to this admin page.
+   // Show the result of the upload and then clear the result.
+   $cmgc_admin_options = get_option('cmgc_admin_plugin_options', array());
+   if(!empty($cmgc_admin_options) && !empty($cmgc_admin_options['roster_upload_results'])){
+       if(str_contains($cmgc_admin_options['roster_upload_results'], 'Error:')){
+           echo '<div class="notice notice-error is-dismissible"><p>'. $cmgc_admin_options['roster_upload_results'] . "</p></div>";
+       }
+       else {
+           echo '<div class="notice notice-success is-dismissible"><p>'. $cmgc_admin_options['roster_upload_results'] . "</p></div>";
+       }
+       
+       // Clear the result
+       $cmgc_admin_options['roster_upload_results'] = '';
+       update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
+   }
+
+   ?>
+   <div class="wrap">
+
+       <h2>Upload Roster</h2>
+
+       <!-- This form will post to admin.php with the action admin_action_cmgc_admin_upload_waitlist,
+            which triggers calling cmgc_admin_upload_waitlist_action() below.
+            Must have enctype="multipart/form-data" so _FILES variable filled in -->
+       <form method="POST" enctype="multipart/form-data" action="<?php echo admin_url( 'admin.php' ); ?>">
+           <input type="hidden" name="action" value="cmgc_admin_upload_roster">
+           <table class="form-table">
+               <tr>
+                   <th scope="row"><label for="filename">Roster (.csv):</label></th>
+                   <td><input type="file" id="filename" name="filename" accept=".csv" required></td>
+               </tr>
+               <tr>
+                   <td>
+                       <input type="submit" name="Import" value="Upload" class="button-primary">
+                   </td>
+                   <td></td>
+               </tr>
+           </table>
+       </form>
+   </div>
+
     <script>
         var roster = <?php echo json_encode($activeRoster); ?>;
 
@@ -91,7 +131,7 @@ function cmgc_admin_roster_page2()
 
     <div class="wrap">
  
-    <h2>Roster</h2>
+    <h2>Search Roster</h2>
 
     <form autocomplete="off" method="POST" enctype="multipart/form-data" action="<?php echo admin_url( 'admin.php' ); ?>">
         <table class="fixed">
@@ -116,7 +156,7 @@ function cmgc_admin_roster_page2()
                 <td><input type="text" name="BirthDate" size="50" readonly /></td>
             </tr>
             <tr>
-                <td>Date Adde3d:</td>
+                <td>Date Added:</td>
                 <td><input type="text" name="DateAdded" size="50" readonly /></td>
             </tr>
             <tr>
@@ -133,12 +173,17 @@ function cmgc_admin_roster_page2()
             </tr>
         </table>
     </form>
-    <p>
-        
-    </p>
 
     </div>
 <?php
 }
+
+ // Do the actual upload of the roster
+ function cmgc_admin_upload_roster_action2()
+ {
+    $cmgc_admin_options = get_option('cmgc_admin_plugin_options', array());
+    $cmgc_admin_options['roster_upload_results'] = 'Not Implemented Yet';
+    update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
+ }
 
 ?>

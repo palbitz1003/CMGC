@@ -59,7 +59,7 @@
  }
 
  // Options are database entries in the WP database
- // waiting_list_upload_results is a return value passed between web pages, because I couldn't find a direct way to return a value
+ // waiting_list_upload_results (and others) is a return value passed between web pages, because I couldn't find a direct way to return a value
  function cmgc_admin_plugin_create_options()
  {
     // Only load these options if explicitly needed
@@ -78,11 +78,18 @@
         array('save_tee_times_as_csv_results' => ''), // Option value
         '', // deprecated
         "no"); // Whether to load the option when WordPress starts up
+
+    add_option('cmgc_admin_plugin_options', // Name of the option to add
+        array('roster_upload_results' => ''), // Option value
+        '', // deprecated
+        "no"); // Whether to load the option when WordPress starts up
  }
 
  function cmgc_admin_show_menu() {
     
  }
+
+ // ------------------- Membership Waiting List ---------------------------------
 
  // When the user clicks on the Membership Waitlist page, this function is called
  function cmgc_admin_membership_waitlist_page()
@@ -115,6 +122,8 @@ function cmgc_admin_upload_waitlist_action()
     }
 }
 
+// --------------------------- Membership Applications -------------------------------
+
 // When the user clicks on the Membership Applications page, this function is called
  function cmgc_admin_membership_application_page()
  {
@@ -145,6 +154,8 @@ function cmgc_admin_upload_waitlist_action()
         }
     }
   }
+
+  // --------------------------- Tee Times -------------------------------
 
 // When the user clicks on the Tee Times page, this function is called
  function cmgc_admin_tee_times_page()
@@ -184,11 +195,36 @@ function cmgc_admin_tee_times_form_action()
     }
 }
 
-// When the user clicks on the Tee Times page, this function is called
+// --------------------------- Roster -------------------------------
+
+// When the user clicks on the Roster page, this function is called
 function cmgc_admin_roster_page()
 {
    require_once plugin_dir_path(__FILE__) . 'src/roster.php';
    cmgc_admin_roster_page2();
+}
+
+ // When the user clicks on the "submit" roster button, this function is called
+ add_action( 'admin_action_cmgc_admin_upload_roster', 'cmgc_admin_upload_roster_action' );
+function cmgc_admin_upload_roster_action()
+{
+    //echo plugin_dir_path(__FILE__);
+    require_once plugin_dir_path(__FILE__) . 'src/roster.php';
+    cmgc_admin_upload_roster_action2();
+     
+    // These 2 calls to clear the output buffer (ob) are needed to make the redirect work
+    //ob_clean();
+    ob_start();
+
+    // After doing the work, redirect back to the admin page.
+    // cmgc_admin_upload_waitlist_action2() filled in the result, which is displayed
+    // in the notice in cmgc_admin_membership_waitlist_page()
+    if(wp_redirect( $_SERVER['HTTP_REFERER'] )){
+        exit();
+    }
+    else {
+        echo "redirect failed<br>";
+    }
 }
 
  /*
