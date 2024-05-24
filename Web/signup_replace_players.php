@@ -154,8 +154,10 @@ if(!$emptyForm){
 						} else if($GHIN [$i] !== "0000000"){
 							$rosterEntry = GetRosterEntry ( $connection, $GHIN [$i] );
 							if (!empty ( $rosterEntry )) {
+								// Comment out next line if member-member allowed
+								$errorList [$i] = 'GHIN ' . $GHIN [$i] . " is a member of the Coronado Men's Golf Club<br>The guest cannot be a member.";
 								// Change Extra field to member
-								$players[$i]->Extra = "M";
+								//$players[$i]->Extra = "M";
 							}
 							// Since the GHIN is non-zero, check to see if they are already signed up.
 							if (IsPlayerSignedUp ( $connection, $tournamentKey, $GHIN [$i] )) {
