@@ -1553,11 +1553,13 @@ namespace WebAdmin.ViewModel
                     // Put board members at the highest priority
                     request.BlindDrawValue = 500;
                 }
+                /*
                 else if (isGuest && TournamentNames[TournamentNameIndex].MemberGuest)
                 {
                     // For the member-guest, favor those groups with a guest
                     request.BlindDrawValue = _randomNumberGenerator.Next(1000, 1999);
                 }
+                */
                 else if (playersPreviouslyWaitlisted != 0)
                 {
                     // Give groups with previously waitlist players more favorable numbers
@@ -1578,7 +1580,7 @@ namespace WebAdmin.ViewModel
                 bool infrequentPlayer = false;
                 foreach (var player in request.Players)
                 {
-                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2))
+                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2) && (string.Compare(player.Extra, "G", true) != 0))
                     {
                         infrequentPlayer = true;
                     }
