@@ -94,9 +94,9 @@ function cmgc_admin_write_tee_times_to_csv($teeTimes, &$teamId, $teeStatus, $tea
                 if (strcasecmp($fields[count($fields) - 1], "jr") === 0)
                 {
                     // Move the Jr. to the first name
-                    $firstName = $firstName . " " + $fields[count($fields) - 1];
+                    $firstName = $firstName . " " . $fields[count($fields) - 1];
                     // Remove the Jr. from the last name
-                    $lastName = trim(str_replace($fields[$fields.Length - 1], "", $lastName));
+                    $lastName = trim(str_replace($fields[count($fields) - 1], "", $lastName));
                 }
             }
 
@@ -165,7 +165,7 @@ function cmgc_admin_fill_in_tee_times($connection, $tournamentKey, $teeTimeCompo
                     $rosterEntry = $activeRoster[$player->GHIN];
                     $player->Email = $rosterEntry-> Email;
                     $player->Tee = $rosterEntry->Tee;
-                } else {
+                } else if(empty($player->Extra) || !str_starts_with($player->Extra, "G")){
                     if($i < 10){
                         echo $player->GHIN . " not in roster ";
                     }
