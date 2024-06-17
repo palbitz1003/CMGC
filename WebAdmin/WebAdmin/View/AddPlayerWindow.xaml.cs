@@ -57,14 +57,21 @@ namespace WebAdmin.View
                     case "F5":
                         break;
                     default:
-                        if (AllowGuest && ((string.Compare(Player.Extra, "M") == 0) || (string.Compare(Player.Extra, "G") == 0)))
+                        if (AllowGuest && ((string.Compare(Player.Extra, "M") == 0) || Player.Extra.StartsWith("G")))
                         {
                             // Member/Guest Extra properly filled in
                             break;
                         }
                         else
                         {
-                            MessageBox.Show("Please fill in the flight with CH or F1-F5");
+                            if (AllowGuest)
+                            {
+                                MessageBox.Show("Please fill in the flight with M, G, or G - <tee box>");
+                            }
+                            else
+                            {
+                                MessageBox.Show("Please fill in the flight with CH or F1-F5");
+                            }
                             return;
                         }
                 }

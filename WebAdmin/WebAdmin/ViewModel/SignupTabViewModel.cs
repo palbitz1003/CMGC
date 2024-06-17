@@ -274,6 +274,8 @@ namespace WebAdmin.ViewModel
 
         public ICommand ChangePartnersInTeeTimeCommand { get { return new ModelCommand(ChangePartnersInTeeTime); } }
 
+        public ICommand ChangeFlightCommand { get { return new ModelCommand(ChangeFlight); } }
+
         public ICommand LoadTeeTimesAndWaitlistCsvCommand { get { return new ModelCommand(LoadTeeTimesAndWaitlistCsv); } }
 
         public ICommand LoadHistoricalTeeTimesDataCommand { get { return new ModelCommand(async s => await LoadHistoricalTeeTimesDataAsync(s)); } }
@@ -1313,6 +1315,18 @@ namespace WebAdmin.ViewModel
                             }
                             playerTee = tournamentTeeTimes[teeTimeNumber].Players[player].Tee;
 
+                            if (!string.IsNullOrEmpty(playerExtra) && playerExtra.StartsWith("G"))
+                            {
+                                if (playerExtra.ToLower().Contains("green"))
+                                {
+                                    playerTee = "G";
+                                }
+                                else if (playerExtra.ToLower().Contains("silver"))
+                                {
+                                    playerTee = "S";
+                                }
+                            }
+
                         }
 
                         // Only write out tee time entries if there is a player
@@ -1375,7 +1389,7 @@ namespace WebAdmin.ViewModel
                             if (!string.IsNullOrEmpty(playerExtra))
                             {
                                 // Member/Guest
-                                if ((playerExtra == "M") || (playerExtra == "G"))
+                                if ((playerExtra == "M") || (playerExtra.StartsWith("G")))
                                 {
                                     tw.Write(playerExtra);
                                 }
@@ -1535,7 +1549,7 @@ namespace WebAdmin.ViewModel
                         isBoardMember = true;
                     }
 
-                    if (string.Compare(player.Extra, "G", true) == 0)
+                    if (player.Extra.StartsWith("G"))
                     {
                         isGuest = true;
                     }
@@ -1580,7 +1594,7 @@ namespace WebAdmin.ViewModel
                 bool infrequentPlayer = false;
                 foreach (var player in request.Players)
                 {
-                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2) && (string.Compare(player.Extra, "G", true) != 0))
+                    if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2) && (!player.Extra.StartsWith("G")))
                     {
                         infrequentPlayer = true;
                     }
@@ -2406,14 +2420,61 @@ namespace WebAdmin.ViewModel
                                           MessageBoxImage.None);
         }
 
-        //
-        // Expected format of tee sheet file: header followed by individual lines.
-        // 
-        // Tee Time	Last Name	First Name	GHIN	Team Id	Email	Flight	OverEighty	Waitlisted
-        // 6:15 AM,	Albitz,Paul,9079663,1,palbitz@san.rr.com,FALSE,FALSE
+        private void ChangeFlight(object o)
+        {
+            List<Player> playerList = new List<Player>();
+            foreach (var request in TeeTimeRequests)
+            {
+                foreach (var p in request.Players)
+                {
+                    playerList.Add(p);
+                }
+            }
+            foreach (var teeTime in TournamentTeeTimes)
+            {
+                foreach (var p in teeTime.Players)
+                {
+                    playerList.Add(p);
+                }
+            }
+
+            if (playerList.Count == 0)
+            {
+                MessageBox.Show("There are no players to change.",
+                                          "Confirmation",
+                                          MessageBoxButton.OK,
+                                          MessageBoxImage.None);
+                return;
+            }
+
+            ChangeFlightWindow cfw = new ChangeFlightWindow();
+            cfw.PlayerList = playerList;
+            cfw.AllowGuest = TournamentNames[TournamentNameIndex].MemberGuest;
+            cfw.RequiresFlight = !string.IsNullOrEmpty(playerList[0].Extra);
+            cfw.Owner = Application.Current.MainWindow;
+
+            cfw.ShowDialog();
+
+            // The 3 display areas don't change unless I do this:
+            var tmp = TournamentTeeTimes;
+            TournamentTeeTimes = null;
+            TournamentTeeTimes = tmp;
+
+            var tmp2 = TeeTimeRequestsAssigned;
+            TeeTimeRequestsAssigned = null;
+            TeeTimeRequestsAssigned = tmp2;
+
+            ClearTodoSelection();
+        }
+
+            //
+            // Expected format of tee sheet file: header followed by individual lines.
+            // 
+            // Tee Time	Last Name	First Name	GHIN	Team Id	Email	Flight	OverEighty	Waitlisted
+            // 6:15 AM,	Albitz,Paul,9079663,1,palbitz@san.rr.com,FALSE,FALSE
 
 
-        private void LoadTeeTimesAndWaitlistCsv(object o)
+            private void LoadTeeTimesAndWaitlistCsv(object o)
         {
             if (!CheckContinue()) return;
 
@@ -2672,7 +2733,7 @@ namespace WebAdmin.ViewModel
                         }
                         if (extraColumn != -1)
                         {
-                            if ((line[extraColumn] == "M") || (line[extraColumn] == "G"))
+                            if ((line[extraColumn] == "M") || (line[extraColumn].StartsWith("G")))
                             {
                                 player.Extra = line[extraColumn];
                             }

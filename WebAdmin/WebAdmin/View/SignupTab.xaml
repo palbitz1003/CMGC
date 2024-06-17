@@ -58,6 +58,8 @@
                     Command="{Binding ReplacePlayerCommand}">Replace Player</Button>
             <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="ChangePartnersInTeeTimeButton" Height="22"
                     Command="{Binding ChangePartnersInTeeTimeCommand}">Change Partners in Tee Time</Button>
+            <Button Margin="20,0,0,0" Padding="20,0,20,0" Name="ChangeFlightButton" Height="22"
+                    Command="{Binding ChangeFlightCommand}">Change Flight</Button>
             <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">Order By:</TextBlock>
             <StackPanel Orientation="Vertical">
                 <RadioButton Margin="10,0,0,0" Name="HistoricalRadioButton" GroupName="OrderByGroup" VerticalAlignment="Center" 

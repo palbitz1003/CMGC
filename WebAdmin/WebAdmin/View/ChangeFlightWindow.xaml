@@ -1,0 +1,33 @@
+﻿<Window x:Class="WebAdmin.View.ChangeFlightWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStartupLocation="CenterOwner"
+        Title="Change Flight" Height="180" Width="280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Margin="5, 20, 5, 5" Grid.Row="0" Grid.Column="0" >Player:</TextBlock>
+        <TextBox Margin="5, 20, 5, 5" Grid.Row="0" Grid.Column="1" Width="200" x:Name="PlayerTextBox" 
+                 KeyDown="PlayerTextBox_KeyDown" TextChanged="PlayerTextBox_TextChanged" LostFocus="PlayerTextBox_LostFocus"/>
+
+        <TextBlock Margin="5,0,0,0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" x:Name="AutoCompleteFeedback"/>
+
+        <TextBlock Margin="5, 10, 5, 5" Grid.Row="2" Grid.Column="0" >Flight:</TextBlock>
+        <!-- The DataContext is the Player object, so I only have to bind to the "Extra" property on the object  -->
+        <TextBox Margin="5, 10, 5, 5" Grid.Row="2" Grid.Column="1" Width="200" x:Name="FlightTextBox" Text="{Binding Path=Extra}"/>
+
+        <DockPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" HorizontalAlignment="Center">
+            <Button Padding="20,10,20,10"  IsDefault="True" x:Name="ChangeButton" Click="ChangeButton_Click">Change</Button>
+            <Button Padding="20,10,20,10"  Margin="20,0,0,0" x:Name="CancelButton" Click="CancelButton_Click">Cancel</Button>
+        </DockPanel>
+    </Grid>
+</Window>

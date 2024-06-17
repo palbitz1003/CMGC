@@ -85,7 +85,7 @@ namespace WebAdmin.View
                     {
                         AppendText(rtb, ttr.Players[i].Name, Brushes.Blue);
                     }
-                    else if ((ttr.Players[i].TeeTimeCount >= 0) && (ttr.Players[i].TeeTimeCount <= 2) && (string.Compare(ttr.Players[i].Extra, "G", true) != 0))
+                    else if ((ttr.Players[i].TeeTimeCount >= 0) && (ttr.Players[i].TeeTimeCount <= 2) && !ttr.Players[i].Extra.StartsWith("G"))
                     {
                         AppendText(rtb, ttr.Players[i].Name, Brushes.DarkRed);
                     }
