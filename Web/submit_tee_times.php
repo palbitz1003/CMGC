@@ -369,7 +369,7 @@ function ReplacePlayer($connection, $logFile, $tournamentKey, $ghin, $name, $new
 		$removeSignupPlayer = GetPlayerSignUp($connection, $tournamentKey, $ghin);
 	}
 
-	if(intval($newghin) === 0){
+	if(intval($newGhin) === 0){
 		$newPlayer = GetPlayerSignUpByName($connection, $tournamentKey, $newName);
 	}
 	else {
