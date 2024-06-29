@@ -66,7 +66,7 @@ namespace WebAdmin.View
                         {
                             if (AllowGuest)
                             {
-                                MessageBox.Show("Please fill in the flight with M, G, or G - <tee box>");
+                                MessageBox.Show("Please fill in the flight with M, G, G - Green, or G - Silver");
                             }
                             else
                             {
