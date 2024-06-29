@@ -104,6 +104,9 @@
     <Compile Include="View\AdminTab.xaml.cs">
       <DependentUpon>AdminTab.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ChangeFlightWindow.xaml.cs">
+      <DependentUpon>ChangeFlightWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ClosestToThePinWindow.xaml.cs">
       <DependentUpon>ClosestToThePinWindow.xaml</DependentUpon>
     </Compile>
@@ -157,6 +160,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\AdminTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ChangeFlightWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
