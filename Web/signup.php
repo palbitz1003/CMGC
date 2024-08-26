@@ -503,13 +503,13 @@ function ShowChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $flightErr
 		echo '<form name="input" method="post">' . PHP_EOL;
 		echo '<input type="hidden" name="championshipFlight" value="F1">' . PHP_EOL;
 		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-		echo '<input type="submit" value="Sign Up For Net Flights"> <br> <br>' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Net Flights" style="font-size:20px"> <br> <br>' . PHP_EOL;
 		echo '</form>' . PHP_EOL;
 
 		echo '<form name="input" method="post">' . PHP_EOL;
 		echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
 		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-		echo '<input type="submit" value="Sign Up For Championship Flight"> <br> <br>' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Championship Flight" style="font-size:20px"> <br> <br>' . PHP_EOL;
 		echo '</form>' . PHP_EOL;
 	} 
 	else {
@@ -569,13 +569,13 @@ function ShowSeniorChampionshipSignup($t, $tournamentKey, $GHIN, $LastName, $fli
 		echo '<form name="input" method="post">' . PHP_EOL;
 		echo '<input type="hidden" name="championshipFlight" value="AGE">' . PHP_EOL;
 		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-		echo '<input type="submit" value="Sign Up For Age-based Net Flights"> <br> <br>' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Age-based Net Flights" style="font-size:20px"> <br> <br>' . PHP_EOL;
 		echo '</form>' . PHP_EOL;
 
 		echo '<form name="input" method="post">' . PHP_EOL;
 		echo '<input type="hidden" name="championshipFlight" value="CH">' . PHP_EOL;
 		echo '<input type="hidden" name="tournament" value="' . $tournamentKey . '">' . PHP_EOL;
-		echo '<input type="submit" value="Sign Up For Senior Championship Flight"> <br> <br>' . PHP_EOL;
+		echo '<input type="submit" value="Sign Up For Senior Championship Flight" style="font-size:20px"> <br> <br>' . PHP_EOL;
 		echo '</form>' . PHP_EOL;
 	} 
 	else {
