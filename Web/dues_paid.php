@@ -22,6 +22,9 @@ echo '<h2 class="entry-title" style="text-align:center">Paid Yearly Dues</h2>' .
 echo '<p>Once you pay via PayPal you will automatically be listed on the paid list. ';
 echo 'Paying by check is not an option anymore. You must pay through PayPal.';
 
+$players = GetPlayersDuesPaid($connection);
+
+echo '<p>Players that have paid: ' . count($players);
 echo '<table style="border: none;margin-left:auto;margin-right:auto;width: 96%">' . PHP_EOL;
 echo '<tbody><tr>' . PHP_EOL;
 
