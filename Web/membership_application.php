@@ -18,6 +18,7 @@ if ($connection->connect_error){
 //$now = new DateTime ( "now" );
 //$startDate = new DateTime('2023-01-01');
 //if($now < $startDate){
+/*
 	$overrideTitle = "Membership Application";
 	get_header ();
 ?>
@@ -32,6 +33,7 @@ if ($connection->connect_error){
 <?php
 	get_footer();
 	return;
+*/
 //}
 
 $error = "";
@@ -58,6 +60,11 @@ $city = "";
 $state = "CA";
 $zipCode = "";
 
+$debug = false;
+if(!empty($_GET['debug'])){
+	$debug = true;
+}
+
 // Remove single and double quotes?
 //$LastName[$i] = str_replace("'", "", $LastName[$i]); // remove single quotes
 //$LastName[$i] = str_replace('"', "", $LastName[$i]); // remove double quotes
@@ -79,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$sponsor1Phone = test_input($_POST["Sponsor1Phone"]);
 	$sponsor2LastName = test_input($_POST["Sponsor2LastName"]);
 	$sponsor2Ghin = test_input($_POST["Sponsor2Ghin"]);
-	$sponsor2Phone = test_input($_POST["Sponsor1Phone"]);
+	$sponsor2Phone = test_input($_POST["Sponsor2Phone"]);
 	$streetAddress = test_input($_POST["StreetAddress"]);
 	$city = test_input($_POST["City"]);
 	$state = test_input($_POST["State"]);
@@ -127,7 +134,7 @@ $overrideTitle = "Membership Application";
 //var_dump($_POST);
 
 // If this page has not been filled in or there is an error, show the form
-if (!empty($error) || !isset ( $_POST ['LastName'] )) {
+if ((strlen($error) != 0) || !isset ( $_POST ['LastName'] ) || ($debug && (strlen($ghin) == 0))) {
 	get_header ();
 
 ?>
@@ -137,11 +144,31 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 <p>
 
 <?php
-	if(isset($error)){
+	if(strlen($error) != 0){
 		echo '<p style="color:red;">' . PHP_EOL;
 		echo $error . PHP_EOL;
 		echo '</p>' . PHP_EOL;
-	}
+	} else if($debug && (strlen($ghin) == 0)) {
+		$lastName = "Test";
+		$firstName = "Johnny";
+		$birthMonth = "1";
+		$birthDay = "1";
+		$birthYear = "1960";
+		$birthDate = $birthYear . '-' . $birthMonth . '-' . $birthDay;
+		$email = "cmgc.td@gmail.com";
+		$email2 = "cmgc.td@gmail.com";
+		$phoneNumber = "111-222-3333";
+		$sponsor1LastName = "";
+		$sponsor1Ghin = "";
+		$sponsor1Phone = "222-333-4444";
+		$sponsor2LastName = "";
+		$sponsor2Ghin = "";
+		$sponsor2Phone = "333-444-5555";
+		$streetAddress = "111 Main";
+		$city = "San Diego";
+		$state = "CA";
+		$zipCode = "92101";
+	} 
 
 	/*
 	echo '<p>' . PHP_EOL;
@@ -228,14 +255,14 @@ if (!empty($error) || !isset ( $_POST ['LastName'] )) {
 
 <ol >
   <li style="margin-bottom: 15px">
-The cost of membership for the Coronado Men’s Golf Club (CMGC) is an initiation fee of $300 plus one year’s annual dues, which is currently $160.
+The cost of membership for the Coronado Men’s Golf Club (CMGC) is an initiation fee of $400 plus one year’s annual dues, which is currently $175.
   </li>
   <li style="margin-bottom: 15px">
 You must have 2 CMGC sponsors (see below).
   </li>
   <li style="margin-bottom: 15px">
-To complete your application, you must pay half of the initiation fee ($150) which is non-refundable. 
-When you click on the Submit Application And Pay Fee button below, you will then be given a page with a link to PayPal to pay the $150 fee. 
+To complete your application, you must pay half of the initiation fee ($200) which is non-refundable. 
+When you click on the Submit Application And Pay Fee button below, you will then be given a page with a link to PayPal to pay the $200 fee. 
 Your application is then put on the Pending Applications list. After your sponsors are verified by the CMGC Membership Chair, your application is moved to the Waiting List.
 (Both the Pending Applications and Waiting list are visible on the club’s website, <a href="https://coronadomensgolf.org">coronadomensgolf.org</a>, under the Membership menu item.)
   </li>
@@ -249,11 +276,12 @@ then the entire deposit will be forfeited. You may withdraw your application pri
   <li style="margin-bottom: 15px">
 You will receive an invitation of membership by email (cmgcmembership1@gmail.com) when you near the top of the waiting list. 
 To ensure delivery of your membership invitation by email, please add cmgcmembership1@gmail.com to your address book. When you accept the membership invitation, 
-you must pay the remaining balance of the initiation fee of $150 plus first year’s dues, which is currently $160 for a total of $310 to become a CMGC member.
+you must pay the remaining balance of the initiation fee of $200 plus first year’s dues, which is currently $175 for a total of $375 to become a CMGC member.
   </li>
   <li style="margin-bottom: 15px">
 Your CMGC sponsors must be members in good standing for a minimum of 12 months. Each of your sponsor’s states that they have known you for at least one month 
-and have played at least two rounds of golf with you. The Membership Chair will verify your sponsors. Please provide the following information for your sponsors:
+and have played at least two rounds of golf with you. Sponsors may sponsor only 1 or 2 players each year. Sponsors will be sent an email to confirm that they are sponsoring you. 
+Please provide the following information for your sponsors:
   </li>
 </ol>
 	
@@ -301,8 +329,8 @@ and have played at least two rounds of golf with you. The Membership Chair will 
 						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
 						$streetAddress, $city, $state, $zipCode);
 
-	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
-	//SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "pma1960@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	//SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmtc.td@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
 
 	// Redirect to payment page after clearing output buffer
 	ob_start();
