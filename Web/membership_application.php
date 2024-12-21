@@ -70,27 +70,27 @@ if(!empty($_GET['debug'])){
 //$LastName[$i] = str_replace('"', "", $LastName[$i]); // remove double quotes
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	$lastName = test_input($_POST["LastName"]);
-	$firstName = test_input($_POST["FirstName"]);
+	$lastName = TestInput($_POST["LastName"]);
+	$firstName = TestInput($_POST["FirstName"]);
 	// mailing address was replaced with street/city/state/zip
-	//$mailingAddress = test_input($_POST["MailingAddress"]);
-	$email = test_input($_POST["Email"]);
-	$email2 = test_input($_POST["Email2"]);
-	$ghin = test_input($_POST["GHIN"]);
-	$phoneNumber = test_input($_POST["Phone"]);
-	$birthMonth = test_input($_POST["BirthMonth"]);
-	$birthDay = test_input($_POST["BirthDay"]);
-	$birthYear = test_input($_POST["BirthYear"]);
-	$sponsor1LastName = test_input($_POST["Sponsor1LastName"]);
-	$sponsor1Ghin = test_input($_POST["Sponsor1Ghin"]);
-	$sponsor1Phone = test_input($_POST["Sponsor1Phone"]);
-	$sponsor2LastName = test_input($_POST["Sponsor2LastName"]);
-	$sponsor2Ghin = test_input($_POST["Sponsor2Ghin"]);
-	$sponsor2Phone = test_input($_POST["Sponsor2Phone"]);
-	$streetAddress = test_input($_POST["StreetAddress"]);
-	$city = test_input($_POST["City"]);
-	$state = test_input($_POST["State"]);
-	$zipCode = test_input($_POST["ZipCode"]);
+	//$mailingAddress = TestInput($_POST["MailingAddress"]);
+	$email = TestInput($_POST["Email"]);
+	$email2 = TestInput($_POST["Email2"]);
+	$ghin = TestInput($_POST["GHIN"]);
+	$phoneNumber = TestInput($_POST["Phone"]);
+	$birthMonth = TestInput($_POST["BirthMonth"]);
+	$birthDay = TestInput($_POST["BirthDay"]);
+	$birthYear = TestInput($_POST["BirthYear"]);
+	$sponsor1LastName = TestInput($_POST["Sponsor1LastName"]);
+	$sponsor1Ghin = TestInput($_POST["Sponsor1Ghin"]);
+	$sponsor1Phone = TestInput($_POST["Sponsor1Phone"]);
+	$sponsor2LastName = TestInput($_POST["Sponsor2LastName"]);
+	$sponsor2Ghin = TestInput($_POST["Sponsor2Ghin"]);
+	$sponsor2Phone = TestInput($_POST["Sponsor2Phone"]);
+	$streetAddress = TestInput($_POST["StreetAddress"]);
+	$city = TestInput($_POST["City"]);
+	$state = TestInput($_POST["State"]);
+	$zipCode = TestInput($_POST["ZipCode"]);
 
 	if(empty($state)){
 		$state = "CA";
@@ -118,11 +118,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$error = "Sponsor 1 and sponsor 2 must be different people (the GHIN numbers match)";
 	}
 	else {
-		$error = check_GHIN($connection, $sponsor1LastName, $sponsor1Ghin);
-		if(empty($error)){
-			$error = check_GHIN($connection, $sponsor2LastName, $sponsor2Ghin);
+		$error = CheckGhin($connection, $sponsor1LastName, $sponsor1Ghin);
+		if(strlen($error) == 0){
+			// only 1 error message possible
+			$error = CheckGhin($connection, $sponsor2LastName, $sponsor2Ghin);
+		} else {
+			// potentially append 2 error messages together
+			$error2 = CheckGhin($connection, $sponsor2LastName, $sponsor2Ghin);
+			if(strlen($error2) > 0){
+				$error = $error . "<br>" . $error2;
+			}
 		}
-		if(empty($error) && check_for_existing_application($connection, $lastName, $firstName, $ghin)){
+		if((strlen($error) == 0) && CheckForExistingApplication($connection, $lastName, $firstName, $ghin)){
 			$error = 'Pending application already exists for: ' . $lastName . ', ' . $firstName . ' (' . $ghin . ')';
 		}
 	}
@@ -329,8 +336,14 @@ Please provide the following information for your sponsors:
 						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
 						$streetAddress, $city, $state, $zipCode);
 
-	//SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
-	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmtc.td@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	if($debug){
+		SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgc.td@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	} else {
+		SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	}
+
+	InsertSponsor($connection, $insert_id, $sponsor1Ghin, $sponsor1LastName);
+	InsertSponsor($connection, $insert_id, $sponsor2Ghin, $sponsor2LastName);
 
 	// Redirect to payment page after clearing output buffer
 	ob_start();
@@ -392,7 +405,7 @@ function InsertApplication($connection, $lastName, $firstName, $mailingAddress, 
 	return $insert->insert_id;
 }
 
-function check_GHIN($connection, $lastName, $ghin){
+function CheckGhin($connection, $lastName, $ghin){
 
 	$rosterEntry = GetRosterEntry ( $connection, $ghin );
 
@@ -421,13 +434,74 @@ function check_GHIN($connection, $lastName, $ghin){
 		if($interval->y < 1){
 			return $lastName . '(' . $ghin . ')' . ' has not been a member for 12 months yet';
 		}
+
+		$pastSponsorships = CountPastSponsorships($connection, $ghin);
+		if($pastSponsorships >= 2){
+			return 'Sponsor ' . $lastName . ' has already sponsored ' . $pastSponsorships . ' other players this calendar year and cannot sponsor any more.';
+		}
 		
 	}
 
 	return null;
 }
 
-function check_for_existing_application($connection, $lastName, $firstName, $ghin){
+function InsertSponsor($connection, $insert_id, $sponsorGhin, $sponsorLastName) {
+	$sqlCmd = "INSERT INTO `MembershipSponsors` VALUES (?, ?, ?, ?, ?, ?)";
+	$insert = $connection->prepare ( $sqlCmd );
+	
+	if (! $insert) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	$confirmed = 0;
+	$confirmationID = 0; // for now
+	$dateAdded = date ( 'Y-m-d' );
+
+	if (! $insert->bind_param ( 'isisii', $insert_id, $dateAdded, $sponsorGhin, $sponsorLastName, $confirmationID, $confirmed )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+	
+	if (! $insert->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+}
+
+function CountPastSponsorships($connection, $ghin){
+
+	$sqlCmd = "SELECT DateAdded FROM `MembershipSponsors` WHERE `GHIN` = ?";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query->bind_param ( 'i', $ghin )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ($date);
+
+	$now = new DateTime ( "now" );
+	$thisYear = $now->format('Y');
+
+	$count = 0;
+	while ( $query->fetch () ) {
+		$year = date('Y', strtotime($date));
+
+		// Count how many sponsorships this year
+		if(strcmp($thisYear, $year) == 0){
+			$count++;
+		}
+	}
+
+	return $count;
+}
+
+function CheckForExistingApplication($connection, $lastName, $firstName, $ghin){
 
 	$sqlCmd = "SELECT LastName,FirstName,GHIN,Payment FROM `MembershipApplication` WHERE `Active` = 1 AND `LastName` = ? AND `FirstName` = ? AND `GHIN` = ?";
 	$query = $connection->prepare ( $sqlCmd );
@@ -454,7 +528,7 @@ function check_for_existing_application($connection, $lastName, $firstName, $ghi
 	return $foundRecord;
 }
 
-function test_input($data) {
+function TestInput($data) {
 	if(empty($data)){
 		return $data;
 	}
