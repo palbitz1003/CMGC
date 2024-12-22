@@ -242,7 +242,7 @@ if ((strlen($error) != 0) || !isset ( $_POST ['LastName'] ) || ($debug && (strle
 	echo '<td style="border: none;">GHIN Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" name="GHIN" size="10" pattern="[0-9]+"';
 	echo '    value="' . $ghin . '"  required><br> <small>(Use zero if you don\'t have one)</small></td>' . PHP_EOL;
-	echo '<td style="border: none;">Phone Number</td>' . PHP_EOL;
+	echo '<td style="border: none;">Cell Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" id="phone" name="Phone"  size="25"';
 	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $phoneNumber . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
 	echo '</tr>' . PHP_EOL;
@@ -303,7 +303,7 @@ Please provide the following information for your sponsors:
 	echo '<td style="border: none;">GHIN Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" size="10" pattern="[0-9]+"';
 	echo '    name="Sponsor1Ghin" value="' . $sponsor1Ghin . '" required></td>' . PHP_EOL;
-	echo '<td style="border: none;">Phone Number</td>' . PHP_EOL;
+	echo '<td style="border: none;">Cell Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" id="sp1phone" name="Sponsor1Phone"';
 	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $sponsor1Phone . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
@@ -315,7 +315,7 @@ Please provide the following information for your sponsors:
 	echo '<td style="border: none;">GHIN Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" size="10" pattern="[0-9]+"';
 	echo '    name="Sponsor2Ghin" value="' . $sponsor2Ghin . '" required></td>' . PHP_EOL;
-	echo '<td style="border: none;">Phone Number</td>' . PHP_EOL;
+	echo '<td style="border: none;">Cell Number</td>' . PHP_EOL;
 	echo '<td style="border: none;"><input type="text" id="sp2phone" name="Sponsor2Phone"';
 	echo '	pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="' . $sponsor2Phone . '" required><br><small>(Format: 123-456-7890)</small></td>' . PHP_EOL;
 	echo '</tr>'  . PHP_EOL;
