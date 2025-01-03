@@ -1,9 +1,12 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $script_folder . '/signup functions.php';
 require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.php';
+
 date_default_timezone_set ( 'America/Los_Angeles' );
 
 
@@ -60,9 +63,12 @@ $city = "";
 $state = "CA";
 $zipCode = "";
 
+$membershipEmail = "cmgcmembership1@gmail.com";
+
 $debug = false;
 if(!empty($_GET['debug'])){
 	$debug = true;
+	$membershipEmail = "cmgc.td@gmail.com";
 }
 
 // Remove single and double quotes?
@@ -286,7 +292,7 @@ To ensure delivery of your membership invitation by email, please add cmgcmember
 you must pay the remaining balance of the initiation fee of $200 plus first year’s dues, which is currently $175 for a total of $375 to become a CMGC member.
   </li>
   <li style="margin-bottom: 15px">
-Your CMGC sponsors must be members in good standing for a minimum of 12 months. Each of your sponsor’s states that they have known you for at least one month 
+Your CMGC sponsors must be members in good standing for a minimum of 12 months. Each of your sponsors states that they have known you for at least one month 
 and have played at least two rounds of golf with you. Sponsors may sponsor only 1 or 2 players each year. Sponsors will be sent an email to confirm that they are sponsoring you. 
 Please provide the following information for your sponsors:
   </li>
@@ -336,14 +342,13 @@ Please provide the following information for your sponsors:
 						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
 						$streetAddress, $city, $state, $zipCode);
 
-	if($debug){
-		SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgc.td@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
-	} else {
-		SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, "cmgcmembership1@gmail.com", "New application for " . $lastName . ', ' . $firstName, "New application submitted");
-	}
+	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $membershipEmail, "New application for " . $lastName . ', ' . $firstName, "New application submitted");
 
 	InsertSponsor($connection, $insert_id, $sponsor1Ghin, $sponsor1LastName);
 	InsertSponsor($connection, $insert_id, $sponsor2Ghin, $sponsor2LastName);
+
+	SendApplicationSponsorEmail($connection, $doNotReplyEmailAddress, $doNotReplyEmailPassword, $sponsor1Ghin, $membershipEmail);
+	SendApplicationSponsorEmail($connection, $doNotReplyEmailAddress, $doNotReplyEmailPassword, $sponsor2Ghin, $membershipEmail);
 
 	// Redirect to payment page after clearing output buffer
 	ob_start();
@@ -442,7 +447,7 @@ function CheckGhin($connection, $lastName, $ghin){
 		
 	}
 
-	return null;
+	return "";
 }
 
 function InsertSponsor($connection, $insert_id, $sponsorGhin, $sponsorLastName) {
@@ -526,6 +531,49 @@ function CheckForExistingApplication($connection, $lastName, $firstName, $ghin){
 	}
 
 	return $foundRecord;
+}
+
+function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsorGhin, $replyTo){
+    try {
+		$rosterEntry = GetRosterEntry ( $connection, $sponsorGhin );
+
+        $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
+
+        //Server settings
+        $mail->SMTPDebug = 0;      // use 2 for verbose 
+        $mail->isSMTP();                                      // Set mailer to use SMTP
+        $mail->Host = 'smtp.dreamhost.com';                  // Specify main and backup SMTP servers
+        $mail->SMTPAuth = true;                               // Enable SMTP authentication
+        $mail->Username = $from; 
+        $mail->Password = $fromPassword; 
+        $mail->SMTPSecure = 'ssl';                            // Enable SSL encryption, TLS also accepted with port 465
+        $mail->Port = 465;                                    // TCP port to connect to
+		$mail->AddAddress($rosterEntry->Email);
+
+        //Recipients
+        $mail->setFrom($from, 'CMGC Membership Application');          //This is the email your form sends From
+		$mail->addReplyTo($replyTo, 'Membership Chairman');
+
+        //$mail->addAddress($to, ''); // Add a recipient address
+        //$mail->addAddress('contact@example.com');               // Name is optional
+        //$mail->addCC('cc@example.com');
+        //$mail->addBCC('bcc@example.com');
+
+        //Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+
+        //Content
+        $mail->isHTML(false);                                  // Set email format to HTML
+        $mail->Subject = "Coronado Men's Club new member sponsor";
+        $mail->Body    = "testing sponsor email";
+        //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+
+        $mail->send();
+        //echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo '<p>Message could not be sent. Mailer Error: ' . $mail->ErrorInfo . "</p>";
+    }
 }
 
 function TestInput($data) {
