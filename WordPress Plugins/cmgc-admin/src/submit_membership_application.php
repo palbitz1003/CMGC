@@ -12,6 +12,7 @@ function cmgc_admin_membership_application_page2()
         return;
     }
     
+    // Read the application table
     $sqlCmd = "SELECT * FROM `MembershipApplication` WHERE `Active` = 1 ORDER BY `DateTimeAdded` ASC";
     $query = $connection->prepare ( $sqlCmd );
     
@@ -84,6 +85,44 @@ function cmgc_admin_membership_application_page2()
 
         $membershipApplicationEntries[] = $membershipApplication;
     }
+
+    $query->close ();
+
+    // Read the sponsor table 
+    $sqlCmd = "SELECT * FROM `MembershipSponsors`";
+    $query = $connection->prepare ( $sqlCmd );
+    
+    if (! $query) {
+        die ( $sqlCmd . " prepare failed: " . $connection->error );
+    }
+    
+    if (! $query->execute ()) {
+        die ( $sqlCmd . " execute failed: " . $connection->error );
+    }
+
+    class MembershipApplicationSponsor {
+        public $ApplicationRecordKey;
+        public $DateAdded;
+        public $SponsorGhin;
+        public $SponsorLastName;
+        public $ConfirmationId;
+        public $Confirmed;
+    }
+
+    $query->bind_result ( $applicationRecordKey, $dateAdded, $sponsorGhin, $sponsorLastName, $confirmationId, $confirmed );
+
+    $membershipApplicationSponsorEntries = array();
+    while ( $query->fetch () ) {
+        $membershipApplicationSponsor = new MembershipApplicationSponsor();
+        $membershipApplicationSponsor->ApplicationRecordKey = $applicationRecordKey;
+        $membershipApplicationSponsor->DateAdded = $dateAdded;
+        $membershipApplicationSponsor->SponsorGhin = $sponsorGhin;
+        $membershipApplicationSponsor->SponsorLastName = $sponsorLastName;
+        $membershipApplicationSponsor->ConfirmationId = $confirmationId;
+        $membershipApplicationSponsor->Confirmed = $confirmed;
+
+        $membershipApplicationSponsorEntries[] = $membershipApplicationSponsor;
+    }
     
     $query->close ();
 
@@ -130,11 +169,37 @@ function cmgc_admin_membership_application_page2()
         echo '</tr>' . PHP_EOL;
     }
     
-    // Finish the first column table.  Show the 2nd column table.
     echo '</tbody>' . PHP_EOL;
     echo '</table>' . PHP_EOL;
 
     echo '<br><br><input type="submit" name="Clear" value="Clear Checked Applications" class="button-primary">' . PHP_EOL;
+    echo '</form>' . PHP_EOL;
+
+    // Show the sponsors after the applications
+    echo '<br><br><table class="fixed" >' . PHP_EOL;
+    echo '<thead><tr><th>Applicant</th><th>Sponsor</th><th>Sponsor GHIN</th><th style="padding: 0px 10px 0px 10px;">Confirmation ID</th><th style="padding: 0px 10px 0px 10px;">Confirmed</th></tr></thead>' . PHP_EOL;
+    echo '<tbody>' . PHP_EOL;
+
+    for($i = 0; $i < count ( $membershipApplicationEntries ); ++ $i) {
+        for($j = 0; $j < count($membershipApplicationSponsorEntries); ++ $j){
+            if($membershipApplicationEntries[$i]->RecordKey == $membershipApplicationSponsorEntries[$j]->ApplicationRecordKey){
+                echo '<tr>' . PHP_EOL;
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->LastName . ', ' .  $membershipApplicationEntries[$i]->FirstName .'</td>' . PHP_EOL;
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationSponsorEntries[$j]->SponsorLastName . '</td>' . PHP_EOL;
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationSponsorEntries[$j]->SponsorGhin . '</td>' . PHP_EOL;
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationSponsorEntries[$j]->ConfirmationId . '</td>' . PHP_EOL;
+                $sponsorConfirmed = "no";
+                if($membershipApplicationSponsorEntries[$j]->Confirmed != 0){
+                    $sponsorConfirmed = "yes";
+                }
+                echo '<td style="padding: 0px 10px 0px 10px;">' . $sponsorConfirmed . '</td>' . PHP_EOL;
+                echo '</tr>' . PHP_EOL;
+            }
+        }
+    }
+
+    echo '</tbody>' . PHP_EOL;
+    echo '</table>' . PHP_EOL;
  }
 
  function cmgc_admin_clear_applications_action2()
