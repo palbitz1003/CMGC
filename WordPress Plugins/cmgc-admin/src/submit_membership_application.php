@@ -105,11 +105,10 @@ function cmgc_admin_membership_application_page2()
         public $DateAdded;
         public $SponsorGhin;
         public $SponsorLastName;
-        public $ConfirmationId;
         public $Confirmed;
     }
 
-    $query->bind_result ( $applicationRecordKey, $dateAdded, $sponsorGhin, $sponsorLastName, $confirmationId, $confirmed );
+    $query->bind_result ( $applicationRecordKey, $dateAdded, $sponsorGhin, $sponsorLastName, $confirmed );
 
     $membershipApplicationSponsorEntries = array();
     while ( $query->fetch () ) {
@@ -118,7 +117,6 @@ function cmgc_admin_membership_application_page2()
         $membershipApplicationSponsor->DateAdded = $dateAdded;
         $membershipApplicationSponsor->SponsorGhin = $sponsorGhin;
         $membershipApplicationSponsor->SponsorLastName = $sponsorLastName;
-        $membershipApplicationSponsor->ConfirmationId = $confirmationId;
         $membershipApplicationSponsor->Confirmed = $confirmed;
 
         $membershipApplicationSponsorEntries[] = $membershipApplicationSponsor;
@@ -177,7 +175,7 @@ function cmgc_admin_membership_application_page2()
 
     // Show the sponsors after the applications
     echo '<br><br><table class="fixed" >' . PHP_EOL;
-    echo '<thead><tr><th>Applicant</th><th>Sponsor</th><th>Sponsor GHIN</th><th style="padding: 0px 10px 0px 10px;">Confirmation ID</th><th style="padding: 0px 10px 0px 10px;">Confirmed</th></tr></thead>' . PHP_EOL;
+    echo '<thead><tr><th>Applicant</th><th>Sponsor</th><th>Sponsor GHIN</th><th style="padding: 0px 10px 0px 10px;">Confirmed</th></tr></thead>' . PHP_EOL;
     echo '<tbody>' . PHP_EOL;
 
     for($i = 0; $i < count ( $membershipApplicationEntries ); ++ $i) {
@@ -187,7 +185,6 @@ function cmgc_admin_membership_application_page2()
                 echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationEntries[$i]->LastName . ', ' .  $membershipApplicationEntries[$i]->FirstName .'</td>' . PHP_EOL;
                 echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationSponsorEntries[$j]->SponsorLastName . '</td>' . PHP_EOL;
                 echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationSponsorEntries[$j]->SponsorGhin . '</td>' . PHP_EOL;
-                echo '<td style="padding: 0px 10px 0px 10px;">' . $membershipApplicationSponsorEntries[$j]->ConfirmationId . '</td>' . PHP_EOL;
                 $sponsorConfirmed = "no";
                 if($membershipApplicationSponsorEntries[$j]->Confirmed != 0){
                     $sponsorConfirmed = "yes";

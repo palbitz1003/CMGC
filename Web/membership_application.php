@@ -451,7 +451,7 @@ function CheckGhin($connection, $lastName, $ghin){
 }
 
 function InsertSponsor($connection, $insert_id, $sponsorGhin, $sponsorLastName) {
-	$sqlCmd = "INSERT INTO `MembershipSponsors` VALUES (?, ?, ?, ?, ?, ?)";
+	$sqlCmd = "INSERT INTO `MembershipSponsors` VALUES (?, ?, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
 	
 	if (! $insert) {
@@ -459,10 +459,9 @@ function InsertSponsor($connection, $insert_id, $sponsorGhin, $sponsorLastName) 
 	}
 
 	$confirmed = 0;
-	$confirmationID = 0; // for now
 	$dateAdded = date ( 'Y-m-d' );
 
-	if (! $insert->bind_param ( 'isisii', $insert_id, $dateAdded, $sponsorGhin, $sponsorLastName, $confirmationID, $confirmed )) {
+	if (! $insert->bind_param ( 'isisi', $insert_id, $dateAdded, $sponsorGhin, $sponsorLastName, $confirmed )) {
 		die ( $sqlCmd . " bind_param failed: " . $connection->error );
 	}
 	
@@ -564,9 +563,9 @@ function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsor
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
 
         //Content
-        $mail->isHTML(false);                                  // Set email format to HTML
+        //$mail->isHTML(false);                                  // Set email format to HTML
         $mail->Subject = "Coronado Men's Club new member sponsor";
-        $mail->Body    = "testing sponsor email";
+        $mail->msgHTML("testing sponsor email<p><b>paragraph 2</b>");
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
         $mail->send();
