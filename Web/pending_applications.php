@@ -67,15 +67,13 @@ if (! $applicationEntryList || (count ( $applicationEntryList ) == 0)) {
 echo ' <div id="content-container" class="entry-content">';
 echo '    <div id="content" role="main">';
 
-/*
 echo '<p>' . PHP_EOL;
-echo 'NOTE: Normally, membership applications are processed in the order they are completed. But, during the first week ';
-echo 'that applications are being accepted, we will randomize the order of the applications. We do not want this to be a race ';
-echo 'to get your application completed and it gives us time to deal with any initial problems. So, applications completed before ';
-echo 'end of day Sunday January 8th will be assigned a random number and moved to the waiting list in random number order. ';
-echo '(Your application is "complete" if you see "Paid" next to your name below.)' . PHP_EOL;
+echo 'NOTE: The order in which applications are completed does not indicate the order in which you will be placed ';
+echo 'on the waiting list. After 87 applications are completed or at the end of February, whichever happens first, ';
+echo 'the applications will be assigned a random number and moved to the waiting list in random number order. ';
 echo '</p>' . PHP_EOL;
-*/
+
+echo '<p>There are currently ' . count($applicationEntryList) . ' applications filled out.</p>' . PHP_EOL;
 
 if($showPaymentMessage){
 	echo '<p style="text-align: center">Click on the link next to your name to pay half of your initiation fee.</p>';

@@ -18,10 +18,61 @@ if ($connection->connect_error){
 	die ( $connection->connect_error );
 }
 
-//$now = new DateTime ( "now" );
-//$startDate = new DateTime('2023-01-01');
-//if($now < $startDate){
-/*
+$membershipEmail = "cmgcmembership1@gmail.com";
+
+$maxApplications = 87;
+$debug = false;
+if(!empty($_GET['debug'])){
+	$debug = true;
+	$maxApplications = 5;
+	$membershipEmail = "cmgc.td@gmail.com";
+} else {
+
+	$now = new DateTime ( "now" );
+	$startDate = new DateTime('2025-02-03');
+	if($now < $startDate){
+		$overrideTitle = "Membership Application";
+		get_header ();
+	?>
+		<div id="content-container" class="entry-content">
+		<div id="content" role="main">
+		<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
+		<p>
+		The CMGC New Member Application acceptance period will open on Feb 3, 2025. 
+		</p>
+		<p>
+		We will accept up to 87 new applications, which will bring the total waiting list length to 200, which is 4-5 years wait for the last player. 
+		The order in which applications are completed does not indicate the order in which you will be placed on the waiting list. 
+		After 87 applications are completed or at the end of February, whichever happens first, the applications will be assigned a random number and 
+		moved to the waiting list in random number order. 
+		</div><!-- #content -->
+		</div><!-- #content-container -->
+	<?php
+		get_footer();
+		return;
+	}
+
+	$endDate = new DateTime('2025-03-01');
+	if($now >= $endDate){
+		$overrideTitle = "Membership Application";
+		get_header ();
+	?>
+		<div id="content-container" class="entry-content">
+		<div id="content" role="main">
+		<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
+		<p>
+		The application period is over for 2025.  
+		</div><!-- #content -->
+		</div><!-- #content-container -->
+	<?php
+		get_footer();
+		return;
+	}
+}
+
+$applicationCount = GetApplicationCount($connection);
+if($applicationCount >= $maxApplications){
+
 	$overrideTitle = "Membership Application";
 	get_header ();
 ?>
@@ -29,15 +80,13 @@ if ($connection->connect_error){
 	<div id="content" role="main">
 	<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
 	<p>
-	The CMGC New Member Application acceptance period has closed for 2023. 
-	</p>
+	We have reached the maximum number of applications allowed for this application period. 
 	</div><!-- #content -->
 	</div><!-- #content-container -->
 <?php
 	get_footer();
 	return;
-*/
-//}
+}
 
 $error = "";
 $ghin = "";
@@ -63,13 +112,7 @@ $city = "";
 $state = "CA";
 $zipCode = "";
 
-$membershipEmail = "cmgcmembership1@gmail.com";
 
-$debug = false;
-if(!empty($_GET['debug'])){
-	$debug = true;
-	$membershipEmail = "cmgc.td@gmail.com";
-}
 
 // Remove single and double quotes?
 //$LastName[$i] = str_replace("'", "", $LastName[$i]); // remove single quotes
@@ -342,7 +385,7 @@ Please provide the following information for your sponsors:
 						$sponsor2LastName, $sponsor2Ghin, $sponsor2Phone,
 						$streetAddress, $city, $state, $zipCode);
 
-	SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $membershipEmail, "New application for " . $lastName . ', ' . $firstName, "New application submitted");
+	//SendEmail($doNotReplyEmailAddress, $doNotReplyEmailPassword, $membershipEmail, "New application for " . $lastName . ', ' . $firstName, "New application submitted");
 
 	InsertSponsor($connection, $insert_id, $sponsor1Ghin, $sponsor1LastName);
 	InsertSponsor($connection, $insert_id, $sponsor2Ghin, $sponsor2LastName);
@@ -532,6 +575,30 @@ function CheckForExistingApplication($connection, $lastName, $firstName, $ghin){
 	}
 
 	return $foundRecord;
+}
+
+function GetApplicationCount($connection){
+
+	$sqlCmd = "SELECT RecordKey FROM `MembershipApplication` WHERE `Active` = 1";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ($recordKey);
+
+	$count = 0;
+
+	while ( $query->fetch () ) {
+		$count++;
+	}
+
+	return $count;
 }
 
 function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsorGhin, $replyTo, $applicant, $confirmUrlBase){
