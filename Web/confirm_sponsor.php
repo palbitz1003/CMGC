@@ -39,7 +39,7 @@ if(!empty($_GET ['sponsor'])){
 $sponsorFound = CheckSponsorship($connection, $application, $sponsor);
 if($sponsorFound){
     ConfirmSponsorship($connection, $application, $sponsor);
-    echo "Sponsorship confirmed.";
+    echo "Sponsorship confirmed. Thank you!";
 } else {
     echo "Application " . $application . " does not have sponsor " . $sponsor;
 }

@@ -347,8 +347,10 @@ Please provide the following information for your sponsors:
 	InsertSponsor($connection, $insert_id, $sponsor1Ghin, $sponsor1LastName);
 	InsertSponsor($connection, $insert_id, $sponsor2Ghin, $sponsor2LastName);
 
-	SendApplicationSponsorEmail($connection, $doNotReplyEmailAddress, $doNotReplyEmailPassword, $sponsor1Ghin, $membershipEmail);
-	SendApplicationSponsorEmail($connection, $doNotReplyEmailAddress, $doNotReplyEmailPassword, $sponsor2Ghin, $membershipEmail);
+	$applicant = $firstName . ' ' . $lastName;
+	$confirmUrlBase = "https://" . $web_site . "/v2/confirm_sponsor.php?application=" . $insert_id;
+	SendApplicationSponsorEmail($connection, $doNotReplyEmailAddress, $doNotReplyEmailPassword, $sponsor1Ghin, $membershipEmail, $applicant, $confirmUrlBase);
+	SendApplicationSponsorEmail($connection, $doNotReplyEmailAddress, $doNotReplyEmailPassword, $sponsor2Ghin, $membershipEmail, $applicant, $confirmUrlBase);
 
 	// Redirect to payment page after clearing output buffer
 	ob_start();
@@ -532,7 +534,7 @@ function CheckForExistingApplication($connection, $lastName, $firstName, $ghin){
 	return $foundRecord;
 }
 
-function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsorGhin, $replyTo){
+function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsorGhin, $replyTo, $applicant, $confirmUrlBase){
     try {
 		$rosterEntry = GetRosterEntry ( $connection, $sponsorGhin );
 
@@ -565,7 +567,13 @@ function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsor
         //Content
         //$mail->isHTML(false);                                  // Set email format to HTML
         $mail->Subject = "Coronado Men's Club new member sponsor";
-        $mail->msgHTML("testing sponsor email<p><b>paragraph 2</b>");
+		$confirm = $confirmUrlBase . "&sponsor=" . $sponsorGhin;
+        $mail->msgHTML("You have been listed as a sponsor for " . $applicant . "'s application for membership to the Coronado Men's Golf Club. " .
+						"Please click this link to confirm that you have agreed to be a sponsor:" .
+						"<p><a href=\"" . $confirm . "\">" . $confirm . "</a>" .
+						"<p>Please reply to this email if have not given your consent to be a sponsor." .
+						"<p>Coronado Men's Golf Club");
+
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
         $mail->send();
