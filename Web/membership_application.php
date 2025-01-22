@@ -25,7 +25,9 @@ $debug = false;
 if(!empty($_GET['debug'])){
 	$debug = true;
 	$maxApplications = 5;
-	$membershipEmail = "cmgc.td@gmail.com";
+	//$membershipEmail = "cmgc.td@gmail.com";
+} else if (!empty($_GET['bob'])) {
+	// skip date check, for testing purposes
 } else {
 
 	$now = new DateTime ( "now" );
@@ -635,11 +637,12 @@ function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsor
         //$mail->isHTML(false);                                  // Set email format to HTML
         $mail->Subject = "Coronado Men's Club new member sponsor";
 		$confirm = $confirmUrlBase . "&sponsor=" . $sponsorGhin;
-        $mail->msgHTML("You have been listed as a sponsor for " . $applicant . "'s application for membership to the Coronado Men's Golf Club. " .
-						"Please click this link to confirm that you have agreed to be a sponsor:" .
-						"<p><a href=\"" . $confirm . "\">" . $confirm . "</a>" .
-						"<p>Please reply to this email if have not given your consent to be a sponsor." .
-						"<p>Coronado Men's Golf Club");
+        $mail->msgHTML($rosterEntry->FirstName . " " . $rosterEntry->LastName . "," .
+						"<p>You have been listed as a sponsor for " . $applicant . "'s application for membership to the Coronado Men's Golf Club. " .
+						"Please click this link to confirm that you have agreed to be a sponsor:</p>" .
+						"<p><a href=\"" . $confirm . "\">" . $confirm . "</a></p>" .
+						"<p>Please reply to this email if have not given your consent to be a sponsor.</p>" .
+						"<p>Coronado Men's Golf Club</p>");
 
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 

@@ -76,7 +76,7 @@ echo '</p>' . PHP_EOL;
 echo '<p>There are currently ' . count($applicationEntryList) . ' applications filled out.</p>' . PHP_EOL;
 
 if($showPaymentMessage){
-	echo '<p style="text-align: center">Click on the link next to your name to pay half of your initiation fee.</p>';
+	echo '<p>Click on the link next to your name to pay half of your initiation fee.</p>';
 }
 
 echo PHP_EOL;

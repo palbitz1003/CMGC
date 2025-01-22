@@ -175,7 +175,7 @@ function cmgc_admin_membership_application_page2()
 
     // Show the sponsors after the applications
     echo '<br><br><table class="fixed" >' . PHP_EOL;
-    echo '<thead><tr><th>Applicant</th><th>Sponsor</th><th>Sponsor GHIN</th><th style="padding: 0px 10px 0px 10px;">Confirmed</th></tr></thead>' . PHP_EOL;
+    echo '<thead><tr><th>Applicant</th><th>Sponsor</th><th>Sponsor GHIN</th><th style="padding: 0px 10px 0px 10px;">Confirmed</th><th></th></tr></thead>' . PHP_EOL;
     echo '<tbody>' . PHP_EOL;
 
     for($i = 0; $i < count ( $membershipApplicationEntries ); ++ $i) {
@@ -190,6 +190,19 @@ function cmgc_admin_membership_application_page2()
                     $sponsorConfirmed = "yes";
                 }
                 echo '<td style="padding: 0px 10px 0px 10px;">' . $sponsorConfirmed . '</td>' . PHP_EOL;
+
+                echo '<td style="padding: 0px 10px 0px 10px;">' . PHP_EOL;
+                if($membershipApplicationSponsorEntries[$j]->Confirmed == 0){
+                    // Show confirm button when sponsor has not been confirmed yet
+                    echo '<form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
+                    echo '  <input type="hidden" name="action" value="cmgc_admin_confirm_sponsor">' . PHP_EOL;
+                    echo '  <input type="hidden" name="RecordKey" value="' . $membershipApplicationSponsorEntries[$j]->ApplicationRecordKey . '">' . PHP_EOL;
+                    echo '  <input type="hidden" name="SponsorGhin" value="' . $membershipApplicationSponsorEntries[$j]->SponsorGhin . '">' . PHP_EOL;
+                    echo '  <input type="submit" name="Confirm" value="Confirm" class="button-primary">' . PHP_EOL;
+                echo '</form>' . PHP_EOL;
+                }
+                echo '</td>' . PHP_EOL;
+
                 echo '</tr>' . PHP_EOL;
             }
         }
@@ -239,4 +252,47 @@ function cmgc_admin_membership_application_page2()
     return true;
 }
 
- ?>
+function cmgc_admin_confirm_sponsor_action2()
+{
+   // Putting require_once at the top of this file didn't work
+   require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
+
+   if($_POST["action"] === "cmgc_admin_confirm_sponsor"){
+       
+        //echo "Record Key is " . $_POST['RecordKey'] . " and sponsor ghin is " . $_POST['SponsorGhin'];
+
+        if(isset($_POST['RecordKey']) && isset($_POST['SponsorGhin'])){
+        
+            $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
+        
+            if ($connection->connect_error){
+                echo 'Database connection error: ' .  $connection->connect_error . "<br>";
+                return false;
+            }
+
+            $sqlCmd = "UPDATE `MembershipSponsors` SET  `Confirmed` = 1 WHERE `ApplicationRecordKey` = ? AND `GHIN` = ?";
+            $update = $connection->prepare ( $sqlCmd );
+        
+            if (! $update) {
+                die ( $sqlCmd . " prepare failed: " . $connection->error );
+            }
+        
+            if (! $update->bind_param ( 'ii', $_POST['RecordKey'], $_POST['SponsorGhin'])) {
+                die ( $sqlCmd . " bind_param failed: " . $connection->error );
+            }
+            
+            if (! $update->execute ()) {
+                die ( $sqlCmd . " execute failed: " . $connection->error );
+            }
+            $update->close ();
+
+        } else {
+            echo "Missing parameter: Record Key is " . $_POST['RecordKey'] . " and sponsor ghin is " . $_POST['SponsorGhin'];
+            return false;
+        }
+    }
+
+   return true;
+}
+
+?>
