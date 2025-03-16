@@ -1592,17 +1592,35 @@ namespace WebAdmin.ViewModel
             foreach (var request in TeeTimeRequests)
             {
                 bool infrequentPlayer = false;
+                int minTeeTimeCount = 2;
                 foreach (var player in request.Players)
                 {
                     if ((player.TeeTimeCount >= 0) && (player.TeeTimeCount <= 2) && (!player.Extra.StartsWith("G")))
                     {
                         infrequentPlayer = true;
+                        if (player.TeeTimeCount < minTeeTimeCount)
+                        {
+                            minTeeTimeCount = player.TeeTimeCount;
+                        }
                     }
                 }
 
                 if (infrequentPlayer)
                 {
-                    int newBlindDrawNumber = _randomNumberGenerator.Next(5000, 5999);
+                    int newBlindDrawNumber = 5000;
+                    if (minTeeTimeCount == 0)
+                    {
+                        newBlindDrawNumber = _randomNumberGenerator.Next(5000, 5299);
+                    }
+                    else if (minTeeTimeCount == 1)
+                    {
+                        newBlindDrawNumber = _randomNumberGenerator.Next(5300, 5599);
+                    }
+                    else
+                    {
+                        newBlindDrawNumber = _randomNumberGenerator.Next(5600, 5999);
+                    }
+                    
                     if (newBlindDrawNumber < request.BlindDrawValue)
                     {
                         request.BlindDrawValue = newBlindDrawNumber;
