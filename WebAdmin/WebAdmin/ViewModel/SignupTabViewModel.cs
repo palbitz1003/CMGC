@@ -1616,11 +1616,17 @@ namespace WebAdmin.ViewModel
                     {
                         newBlindDrawNumber = _randomNumberGenerator.Next(5300, 5599);
                     }
-                    else
+                    else 
                     {
                         newBlindDrawNumber = _randomNumberGenerator.Next(5600, 5999);
                     }
-                    
+
+                    // If a foursome with players with min tee time count of 2, just keep blind draw number
+                    if ((request.Players.Count == 4) && (minTeeTimeCount == 2))
+                    {
+                        newBlindDrawNumber = request.BlindDrawValue;
+                    }
+
                     if (newBlindDrawNumber < request.BlindDrawValue)
                     {
                         request.BlindDrawValue = newBlindDrawNumber;
