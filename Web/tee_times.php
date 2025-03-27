@@ -53,11 +53,11 @@ if (! $tournamentKey || !is_numeric($tournamentKey)) {
 		echo '</td></tr>' . PHP_EOL;
 		echo '<tr>' . PHP_EOL;
 		
-		echo '<td style="width:50%;border:none;">' . PHP_EOL;
+		echo '<td style="width:50%;border:none;padding-right: 25px;">' . PHP_EOL;
 		ShowTeeTimes ($connection, $tournamentKey, $teeTimeArray, $unpaidSignupArray, $tournament->ClubChampionship);
 		echo '</td>' . PHP_EOL;
 		
-		echo '<td style="width:50%;border:none;">' . PHP_EOL;
+		echo '<td style="width:50%;border:none;padding-left: 25px;">' . PHP_EOL;
 		ShowPlayersAlphabetically ( $connection, $tournamentKey, $teeTimeArray );
 		echo '</td>' . PHP_EOL;
 		
