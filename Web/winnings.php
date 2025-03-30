@@ -148,7 +148,7 @@ $scoresArray = GetAllScoresResults($connection, $namesToGhin);
 
 echo '<form style="text-align: center" name="input" method="post">'  . PHP_EOL;
 
-echo 'GHIN number or "all" for all players:&nbsp;' . PHP_EOL;
+echo 'GHIN number or "all":&nbsp;' . PHP_EOL;
 echo '<input type="text" name="ghin" maxlength="10" size="10" value="' . $ghin . '">' . PHP_EOL;
 
 echo '&nbsp;&nbsp;&nbsp;Time Range:&nbsp;' . PHP_EOL;
