@@ -175,6 +175,7 @@ echo '</select>' . PHP_EOL;
 echo '&nbsp;&nbsp;&nbsp;';
 echo '<input type="submit" value="Submit"> <br> <br>' . PHP_EOL;
 echo '</form>' . PHP_EOL;
+echo '<p>The winnings below are only from weekend play. They do not include CTP winnings, hole-in-one winnings, or Wednesday play winnings.</p>' . PHP_EOL;
 
 if($ghin === "all"){
     DisplayWinningsForAll($connection, $players, $chitsArray, $scoresArray, $startDate, $endDate, $dateRange);
