@@ -80,6 +80,19 @@ if(($t->ClubChampionship || $t->SrClubChampionship) && ($players[0]->Extra == "C
 	return;
 }
 
+if($t->MemberGuest){
+	echo '<div id="content-container" class="entry-content">' . PHP_EOL;;
+	echo '<p style = "text-align: center;">' . PHP_EOL;;
+	echo "Only twosomes are allowed for the member-guest. You cannot add another group to your group." . PHP_EOL;
+    echo '</div><!-- #content-container -->' . PHP_EOL;
+	
+	if (isset ( $connection )) {
+		$connection->close ();
+	}
+	get_footer ();
+	return;
+}
+
 //var_dump($_POST);
 
 $errorAccessCode1 = null;

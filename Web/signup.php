@@ -313,10 +313,15 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 			echo 'Fill in the GHIN and last name for 1-4 players.  Player 1 must be filled in.' . PHP_EOL;
 		}
 		echo '</p>' . PHP_EOL;
-		
-		if($t->RequirePayment) { 
-			echo '<p>This is only step 1.  After entering the list of players, you will be asked to pay the tournament fee.</p>' . PHP_EOL;
+
+		if($t->MemberGuest){
+			echo '<p>You can only sign up as a pair. Send an email to ' . $t->ChairmanEmail . ' (or use any tournament director email link) after you complete your signup if there is another group ';
+			echo 'you would prefer to play with to fill out your foursome. They must be signed up also and both groups must pass the blind draw selection.' . PHP_EOL;
 		}
+		
+		//if($t->RequirePayment) { 
+		//	echo '<p>This is only step 1.  After entering the list of players, you will be asked to pay the tournament fee.</p>' . PHP_EOL;
+		//}
 		echo '<form name="input" method="post">' . PHP_EOL;
 
 		if($t->TeamSize == 2)
@@ -342,21 +347,24 @@ if ($hasError || !isset ( $_POST ['Player'] )) {
 			echo '</td>' . PHP_EOL;
 			echo '</tr>' . PHP_EOL;
 			
-			echo '<tr>' . PHP_EOL;
-			TeamNumber($t, 2, $flightErrorList, $Extra);
-			
-			echo '<td>' . PHP_EOL;
-			AddPlayerTable($t);  // adds unfinished <table> which is closed below
-			
-			AddPlayer($t, 3, $GHIN[2], $LastName[2], $Extra[2], $flightErrorList[2]);
-			insert_error_line($errorList[2], 2);
-			
-			AddPlayer($t, 4, $GHIN[3], $LastName[3], $Extra[3], $flightErrorList[3]);
-			insert_error_line($errorList[3], 2);
-			
-			echo '</table>' . PHP_EOL;
-			echo '</td>' . PHP_EOL;
-			echo '</tr>' . PHP_EOL;
+			// Member-Guest only allows a twosome to sign up
+			if(!$t->MemberGuest){
+				echo '<tr>' . PHP_EOL;
+				TeamNumber($t, 2, $flightErrorList, $Extra);
+				
+				echo '<td>' . PHP_EOL;
+				AddPlayerTable($t);  // adds unfinished <table> which is closed below
+				
+				AddPlayer($t, 3, $GHIN[2], $LastName[2], $Extra[2], $flightErrorList[2]);
+				insert_error_line($errorList[2], 2);
+				
+				AddPlayer($t, 4, $GHIN[3], $LastName[3], $Extra[3], $flightErrorList[3]);
+				insert_error_line($errorList[3], 2);
+				
+				echo '</table>' . PHP_EOL;
+				echo '</td>' . PHP_EOL;
+				echo '</tr>' . PHP_EOL;
+			}
 			echo '<tr>' . PHP_EOL;
 			echo '<td></td>' . PHP_EOL;  // empty team number
 			
