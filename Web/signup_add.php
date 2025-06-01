@@ -82,8 +82,9 @@ if(($t->ClubChampionship || $t->SrClubChampionship) && ($players[0]->Extra == "C
 
 if($t->MemberGuest){
 	echo '<div id="content-container" class="entry-content">' . PHP_EOL;;
-	echo '<p style = "text-align: center;">' . PHP_EOL;;
-	echo "Only twosomes are allowed for the member-guest. You cannot add another group to your group." . PHP_EOL;
+	echo '<p>' . PHP_EOL;;
+	echo 'Only twosomes can sign up for the member-guest. If you want to play with another group that is signed up, send email '; 
+	echo 'to the <a href="mailto:' . $t->ChairmanEmail . '">tournament director</a> and ask to be paired up with that group' . PHP_EOL;
     echo '</div><!-- #content-container -->' . PHP_EOL;
 	
 	if (isset ( $connection )) {
