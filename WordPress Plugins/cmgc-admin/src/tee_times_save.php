@@ -124,9 +124,18 @@ function cmgc_admin_write_tee_times_to_csv($teeTimes, &$teamId, $teeStatus, $tea
 
             if(!empty($extra)){
                 // Member/Guest
-                if(($extra === 'M') || ($extra === 'G')){
+                if($extra === 'M'){
                     echo $extra;
                 }
+				if(str_starts_with($extra, 'G')){
+					echo $extra;
+					if(str_contains($extra, "Green") || str_contains($extra, "green")){
+						$teeTimes[$i]->Players[$j]->Tee = 'G';
+					}
+					if(str_contains($extra, "Silver") || str_contains($extra, "silver")){
+						$teeTimes[$i]->Players[$j]->Tee = 'S';
+					}
+				}
             }
             echo ',';
             echo $teeTimes[$i]->Players[$j]->Tee . PHP_EOL;
