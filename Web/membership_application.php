@@ -9,6 +9,14 @@ require_once realpath($_SERVER["DOCUMENT_ROOT"]) . $wp_folder .'/wp-blog-header.
 
 date_default_timezone_set ( 'America/Los_Angeles' );
 
+// Membership applications are closed for now ...
+$overrideTitle = "Membership Application";
+// Comment out starting here to open up applications
+/*
+
+*/
+// Comment out ending here to open up applications
+
 
 $testMode = false;
 
@@ -18,9 +26,28 @@ if ($connection->connect_error){
 	die ( $connection->connect_error );
 }
 
+$open = false;
+GetApplicationDetails($connection, $open, $maxApplications, $start);
+$startDate = new DateTime($start);
+//echo "open: " . $open . " max applications: " . $maxApplications . " start date: " . $startDate;
+
+if(!$open){
+	get_header ();
+?>
+<div id="content-container" class="entry-content">
+<div id="content" role="main">
+<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
+<p>
+We have reached the maximum number of applications allowed for this application period and are no longer accepting applications. 
+</div><!-- #content -->
+</div><!-- #content-container -->
+<?php
+	get_footer();
+	return;
+}
+
 $membershipEmail = "cmgcmembership1@gmail.com";
 
-$maxApplications = 87;
 $debug = false;
 if(!empty($_GET['debug'])){
 	$debug = true;
@@ -31,29 +58,28 @@ if(!empty($_GET['debug'])){
 } else {
 
 	$now = new DateTime ( "now" );
-	$startDate = new DateTime('2025-02-03');
 	if($now < $startDate){
 		$overrideTitle = "Membership Application";
 		get_header ();
-	?>
-		<div id="content-container" class="entry-content">
-		<div id="content" role="main">
-		<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
-		<p>
-		The CMGC New Member Application acceptance period will open on Feb 3, 2025. 
-		</p>
-		<p>
-		We will accept up to 87 new applications, which will bring the total waiting list length to 200, which is 4-5 years wait for the last player. 
-		The order in which applications are completed does not indicate the order in which you will be placed on the waiting list. 
-		After 87 applications are completed or at the end of February, whichever happens first, the applications will be assigned a random number and 
-		moved to the waiting list in random number order. 
-		</div><!-- #content -->
-		</div><!-- #content-container -->
-	<?php
+
+		echo '<div id="content-container" class="entry-content">' . PHP_EOL;
+		echo '<div id="content" role="main">' . PHP_EOL;
+		echo '<h2 class="entry-title" style="text-align:center">Coronado Men\'s Golf Club (CMGC) Membership Application</h2>' . PHP_EOL;
+		echo "<p>" . PHP_EOL;
+		echo "The CMGC New Member Application acceptance period will open on " . date_format($startDate, "F d, Y") . PHP_EOL;
+		echo "</p>" . PHP_EOL;
+		echo "<p>" . PHP_EOL;
+		echo "We will accept up to " . $maxApplications . " new applications. " . PHP_EOL;
+		echo "The order in which applications are completed does not indicate the order in which you will be placed on the waiting list. " . PHP_EOL;
+		echo "After " . $maxApplications . " applications are completed, the applications will be assigned a random number and moved to the waiting list in random number order." . PHP_EOL;
+		echo "</div><!-- #content -->" . PHP_EOL;
+		echo "</div><!-- #content-container -->" . PHP_EOL;
+
 		get_footer();
 		return;
 	}
 
+	/*
 	$endDate = new DateTime('2025-03-01');
 	if($now >= $endDate){
 		$overrideTitle = "Membership Application";
@@ -70,6 +96,7 @@ if(!empty($_GET['debug'])){
 		get_footer();
 		return;
 	}
+		*/
 }
 
 $applicationCount = GetApplicationCount($connection);
@@ -400,6 +427,35 @@ Please provide the following information for your sponsors:
 	// Redirect to payment page after clearing output buffer
 	ob_start();
 	header("Location: pay_initiation_fee.php?application_id=" . $insert_id);
+}
+
+function GetApplicationDetails($connection, &$open, &$maxApplications, &$startDate){
+
+	$open = false;
+	$maxApplications = 0;
+	$startDate = "2000-01-01";
+
+	$sqlCmd = "SELECT * FROM `MembershipDetails`";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ($allow, $max, $start);
+
+	while ( $query->fetch () ) {
+		$open  = $allow;
+		$maxApplications = $max;
+		$startDate = $start;
+		return;
+	}
+
+	return;
 }
 
 function InsertApplication($connection, $lastName, $firstName, $mailingAddress, $email, $ghin, $phoneNumber, $birthDate,

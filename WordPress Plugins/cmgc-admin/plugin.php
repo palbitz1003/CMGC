@@ -132,6 +132,29 @@ function cmgc_admin_upload_waitlist_action()
 
  }
 
+   // When the user clicks on the "Update Details" button, this function is called
+  add_action( 'admin_action_cmgc_admin_update_application_details', 'cmgc_admin_update_application_details_action' );
+  function cmgc_admin_update_application_details_action()
+  {
+    require_once plugin_dir_path(__FILE__) . 'src/submit_membership_application.php';
+    if(cmgc_admin_update_application_details_action2())
+    {
+        // These 2 calls to clear the output buffer (ob) are needed to make the redirect work
+        //ob_clean();
+        ob_start();
+
+        // After doing the work, redirect back to the admin page.
+        // cmgc_admin_upload_waitlist_action2() filled in the result, which is displayed
+        // in the notice in cmgc_admin_membership_waitlist_page()
+        if(wp_redirect( $_SERVER['HTTP_REFERER'] )){
+            exit();
+        }
+        else {
+            echo "redirect failed<br>";
+        }
+    }
+  }
+
   // When the user clicks on the "Clear Checked Applications" waiting list button, this function is called
   add_action( 'admin_action_cmgc_admin_clear_applications', 'cmgc_admin_clear_applications_action' );
   function cmgc_admin_clear_applications_action()

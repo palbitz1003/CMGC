@@ -11,6 +11,31 @@ function cmgc_admin_membership_application_page2()
         echo 'Database connection error: ' .  $connection->connect_error . "<br>";
         return;
     }
+
+    // Read the application setup details (open/count/start date)
+	$sqlCmd = "SELECT * FROM `MembershipDetails`";
+	$query = $connection->prepare ( $sqlCmd );
+
+	if (! $query) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	if (! $query->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$query->bind_result ($allow, $max, $start);
+
+    $open = 0;
+	$maxApplications = 0;
+	$startDate = "2000-01-01";
+	if($query->fetch ()) {
+        $open  = $allow;
+        $maxApplications = $max;
+        $startDate = $start;
+    }
+    $query->close ();
+
     
     // Read the application table
     $sqlCmd = "SELECT * FROM `MembershipApplication` WHERE `Active` = 1 ORDER BY `DateTimeAdded` ASC";
@@ -124,14 +149,29 @@ function cmgc_admin_membership_application_page2()
     
     $query->close ();
 
+
+    $adminUrl = admin_url( 'admin.php' );
+
+    echo '<form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
+    echo '<input type="hidden" name="action" value="cmgc_admin_update_application_details">' . PHP_EOL;
+    echo 'Accept appications on start date: <input name="AcceptApplications" type="checkbox" value="1" ';
+    if($open){
+        echo 'checked';
+    }
+    echo '>' . PHP_EOL;
+    echo '&nbsp;&nbsp;&nbsp;max applications: <input name="MaxApplications" type="number" min="0" max="200" value="' . $maxApplications . '">' . PHP_EOL;
+    echo '&nbsp;&nbsp;&nbsp;start date: <input name="ApplicationStartDate" type="date" value="' . $startDate .  '">' . PHP_EOL;
+    echo '&nbsp;&nbsp;&nbsp;<input type="submit" name="Update" value="Update Details" class="button-primary">' . PHP_EOL;
+    echo '</form>' . PHP_EOL;
+
     echo '<h2>Pending Membership Applications</h2>' ;
     if (! $membershipApplicationEntries || (count ( $membershipApplicationEntries ) == 0)) {
         echo "none pending";
         return;
     }
 
-    $adminUrl = admin_url( 'admin.php' );
-    echo '<form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
+    
+    echo '<br><br><form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
     echo '       <input type="hidden" name="action" value="cmgc_admin_clear_applications">' . PHP_EOL;
 
     // Table class can be widefat, fixed, or striped
@@ -211,6 +251,64 @@ function cmgc_admin_membership_application_page2()
     echo '</tbody>' . PHP_EOL;
     echo '</table>' . PHP_EOL;
  }
+
+ function cmgc_admin_update_application_details_action2()
+ {
+    // Putting require_once at the top of this file didn't work
+    require_once realpath($_SERVER["DOCUMENT_ROOT"]) . '/login.php';
+
+    if($_POST["action"] === "cmgc_admin_update_application_details"){
+        
+        $connection = new mysqli ('p:' . $db_hostname, $db_username, $db_password, $db_database );
+        
+        if ($connection->connect_error){
+            echo 'Database connection error: ' .  $connection->connect_error . "<br>";
+            return false;
+        }
+
+        $acceptApplications = 0;
+        $maxApplications = 0;
+        $applicationStartDate="3000-01-01";
+        // If checkbox is not set, then no $_POST variable
+        // If checkbox is set, value is 1
+        if(isset($_POST['AcceptApplications'])){
+            $acceptApplications = 1;
+        }
+        
+        // Always set
+        if(isset($_POST['MaxApplications'])){
+            $maxApplications = $_POST['MaxApplications'];
+        }
+        
+        // Always set
+        if(isset($_POST['ApplicationStartDate'])){
+            $applicationStartDate = $_POST['ApplicationStartDate'];
+        }
+        
+        $sqlCmd = "UPDATE `MembershipDetails` SET  `AllowApplications` = ?, `MaxApplications` = ?, `StartDate` = ?";
+		$update = $connection->prepare ( $sqlCmd );
+			
+        if (! $update) {
+            die ( $sqlCmd . " prepare failed: " . $connection->error );
+        }
+    
+        if (! $update->bind_param ( 'iis', $acceptApplications, $maxApplications, $applicationStartDate)) {
+            die ( $sqlCmd . " bind_param failed: " . $connection->error );
+        }
+        
+        if (! $update->execute ()) {
+            die ( $sqlCmd . " execute failed: " . $connection->error );
+        }
+        $update->close ();
+
+        //echo "open is " . $acceptApplications . "<br>";
+        //echo "max applications is " . $maxApplications . "<br>";
+        //echo "application start is " . $applicationStartDate . "<br>";
+    }
+
+    return true;
+ }
+
 
  function cmgc_admin_clear_applications_action2()
  {
