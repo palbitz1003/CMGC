@@ -69,7 +69,7 @@ echo '    <div id="content" role="main">';
 
 echo '<p>' . PHP_EOL;
 echo 'NOTE: The order in which applications are completed does not indicate the order in which you will be placed ';
-echo 'on the waiting list. After 87 applications are completed or at the end of February, whichever happens first, ';
+echo 'on the waiting list. After all the applications have been accepted, ';
 echo 'the applications will be assigned a random number and moved to the waiting list in random number order. ';
 echo '</p>' . PHP_EOL;
 

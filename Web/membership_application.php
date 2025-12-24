@@ -38,7 +38,7 @@ if(!$open){
 <div id="content" role="main">
 <h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
 <p>
-We have reached the maximum number of applications allowed for this application period and are no longer accepting applications. 
+We are not accepting new applications at this time. 
 </div><!-- #content -->
 </div><!-- #content-container -->
 <?php
@@ -51,52 +51,28 @@ $membershipEmail = "cmgcmembership1@gmail.com";
 $debug = false;
 if(!empty($_GET['debug'])){
 	$debug = true;
-	$maxApplications = 5;
-	//$membershipEmail = "cmgc.td@gmail.com";
-} else if (!empty($_GET['bob'])) {
-	// skip date check, for testing purposes
-} else {
+}
 
-	$now = new DateTime ( "now" );
-	if($now < $startDate){
-		$overrideTitle = "Membership Application";
-		get_header ();
+$now = new DateTime ( "now" );
+if($now < $startDate){
+	$overrideTitle = "Membership Application";
+	get_header ();
 
-		echo '<div id="content-container" class="entry-content">' . PHP_EOL;
-		echo '<div id="content" role="main">' . PHP_EOL;
-		echo '<h2 class="entry-title" style="text-align:center">Coronado Men\'s Golf Club (CMGC) Membership Application</h2>' . PHP_EOL;
-		echo "<p>" . PHP_EOL;
-		echo "The CMGC New Member Application acceptance period will open on " . date_format($startDate, "F d, Y") . PHP_EOL;
-		echo "</p>" . PHP_EOL;
-		echo "<p>" . PHP_EOL;
-		echo "We will accept up to " . $maxApplications . " new applications. " . PHP_EOL;
-		echo "The order in which applications are completed does not indicate the order in which you will be placed on the waiting list. " . PHP_EOL;
-		echo "After " . $maxApplications . " applications are completed, the applications will be assigned a random number and moved to the waiting list in random number order." . PHP_EOL;
-		echo "</div><!-- #content -->" . PHP_EOL;
-		echo "</div><!-- #content-container -->" . PHP_EOL;
+	echo '<div id="content-container" class="entry-content">' . PHP_EOL;
+	echo '<div id="content" role="main">' . PHP_EOL;
+	echo '<h2 class="entry-title" style="text-align:center">Coronado Men\'s Golf Club (CMGC) Membership Application</h2>' . PHP_EOL;
+	echo "<p>" . PHP_EOL;
+	echo "The CMGC New Member Application acceptance period will open on " . date_format($startDate, "F d, Y") . PHP_EOL;
+	echo "</p>" . PHP_EOL;
+	echo "<p>" . PHP_EOL;
+	echo "We will accept up to " . $maxApplications . " new applications. " . PHP_EOL;
+	echo "The order in which applications are completed does not indicate the order in which you will be placed on the waiting list. " . PHP_EOL;
+	echo "After all the applications have been accepted, the applications will be assigned a random number and moved to the waiting list in random number order." . PHP_EOL;
+	echo "</div><!-- #content -->" . PHP_EOL;
+	echo "</div><!-- #content-container -->" . PHP_EOL;
 
-		get_footer();
-		return;
-	}
-
-	/*
-	$endDate = new DateTime('2025-03-01');
-	if($now >= $endDate){
-		$overrideTitle = "Membership Application";
-		get_header ();
-	?>
-		<div id="content-container" class="entry-content">
-		<div id="content" role="main">
-		<h2 class="entry-title" style="text-align:center">Coronado Men’s Golf Club (CMGC) Membership Application</h2>
-		<p>
-		The application period is over for 2025.  
-		</div><!-- #content -->
-		</div><!-- #content-container -->
-	<?php
-		get_footer();
-		return;
-	}
-		*/
+	get_footer();
+	return;
 }
 
 $applicationCount = GetApplicationCount($connection);
@@ -540,7 +516,7 @@ function CheckGhin($connection, $lastName, $ghin){
 		$interval = $now->diff($memberAdded);
 		//return 'interval years: ' . $interval->y . ' months: ' . $interval->m;
 		if($interval->y < 1){
-			return $lastName . '(' . $ghin . ')' . ' has not been a member for 12 months yet';
+			return $lastName . '(' . $ghin . ')' . ' has not been a member for 12 months yet and thus cannot be a sponsor.';
 		}
 
 		$pastSponsorships = CountPastSponsorships($connection, $ghin);
