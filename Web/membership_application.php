@@ -673,7 +673,7 @@ function SendApplicationSponsorEmail($connection, $from, $fromPassword, $sponsor
 						"<p>You have been listed as a sponsor for " . $applicant . "'s application for membership to the Coronado Men's Golf Club. " .
 						"Please click this link to confirm that you have agreed to be a sponsor:</p>" .
 						"<p><a href=\"" . $confirm . "\">" . $confirm . "</a></p>" .
-						"<p>Please reply to this email if have not given your consent to be a sponsor.</p>" .
+						"<p>Please reply to this email if you have not given your consent to be a sponsor.</p>" .
 						"<p>Coronado Men's Golf Club</p>");
 
         //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';

@@ -152,7 +152,7 @@ function cmgc_admin_membership_application_page2()
 
     $adminUrl = admin_url( 'admin.php' );
 
-    echo '<form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
+    echo '<br><br><form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
     echo '<input type="hidden" name="action" value="cmgc_admin_update_application_details">' . PHP_EOL;
     echo 'Accept appications on start date: <input name="AcceptApplications" type="checkbox" value="1" ';
     if($open){
@@ -171,7 +171,7 @@ function cmgc_admin_membership_application_page2()
     }
 
     
-    echo '<br><br><form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
+    echo '<form method="POST" enctype="multipart/form-data" action="' . $adminUrl . '">' . PHP_EOL;
     echo '       <input type="hidden" name="action" value="cmgc_admin_clear_applications">' . PHP_EOL;
 
     // Table class can be widefat, fixed, or striped

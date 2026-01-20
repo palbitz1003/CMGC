@@ -18,6 +18,29 @@ class PayPalDetailsMembership {
 	public $PaymentType;
 }
 
+// Temporary ...
+/*
+	$overrideTitle = "Membership Application";
+	get_header ();
+
+	echo '<div id="content-container" class="entry-content">' . PHP_EOL;
+	echo '<div id="content" role="main">' . PHP_EOL;
+	echo '<h2 class="entry-title" style="text-align:center">Coronado Men\'s Golf Club (CMGC) Membership Application</h2>' . PHP_EOL;
+	echo "<p>" . PHP_EOL;
+	echo "Thank you for submitting your Coronado Men's Golf Club application. Your two sponsors will receive an email asking them to confirm your application. ";
+	echo "In the next few weeks you will receive an email with instructions on how to pay your non-refundable $200 initiation fee. Once all applicants have completed payments, ";
+	echo "you will be added to the Waiting List in random order.";
+	echo "</p>" . PHP_EOL;
+	echo "<p>" . PHP_EOL;
+	echo " - CMGC Board of Governors";
+	echo "</p>" . PHP_EOL;
+	echo "</div><!-- #content -->" . PHP_EOL;
+	echo "</div><!-- #content-container -->" . PHP_EOL;
+
+	get_footer();
+	return;
+	*/
+
 $recordKey = $_GET ['application_id'];
 if (! $recordKey || !is_numeric($recordKey)) {
 	die ( "Invalid application ID" );
@@ -94,16 +117,20 @@ if($testMode){
 
 echo '<p>You are paying for: ' . $applicationEntry->FullName . '</p><p> Your payment covers half of the initiation fee.</p>' . PHP_EOL;
 echo "<p>The link below takes you to PayPal to make your payment.  You can pay with credit card even if you do not have a PayPal account. No credit card or account information is kept on the Coronado Men's Golf web site.</p>";
-echo '<p>PayPal will notify the CMGC website of your payment and the link next to your name on the Pending Applications list will change to "Paid". If the application list does not update to "Paid" within 24hrs, contact the membership chairman.</p>' . PHP_EOL;
+// echo '<p>PayPal will notify the CMGC website of your payment and the link next to your name on the Pending Applications list will change to "Paid". If the application list does not update to "Paid" within 24hrs, contact the membership chairman.</p>' . PHP_EOL;
 echo '<p>If you have problems reaching PayPal, turn off your VPN if you are using one, or try a different device.</p>' . PHP_EOL;
+echo '<p>Currently, we have not succeeded in getting PayPal to automatically notify us of your payment. (PayPal requires us to use a new version of their buttons.) Your application will not be marked as "paid" until we manually update it. So, be patient. Do not pay a 2nd time.</p>' . PHP_EOL;
 echo '<p style="text-align: center;"><b>Entry Fees: $' . $paypalDetails->Dues . '</b></p>' . PHP_EOL;
 
+
+/*
 if($testMode){
     echo '<form style="text-align:center" action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top">' . PHP_EOL;
 }
 else {
     echo '<form style="text-align:center" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">' . PHP_EOL;
 }
+
 
 // Variables described in https://developer.paypal.com/api/nvp-soap/paypal-payments-standard/integration-guide/Appx-websitestandard-htmlvariables/
 echo '<input type="hidden" name="cmd" value="_s-xclick">' . PHP_EOL;
@@ -128,6 +155,32 @@ else {
 }
 
 echo '</form>' . PHP_EOL;
+*/
+
+
+?>
+<div>
+  <style>.pp-NUP2H98NTEBVS{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
+  <form style="text-align:center" action="https://www.paypal.com/ncp/payment/NUP2H98NTEBVS" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
+    <input class="pp-NUP2H98NTEBVS" type="submit" value="Buy Now" />
+    <img src=https://www.paypalobjects.com/images/Debit_Credit_APM.svg alt="cards" />
+    <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
+  </form>
+</div>
+<?php
+
+/*
+echo '<div>' . PHP_EOL;
+echo '  <style>.pp-XP442JCSD6SKJ{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>' . PHP_EOL;
+echo '  <form action="https://www.sandbox.paypal.com/ncp/payment/XP442JCSD6SKJ" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">' . PHP_EOL;
+echo '	  <input type="hidden" name="custom" value="InitialPayment;' . $applicationEntry->RecordKey . ';' . $applicationEntry->FullName . ';' . $applicationEntry->GHIN . '">' . PHP_EOL;
+echo '	  <input type="hidden" name="invoice" value="InitialPayment;' . $applicationEntry->RecordKey . ';' . $applicationEntry->FullName . ';' . $applicationEntry->GHIN . '">' . PHP_EOL;
+echo '    <input class="pp-XP442JCSD6SKJ" type="submit" value="Pay Now" />' . PHP_EOL;
+echo '    <img src=https://www.paypalobjects.com/images/Debit_Credit_APM.svg alt="cards" />' . PHP_EOL;
+echo '    <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>' . PHP_EOL;
+echo '  </form>' . PHP_EOL;
+echo '</div>' . PHP_EOL;
+*/
 
 cmgc_finish_initiation_fee_page($connection, "");
 
