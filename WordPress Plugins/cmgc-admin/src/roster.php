@@ -36,8 +36,8 @@ function cmgc_admin_roster_page2()
 
        <h2>Upload Roster</h2>
 
-       <!-- This form will post to admin.php with the action admin_action_cmgc_admin_upload_waitlist,
-            which triggers calling cmgc_admin_upload_waitlist_action() below.
+       <!-- This form will post to admin.php with the action admin_action_cmgc_admin_upload_roster,
+            which triggers calling cmgc_admin_upload_roster() below.
             Must have enctype="multipart/form-data" so _FILES variable filled in -->
        <form method="POST" enctype="multipart/form-data" action="<?php echo admin_url( 'admin.php' ); ?>">
            <input type="hidden" name="action" value="cmgc_admin_upload_roster">
