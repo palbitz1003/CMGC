@@ -143,9 +143,11 @@ function GetPlayersForTeeTime($connection, $teeTimeKey) {
 	
 	$query->close ();
 	
+	/*
 	for($i = 0; $i < count ( $playerArray ); ++ $i) {
 		$playerArray [$i]->Handicap = GetPlayerHandicap ( $connection, $playerArray [$i]->GHIN );
 	}
+	*/
 	return $playerArray;
 }
 function GetPlayerHandicap($connection, $GHIN) {
