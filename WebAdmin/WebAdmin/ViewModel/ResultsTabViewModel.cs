@@ -688,8 +688,10 @@ namespace WebAdmin.ViewModel
             {
                 client.BaseAddress = new Uri(WebAddresses.BaseAddress);
 
+                /* This code used to work, but now it results in an HTML transmission type error
                 using (var multipartFormDataContent = new MultipartFormDataContent())
                 {
+                    
                     var values = new[]
                             {
                                 new KeyValuePair<string, string>("Login", Credentials.LoginName),
@@ -704,7 +706,7 @@ namespace WebAdmin.ViewModel
                         multipartFormDataContent.Add(new StringContent(keyValuePair.Value),
                             String.Format("\"{0}\"", keyValuePair.Key));
                     }
-
+                    
                     var requestUri = WebAddresses.ScriptFolder + WebAddresses.SubmitResultsCsv;
 
                     string responseString;
@@ -738,6 +740,51 @@ namespace WebAdmin.ViewModel
                         displayWindow.ShowDialog();
                     }
                 }
+                */
+
+                var values = new List<KeyValuePair<string, string>>();
+
+                values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
+                values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
+                values.Add(new KeyValuePair<string, string>("TournamentKey", TournamentNames[TournamentNameIndex].TournamentKey.ToString()));
+                values.Add(new KeyValuePair<string, string>("Action", "Clear"));
+                values.Add(new KeyValuePair<string, string>("Result", result));
+
+                var content = new FormUrlEncodedContent(values);
+
+                var requestUri = WebAddresses.ScriptFolder + WebAddresses.SubmitResultsCsv;
+
+                    string responseString;
+                    using (new WaitCursor())
+                    {
+                        try
+                        {
+                            Status.Message = "Clearing " + result + " results ...";
+                            var response = await client.PostAsync(requestUri, content);
+                            responseString = await response.Content.ReadAsStringAsync();
+
+                            System.Diagnostics.Debug.WriteLine(responseString);
+                        }
+                        finally
+                        {
+                            Status.Message = string.Empty;
+                        }
+                    }
+
+                    if (responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Credentials.CheckForInvalidPassword(responseString);
+                        Logging.Log(requestUri, responseString);
+
+                        HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                        displayWindow.WebBrowser.NavigateToString(responseString);
+                        displayWindow.Owner = App.Current.MainWindow;
+                        displayWindow.ShowDialog();
+                    }
             }
             return false;
         }
@@ -757,6 +804,7 @@ namespace WebAdmin.ViewModel
             {
                 client.BaseAddress = new Uri(WebAddresses.BaseAddress);
 
+                /* This code used to work, but now it results in an HTML transmission type error
                 using (var multipartFormDataContent = new MultipartFormDataContent())
                 {
                     var values = new[]
@@ -820,6 +868,57 @@ namespace WebAdmin.ViewModel
                     displayWindow.Owner = App.Current.MainWindow;
                     displayWindow.ShowDialog();
                 }
+                */
+
+                var values = new List<KeyValuePair<string, string>>();
+
+                values.Add(new KeyValuePair<string, string>("Login", Credentials.LoginName));
+                values.Add(new KeyValuePair<string, string>("Password", Credentials.LoginPassword));
+                values.Add(new KeyValuePair<string, string>("TournamentKey", TournamentNames[TournamentNameIndex].TournamentKey.ToString()));
+                values.Add(new KeyValuePair<string, string>("Action", "Submit"));
+                if (clearResult)
+                {
+                    values.Add(new KeyValuePair<string, string>("Clear", result));
+                }
+
+                foreach (var keyValuePair in kvpList)
+                {
+                    values.Add(new KeyValuePair<string, string>(keyValuePair.Key, keyValuePair.Value));
+                }
+
+                var requestUri = WebAddresses.ScriptFolder + WebAddresses.SubmitResultsCsv;
+                var content = new FormUrlEncodedContent(values);
+
+                string responseString;
+                using (new WaitCursor())
+                {
+                    try
+                    {
+                        Status.Message = "Submitting " + result + " results ...";
+                        var response = await client.PostAsync(requestUri, content);
+                        responseString = await response.Content.ReadAsStringAsync();
+                        System.Diagnostics.Debug.WriteLine(responseString);
+                    }
+                    finally
+                    {
+                        Status.Message = string.Empty;
+                    }
+                }
+
+                if (responseString.StartsWith("Success", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    //sw.Stop();
+                    //System.Diagnostics.Debug.WriteLine("Submit took " + sw.ElapsedMilliseconds + "ms");
+                    return true;
+                }
+
+                Credentials.CheckForInvalidPassword(responseString);
+                Logging.Log(requestUri, responseString);
+
+                HtmlDisplayWindow displayWindow = new HtmlDisplayWindow();
+                displayWindow.WebBrowser.NavigateToString(responseString);
+                displayWindow.Owner = App.Current.MainWindow;
+                displayWindow.ShowDialog();
             }
             return false;
         }
