@@ -19,12 +19,12 @@ echo '    <div id="content" role="main">';
 
 echo '<h2 class="entry-title" style="text-align:center">Have Not Paid Yearly Dues</h2>' . PHP_EOL;
 
-echo '<p>Once you pay via PayPal you will automatically be listed on the paid list. ';
-echo 'Paying by check is not an option anymore. You must pay through PayPal.';
+echo '<p>Once you have renewed your CMGC membership through the SCGA site or through your GHIN phone app, you will be removed from this unpaid list. ';
+echo 'We manually load the data from the SCGA, so there will be a delay between when you pay and when your name is cleared from the list below.';
 
 $players = GetPlayerDuesNotPaid($connection);
 
-echo '<p>Players that have not paid: ' . count($players);
+echo '<p>Players that have not paid as of (DATE): ' . count($players);
 echo '<table style="border: none;margin-left:auto;margin-right:auto;width: 96%">' . PHP_EOL;
 echo '<tbody><tr>' . PHP_EOL;
 

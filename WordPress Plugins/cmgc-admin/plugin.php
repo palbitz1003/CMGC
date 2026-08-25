@@ -43,6 +43,13 @@
         'cmgc_admin_membership_application_page'); // function to call
 
     add_submenu_page('cmgc-admin-menu', // slug name for parent menu
+        'Yearly Dues', // title of page
+        'Yearly Dues', // name of sub-menu
+        'edit_pages', // minimum capability (editor)
+        'cmgc-admin-yearly-dues', // slug name for submenu
+        'cmgc_admin_yearly_dues_page'); // function to call
+
+    add_submenu_page('cmgc-admin-menu', // slug name for parent menu
         'Tee Times', // title of page
         'Tee Times', // name of sub-menu
         'edit_pages', // minimum capability (editor)
@@ -81,6 +88,11 @@
 
     add_option('cmgc_admin_plugin_options', // Name of the option to add
         array('roster_upload_results' => ''), // Option value
+        '', // deprecated
+        "no"); // Whether to load the option when WordPress starts up
+
+    add_option('cmgc_admin_plugin_options', // Name of the option to add
+        array('yearly_dues_upload_results' => ''), // Option value
         '', // deprecated
         "no"); // Whether to load the option when WordPress starts up
  }
@@ -199,6 +211,43 @@ function cmgc_admin_confirm_sponsor_action()
             echo "redirect failed<br>";
         }
     }
+}
+
+// --------------------------- Yearly Dues -------------------------------
+
+// When the user clicks on the Yearly Dues page, this function is called
+ function cmgc_admin_yearly_dues_page()
+ {
+    require_once plugin_dir_path(__FILE__) . 'src/yearly_dues.php';
+    cmgc_admin_yearly_dues_page2();
+ }
+
+// When the user clicks on the "submit" yearly dues button, this function is called
+add_action( 'admin_action_cmgc_admin_upload_yearly_dues', 'cmgc_admin_upload_yearly_dues_action' );
+function cmgc_admin_upload_yearly_dues_action()
+{
+    //echo plugin_dir_path(__FILE__);
+    require_once plugin_dir_path(__FILE__) . 'src/yearly_dues.php';
+    cmgc_admin_upload_yearly_dues_action2();
+     
+    
+    
+    // These 2 calls to clear the output buffer (ob) are needed to make the redirect work
+    //ob_clean();
+    ob_start();
+
+    // After doing the work, redirect back to the admin page.
+    // cmgc_admin_upload_yearly_dues_action2() filled in the result, which is displayed
+    // in the notice in cmgc_admin_membership_waitlist_page()
+    if(wp_redirect( $_SERVER['HTTP_REFERER'] )){
+        exit();
+    }
+    else {
+        echo "redirect failed<br>";
+    }
+        
+        
+        
 }
 
   // --------------------------- Tee Times -------------------------------
