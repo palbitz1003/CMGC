@@ -110,6 +110,8 @@ function cmgc_admin_upload_yearly_dues_action2()
                     $nextYear = $currentYear + 1;
 
                     $duesEntries = array();
+                    // date() is 7hrs off without setting the timezone
+                    date_default_timezone_set('America/Los_Angeles');
                     $entryDateTime = date("Y-m-d H:i:s");
                     
                     while (($error == false) && (($getData = fgetcsv($file, 10000, ",")) !== FALSE)){
@@ -193,8 +195,10 @@ function cmgc_admin_upload_yearly_dues_action2()
 
                             if($paidEntry || $rolloverEntry){
                                 $newEntry = new DuesEntry();
+                                // Remove single quotes from names (like O'Day)
+                                $name = str_replace("'", "", $getData[$nameIndex]);
                                 // Limit name to 50 characters, since that is what the database supports
-                                $newEntry->Name = substr($getData[$nameIndex], 0, 50);
+                                $newEntry->Name = substr($name, 0, 50);
                                 $newEntry->GHIN = $getData[$ghinNumberIndex];
                                 $newEntry->Rollover = $rolloverEntry;
 
