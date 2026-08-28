@@ -90,9 +90,16 @@ function cmgc_admin_upload_yearly_dues_action2()
             $cmgc_admin_options['yearly_dues_upload_results'] = 'Error: No file chosen';
             update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
         }
+        else if($_FILES["filename"]["error"] != 0){
+            $error = true;
+            $cmgc_admin_options['yearly_dues_upload_results'] = 'Error reading file';
+            update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
+        }
         else {
             //echo "Name is: " . $_FILES["filename"]["name"] . "<br>";
+            $originalFileName = $_FILES["filename"]["name"];
             $filename=$_FILES["filename"]["tmp_name"];    
+            $line1 = "";
             if($_FILES["filename"]["type"] === 'text/csv'){
                 if($_FILES["filename"]["size"] > 0){
                     $file = fopen($filename, "r");
@@ -106,8 +113,9 @@ function cmgc_admin_upload_yearly_dues_action2()
 
                     $paidCount = 0;
                     $rolloverCount = 0;
-                    $currentYear = date("Y");
+                    $currentYear = intval(substr(date("Y"), -2)); // get last 2 digits of year
                     $nextYear = $currentYear + 1;
+                    $fullNextYear = $nextYear + 2000; // need to save full year into database
 
                     $duesEntries = array();
                     // date() is 7hrs off without setting the timezone
@@ -181,9 +189,18 @@ function cmgc_admin_upload_yearly_dues_action2()
                             $rolloverEntry = false;
                             $subscriptionEndDate = trim($getData[$subscriptionEndDateIndex]);
                             $dateFields = explode("/", $subscriptionEndDate);
+                            
 
                             if(count($dateFields) == 3){
-                                if($dateFields[2] > $currentYear){
+                                $paymentYear = intval(substr($dateFields[2], -2));
+
+                                /*
+                                if($line1 == ""){
+                                    $line1 = "(" . $getData[$nameIndex] . ", " . $subscriptionEndDate . ", " . $paymentYear . ", " . $currentYear . ")";
+                                }
+                                */
+
+                                if($paymentYear > $currentYear){
                                     $paidCount++;
                                     $paidEntry = true;
                                 }
@@ -218,7 +235,7 @@ function cmgc_admin_upload_yearly_dues_action2()
                         return;
                     }
 
-                    $sqlCmd = "DELETE FROM `Dues` WHERE `Year` = " . $nextYear;
+                    $sqlCmd = "DELETE FROM `Dues` WHERE `Year` = " . $fullNextYear;
                     $query = $connection->prepare ( $sqlCmd );
                     
                     if (! $query) {
@@ -235,6 +252,7 @@ function cmgc_admin_upload_yearly_dues_action2()
                         return;
                     }
 
+
                     // Add the entries, but limit how many are added with each SQL call
                     for($currentEntry = 0; $currentEntry < count($duesEntries);){
                         $sqlCmd = "INSERT INTO `Dues` VALUES ";
@@ -248,7 +266,7 @@ function cmgc_admin_upload_yearly_dues_action2()
                             if($duesEntries[$currentEntry]->Rollover){
                                 $scga = $scga . " Rollover";
                             }
-                            $entry = " (" . $nextYear . ", " . $duesEntries[$currentEntry]->GHIN . ", '" . $duesEntries[$currentEntry]->Name . "', 1, '" . $entryDateTime . "', '" . $scga . "', '', 0)";
+                            $entry = " (" . $fullNextYear . ", " . $duesEntries[$currentEntry]->GHIN . ", '" . $duesEntries[$currentEntry]->Name . "', 1, '" . $entryDateTime . "', '" . $scga . "', '', 0)";
                             $sqlCmd = $sqlCmd . $entry;
                             $currentEntry++;
                         }
@@ -272,7 +290,7 @@ function cmgc_admin_upload_yearly_dues_action2()
                     }
 
                     if(!$error){
-                        $cmgc_admin_options['yearly_dues_upload_results'] = 'Success: ' . $paidCount . ' paid, ' . $rolloverCount . ' rollover set to "yes"';
+                        $cmgc_admin_options['yearly_dues_upload_results'] = 'Success: ' . $originalFileName . ': ' . $paidCount . ' paid, ' . $rolloverCount . ' rollover set to "yes" ' . $line1;
                         update_option('cmgc_admin_plugin_options', $cmgc_admin_options);
                     }
                 }
