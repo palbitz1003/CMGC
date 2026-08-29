@@ -23,8 +23,15 @@ echo '<p>Once you have renewed your CMGC membership through the SCGA site or thr
 echo 'We manually load the data from the SCGA, so there will be a delay between when you pay and when your name is cleared from the list below.';
 
 $players = GetPlayerDuesNotPaid($connection);
+$lastUpdate = GetPlayersDuesLastUpdate($connection);
+if(strlen($lastUpdate) == 0){
+	$dateString = ""; // nobody has paid
+} else {
+	$timestamp = strtotime($lastUpdate);
+	$dateString = ' as of ' . date("F j", $timestamp); // Show date as: Aug 28
+}
 
-echo '<p>Players that have not paid as of (DATE): ' . count($players);
+echo '<p>Players that have not paid' . $dateString . ': ' . count($players);
 echo '<table style="border: none;margin-left:auto;margin-right:auto;width: 96%">' . PHP_EOL;
 echo '<tbody><tr>' . PHP_EOL;
 

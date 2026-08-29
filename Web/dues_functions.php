@@ -148,6 +148,40 @@ function GetPlayerDuesNotPaid($connection) {
 	return $notPaid;
 }
 
+// When data is loaded from the SCGA, all the payment date and time
+// are the same. Just return the 1st one.
+function GetPlayersDuesLastUpdate($connection) {
+
+	$sqlCmd = "SELECT PaymentDateTime FROM `Dues` WHERE `Year` = ?";
+
+	$lastUpdateDate = $connection->prepare ( $sqlCmd );
+
+	if (! $lastUpdateDate) {
+		die ( $sqlCmd . " prepare failed: " . $connection->error );
+	}
+
+	$now = new DateTime ( "now" );
+	$year = $now->format('Y') + 1;
+
+	if (! $lastUpdateDate->bind_param ( 'i', $year )) {
+		die ( $sqlCmd . " bind_param failed: " . $connection->error );
+	}
+
+	if (! $lastUpdateDate->execute ()) {
+		die ( $sqlCmd . " execute failed: " . $connection->error );
+	}
+
+	$lastUpdateDate->bind_result ( $paymentDateAndTime);
+
+	while($lastUpdateDate->fetch()) {
+		return $paymentDateAndTime;
+	}
+
+	$lastUpdateDate->close ();
+
+	return "";
+}
+
 function InsertPlayerForDues($connection, $year, $ghin, $name) {
 	$sqlCmd = "INSERT INTO `Dues` VALUES (?, ?, ?, ?, NULL, ?, ?, ?)";
 	$insert = $connection->prepare ( $sqlCmd );
